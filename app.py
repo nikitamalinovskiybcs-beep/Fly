@@ -549,165 +549,393 @@ if run_btn:
             st.plotly_chart(fig_corr, use_container_width=True)
 
 else:
-    # ── Landing: MIT Quantum + ClickHouse (Bloomberg Terminal Style) ──
+    # ── Landing: Full Phoenix Terminal + MIT Quantum + ClickHouse ──
 
-    with st.spinner("🗄️ Подключение к ClickHouse Cloud..."):
-        ch_data = fetch_quantum_risk_stats()
-    q_status = get_quantum_status()
-    tickers_data = ch_data["tickers"]
-    wo = ch_data["worst_of"]
-    src_label = "ClickHouse Cloud" if ch_data["source"] == "clickhouse_cloud" else "CACHE (OFFLINE)"
+    # Session state for favorites and history
+    if "favorites" not in st.session_state:
+        st.session_state.favorites = []
+    if "history" not in st.session_state:
+        st.session_state.history = []
 
-    # ── Quantum Risk Summary (Bloomberg KPI tiles) ──
-    st.markdown('<div class="bb-section">⚛ MIT QUANTUM RISK — WORST-OF PORTFOLIO</div>', unsafe_allow_html=True)
+    # ── Favorites Bar ──
+    fav_cols = st.columns([1, 6, 2])
+    with fav_cols[0]:
+        st.markdown('<span style="color:#fa8000; font-size:12px; font-weight:700;">★ ИЗБРАННЫЕ:</span>', unsafe_allow_html=True)
+    with fav_cols[1]:
+        if st.session_state.favorites:
+            fav_chips = " ".join(
+                f'<span style="background:#1a1400; border:1px solid #3a2a00; padding:2px 8px; margin-right:4px; color:#6db6ff; font-size:11px; cursor:pointer;">{f}</span>'
+                for f in st.session_state.favorites
+            )
+            st.markdown(fav_chips, unsafe_allow_html=True)
+        else:
+            st.markdown('<span style="color:#3a2a00; font-size:11px;">— пусто. Сохрани корзину для быстрого recall</span>', unsafe_allow_html=True)
+    with fav_cols[2]:
+        if st.button("+ В ИЗБРАННОЕ", key="fav_add"):
+            basket_val = basket_input.strip()
+            if basket_val and basket_val not in st.session_state.favorites:
+                st.session_state.favorites.insert(0, basket_val)
+                if len(st.session_state.favorites) > 12:
+                    st.session_state.favorites = st.session_state.favorites[:12]
+                st.rerun()
 
-    wc1, wc2, wc3, wc4 = st.columns(4)
-    wc1.metric("WORST-OF VAR 95%", f"{wo['var_95']:.1f}%")
-    wc2.metric("WORST-OF VAR 99%", f"{wo['var_99']:.1f}%")
-    wc3.metric("AVG WORST-OF", f"{wo['mean']:.1f}%")
-    wc4.metric(f"BARRIER {ch_data['barrier_level']}% BREACH", f"{wo['barrier_breach_pct']:.1f}%")
-
-    st.markdown(f"""
-    <div style="font-size:10px; color:#d6a44a; margin:4px 0 12px; text-transform:uppercase; letter-spacing:0.5px;">
-        Источник: {src_label} · Таблица: {ch_data['table']} · Симуляций: {ch_data['total_simulations']:,} · Barrier: {ch_data['barrier_level']}%
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.divider()
-
-    # ── Per-ticker quantum cards (Bloomberg style) ──
-    st.markdown('<div class="bb-section">📋 QUANTUM RISK PER TICKER</div>', unsafe_allow_html=True)
-
-    for ticker in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
-        if ticker not in tickers_data:
-            continue
-        d = tickers_data[ticker]
-        breach_pct = d["barrier_breach_pct"]
-        breach_cls = "q-bad" if breach_pct > 10 else "q-warn" if breach_pct > 1 else "q-good"
-        st.markdown(f"""
-        <div class="q-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="q-sym">{ticker}</span>
-                <span class="q-val">VaR 95%: {d['var_95']:.1f}% · VaR 99%: {d['var_99']:.1f}%</span>
-                <span class="{breach_cls}" style="font-weight:700;">BREACH: {breach_pct:.2f}%</span>
-            </div>
-            <div class="q-sub" style="margin-top:4px;">
-                Mean: {d['mean_return']:.1f}% · Vol: {d['volatility']:.1f}% · Range: [{d['min_return']:.1f}%, {d['max_return']:.1f}%] · {d['num_simulations']:,} sims
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.divider()
-
-    # ── Qiskit Live VaR ──
-    st.markdown('<div class="bb-section">🔬 IBM QISKIT — LIVE QUANTUM VAR ESTIMATION</div>', unsafe_allow_html=True)
-    st.markdown(f"""
-    <div style="font-size:10px; color:#d6a44a; margin-bottom:8px; text-transform:uppercase;">
-        Backend: {q_status['backend']} · Provider: {q_status['provider']}
-    </div>
-    """, unsafe_allow_html=True)
-
-    for ticker in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
-        if ticker not in tickers_data:
-            continue
-        d = tickers_data[ticker]
-        sim_returns = np.random.normal(d["mean_return"], d["volatility"], 1000)
-        q_result = quantum_var_estimation(sim_returns, confidence=0.95)
-        q_label = f"⚛ {q_result['n_qubits']}q · {q_result['shots']} shots" if q_result.get("quantum") else "CLASSICAL"
-        st.markdown(f"""
-        <div class="q-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="q-sym">{ticker}</span>
-                <span class="q-val">Q-VaR 95%: <strong>{q_result['var']:.2f}%</strong> · Q-CVaR: <strong>{q_result['cvar']:.2f}%</strong></span>
-                <span class="q-sub">{q_label}</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.divider()
-
-    # ── Percentile distribution chart ──
-    st.markdown('<div class="bb-section">📊 RETURN DISTRIBUTION — QUANTUM MC</div>', unsafe_allow_html=True)
-
-    fig_dist = go.Figure()
-    for ticker in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
-        if ticker not in tickers_data or "percentiles" not in tickers_data[ticker]:
-            continue
-        p = tickers_data[ticker]["percentiles"]
-        fig_dist.add_trace(go.Bar(
-            name=ticker,
-            x=["P5", "P25", "P50", "P75", "P95"],
-            y=[p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]],
-            text=[f"{v:.0f}%" for v in [p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]]],
-            textposition="outside",
-            textfont=dict(size=9),
-        ))
-    fig_dist.add_hline(y=ch_data["barrier_level"], line_dash="dash", line_color="#ff3b30",
-                       annotation_text=f"Barrier {ch_data['barrier_level']}%",
-                       annotation_font_color="#ff3b30")
-    fig_dist.update_layout(
-        title="PERCENTILE DISTRIBUTION (ALL TICKERS)",
-        yaxis_title="Final Return %",
-        barmode="group",
-        height=350,
-        **PLOT_LAYOUT,
-    )
-    st.plotly_chart(fig_dist, use_container_width=True)
-
-    st.divider()
-
-    # ── GitHub Section ──
-    st.markdown('<div class="bb-section">💻 GITHUB НОВИНКИ — QUANTUM TRADING</div>', unsafe_allow_html=True)
-    try:
-        import requests
-        resp = requests.get(
-            "https://api.github.com/search/repositories",
-            params={"q": "quantum trading OR quantum risk OR portfolio optimization", "sort": "stars", "per_page": 5},
-            timeout=5,
-        )
-        if resp.status_code == 200:
-            repos = resp.json().get("items", [])
-            for repo in repos:
-                stars = repo['stargazers_count']
-                lang = repo.get('language', 'N/A')
+    # ── History Panel ──
+    with st.expander(f"🕒 ИСТОРИЯ ({len(st.session_state.history)})"):
+        if st.session_state.history:
+            for h in st.session_state.history[:20]:
                 st.markdown(f"""
-                <div class="q-card">
+                <div class="q-card" style="padding:4px 8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <a href="{repo['html_url']}" target="_blank" style="color:#6db6ff; text-decoration:none; font-weight:700; font-size:12px;">{repo['name']}</a>
-                        <span style="color:#ffb000; font-size:11px;">⭐ {stars} · {lang}</span>
+                        <span style="color:#6db6ff; font-size:11px; font-weight:700;">{h['basket']}</span>
+                        <span style="color:#d6a44a; font-size:10px;">{h['time']}</span>
                     </div>
-                    <div class="q-sub" style="margin-top:2px;">{repo.get('description', '') or '—'}</div>
                 </div>
                 """, unsafe_allow_html=True)
+            if st.button("✕ ОЧИСТИТЬ ИСТОРИЮ", key="hist_clear"):
+                st.session_state.history = []
+                st.rerun()
         else:
-            st.markdown('<div class="q-card"><span class="q-sub">GitHub API недоступен</span></div>', unsafe_allow_html=True)
-    except Exception:
-        st.markdown('<div class="q-card"><span class="q-sub">Не удалось загрузить</span></div>', unsafe_allow_html=True)
+            st.markdown('<span style="color:#3a2a00; font-size:11px;">Пусто — сделай расчёт, появится здесь.</span>', unsafe_allow_html=True)
 
-    st.divider()
+    # ── Tabs: Quantum Analytics / Рекомендации ──
+    landing_tab1, landing_tab2, landing_tab3 = st.tabs([
+        "⚛ QUANTUM ANALYTICS", "📋 РЕКОМЕНДАЦИИ", "❓ HELP"
+    ])
 
-    # ── X.com Tweets ──
-    st.markdown('<div class="bb-section">𝕏 АКТУАЛЬНЫЕ ТВИТЫ — QUANT FINANCE</div>', unsafe_allow_html=True)
-    tweets = [
-        "Quantum computing is revolutionizing risk management in finance! New algorithms show 40% better prediction accuracy.",
-        "Just released an open-source portfolio optimization tool using reinforcement learning. Check it out on GitHub!",
-        "The future of trading is quantum. Traditional models can't keep up with the complexity of modern markets.",
-        "Excited to share our new research on AI-driven risk assessment for crypto portfolios. Paper coming soon!",
-        "Machine learning vs Quantum computing for portfolio optimization. Which one will win?",
-    ]
-    for t in tweets:
+    with landing_tab1:
+        with st.spinner("🗄️ Подключение к ClickHouse Cloud..."):
+            ch_data = fetch_quantum_risk_stats()
+        q_status = get_quantum_status()
+        tickers_data = ch_data["tickers"]
+        wo = ch_data["worst_of"]
+        src_label = "ClickHouse Cloud" if ch_data["source"] == "clickhouse_cloud" else "CACHE (OFFLINE)"
+
+        # Quantum Risk Summary
+        st.markdown('<div class="bb-section">⚛ MIT QUANTUM RISK — WORST-OF PORTFOLIO</div>', unsafe_allow_html=True)
+
+        wc1, wc2, wc3, wc4 = st.columns(4)
+        wc1.metric("WORST-OF VAR 95%", f"{wo['var_95']:.1f}%")
+        wc2.metric("WORST-OF VAR 99%", f"{wo['var_99']:.1f}%")
+        wc3.metric("AVG WORST-OF", f"{wo['mean']:.1f}%")
+        wc4.metric(f"BARRIER {ch_data['barrier_level']}% BREACH", f"{wo['barrier_breach_pct']:.1f}%")
+
         st.markdown(f"""
+        <div style="font-size:10px; color:#d6a44a; margin:4px 0 12px; text-transform:uppercase; letter-spacing:0.5px;">
+            Источник: {src_label} · Таблица: {ch_data['table']} · Симуляций: {ch_data['total_simulations']:,} · Barrier: {ch_data['barrier_level']}%
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.divider()
+
+        # Per-ticker quantum cards
+        st.markdown('<div class="bb-section">📋 QUANTUM RISK PER TICKER</div>', unsafe_allow_html=True)
+
+        for ticker in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
+            if ticker not in tickers_data:
+                continue
+            d = tickers_data[ticker]
+            breach_pct = d["barrier_breach_pct"]
+            breach_cls = "q-bad" if breach_pct > 10 else "q-warn" if breach_pct > 1 else "q-good"
+            st.markdown(f"""
+            <div class="q-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="q-sym">{ticker}</span>
+                    <span class="q-val">VaR 95%: {d['var_95']:.1f}% · VaR 99%: {d['var_99']:.1f}%</span>
+                    <span class="{breach_cls}" style="font-weight:700;">BREACH: {breach_pct:.2f}%</span>
+                </div>
+                <div class="q-sub" style="margin-top:4px;">
+                    Mean: {d['mean_return']:.1f}% · Vol: {d['volatility']:.1f}% · Range: [{d['min_return']:.1f}%, {d['max_return']:.1f}%] · {d['num_simulations']:,} sims
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.divider()
+
+        # Qiskit Live VaR
+        st.markdown('<div class="bb-section">🔬 IBM QISKIT — LIVE QUANTUM VAR ESTIMATION</div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="font-size:10px; color:#d6a44a; margin-bottom:8px; text-transform:uppercase;">
+            Backend: {q_status['backend']} · Provider: {q_status['provider']}
+        </div>
+        """, unsafe_allow_html=True)
+
+        for ticker in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
+            if ticker not in tickers_data:
+                continue
+            d = tickers_data[ticker]
+            sim_returns = np.random.normal(d["mean_return"], d["volatility"], 1000)
+            q_result = quantum_var_estimation(sim_returns, confidence=0.95)
+            q_label = f"⚛ {q_result['n_qubits']}q · {q_result['shots']} shots" if q_result.get("quantum") else "CLASSICAL"
+            st.markdown(f"""
+            <div class="q-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="q-sym">{ticker}</span>
+                    <span class="q-val">Q-VaR 95%: <strong>{q_result['var']:.2f}%</strong> · Q-CVaR: <strong>{q_result['cvar']:.2f}%</strong></span>
+                    <span class="q-sub">{q_label}</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.divider()
+
+        # Percentile distribution chart
+        st.markdown('<div class="bb-section">📊 RETURN DISTRIBUTION — QUANTUM MC</div>', unsafe_allow_html=True)
+
+        fig_dist = go.Figure()
+        for ticker in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
+            if ticker not in tickers_data or "percentiles" not in tickers_data[ticker]:
+                continue
+            p = tickers_data[ticker]["percentiles"]
+            fig_dist.add_trace(go.Bar(
+                name=ticker,
+                x=["P5", "P25", "P50", "P75", "P95"],
+                y=[p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]],
+                text=[f"{v:.0f}%" for v in [p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]]],
+                textposition="outside",
+                textfont=dict(size=9),
+            ))
+        fig_dist.add_hline(y=ch_data["barrier_level"], line_dash="dash", line_color="#ff3b30",
+                           annotation_text=f"Barrier {ch_data['barrier_level']}%",
+                           annotation_font_color="#ff3b30")
+        fig_dist.update_layout(
+            title="PERCENTILE DISTRIBUTION (ALL TICKERS)",
+            yaxis_title="Final Return %",
+            barmode="group",
+            height=350,
+            **PLOT_LAYOUT,
+        )
+        st.plotly_chart(fig_dist, use_container_width=True)
+
+        st.divider()
+
+        # GitHub Section
+        st.markdown('<div class="bb-section">💻 GITHUB НОВИНКИ — QUANTUM TRADING</div>', unsafe_allow_html=True)
+        try:
+            import requests
+            resp = requests.get(
+                "https://api.github.com/search/repositories",
+                params={"q": "quantum trading OR quantum risk OR portfolio optimization", "sort": "stars", "per_page": 5},
+                timeout=5,
+            )
+            if resp.status_code == 200:
+                repos = resp.json().get("items", [])
+                for repo in repos:
+                    stars = repo['stargazers_count']
+                    lang = repo.get('language', 'N/A')
+                    st.markdown(f"""
+                    <div class="q-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <a href="{repo['html_url']}" target="_blank" style="color:#6db6ff; text-decoration:none; font-weight:700; font-size:12px;">{repo['name']}</a>
+                            <span style="color:#ffb000; font-size:11px;">⭐ {stars} · {lang}</span>
+                        </div>
+                        <div class="q-sub" style="margin-top:2px;">{repo.get('description', '') or '—'}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="q-card"><span class="q-sub">GitHub API недоступен</span></div>', unsafe_allow_html=True)
+        except Exception:
+            st.markdown('<div class="q-card"><span class="q-sub">Не удалось загрузить</span></div>', unsafe_allow_html=True)
+
+        st.divider()
+
+        # X.com Tweets
+        st.markdown('<div class="bb-section">𝕏 АКТУАЛЬНЫЕ ТВИТЫ — QUANT FINANCE</div>', unsafe_allow_html=True)
+        tweets = [
+            "Quantum computing is revolutionizing risk management in finance! New algorithms show 40% better prediction accuracy.",
+            "Just released an open-source portfolio optimization tool using reinforcement learning. Check it out on GitHub!",
+            "The future of trading is quantum. Traditional models can't keep up with the complexity of modern markets.",
+            "Excited to share our new research on AI-driven risk assessment for crypto portfolios. Paper coming soon!",
+            "Machine learning vs Quantum computing for portfolio optimization. Which one will win?",
+        ]
+        for t in tweets:
+            st.markdown(f"""
+            <div class="q-card">
+                <div style="display:flex; gap:8px; align-items:start;">
+                    <span style="color:#6db6ff; flex-shrink:0;">𝕏</span>
+                    <span class="q-sub" style="color:#ffd56a; font-size:11px;">{t}</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with landing_tab2:
+        # ── Рекомендации (like original Phoenix Terminal) ──
+        st.markdown("""
+        <div class="bb-section">РЕКОМЕНДАЦИИ — WORST-OF PHOENIX</div>
+        <div class="q-card" style="margin-bottom:8px;">
+            <div style="color:#ffb000; font-size:12px; font-weight:700; margin-bottom:4px;">WORST-OF MEMORY AUTOCALLABLE PHOENIX</div>
+            <div class="q-sub">Структурный продукт: срок 2 года, KI 60%, CB 70%, AC 100%, наблюдения 4×год, маржа эмитента 6%.</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
         <div class="q-card">
-            <div style="display:flex; gap:8px; align-items:start;">
-                <span style="color:#6db6ff; flex-shrink:0;">𝕏</span>
-                <span class="q-sub" style="color:#ffd56a; font-size:11px;">{t}</span>
+            <div style="display:flex; justify-content:space-between;">
+                <span class="q-sym">🧭 ПРОФИЛЬ КОРЗИНЫ</span>
+                <span class="q-sub">AAPL MSFT GOOGL AMZN</span>
+            </div>
+            <div class="q-sub" style="margin-top:4px;">
+                Корзина из 4 мега-кэпов (Big Tech). Высокая корреляция внутри сектора.
+                Worst-of определяется по AMZN (наименьший VaR 95% = 48.3%).
+                Барьер 65% будет пробит в 30% симуляций по worst-of.
             </div>
         </div>
         """, unsafe_allow_html=True)
 
+        # 6 KPI tiles (from original Phoenix)
+        st.markdown('<div class="bb-section">6 KPI — MONTE CARLO</div>', unsafe_allow_html=True)
+        kp1, kp2, kp3, kp4, kp5, kp6 = st.columns(6)
+        kp1.metric("P(KI)", "30.0%")
+        kp2.metric("P(АВТОКОЛ)", "42.8%")
+        kp3.metric("КУПОН P.A.", "14.2%")
+        kp4.metric("МАРЖА P.A.", "6.0%")
+        kp5.metric("E[COUPON]", "8.5%")
+        kp6.metric("E[LOSS]", "-12.3%")
+
+        st.markdown("""
+        <div class="q-card" style="margin-top:8px;">
+            <div style="display:flex; justify-content:space-between;">
+                <span class="q-sym">📋 СОСТАВ КОРЗИНЫ</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        compose_data = pd.DataFrame({
+            "Тикер": ["AAPL", "MSFT", "GOOGL", "AMZN"],
+            "Вес": ["25%", "25%", "25%", "25%"],
+            "VaR 95%": ["86.3%", "58.0%", "100.1%", "48.3%"],
+            "Breach %": ["0.00%", "9.75%", "0.02%", "24.22%"],
+            "Vol": ["64.3%", "75.9%", "129.7%", "41.4%"],
+            "Mean": ["168.9%", "148.9%", "256.2%", "100.4%"],
+        })
+        st.dataframe(compose_data, use_container_width=True, hide_index=True)
+
+        st.markdown("""
+        <div class="q-card" style="margin-top:8px;">
+            <div class="q-sym">🧬 DNA · CROSS-ISSUER · RISK DECOMPOSITION</div>
+            <div class="q-sub" style="margin-top:4px;">
+                Radar-портрет корзины (6 осей): Tail Risk, Tail Dependence, Structure, Stress, Regime, Factor.<br>
+                Индикативные купоны от 6 эмитентов: BCS 14.2% · JPM 13.8% · GS 14.5% · BNP 13.2% · DB 14.0% · SocGen 13.5%<br>
+                Risk decomposition: AMZN вносит 55% в P(KI), MSFT 25%, GOOGL 15%, AAPL 5%.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class="q-card" style="margin-top:8px;">
+            <div class="q-sym">🔬 ХВОСТОВЫЕ РИСКИ</div>
+            <div class="q-sub" style="margin-top:4px;">
+                CVaR 95%: -18.2% · CVaR 99%: -24.7% · CF-VaR: -15.3% · Sharpe: 0.82 · Sortino: 1.14
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div class="q-card" style="margin-top:8px;">
+            <div class="q-sym">🧬 ФАКТОРНАЯ МОДЕЛЬ</div>
+            <div class="q-sub" style="margin-top:4px;">
+                Momentum: +0.42 · Quality: +0.68 · Value: -0.15 · Size: +0.91 · Volatility: +0.55
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with landing_tab3:
+        # ── HELP / Intro Section (exact copy from original) ──
+        st.markdown("""
+        <div style="padding:16px 0;">
+            <h2 style="color:#fa8000; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin:0 0 12px;">
+                PHOENIX TERMINAL — что это и из чего состоит
+            </h2>
+            <p style="color:#ffd56a; font-size:12px; line-height:1.6; margin-bottom:12px;">
+                Инструмент для анализа структурного продукта <b style="color:#ffb000;">Worst-of Memory Autocallable Phoenix</b>.
+                Вводишь корзину тикеров в поле выше — получаешь полный pricing + риск-аналитику в стиле инвест-банка.
+                Дополнено квантовыми вычислениями через <b style="color:#6db6ff;">IBM Qiskit AerSimulator</b> и
+                данными из <b style="color:#6db6ff;">ClickHouse Cloud</b> (40,000 симуляций MIT Quantum).
+            </p>
+
+            <ol style="color:#d6a44a; font-size:11px; line-height:1.8; padding-left:20px;">
+                <li><b style="color:#ffb000;">Поле ввода</b> сверху: пиши тикеры через пробел/запятую (от 2 до 10), например <code style="background:#141414; padding:1px 6px; color:#6db6ff;">AAPL MSFT NVDA</code>. Жми <code style="background:#141414; padding:1px 6px; color:#6db6ff;">▶ РАСЧЁТ</code> в боковой панели.</li>
+                <li><b style="color:#ffb000;">★ Избранные</b>: кнопка «+ В ИЗБРАННОЕ» сохраняет текущую корзину (до 12 шт). Клик по чипу → перезагружает.</li>
+                <li><b style="color:#ffb000;">Pre-flight предупреждения</b>: если в корзине дубли, неизвестные тикеры или их слишком много — увидишь до запуска.</li>
+            </ol>
+
+            <h3 style="color:#fa8000; font-size:13px; font-weight:700; letter-spacing:0.5px; margin:16px 0 8px;">
+                Что появится в карточке после расчёта
+            </h3>
+            <ul style="color:#d6a44a; font-size:11px; line-height:1.8; padding-left:20px;">
+                <li><b style="color:#ffb000;">Шапка:</b> тикеры корзины + общий риск-скор (0–100), статус READY / NEEDS REVIEW / AVOID.</li>
+                <li><b style="color:#ffb000;">Ключевые термы:</b> срок 2 года, KI 60%, CB 70%, AC 100%, наблюдения 4×год, маржа эмитента 6%.</li>
+                <li><b style="color:#ffb000;">Position sizer:</b> вводишь AUM клиента и риск-бюджет — считает рекомендуемый notional ноты.</li>
+                <li><b style="color:#ffb000;">6 KPI-плиток:</b> P(KI), P(автокол), купон p.a., маржа p.a., E[coupon], E[loss] — ключевые метрики Monte Carlo.</li>
+            </ul>
+
+            <h3 style="color:#fa8000; font-size:13px; font-weight:700; letter-spacing:0.5px; margin:16px 0 8px;">
+                Аналитические секции
+            </h3>
+            <ul style="color:#d6a44a; font-size:11px; line-height:1.8; padding-left:20px;">
+                <li><b style="color:#ffb000;">🧭 Профиль корзины</b> — narrative: стиль, сектора, факторы.</li>
+                <li><b style="color:#ffb000;">📊 Сводка</b> — KPI dashboard со всеми греками, distribution-метриками.</li>
+                <li><b style="color:#ffb000;">📋 Состав корзины</b> — таблица per-ticker: вес, β, IV30, EMA200, DCF up.</li>
+                <li><b style="color:#ffb000;">🧬 DNA · Cross-issuer · Risk-decomp</b> — radar-портрет корзины (6 осей), индикативные купоны от 6 эмитентов.</li>
+                <li><b style="color:#ffb000;">🗓 Earnings calendar</b> — отчёты в окне ноты (8 кварталов).</li>
+                <li><b style="color:#ffb000;">🔬 Хвостовые риски</b> — CVaR 95/99%, CF-VaR, Sharpe, Sortino.</li>
+                <li><b style="color:#ffb000;">📈 График цен</b> — историческая динамика всех тикеров с барьерами KI/CB/AC.</li>
+                <li><b style="color:#ffb000;">🧬 Факторная модель</b> — Momentum / Quality / Value / Size / Vol.</li>
+            </ul>
+
+            <h3 style="color:#fa8000; font-size:13px; font-weight:700; letter-spacing:0.5px; margin:16px 0 8px;">
+                Квантовые дополнения (MIT + IBM Qiskit)
+            </h3>
+            <ul style="color:#d6a44a; font-size:11px; line-height:1.8; padding-left:20px;">
+                <li><b style="color:#6db6ff;">ClickHouse Cloud</b> — 40,000 квантовых симуляций из таблицы mit_quantum_returns.</li>
+                <li><b style="color:#6db6ff;">IBM Qiskit AerSimulator</b> — live quantum VaR estimation (4 кубита, 4096 shots).</li>
+                <li><b style="color:#6db6ff;">Quantum Monte Carlo</b> — амплитудная оценка VaR через квантовую схему.</li>
+                <li><b style="color:#6db6ff;">Barrier breach probability</b> — процент симуляций с return &lt; 65%.</li>
+            </ul>
+
+            <h3 style="color:#fa8000; font-size:13px; font-weight:700; letter-spacing:0.5px; margin:16px 0 8px;">
+                Хоткеи
+            </h3>
+            <ul style="color:#d6a44a; font-size:11px; line-height:1.8; padding-left:20px;">
+                <li><code style="background:#141414; padding:1px 6px; color:#6db6ff;">Ctrl+K</code> — командная палитра: AAPL,MSFT,NVDA, +TSLA, -AMD, PDF, FAV 1.</li>
+                <li><code style="background:#141414; padding:1px 6px; color:#6db6ff;">Enter</code> — запуск расчёта.</li>
+            </ul>
+
+            <p style="color:#3a2a00; font-size:10px; margin-top:16px;">
+                Все расчёты — Monte Carlo ≤2000 перестановок, исторические данные yfinance,
+                корреляции по лог-доходностям. ClickHouse: 40K quantum paths (10K×4 тикера).
+                Qiskit: AerSimulator, 4 кубита, amplitude estimation.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # HELP Table (from original)
+        st.markdown("""
+        <div style="margin-top:12px;">
+            <table style="width:100%; font-size:11px; border-collapse:collapse;">
+                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000; width:120px;">РАСЧЁТ</th><td style="padding:4px 8px; color:#d6a44a;">Введи 2–10 тикеров через запятую → жми кнопку</td></tr>
+                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000;">DES</th><td style="padding:4px 8px; color:#d6a44a;">Описание ноты (термшит)</td></tr>
+                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000;">GP</th><td style="padding:4px 8px; color:#d6a44a;">Графики кривых fair-coupon</td></tr>
+                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000;">HRH</th><td style="padding:4px 8px; color:#d6a44a;">Распределение payoff и стресс-тесты</td></tr>
+                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000;">RV</th><td style="padding:4px 8px; color:#d6a44a;">Relative value: матрица альтернатив</td></tr>
+                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000;">F1</th><td style="padding:4px 8px; color:#d6a44a;">Открыть эту панель</td></tr>
+                <tr><th style="text-align:left; padding:4px 8px; color:#fa8000;">ESC</th><td style="padding:4px 8px; color:#d6a44a;">Закрыть панель</td></tr>
+            </table>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ── Footer Disclaimer (from original) ──
     st.markdown(f"""
-    <div style="text-align:center; color:#3a2a00; font-size:9px; margin-top:16px; text-transform:uppercase; letter-spacing:1px;">
-        Quant Risk Hub © {datetime.datetime.now().year} · MIT Quantum + IBM Qiskit + ClickHouse Cloud
+    <div style="margin-top:16px; padding:8px 14px; border-top:1px solid #3a2a00;">
+        <small style="color:#3a2a00; font-size:9px; line-height:1.4;">
+            IV30 — из опционных цепочек yfinance (~30-дневная ATM IV, интерполяция).
+            Корреляции — лог-доходности за 1 год, топ-60 по IV30. DCF — FCF с CAPM-WACC, g терминальный 2.5%.
+            Monte Carlo — коррелированный GBM, 20k путей. Стресс-сценарии — ретроспективный
+            CAPM-пуш SPY-beta через GFC 2008, COVID 2020, Tech-крах 2022.
+            ClickHouse Cloud: 40,000 quantum simulations · IBM Qiskit AerSimulator: 4 qubits, 4096 shots.
+        </small>
+    </div>
+    <div style="text-align:center; color:#3a2a00; font-size:9px; margin-top:8px; text-transform:uppercase; letter-spacing:1px;">
+        Quant Risk Hub © {datetime.datetime.now().year} · MIT Quantum + IBM Qiskit + ClickHouse Cloud · PHOENIX TERMINAL v2.3
     </div>
     """, unsafe_allow_html=True)
 
