@@ -1,7 +1,10 @@
-streamlit==1.45.1
-yfinance==0.2.54
-pandas==2.2.3
-numpy==1.26.4
-scipy==1.14.1
-plotly==6.0.1
-schedule==1.2.2
+streamlit>=1.45.0
+yfinance>=0.2.50
+pandas>=2.2.0
+numpy>=1.26.0
+scipy>=1.14.0
+plotly>=6.0.0
+schedule>=1.2.0
+clickhouse-connect>=0.7.0
+qiskit>=1.0.0
+qiskit-aer>=0.13.0

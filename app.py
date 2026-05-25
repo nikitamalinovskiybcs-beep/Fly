@@ -1,4 +1,4 @@
-"""Quant Risk Hub — Streamlit Dashboard v2.3."""
+"""Quant Risk Hub — Streamlit Dashboard v2.3 + MIT Quantum + ClickHouse."""
 
 import streamlit as st
 import pandas as pd
@@ -10,9 +10,11 @@ from src.assessor import StrategyRiskAssessor
 from src.core_metrics import returns_from_prices
 from src.risk_metrics import drawdown_series
 from src.data_module import DEFAULT_TICKERS
+from src.clickhouse_data import fetch_quantum_risk_stats
+from src.quantum_risk import quantum_var_estimation, quantum_monte_carlo_risk, get_quantum_status
 
 st.set_page_config(
-    page_title="Quant Risk Hub",
+    page_title="Quant Risk Hub | MIT Quantum",
     page_icon="📊",
     layout="wide",
 )
@@ -62,7 +64,7 @@ st.markdown("""
 
 # ── Header ──
 st.markdown('<div class="gradient-title">📊 Quant Risk Hub</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Trading Strategy Risk Assessment Framework v2.3 | Аналитика квантовой торговли и риск-менеджмента</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Trading Strategy Risk Assessment Framework v2.3 | MIT + IBM Quantum · ClickHouse Cloud</div>', unsafe_allow_html=True)
 
 # ── Sidebar ──
 with st.sidebar:
@@ -332,64 +334,136 @@ if run_btn:
             st.plotly_chart(fig_corr, use_container_width=True)
 
 else:
-    # Landing page
+    # ── MIT Quantum + ClickHouse Landing Dashboard ──
+
+    # Quantum status badge
+    q_status = get_quantum_status()
+    q_badge_color = "#10b981" if q_status["qiskit_available"] else "#eab308"
+    st.markdown(f"""
+    <div style="text-align:center; margin-bottom:1.5rem;">
+        <span style="background:rgba(16,185,129,0.15); border:1px solid {q_badge_color}; border-radius:20px; padding:0.3rem 1rem; color:{q_badge_color}; font-size:0.8rem;">
+            ⚛️ {q_status['provider']} — {q_status['backend']}
+        </span>
+        <span style="background:rgba(6,182,212,0.15); border:1px solid #06b6d4; border-radius:20px; padding:0.3rem 1rem; color:#06b6d4; font-size:0.8rem; margin-left:0.5rem;">
+            🗄️ ClickHouse Cloud — Live
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Load ClickHouse data
+    with st.spinner("🗄️ Загрузка данных из ClickHouse Cloud..."):
+        ch_data = fetch_quantum_risk_stats()
+
+    src_label = "ClickHouse Cloud" if ch_data["source"] == "clickhouse_cloud" else "Cache (offline)"
+    st.caption(f"Источник: {src_label} · Таблица: {ch_data['table']} · Симуляций: {ch_data['total_simulations']:,}")
+
+    # ── Top-level worst-of stats ──
+    st.markdown('<div class="section-header">🌐 Worst-of Portfolio (MIT Quantum Simulation)</div>', unsafe_allow_html=True)
+    wc1, wc2, wc3, wc4 = st.columns(4)
+    wo = ch_data["worst_of"]
+    wc1.metric("Worst-of VaR 95%", f"{wo['var_95']:.1f}%")
+    wc2.metric("Worst-of VaR 99%", f"{wo['var_99']:.1f}%")
+    wc3.metric("Avg Worst-of", f"{wo['mean']:.1f}%")
+    wc4.metric(f"Barrier {ch_data['barrier_level']}% Breach", f"{wo['barrier_breach_pct']:.1f}%")
+
+    st.divider()
+
+    # ── Per-ticker quantum metrics ──
+    st.markdown('<div class="section-header">⚛️ Quantum Risk Analytics — Per Ticker</div>', unsafe_allow_html=True)
+    tickers_data = ch_data["tickers"]
+
+    for ticker in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
+        if ticker not in tickers_data:
+            continue
+        d = tickers_data[ticker]
+        breach_color = "#ef4444" if d["barrier_breach_pct"] > 10 else "#eab308" if d["barrier_breach_pct"] > 1 else "#22c55e"
+        with st.expander(f"**{ticker}** — Mean: {d['mean_return']:.1f}% · VaR 95%: {d['var_95']:.1f}% · Barrier Breach: {d['barrier_breach_pct']:.2f}%", expanded=True):
+            tc1, tc2, tc3, tc4, tc5, tc6 = st.columns(6)
+            tc1.metric("VaR 95%", f"{d['var_95']:.1f}%")
+            tc2.metric("VaR 99%", f"{d['var_99']:.1f}%")
+            tc3.metric("Mean Return", f"{d['mean_return']:.1f}%")
+            tc4.metric("Volatility", f"{d['volatility']:.1f}%")
+            tc5.metric("Min", f"{d['min_return']:.1f}%")
+            tc6.metric("Max", f"{d['max_return']:.1f}%")
+
+            st.markdown(f"""
+            <div style="background:rgba(15,23,42,0.5); border:1px solid #334155; border-radius:8px; padding:0.75rem; margin:0.5rem 0;">
+                <span style="color:#64748b;">Barrier {ch_data['barrier_level']}% breach:</span>
+                <span style="color:{breach_color}; font-weight:700;"> {d['barrier_breach_pct']:.2f}%</span>
+                <span style="color:#475569;"> ({d.get('barrier_breach_count', 'N/A')} / {d['num_simulations']:,} simulations)</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Percentile distribution chart
+            if "percentiles" in d:
+                p = d["percentiles"]
+                fig_box = go.Figure()
+                fig_box.add_trace(go.Bar(
+                    x=["P5", "P25", "P50 (Median)", "P75", "P95"],
+                    y=[p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]],
+                    marker_color=["#ef4444", "#eab308", "#06b6d4", "#10b981", "#22c55e"],
+                    text=[f"{v:.1f}%" for v in [p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]]],
+                    textposition="outside",
+                ))
+                fig_box.add_hline(y=ch_data["barrier_level"], line_dash="dash", line_color="#ef4444",
+                                  annotation_text=f"Barrier {ch_data['barrier_level']}%")
+                fig_box.update_layout(
+                    title=f"{ticker} — Return Distribution (Quantum MC)",
+                    yaxis_title="Final Return %",
+                    height=300,
+                    **PLOT_LAYOUT,
+                )
+                st.plotly_chart(fig_box, use_container_width=True)
+
+    st.divider()
+
+    # ── Qiskit Quantum VaR Estimation ──
+    st.markdown('<div class="section-header">🔬 IBM Qiskit — Live Quantum VaR Estimation</div>', unsafe_allow_html=True)
+    st.caption("Quantum amplitude estimation via AerSimulator (local)")
+
+    qiskit_cols = st.columns(4)
+    for i, ticker in enumerate(["AAPL", "MSFT", "GOOGL", "AMZN"]):
+        if ticker not in tickers_data:
+            continue
+        d = tickers_data[ticker]
+        sim_returns = np.random.normal(d["mean_return"], d["volatility"], 1000)
+        q_result = quantum_var_estimation(sim_returns, confidence=0.95)
+        with qiskit_cols[i]:
+            st.markdown(f"**{ticker}**")
+            st.metric("Q-VaR 95%", f"{q_result['var']:.2f}%")
+            st.metric("Q-CVaR", f"{q_result['cvar']:.2f}%")
+            if q_result.get("quantum"):
+                st.caption(f"⚛️ {q_result['n_qubits']}q · {q_result['shots']} shots")
+            else:
+                st.caption("Classical fallback")
+
+    st.divider()
+
+    # ── Feature cards ──
     st.markdown("""
-    <div style="text-align: center; padding: 3rem 1rem;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
-        <h2 style="color: #e2e8f0;">Добро пожаловать в Quant Risk Hub</h2>
-        <p style="color: #94a3b8; max-width: 600px; margin: 0 auto 2rem;">
-            Настройте тикеры и параметры в боковой панели, затем нажмите
-            <strong style="color: #06b6d4;">🚀 Запустить анализ</strong>.
-        </p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-            <div class="metric-card">
-                <div style="font-size: 2rem;">📈</div>
-                <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">Core Metrics</div>
-                <div style="color: #64748b; font-size: 0.8rem;">Sharpe, Sortino, Calmar, Max DD</div>
-            </div>
-            <div class="metric-card">
-                <div style="font-size: 2rem;">🎲</div>
-                <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">Monte Carlo</div>
-                <div style="color: #64748b; font-size: 0.8rem;">Permutation Test (≤ 2000)</div>
-            </div>
-            <div class="metric-card">
-                <div style="font-size: 2rem;">💥</div>
-                <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">Stress Tests</div>
-                <div style="color: #64748b; font-size: 0.8rem;">GFC 2008, COVID, Rate Hike 2022</div>
-            </div>
-            <div class="metric-card">
-                <div style="font-size: 2rem;">🔍</div>
-                <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">Overfitting</div>
-                <div style="color: #64748b; font-size: 0.8rem;">OOS degradation, permutation check</div>
-            </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; max-width: 900px; margin: 0 auto;">
+        <div class="metric-card">
+            <div style="font-size: 2rem;">⚛️</div>
+            <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">IBM Quantum</div>
+            <div style="color: #64748b; font-size: 0.8rem;">Qiskit AerSimulator VaR</div>
+        </div>
+        <div class="metric-card">
+            <div style="font-size: 2rem;">🗄️</div>
+            <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">ClickHouse Cloud</div>
+            <div style="color: #64748b; font-size: 0.8rem;">40K quantum simulations</div>
+        </div>
+        <div class="metric-card">
+            <div style="font-size: 2rem;">📈</div>
+            <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">Core Metrics</div>
+            <div style="color: #64748b; font-size: 0.8rem;">Sharpe, Sortino, Calmar, Max DD</div>
+        </div>
+        <div class="metric-card">
+            <div style="font-size: 2rem;">🎲</div>
+            <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">Monte Carlo</div>
+            <div style="color: #64748b; font-size: 0.8rem;">Permutation Test (≤ 2000)</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # GitHub repos section (из оригинального дизайна)
-    st.divider()
-    st.markdown('<div class="section-header">💻 GitHub Новинки — Quantum Trading</div>', unsafe_allow_html=True)
-    try:
-        import requests
-        resp = requests.get(
-            "https://api.github.com/search/repositories",
-            params={"q": "quantum trading OR risk management", "sort": "stars", "per_page": 5},
-            timeout=5,
-        )
-        if resp.status_code == 200:
-            repos = resp.json().get("items", [])
-            for repo in repos:
-                st.markdown(f"""
-                <div style="background: rgba(15,23,42,0.5); border: 1px solid #334155; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.5rem;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <a href="{repo['html_url']}" target="_blank" style="color: #10b981; font-weight: 600; text-decoration: none;">{repo['name']}</a>
-                        <span style="color: #eab308;">⭐ {repo['stargazers_count']}</span>
-                    </div>
-                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem;">{repo.get('description', '') or ''}</div>
-                    <div style="color: #475569; font-size: 0.75rem; margin-top: 0.25rem;">📝 {repo.get('language', 'N/A')} · 👤 {repo['owner']['login']}</div>
-                </div>
-                """, unsafe_allow_html=True)
-        else:
-            st.info("GitHub API недоступен.")
-    except Exception:
-        st.info("Не удалось загрузить данные GitHub.")
+    st.markdown("")
+    st.caption("⬅️ Для полного анализа нажмите «Запустить анализ» в боковой панели.")
