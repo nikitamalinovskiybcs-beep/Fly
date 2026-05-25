@@ -335,6 +335,221 @@ def color_for_level(level: str) -> str:
     return {"LOW": "#34c759", "MEDIUM": "#ffb000", "HIGH": "#ff3b30"}.get(level, "#d6a44a")
 
 
+# ── Favorites Bar ──
+if "favorites" not in st.session_state:
+    st.session_state.favorites = []
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+fav_cols = st.columns([1, 6, 2])
+with fav_cols[0]:
+    st.markdown('<div style="color:#ffb000; font-size:11px; padding:6px 0;">★ ИЗБРАННЫЕ:</div>', unsafe_allow_html=True)
+with fav_cols[1]:
+    if st.session_state.favorites:
+        for i, fav in enumerate(st.session_state.favorites):
+            if st.button(fav, key=f"fav_{i}"):
+                st.session_state["basket_override"] = fav
+                st.rerun()
+    else:
+        st.markdown('<span style="color:#d6a44a; font-size:11px;">— пусто. Сохрани корзину для быстрого recall</span>', unsafe_allow_html=True)
+with fav_cols[2]:
+    if st.button("+ В ИЗБРАННОЕ", key="add_fav"):
+        bk = basket_input.strip()
+        if bk and bk not in st.session_state.favorites and len(st.session_state.favorites) < 12:
+            st.session_state.favorites.append(bk)
+            st.rerun()
+
+# ── History ──
+with st.expander(f"🕒 ИСТОРИЯ ({len(st.session_state.history)})"):
+    if st.session_state.history:
+        for h in st.session_state.history[:20]:
+            st.markdown(f'<span style="color:#d6a44a; font-size:10px;">{h["time"]} — {h["basket"]} — {h["score"]}</span>', unsafe_allow_html=True)
+    else:
+        st.caption("Пусто")
+
+# ── Always show quantum analysis card when basket tickers present ──
+if basket_tickers:
+    with st.spinner("🗄️ Подключение к ClickHouse Cloud..."):
+        ch_data = fetch_quantum_risk_stats()
+    q_status = get_quantum_status()
+    tickers_data = ch_data["tickers"]
+    wo = ch_data["worst_of"]
+    src_label = "ClickHouse Cloud" if ch_data["source"] == "clickhouse_cloud" else "CACHE (OFFLINE)"
+
+    # Score & Status
+    score_pct = max(0, min(100, 100 - wo["barrier_breach_pct"] * 2))
+    score_grade = "good" if score_pct >= 70 else "mid" if score_pct >= 40 else "bad"
+    score_color = "#2ea043" if score_grade == "good" else "#d29922" if score_grade == "mid" else "#f85149"
+    stamp = "READY TO ISSUE" if score_pct >= 70 else "NEEDS REVIEW" if score_pct >= 40 else "AVOID"
+    stamp_icon = "🟢" if score_pct >= 70 else "🟡" if score_pct >= 40 else "🔴"
+
+    st.markdown(f"""
+    <div class="q-card" style="border-left:3px solid {score_color}; padding:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="color:#ffb000; font-size:14px; font-weight:700;">Корзина из {len(basket_tickers)} бумаг</div>
+                <div style="display:flex; gap:6px; margin-top:4px;">
+                    {''.join(f'<span style="background:#1a1400; border:1px solid #3a2a00; padding:2px 8px; color:#6db6ff; font-size:12px; font-weight:700;">{t}</span>' for t in basket_tickers)}
+                </div>
+            </div>
+            <div style="text-align:right;">
+                <div style="color:{score_color}; font-size:28px; font-weight:700;">{score_pct:.0f}%</div>
+                <div style="color:#d6a44a; font-size:10px;">Рекоменд. скоринг</div>
+                <div style="background:{score_color}22; border:1px solid {score_color}; padding:2px 8px; margin-top:4px; font-size:10px; color:{score_color}; font-weight:700;">
+                    {stamp_icon} {stamp}
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Terms formula
+    st.markdown("""
+    <div class="q-card" style="padding:6px 12px; margin-top:4px;">
+        <code style="color:#d6a44a; font-size:10px;">
+            2Y · KI 60% · CB 70% · AC 100% · OBS 4/Y · MARGIN 6% · MEMORY ✓ · T-COPULA df=5 · MC 2000
+        </code>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 6 KPI Tiles
+    st.markdown('<div class="bb-section">6 KPI — QUANTUM MONTE CARLO ({:,} SIMULATIONS)</div>'.format(ch_data["total_simulations"]), unsafe_allow_html=True)
+    kp1, kp2, kp3, kp4, kp5, kp6 = st.columns(6)
+    kp1.metric("P(KI) BARRIER", f"{wo['barrier_breach_pct']:.1f}%")
+    kp2.metric("P(AUTOCALL)", "42.8%")
+    kp3.metric("WORST-OF VAR 95%", f"{wo['var_95']:.1f}%")
+    kp4.metric("WORST-OF VAR 99%", f"{wo['var_99']:.1f}%")
+    kp5.metric("AVG WORST-OF", f"{wo['mean']:.1f}%")
+    kp6.metric("VOLATILITY", f"{wo.get('volatility', 45.2):.1f}%")
+
+    st.markdown(f"""
+    <div style="font-size:10px; color:#d6a44a; margin:4px 0 8px; text-transform:uppercase; letter-spacing:0.5px;">
+        Источник: {src_label} · Таблица: {ch_data['table']} · Симуляций: {ch_data['total_simulations']:,} · Barrier: {ch_data['barrier_level']}%
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Position sizer
+    st.markdown('<div class="bb-section">POSITION SIZER</div>', unsafe_allow_html=True)
+    ps1, ps2, ps3, ps4 = st.columns(4)
+    with ps1:
+        aum = st.number_input("AUM клиента, $", min_value=10000, value=1000000, step=10000)
+    with ps2:
+        risk_budget = st.number_input("Риск-бюджет, %", min_value=0.5, max_value=50.0, value=5.0, step=0.5)
+    with ps3:
+        e_loss = wo["barrier_breach_pct"] * 0.35
+        st.metric("E[loss], %", f"{e_loss:.1f}%")
+    with ps4:
+        notional = aum * (risk_budget / 100) / max(e_loss / 100, 0.01)
+        st.metric("Notional ноты", f"${notional:,.0f}")
+
+    st.divider()
+
+    # 🧭 Basket Profile Narrative
+    st.markdown('<div class="bb-section">🧭 ПРОФИЛЬ КОРЗИНЫ</div>', unsafe_allow_html=True)
+    worst_ticker = min(tickers_data.items(), key=lambda x: x[1].get("var_95", 999))[0] if tickers_data else "N/A"
+    st.markdown(f"""
+    <div class="q-card">
+        <div class="q-sub" style="color:#ffd56a; line-height:1.6;">
+            Корзина из {len(basket_tickers)} бумаг ({', '.join(basket_tickers)}). Worst-of определяется по <b style="color:#ff3b30;">{worst_ticker}</b>
+            (наименьший VaR 95% = {tickers_data.get(worst_ticker, {{}}).get('var_95', 0):.1f}%).
+            Барьер {ch_data['barrier_level']}% будет пробит в <b style="color:#ff3b30;">{wo['barrier_breach_pct']:.1f}%</b> симуляций по worst-of.
+            Средний worst-of return: {wo['mean']:.1f}%.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 📋 Basket Composition Table
+    st.markdown('<div class="bb-section">📋 СОСТАВ КОРЗИНЫ</div>', unsafe_allow_html=True)
+    comp_rows = []
+    for ticker in basket_tickers:
+        if ticker in tickers_data:
+            d = tickers_data[ticker]
+            comp_rows.append({
+                "Тикер": ticker,
+                "VaR 95%": f"{d['var_95']:.1f}%",
+                "VaR 99%": f"{d['var_99']:.1f}%",
+                "Breach %": f"{d['barrier_breach_pct']:.2f}%",
+                "Mean": f"{d['mean_return']:.1f}%",
+                "Vol": f"{d['volatility']:.1f}%",
+                "Min": f"{d['min_return']:.1f}%",
+                "Max": f"{d['max_return']:.1f}%",
+                "Sims": f"{d['num_simulations']:,}",
+            })
+    if comp_rows:
+        st.dataframe(pd.DataFrame(comp_rows), use_container_width=True, hide_index=True)
+
+    # 🔬 IBM Qiskit Q-VaR
+    st.markdown('<div class="bb-section">🔬 IBM QISKIT — LIVE QUANTUM VAR</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="font-size:10px; color:#d6a44a; margin-bottom:8px; text-transform:uppercase;">Backend: {q_status["backend"]} · Provider: {q_status["provider"]}</div>', unsafe_allow_html=True)
+    for ticker in basket_tickers:
+        if ticker in tickers_data:
+            d = tickers_data[ticker]
+            sim_returns = np.random.normal(d["mean_return"], d["volatility"], 1000)
+            q_result = quantum_var_estimation(sim_returns, confidence=0.95)
+            q_label = f"⚛ {q_result['n_qubits']}q · {q_result['shots']} shots" if q_result.get("quantum") else "CLASSICAL"
+            st.markdown(f"""
+            <div class="q-card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="q-sym">{ticker}</span>
+                    <span class="q-val">Q-VaR 95%: <strong>{q_result['var']:.2f}%</strong> · Q-CVaR: <strong>{q_result['cvar']:.2f}%</strong></span>
+                    <span class="q-sub">{q_label}</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # 🔬 Tail Risk Metrics
+    st.markdown('<div class="bb-section">🔬 ХВОСТОВЫЕ РИСКИ</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="q-card">
+        <div class="q-sub" style="color:#ffd56a;">
+            CVaR 95%: <b>{wo['var_95']:.1f}%</b> · CVaR 99%: <b>{wo['var_99']:.1f}%</b> ·
+            Worst-of Mean: <b>{wo['mean']:.1f}%</b> · Barrier Breach: <b>{wo['barrier_breach_pct']:.1f}%</b>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 📊 Percentile Distribution
+    st.markdown('<div class="bb-section">📊 RETURN DISTRIBUTION — QUANTUM MC</div>', unsafe_allow_html=True)
+    fig_dist = go.Figure()
+    for ticker in basket_tickers:
+        if ticker in tickers_data and "percentiles" in tickers_data[ticker]:
+            p = tickers_data[ticker]["percentiles"]
+            fig_dist.add_trace(go.Bar(
+                name=ticker,
+                x=["P5", "P25", "P50", "P75", "P95"],
+                y=[p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]],
+                text=[f"{v:.0f}%" for v in [p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]]],
+                textposition="outside", textfont=dict(size=9),
+            ))
+    fig_dist.add_hline(y=ch_data["barrier_level"], line_dash="dash", line_color="#ff3b30",
+                       annotation_text=f"Barrier {ch_data['barrier_level']}%",
+                       annotation_font_color="#ff3b30")
+    fig_dist.update_layout(title="PERCENTILE DISTRIBUTION", yaxis_title="Final Return %",
+                           barmode="group", height=350, **PLOT_LAYOUT)
+    st.plotly_chart(fig_dist, use_container_width=True)
+
+    # 🧬 DNA Risk Decomposition
+    st.markdown('<div class="bb-section">🧬 DNA · RISK DECOMPOSITION</div>', unsafe_allow_html=True)
+    total_breach = sum(tickers_data.get(t, {}).get("barrier_breach_pct", 0) for t in basket_tickers)
+    if total_breach > 0:
+        dna_rows = []
+        for ticker in basket_tickers:
+            if ticker in tickers_data:
+                d = tickers_data[ticker]
+                contribution = (d["barrier_breach_pct"] / total_breach * 100) if total_breach > 0 else 0
+                dna_rows.append({"Тикер": ticker, "Breach %": f"{d['barrier_breach_pct']:.2f}%",
+                                 "Вклад в P(KI)": f"{contribution:.0f}%"})
+        st.dataframe(pd.DataFrame(dna_rows), use_container_width=True, hide_index=True)
+
+    # Log to history
+    if basket_run:
+        st.session_state.history.insert(0, {
+            "basket": " ".join(basket_tickers),
+            "time": datetime.datetime.now().strftime("%H:%M %d.%m"),
+            "score": f"{score_pct:.0f}%",
+        })
+
+# ── Additional Risk Analysis (heavy, behind sidebar button) ──
 if run_btn or basket_run:
     assessor = StrategyRiskAssessor(
         tickers=tickers,
@@ -556,240 +771,11 @@ if run_btn or basket_run:
             fig_corr.update_layout(title="CORRELATION MATRIX", **PLOT_LAYOUT)
             st.plotly_chart(fig_corr, use_container_width=True)
 
-    # ── Phoenix-style Analysis Card (ClickHouse + Qiskit) ──
-    st.divider()
-
-    with st.spinner("🗄️ Подключение к ClickHouse Cloud..."):
-        ch_data = fetch_quantum_risk_stats()
-    q_status = get_quantum_status()
-    tickers_data = ch_data["tickers"]
-    wo = ch_data["worst_of"]
-    src_label = "ClickHouse Cloud" if ch_data["source"] == "clickhouse_cloud" else "CACHE (OFFLINE)"
-
-    # Score & Status
-    score_pct = max(0, min(100, 100 - wo["barrier_breach_pct"] * 2))
-    score_grade = "good" if score_pct >= 70 else "mid" if score_pct >= 40 else "bad"
-    score_color = "#2ea043" if score_grade == "good" else "#d29922" if score_grade == "mid" else "#f85149"
-    stamp = "READY TO ISSUE" if score_pct >= 70 else "NEEDS REVIEW" if score_pct >= 40 else "AVOID"
-    stamp_icon = "🟢" if score_pct >= 70 else "🟡" if score_pct >= 40 else "🔴"
-
-    st.markdown(f"""
-    <div class="q-card" style="border-left:3px solid {score_color}; padding:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <div style="color:#ffb000; font-size:14px; font-weight:700;">Корзина из {len(basket_tickers)} бумаг</div>
-                <div style="display:flex; gap:6px; margin-top:4px;">
-                    {''.join(f'<span style="background:#1a1400; border:1px solid #3a2a00; padding:2px 8px; color:#6db6ff; font-size:12px; font-weight:700;">{t}</span>' for t in basket_tickers)}
-                </div>
-            </div>
-            <div style="text-align:right;">
-                <div style="color:{score_color}; font-size:28px; font-weight:700;">{score_pct:.0f}%</div>
-                <div style="color:#d6a44a; font-size:10px;">Рекоменд. скоринг</div>
-                <div style="background:{score_color}22; border:1px solid {score_color}; padding:2px 8px; margin-top:4px; font-size:10px; color:{score_color}; font-weight:700;">
-                    {stamp_icon} {stamp}
-                </div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Terms formula
-    st.markdown("""
-    <div class="q-card" style="padding:6px 12px; margin-top:4px;">
-        <code style="color:#d6a44a; font-size:10px;">
-            2Y · KI 60% · CB 70% · AC 100% · OBS 4/Y · MARGIN 6% · MEMORY ✓ · T-COPULA df=5 · MC 2000
-        </code>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # 6 KPI Tiles
-    st.markdown('<div class="bb-section">6 KPI — QUANTUM MONTE CARLO ({:,} SIMULATIONS)</div>'.format(ch_data["total_simulations"]), unsafe_allow_html=True)
-    kp1, kp2, kp3, kp4, kp5, kp6 = st.columns(6)
-    kp1.metric("P(KI) BARRIER", f"{wo['barrier_breach_pct']:.1f}%")
-    kp2.metric("P(AUTOCALL)", "42.8%")
-    kp3.metric("WORST-OF VAR 95%", f"{wo['var_95']:.1f}%")
-    kp4.metric("WORST-OF VAR 99%", f"{wo['var_99']:.1f}%")
-    kp5.metric("AVG WORST-OF", f"{wo['mean']:.1f}%")
-    kp6.metric("VOLATILITY", f"{wo.get('volatility', 45.2):.1f}%")
-
-    st.markdown(f"""
-    <div style="font-size:10px; color:#d6a44a; margin:4px 0 8px; text-transform:uppercase; letter-spacing:0.5px;">
-        Источник: {src_label} · Таблица: {ch_data['table']} · Симуляций: {ch_data['total_simulations']:,} · Barrier: {ch_data['barrier_level']}%
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Position sizer
-    st.markdown('<div class="bb-section">POSITION SIZER</div>', unsafe_allow_html=True)
-    ps1, ps2, ps3, ps4 = st.columns(4)
-    with ps1:
-        aum = st.number_input("AUM клиента, $", min_value=10000, value=1000000, step=10000)
-    with ps2:
-        risk_budget = st.number_input("Риск-бюджет, %", min_value=0.5, max_value=50.0, value=5.0, step=0.5)
-    with ps3:
-        e_loss = wo["barrier_breach_pct"] * 0.35
-        st.metric("E[loss], %", f"{e_loss:.1f}%")
-    with ps4:
-        notional = aum * (risk_budget / 100) / max(e_loss / 100, 0.01)
-        st.metric("Notional ноты", f"${notional:,.0f}")
-
-    st.divider()
-
-    # 🧭 Basket Profile Narrative
-    st.markdown('<div class="bb-section">🧭 ПРОФИЛЬ КОРЗИНЫ</div>', unsafe_allow_html=True)
-    worst_ticker = min(tickers_data.items(), key=lambda x: x[1].get("var_95", 999))[0] if tickers_data else "N/A"
-    st.markdown(f"""
-    <div class="q-card">
-        <div class="q-sub" style="color:#ffd56a; line-height:1.6;">
-            Корзина из {len(basket_tickers)} бумаг ({', '.join(basket_tickers)}). Worst-of определяется по <b style="color:#ff3b30;">{worst_ticker}</b>
-            (наименьший VaR 95% = {tickers_data.get(worst_ticker, {{}}).get('var_95', 0):.1f}%).
-            Барьер {ch_data['barrier_level']}% будет пробит в <b style="color:#ff3b30;">{wo['barrier_breach_pct']:.1f}%</b> симуляций по worst-of.
-            Средний worst-of return: {wo['mean']:.1f}%.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # 📋 Basket Composition Table
-    st.markdown('<div class="bb-section">📋 СОСТАВ КОРЗИНЫ</div>', unsafe_allow_html=True)
-    comp_rows = []
-    for ticker in basket_tickers:
-        if ticker in tickers_data:
-            d = tickers_data[ticker]
-            comp_rows.append({
-                "Тикер": ticker,
-                "VaR 95%": f"{d['var_95']:.1f}%",
-                "VaR 99%": f"{d['var_99']:.1f}%",
-                "Breach %": f"{d['barrier_breach_pct']:.2f}%",
-                "Mean": f"{d['mean_return']:.1f}%",
-                "Vol": f"{d['volatility']:.1f}%",
-                "Min": f"{d['min_return']:.1f}%",
-                "Max": f"{d['max_return']:.1f}%",
-                "Sims": f"{d['num_simulations']:,}",
-            })
-    if comp_rows:
-        st.dataframe(pd.DataFrame(comp_rows), use_container_width=True, hide_index=True)
-
-    # 🔬 IBM Qiskit Q-VaR
-    st.markdown('<div class="bb-section">🔬 IBM QISKIT — LIVE QUANTUM VAR</div>', unsafe_allow_html=True)
-    st.markdown(f'<div style="font-size:10px; color:#d6a44a; margin-bottom:8px; text-transform:uppercase;">Backend: {q_status["backend"]} · Provider: {q_status["provider"]}</div>', unsafe_allow_html=True)
-    for ticker in basket_tickers:
-        if ticker in tickers_data:
-            d = tickers_data[ticker]
-            sim_returns = np.random.normal(d["mean_return"], d["volatility"], 1000)
-            q_result = quantum_var_estimation(sim_returns, confidence=0.95)
-            q_label = f"⚛ {q_result['n_qubits']}q · {q_result['shots']} shots" if q_result.get("quantum") else "CLASSICAL"
-            st.markdown(f"""
-            <div class="q-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="q-sym">{ticker}</span>
-                    <span class="q-val">Q-VaR 95%: <strong>{q_result['var']:.2f}%</strong> · Q-CVaR: <strong>{q_result['cvar']:.2f}%</strong></span>
-                    <span class="q-sub">{q_label}</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-    # 🔬 Tail Risk Metrics
-    st.markdown('<div class="bb-section">🔬 ХВОСТОВЫЕ РИСКИ</div>', unsafe_allow_html=True)
-    st.markdown(f"""
-    <div class="q-card">
-        <div class="q-sub" style="color:#ffd56a;">
-            CVaR 95%: <b>{wo['var_95']:.1f}%</b> · CVaR 99%: <b>{wo['var_99']:.1f}%</b> ·
-            Worst-of Mean: <b>{wo['mean']:.1f}%</b> · Barrier Breach: <b>{wo['barrier_breach_pct']:.1f}%</b>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # 📊 Percentile Distribution
-    st.markdown('<div class="bb-section">📊 RETURN DISTRIBUTION — QUANTUM MC</div>', unsafe_allow_html=True)
-    fig_dist = go.Figure()
-    for ticker in basket_tickers:
-        if ticker in tickers_data and "percentiles" in tickers_data[ticker]:
-            p = tickers_data[ticker]["percentiles"]
-            fig_dist.add_trace(go.Bar(
-                name=ticker,
-                x=["P5", "P25", "P50", "P75", "P95"],
-                y=[p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]],
-                text=[f"{v:.0f}%" for v in [p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]]],
-                textposition="outside", textfont=dict(size=9),
-            ))
-    fig_dist.add_hline(y=ch_data["barrier_level"], line_dash="dash", line_color="#ff3b30",
-                       annotation_text=f"Barrier {ch_data['barrier_level']}%",
-                       annotation_font_color="#ff3b30")
-    fig_dist.update_layout(title="PERCENTILE DISTRIBUTION", yaxis_title="Final Return %",
-                           barmode="group", height=350, **PLOT_LAYOUT)
-    st.plotly_chart(fig_dist, use_container_width=True)
-
-    # 🧬 DNA Risk Decomposition
-    st.markdown('<div class="bb-section">🧬 DNA · RISK DECOMPOSITION</div>', unsafe_allow_html=True)
-    total_breach = sum(tickers_data.get(t, {}).get("barrier_breach_pct", 0) for t in basket_tickers)
-    if total_breach > 0:
-        dna_rows = []
-        for ticker in basket_tickers:
-            if ticker in tickers_data:
-                d = tickers_data[ticker]
-                contribution = (d["barrier_breach_pct"] / total_breach * 100) if total_breach > 0 else 0
-                dna_rows.append({"Тикер": ticker, "Breach %": f"{d['barrier_breach_pct']:.2f}%",
-                                 "Вклад в P(KI)": f"{contribution:.0f}%"})
-        st.dataframe(pd.DataFrame(dna_rows), use_container_width=True, hide_index=True)
-
-    # Log to history
-    if "history" not in st.session_state:
-        st.session_state.history = []
-    st.session_state.history.insert(0, {
-        "basket": " ".join(basket_tickers),
-        "time": datetime.datetime.now().strftime("%H:%M %d.%m"),
-        "score": f"{score_pct:.0f}%",
-    })
-
 else:
-    # ── Landing: Full Phoenix Terminal + MIT Quantum + ClickHouse ──
+    pass  # quantum card already shown above
 
-    # Session state for favorites and history
-    if "favorites" not in st.session_state:
-        st.session_state.favorites = []
-    if "history" not in st.session_state:
-        st.session_state.history = []
-
-    # ── Favorites Bar ──
-    fav_cols = st.columns([1, 6, 2])
-    with fav_cols[0]:
-        st.markdown('<span style="color:#fa8000; font-size:12px; font-weight:700;">★ ИЗБРАННЫЕ:</span>', unsafe_allow_html=True)
-    with fav_cols[1]:
-        if st.session_state.favorites:
-            fav_chips = " ".join(
-                f'<span style="background:#1a1400; border:1px solid #3a2a00; padding:2px 8px; margin-right:4px; color:#6db6ff; font-size:11px; cursor:pointer;">{f}</span>'
-                for f in st.session_state.favorites
-            )
-            st.markdown(fav_chips, unsafe_allow_html=True)
-        else:
-            st.markdown('<span style="color:#3a2a00; font-size:11px;">— пусто. Сохрани корзину для быстрого recall</span>', unsafe_allow_html=True)
-    with fav_cols[2]:
-        if st.button("+ В ИЗБРАННОЕ", key="fav_add"):
-            basket_val = basket_input.strip()
-            if basket_val and basket_val not in st.session_state.favorites:
-                st.session_state.favorites.insert(0, basket_val)
-                if len(st.session_state.favorites) > 12:
-                    st.session_state.favorites = st.session_state.favorites[:12]
-                st.rerun()
-
-    # ── History Panel ──
-    with st.expander(f"🕒 ИСТОРИЯ ({len(st.session_state.history)})"):
-        if st.session_state.history:
-            for h in st.session_state.history[:20]:
-                st.markdown(f"""
-                <div class="q-card" style="padding:4px 8px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="color:#6db6ff; font-size:11px; font-weight:700;">{h['basket']}</span>
-                        <span style="color:#d6a44a; font-size:10px;">{h['time']}</span>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-            if st.button("✕ ОЧИСТИТЬ ИСТОРИЮ", key="hist_clear"):
-                st.session_state.history = []
-                st.rerun()
-        else:
-            st.markdown('<span style="color:#3a2a00; font-size:11px;">Пусто — сделай расчёт, появится здесь.</span>', unsafe_allow_html=True)
-
-    # ── Tabs: Quantum Analytics / Рекомендации ──
+_old_landing_removed = True
+if False:  # DEAD CODE - old landing page removed
     landing_tab1, landing_tab2, landing_tab3 = st.tabs([
         "⚛ QUANTUM ANALYTICS", "📋 РЕКОМЕНДАЦИИ", "❓ HELP"
     ])
@@ -1130,6 +1116,22 @@ else:
         Quant Risk Hub © {datetime.datetime.now().year} · MIT Quantum + IBM Qiskit + ClickHouse Cloud · PHOENIX TERMINAL v2.3
     </div>
     """, unsafe_allow_html=True)
+
+# ── Footer Disclaimer ──
+st.markdown(f"""
+<div style="margin-top:16px; padding:8px 14px; border-top:1px solid #3a2a00;">
+    <small style="color:#3a2a00; font-size:9px; line-height:1.4;">
+        IV30 — из опционных цепочек yfinance (~30-дневная ATM IV, интерполяция).
+        Корреляции — лог-доходности за 1 год, топ-60 по IV30. DCF — FCF с CAPM-WACC, g терминальный 2.5%.
+        Monte Carlo — коррелированный GBM, 20k путей. Стресс-сценарии — ретроспективный
+        CAPM-пуш SPY-beta через GFC 2008, COVID 2020, Tech-крах 2022.
+        ClickHouse Cloud: 40,000 quantum simulations · IBM Qiskit AerSimulator: 4 qubits, 4096 shots.
+    </small>
+</div>
+<div style="text-align:center; color:#3a2a00; font-size:9px; margin-top:8px; text-transform:uppercase; letter-spacing:1px;">
+    Quant Risk Hub &copy; {datetime.datetime.now().year} · MIT Quantum + IBM Qiskit + ClickHouse Cloud · PHOENIX TERMINAL v2.3
+</div>
+""", unsafe_allow_html=True)
 
 # ── Status Bar (Bloomberg-style bottom bar) ──
 now = datetime.datetime.now(datetime.timezone.utc)
