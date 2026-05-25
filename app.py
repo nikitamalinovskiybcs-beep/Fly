@@ -172,6 +172,56 @@ st.markdown("""
         border-bottom: 1px solid var(--border);
         margin: 12px 0 8px;
     }
+
+    /* Basket hero input (center) */
+    .basket-hero {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 14px;
+        padding: 8px 14px;
+        margin: 0 auto 16px;
+        max-width: 1180px;
+        border: 1px solid var(--border);
+        background: #050505;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.65);
+    }
+    .basket-hero .hero-title {
+        margin: 0;
+        font-family: "JetBrains Mono", Consolas, monospace;
+        font-size: 14px;
+        letter-spacing: 3px;
+        color: var(--text);
+        font-weight: 700;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    /* Style the Streamlit text_input inside basket-hero wrapper */
+    .basket-input-wrap input {
+        font-family: "JetBrains Mono", Consolas, monospace !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        letter-spacing: 2px !important;
+        text-transform: uppercase !important;
+        background: #000 !important;
+        color: #6db6ff !important;
+        border: 2px solid #6db6ff !important;
+        border-radius: 0 !important;
+        padding: 12px 16px !important;
+        caret-color: #6db6ff !important;
+        box-shadow: 0 0 0 1px #1a3a5a inset, 0 0 12px rgba(109,182,255,0.25) !important;
+    }
+    .basket-input-wrap input:focus {
+        border-color: #9ad0ff !important;
+        box-shadow: 0 0 0 1px #1a3a5a inset, 0 0 14px rgba(154,208,255,0.35) !important;
+    }
+    .basket-input-wrap input::placeholder {
+        color: #355d80 !important;
+        letter-spacing: 2px !important;
+        font-weight: 500 !important;
+    }
+    .basket-input-wrap label { display: none !important; }
+    .basket-input-wrap .stTextInput > div { margin: 0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -230,6 +280,17 @@ st.markdown(f"""
     <div class="wei-grid-body">{wei_cells}</div>
 </div>
 """, unsafe_allow_html=True)
+
+# ── Basket Input (center, Bloomberg-style) ──
+st.markdown('<div class="basket-hero"><span class="hero-title">PHOENIX</span>', unsafe_allow_html=True)
+st.markdown('<div class="basket-input-wrap">', unsafe_allow_html=True)
+basket_input = st.text_input(
+    "basket",
+    value="AAPL MSFT GOOGL AMZN",
+    placeholder="AAPL MSFT NVDA AMD TSLA",
+    label_visibility="collapsed",
+)
+st.markdown('</div></div>', unsafe_allow_html=True)
 
 # ── Sidebar ──
 with st.sidebar:
