@@ -2,6 +2,8 @@
 
 import datetime
 import time
+import itertools
+import math
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -546,8 +548,9 @@ if basket_tickers:
 
     # ── ФЕНИКС v32.0 — Sobol MC Engine ──
     st.markdown('<div class="bb-section">🔥 ФЕНИКС v32.0 — SOBOL MONTE CARLO ENGINE</div>', unsafe_allow_html=True)
+    st.markdown('<div style="color:#d6a44a; font-size:10px; margin-bottom:6px;">2Y · USD · Memory Coupon · Worst-of Phoenix Autocallable · Все комбинации C(N,K)</div>', unsafe_allow_html=True)
 
-    phoenix_cols = st.columns([2, 1, 1])
+    phoenix_cols = st.columns([2, 1, 1, 1])
     with phoenix_cols[0]:
         phoenix_n_sims = st.selectbox(
             "Симуляций", [10_000, 50_000, 100_000, 500_000],
@@ -558,85 +561,175 @@ if basket_tickers:
         phoenix_coupon = st.number_input("Купон %/кв", value=6.5, step=0.5, key="phoenix_coupon")
     with phoenix_cols[2]:
         phoenix_barrier = st.number_input("Барьер %", value=65.0, step=5.0, key="phoenix_barrier")
+    with phoenix_cols[3]:
+        phoenix_combo_size = st.number_input("Имён в корзине", value=6, min_value=2, max_value=12, step=1, key="phoenix_combo_size")
 
-    run_phoenix = st.button("🔥 ЗАПУСК ФЕНИКС MC", key="run_phoenix", type="primary", use_container_width=True)
+    n_tickers = len(basket_tickers)
+    combo_size = int(phoenix_combo_size)
+    if combo_size > n_tickers:
+        combo_size = n_tickers
 
-    if run_phoenix or st.session_state.get("phoenix_result"):
+    n_combos = math.comb(n_tickers, combo_size) if n_tickers >= combo_size else 1
+
+    st.markdown(f"""
+    <div style="color:#ffb000; font-size:11px; margin:4px 0;">
+        📊 Корзина: {n_tickers} тикеров → C({n_tickers},{combo_size}) = <b>{n_combos}</b> комбинаций по {combo_size}
+    </div>
+    """, unsafe_allow_html=True)
+
+    if n_combos > 200:
+        st.warning(f"⚠️ {n_combos} комбинаций — расчёт может занять значительное время. Рекомендуется уменьшить количество тикеров или увеличить размер корзины.")
+
+    run_phoenix = st.button("🔥 ЗАПУСК ФЕНИКС MC — ВСЕ КОМБИНАЦИИ", key="run_phoenix", type="primary", use_container_width=True)
+
+    if run_phoenix or st.session_state.get("phoenix_combo_results"):
         if run_phoenix:
             phoenix_config = {
                 "n_sims": phoenix_n_sims,
                 "coupon": phoenix_coupon / 100,
                 "barrier": phoenix_barrier / 100,
             }
-            with st.spinner(f"🔥 ФЕНИКС v32.0 — {phoenix_n_sims:,} MC путей..."):
-                try:
-                    t0 = time.time()
-                    phoenix_result = phoenix_simulate(basket_tickers, config=phoenix_config)
-                    elapsed = time.time() - t0
-                except Exception as e:
-                    st.error(f"Ошибка ФЕНИКС MC: {e}")
-                    phoenix_result = None
-                    elapsed = 0
-            if phoenix_result:
-                phoenix_result["elapsed"] = elapsed
-                st.session_state["phoenix_result"] = phoenix_result
-                gdrive_path = save_to_gdrive(phoenix_result, basket_tickers)
-                if gdrive_path:
-                    st.session_state["last_gdrive_save"] = gdrive_path
 
-        phoenix_result = st.session_state.get("phoenix_result")
-        if phoenix_result:
-            elapsed = phoenix_result.get("elapsed", 0)
-            from_cache = phoenix_result.get("from_cache", False)
-            cache_label = "📦 CACHE HIT" if from_cache else f"⚡ {elapsed:.1f}s"
+            # Pre-load prices for all tickers once
+            from src.phoenix_engine import load_prices_yfinance
+            with st.spinner("📡 Загрузка рыночных данных..."):
+                all_prices = load_prices_yfinance(basket_tickers, days_back=730)
 
-            # Summary card
-            avg_payoff = phoenix_result["avg_payoff"]
-            p_loss = phoenix_result["p_loss"]
-            annual_return = (avg_payoff ** (1 / 2) - 1) * 100
+            missing = [t for t in basket_tickers if t not in all_prices]
+            if missing:
+                st.error(f"Нет данных для: {', '.join(missing)}")
+            else:
+                combos = list(itertools.combinations(basket_tickers, combo_size))
+                combo_results = []
+                progress_bar = st.progress(0, text=f"🔥 ФЕНИКС v32.0 — 0/{len(combos)} комбинаций...")
+                t0 = time.time()
+
+                for idx, combo in enumerate(combos):
+                    combo_list = list(combo)
+                    combo_prices = {t: all_prices[t] for t in combo_list}
+                    try:
+                        result = phoenix_simulate(combo_list, config=phoenix_config, prices_data=combo_prices)
+                    except Exception:
+                        result = None
+                    if result:
+                        result["combo"] = combo_list
+                        combo_results.append(result)
+                    progress_bar.progress(
+                        (idx + 1) / len(combos),
+                        text=f"🔥 ФЕНИКС v32.0 — {idx+1}/{len(combos)} комбинаций..."
+                    )
+
+                elapsed = time.time() - t0
+                progress_bar.empty()
+
+                if combo_results:
+                    combo_results.sort(key=lambda r: r["avg_payoff"], reverse=True)
+                    st.session_state["phoenix_combo_results"] = combo_results
+                    st.session_state["phoenix_combo_elapsed"] = elapsed
+                    st.session_state["phoenix_combo_config"] = phoenix_config
+                    # Save best result to gdrive
+                    best = combo_results[0]
+                    gdrive_path = save_to_gdrive(best, best["combo"])
+                    if gdrive_path:
+                        st.session_state["last_gdrive_save"] = gdrive_path
+                    # Also keep single best for backward compat
+                    best["elapsed"] = elapsed
+                    st.session_state["phoenix_result"] = best
+
+        combo_results = st.session_state.get("phoenix_combo_results")
+        if combo_results:
+            elapsed = st.session_state.get("phoenix_combo_elapsed", 0)
+            cfg_display = st.session_state.get("phoenix_combo_config", {})
 
             st.markdown(f"""
-            <div class="q-card" style="border-left:3px solid {'#34c759' if annual_return > 0 else '#ff3b30'}; padding:12px; margin-top:8px;">
+            <div class="q-card" style="border-left:3px solid #34c759; padding:12px; margin-top:8px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <div style="color:#fa8000; font-size:12px; font-weight:700;">PAYOFF SIMULATION</div>
+                        <div style="color:#fa8000; font-size:14px; font-weight:700;">
+                            КОМБИНАТОРНЫЙ АНАЛИЗ — {len(combo_results)} КОРЗИН
+                        </div>
                         <div style="color:#ffd56a; font-size:10px; margin-top:2px;">
-                            {phoenix_result['n_sims']:,} Sobol MC · {len(basket_tickers)} assets · Memory Coupon ✓ · {cache_label}
+                            {combo_results[0].get('n_sims', 0):,} Sobol MC на корзину · {combo_size} имён · 26% годовых · USD · ⚡ {elapsed:.1f}s
                         </div>
                     </div>
                     <div style="text-align:right;">
-                        <div style="color:{'#34c759' if annual_return > 0 else '#ff3b30'}; font-size:22px; font-weight:700;">
-                            {'+' if annual_return > 0 else ''}{annual_return:.1f}% p.a.
+                        <div style="color:#34c759; font-size:12px;">ЛУЧШАЯ КОРЗИНА</div>
+                        <div style="color:#34c759; font-size:20px; font-weight:700;">
+                            {' '.join(combo_results[0]['combo'])}
                         </div>
                     </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
-            # 6 KPI from ФЕНИКС
+            # Ranking table
+            st.markdown('<div class="bb-section">🏆 РЕЙТИНГ КОРЗИН (ЛУЧШИЕ → ХУДШИЕ)</div>', unsafe_allow_html=True)
+            rank_rows = []
+            for i, r in enumerate(combo_results):
+                ann_ret = (r["avg_payoff"] ** (1 / 2) - 1) * 100
+                rank_rows.append({
+                    "#": i + 1,
+                    "Корзина": " / ".join(r["combo"]),
+                    "Avg Payoff": f"{r['avg_payoff']:.4f}",
+                    "P.A. %": f"{ann_ret:+.1f}%",
+                    "P(Loss)": f"{r['p_loss']:.1%}",
+                    "VaR 95%": f"{r['var_95']:.4f}",
+                    "CVaR 95%": f"{r['cvar_95']:.4f}",
+                    "All 8 Cpn": f"{r['p_all_coupons']:.1%}",
+                    "Avg Cpn": f"{r['mean_coupons']:.1f}/8",
+                })
+            st.dataframe(pd.DataFrame(rank_rows), use_container_width=True, hide_index=True)
+
+            # Best basket details
+            best = combo_results[0]
+            worst_combo = combo_results[-1]
+            avg_payoff = best["avg_payoff"]
+            p_loss = best["p_loss"]
+            annual_return = (avg_payoff ** (1 / 2) - 1) * 100
+            worst_annual = (worst_combo["avg_payoff"] ** (1 / 2) - 1) * 100
+
+            st.markdown(f"""
+            <div style="display:flex; gap:12px; margin-top:8px;">
+                <div class="q-card" style="flex:1; border-left:3px solid #34c759; padding:10px;">
+                    <div style="color:#34c759; font-size:11px; font-weight:700;">🥇 ЛУЧШАЯ</div>
+                    <div style="color:#ffb000; font-size:14px; font-weight:700;">{' '.join(best['combo'])}</div>
+                    <div style="color:#34c759; font-size:18px; font-weight:700;">{annual_return:+.1f}% p.a.</div>
+                    <div style="color:#d6a44a; font-size:10px;">P(loss): {p_loss:.1%} · VaR: {best['var_95']:.4f}</div>
+                </div>
+                <div class="q-card" style="flex:1; border-left:3px solid #ff3b30; padding:10px;">
+                    <div style="color:#ff3b30; font-size:11px; font-weight:700;">🥉 ХУДШАЯ</div>
+                    <div style="color:#ffb000; font-size:14px; font-weight:700;">{' '.join(worst_combo['combo'])}</div>
+                    <div style="color:#ff3b30; font-size:18px; font-weight:700;">{worst_annual:+.1f}% p.a.</div>
+                    <div style="color:#d6a44a; font-size:10px;">P(loss): {worst_combo['p_loss']:.1%} · VaR: {worst_combo['var_95']:.4f}</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 6 KPI from best basket
+            st.markdown('<div class="bb-section">📊 ЛУЧШАЯ КОРЗИНА — KPI</div>', unsafe_allow_html=True)
             pk1, pk2, pk3, pk4, pk5, pk6 = st.columns(6)
             pk1.metric("AVG PAYOFF", f"{avg_payoff:.4f}")
             pk2.metric("P(LOSS)", f"{p_loss:.1%}")
-            pk3.metric("VAR 95%", f"{phoenix_result['var_95']:.4f}")
-            pk4.metric("CVAR 95%", f"{phoenix_result['cvar_95']:.4f}")
-            pk5.metric("ALL 8 COUPONS", f"{phoenix_result['p_all_coupons']:.1%}")
-            pk6.metric("AVG COUPONS", f"{phoenix_result['mean_coupons']:.1f}/8")
+            pk3.metric("VAR 95%", f"{best['var_95']:.4f}")
+            pk4.metric("CVAR 95%", f"{best['cvar_95']:.4f}")
+            pk5.metric("ALL 8 COUPONS", f"{best['p_all_coupons']:.1%}")
+            pk6.metric("AVG COUPONS", f"{best['mean_coupons']:.1f}/8")
 
             # P(loss) CI
             st.markdown(f"""
             <div style="font-size:10px; color:#d6a44a; margin:4px 0;">
-                P(loss) 95% CI: [{phoenix_result['p_loss_ci_low']:.1%} – {phoenix_result['p_loss_ci_high']:.1%}] ·
-                P(0 купонов): {phoenix_result['p_zero_coupons']:.1%} ·
-                Купон: {phoenix_result['coupon_rate']*4*100:.0f}% годовых ·
-                Барьер: {phoenix_result['barrier']*100:.0f}%
+                P(loss) 95% CI: [{best['p_loss_ci_low']:.1%} – {best['p_loss_ci_high']:.1%}] ·
+                P(0 купонов): {best['p_zero_coupons']:.1%} ·
+                Купон: {best['coupon_rate']*4*100:.0f}% годовых (USD) ·
+                Барьер: {best['barrier']*100:.0f}%
             </div>
             """, unsafe_allow_html=True)
 
-            # Per-ticker finals from ФЕНИКС
-            if phoenix_result.get("ticker_finals"):
-                st.markdown('<div class="bb-section">📊 ФЕНИКС — PER-TICKER FINALS</div>', unsafe_allow_html=True)
+            # Per-ticker finals from best basket
+            if best.get("ticker_finals"):
+                st.markdown('<div class="bb-section">📊 ЛУЧШАЯ КОРЗИНА — PER-TICKER FINALS</div>', unsafe_allow_html=True)
                 tf_rows = []
-                for t, d in phoenix_result["ticker_finals"].items():
+                for t, d in best["ticker_finals"].items():
                     tf_rows.append({
                         "Тикер": t,
                         "Mean %": f"{d['mean']:.1f}",
