@@ -447,11 +447,12 @@ if basket_tickers:
     # 🧭 Basket Profile Narrative
     st.markdown('<div class="bb-section">🧭 ПРОФИЛЬ КОРЗИНЫ</div>', unsafe_allow_html=True)
     worst_ticker = min(tickers_data.items(), key=lambda x: x[1].get("var_95", 999))[0] if tickers_data else "N/A"
+    worst_var95 = tickers_data.get(worst_ticker, {}).get("var_95", 0)
     st.markdown(f"""
     <div class="q-card">
         <div class="q-sub" style="color:#ffd56a; line-height:1.6;">
             Корзина из {len(basket_tickers)} бумаг ({', '.join(basket_tickers)}). Worst-of определяется по <b style="color:#ff3b30;">{worst_ticker}</b>
-            (наименьший VaR 95% = {tickers_data.get(worst_ticker, {{}}).get('var_95', 0):.1f}%).
+            (наименьший VaR 95% = {worst_var95:.1f}%).
             Барьер {ch_data['barrier_level']}% будет пробит в <b style="color:#ff3b30;">{wo['barrier_breach_pct']:.1f}%</b> симуляций по worst-of.
             Средний worst-of return: {wo['mean']:.1f}%.
         </div>
