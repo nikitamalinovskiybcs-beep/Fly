@@ -167,57 +167,66 @@ def simulate_basket(
     n_sims = cfg["n_sims"]
     horizon = cfg["horizon_days"]
 
-    # Generate random samples — use Sobol for small dims, pseudo-random otherwise
-    # Sobol requires n to be power of 2 and has memory limits
-    max_sobol_dim = 200  # practical limit for Streamlit Cloud memory
-    sobol_dim = horizon * n_assets
-    use_sobol = SCIPY_QMC and sobol_dim <= max_sobol_dim
-
-    if use_sobol:
-        n_pow2 = 1 << (n_sims - 1).bit_length()  # round up to power of 2
-        sampler = qmc.Sobol(d=sobol_dim, scramble=True)
-        sobol_samples = sampler.random(n=n_pow2)[:n_sims]
-        z_all = norm.ppf(np.clip(sobol_samples, 1e-8, 1 - 1e-8)).reshape(n_sims, horizon, n_assets)
-        del sobol_samples
-    else:
-        z_all = np.random.standard_normal((n_sims, horizon, n_assets))
-
     dt = 1 / 252
     sqrt_dt = np.sqrt(dt)
 
-    # Vectorized GBM
-    inc = np.einsum("ij,skj->ski", L, z_all) * sqrt_dt + mu * dt
-    log_prices = np.cumsum(inc, axis=1)
-    prices = np.exp(log_prices)
+    # --- Batch processing to stay within Streamlit Cloud ~1GB RAM ---
+    # Each sim needs ~horizon*n_assets*8*4 bytes (z, inc, prices, worst)
+    bytes_per_sim = horizon * n_assets * 8 * 5
+    max_mem = 300 * 1024 * 1024  # 300 MB budget for arrays
+    batch_size = max(1000, min(n_sims, int(max_mem / bytes_per_sim)))
 
-    ones = np.ones((n_sims, 1, n_assets))
-    prices = np.concatenate([ones, prices], axis=1)
-    worst = np.min(prices, axis=2)
+    all_payoffs = []
+    all_ticker_finals_raw = {t: [] for t in basket}
 
-    # Memory coupon calculation
-    total_coupons = np.zeros(n_sims)
-    memory = np.zeros(n_sims, dtype=int)
+    for batch_start in range(0, n_sims, batch_size):
+        bs = min(batch_size, n_sims - batch_start)
 
-    for idx in cfg["obs_days"][:-1]:
-        paid = worst[:, idx] >= 1.0
-        total_coupons[paid] += cfg["coupon"] * (1 + memory[paid])
-        memory[paid] = 0
-        memory[~paid] += 1
+        z_all = np.random.standard_normal((bs, horizon, n_assets))
 
-    final = worst[:, -1]
-    capital_loss = final < cfg["barrier"]
-    principal = np.ones(n_sims)
-    principal[capital_loss] = final[capital_loss]
+        inc = np.einsum("ij,skj->ski", L, z_all) * sqrt_dt + mu * dt
+        del z_all
+        prices = np.exp(np.cumsum(inc, axis=1))
+        del inc
 
-    last_paid = worst[:, cfg["obs_days"][-1]] >= 1.0
-    total_coupons[last_paid] += cfg["coupon"] * memory[last_paid]
+        ones = np.ones((bs, 1, n_assets))
+        prices = np.concatenate([ones, prices], axis=1)
+        del ones
+        worst = np.min(prices, axis=2)
 
-    payoffs = principal + total_coupons
+        # Memory coupon calculation
+        total_coupons = np.zeros(bs)
+        memory_count = np.zeros(bs, dtype=int)
+
+        for idx in cfg["obs_days"][:-1]:
+            paid = worst[:, idx] >= 1.0
+            total_coupons[paid] += cfg["coupon"] * (1 + memory_count[paid])
+            memory_count[paid] = 0
+            memory_count[~paid] += 1
+
+        final = worst[:, -1]
+        capital_loss = final < cfg["barrier"]
+        principal = np.ones(bs)
+        principal[capital_loss] = final[capital_loss]
+
+        last_paid = worst[:, cfg["obs_days"][-1]] >= 1.0
+        total_coupons[last_paid] += cfg["coupon"] * memory_count[last_paid]
+
+        payoffs_batch = principal + total_coupons
+        all_payoffs.append(payoffs_batch)
+
+        for i, t in enumerate(basket):
+            all_ticker_finals_raw[t].append(prices[:, -1, i] * 100)
+
+        del prices, worst
+
+    payoffs = np.concatenate(all_payoffs)
+    del all_payoffs
 
     # Per-ticker final returns (as %)
     ticker_finals = {}
-    for i, t in enumerate(basket):
-        finals = prices[:, -1, i] * 100
+    for t in basket:
+        finals = np.concatenate(all_ticker_finals_raw[t])
         ticker_finals[t] = {
             "mean": float(np.mean(finals)),
             "var_95": float(np.percentile(finals, 5)),
@@ -227,6 +236,7 @@ def simulate_basket(
             "volatility": float(np.std(finals)),
             "breach_pct": float(np.mean(finals < cfg["barrier"] * 100) * 100),
         }
+    del all_ticker_finals_raw
 
     # Bootstrap CI for p_loss
     boot_p_loss = []
