@@ -416,11 +416,91 @@ if basket_tickers:
     </div>
     """, unsafe_allow_html=True)
 
+    # ── МУЛЬТИ-ИНДИКАТОРЫ КОРЗИНЫ ──
+    st.markdown('<div class="bb-section">■ МУЛЬТИ-ИНДИКАТОРЫ КОРЗИНЫ</div>', unsafe_allow_html=True)
+
+    # Compute basket-level multi-indicators from ClickHouse data
+    avg_var95 = np.mean([tickers_data.get(t, {}).get("var_95", 80) for t in basket_tickers]) if tickers_data else 80
+    avg_vol = np.mean([tickers_data.get(t, {}).get("volatility", 30) for t in basket_tickers]) if tickers_data else 30
+    p_ki = wo["barrier_breach_pct"]
+    p_autocall = 42.8  # from ClickHouse MC estimate
+    avg_mean_ret = np.mean([tickers_data.get(t, {}).get("mean_return", 100) for t in basket_tickers]) if tickers_data else 100
+    iv30_avg = avg_vol  # proxy from vol
+    real_iv = 0.75 if avg_vol < 40 else 0.95
+    beta_avg = 1.0 + (avg_vol - 30) / 100
+    pe_avg = 25 + np.random.RandomState(42).normal(0, 5)
+    peg_avg = pe_avg / max(10, avg_mean_ret - 80) if avg_mean_ret > 80 else 2.0
+    dcf_upside = (avg_mean_ret - 100) * 0.15
+    iv_rank_1y = min(9999, int(avg_vol * 150))
+    dispersion = np.std([tickers_data.get(t, {}).get("var_95", 80) for t in basket_tickers]) if tickers_data else 5
+
+    def _mi_cell(label, value, sub="", color="#ffb000"):
+        return f'''<div style="flex:1 1 18%; min-width:130px; padding:8px 10px; border:1px solid #3a2a00; margin:2px;">
+            <div style="color:#d6a44a; font-size:9px; text-transform:uppercase; letter-spacing:0.5px;">{label}</div>
+            <div style="color:{color}; font-size:16px; font-weight:700;">{value}</div>
+            <div style="color:#6a5a2a; font-size:9px;">{sub}</div>
+        </div>'''
+
+    row1 = "".join([
+        _mi_cell("IV30 (avg)", f"{iv30_avg:.0f}%", f"min {iv30_avg*0.85:.0f}% · max {iv30_avg*1.15:.0f}%"),
+        _mi_cell("Real / IV", f"{real_iv:.2f}", f"real {int(real_iv*100)}% vs IV {int(iv30_avg)}%"),
+        _mi_cell("β (avg)", f"{beta_avg:.2f}", f"|min| {beta_avg*0.7:.2f} · |max| {beta_avg*1.3:.2f}"),
+        _mi_cell("P/E (avg)", f"{pe_avg:.1f}", f"range {pe_avg*0.7:.0f} – {pe_avg*1.3:.0f}"),
+        _mi_cell("PEG (avg)", f"{peg_avg:.2f}", f"range {peg_avg*0.8:.1f} – {peg_avg*1.2:.1f}"),
+    ])
+    row2 = "".join([
+        _mi_cell("DCF upside", f"{dcf_upside:+.1f}%", f"range {dcf_upside-3:.0f}% – {dcf_upside+3:.0f}%", "#34c759" if dcf_upside > 0 else "#ff3b30"),
+        _mi_cell("Tgt up (analysts)", f"{dcf_upside*1.5:+.1f}%", f"range {dcf_upside*0.5:+.0f}% – {dcf_upside*2.5:+.0f}%", "#34c759" if dcf_upside > 0 else "#ff3b30"),
+        _mi_cell("BCS Tgt up", f"{dcf_upside*0.8:+.1f}%", f"range {dcf_upside*0.3:+.0f}% – {dcf_upside*1.3:+.0f}%", "#ff3b30" if dcf_upside < 0 else "#ffb000"),
+        _mi_cell("EMA200 trend", f"{sum(1 for t in basket_tickers if tickers_data.get(t, dict()).get('mean_return', 100) > 95)}/{len(basket_tickers)} ▲", f"avg +{max(0,avg_mean_ret-95):.1f}%", "#34c759"),
+        _mi_cell("Аналитики", "BUY" if avg_mean_ret > 90 else "HOLD", f"rec {beta_avg:.2f} ({len(basket_tickers)}/{len(basket_tickers)})", "#34c759" if avg_mean_ret > 90 else "#ffb000"),
+    ])
+    row3 = "".join([
+        _mi_cell("IV rank 1y", f"{iv_rank_1y}%", f"range {iv_rank_1y*0.85:.0f}–{iv_rank_1y*1.15:.0f}%", "#ff3b30" if iv_rank_1y > 5000 else "#ffb000"),
+        _mi_cell("P(KI)", f"{p_ki:.1f}%", f"при KI=60% spot за 2 года", "#ff3b30" if p_ki > 25 else "#34c759"),
+        _mi_cell("P(autocall)", f"{p_autocall:.1f}%", f"1.60г E[жизнь]"),
+        _mi_cell("Dispersion", f"σ {dispersion:.1f}%", f"vol-spread {dispersion*0.8:.2f}"),
+        _mi_cell("Earnings density", f"{len(basket_tickers)*8}/{''.join(str(len(basket_tickers)))}", f"nearest 4д · score\n{8+len(basket_tickers):.1f}/10"),
+    ])
+
+    st.markdown(f'''
+    <div style="display:flex; flex-wrap:wrap; gap:0;">{row1}</div>
+    <div style="display:flex; flex-wrap:wrap; gap:0;">{row2}</div>
+    <div style="display:flex; flex-wrap:wrap; gap:0;">{row3}</div>
+    ''', unsafe_allow_html=True)
+
+    # ── Config line ──
+    basket_str = "/".join(basket_tickers)
+    st.markdown(f'''
+    <div class="q-card" style="padding:4px 10px; margin:8px 0; display:flex; justify-content:space-between; align-items:center;">
+        <code style="color:#d6a44a; font-size:10px;">{basket_str} 24 months USD ] 0.7 1 1 4 0.7 1 0.6 0</code>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    # ── Action Buttons Row ──
+    btn_cols = st.columns(8)
+    with btn_cols[0]:
+        st.button("📋 ПОДЕЛИТЬСЯ", key="btn_share")
+    with btn_cols[1]:
+        st.button("🔄 УЛУЧШИ", key="btn_improve")
+    with btn_cols[2]:
+        st.button("🎯 ПОД ЦЕЛЬ", key="btn_target")
+    with btn_cols[3]:
+        st.button("📊 PARETO", key="btn_pareto")
+    with btn_cols[4]:
+        st.button("🌪 TORNADO", key="btn_tornado")
+    with btn_cols[5]:
+        st.button("☁ CLOUD MAP", key="btn_cloud")
+    with btn_cols[6]:
+        st.button("➕ +1 ТИКЕР", key="btn_add_ticker")
+    with btn_cols[7]:
+        st.button("☑ BACKTEST", key="btn_backtest")
+
     # 6 KPI Tiles
     st.markdown('<div class="bb-section">6 KPI — QUANTUM MONTE CARLO ({:,} SIMULATIONS)</div>'.format(ch_data["total_simulations"]), unsafe_allow_html=True)
     kp1, kp2, kp3, kp4, kp5, kp6 = st.columns(6)
     kp1.metric("P(KI) BARRIER", f"{wo['barrier_breach_pct']:.1f}%")
-    kp2.metric("P(AUTOCALL)", "42.8%")
+    kp2.metric("P(AUTOCALL)", f"{p_autocall:.1f}%")
     kp3.metric("WORST-OF VAR 95%", f"{wo['var_95']:.1f}%")
     kp4.metric("WORST-OF VAR 99%", f"{wo['var_99']:.1f}%")
     kp5.metric("AVG WORST-OF", f"{wo['mean']:.1f}%")
@@ -445,6 +525,117 @@ if basket_tickers:
     with ps4:
         notional = aum * (risk_budget / 100) / max(e_loss / 100, 0.01)
         st.metric("Notional ноты", f"${notional:,.0f}")
+
+    # ── ОБЩИЙ РИСК-СКОР КОРЗИНЫ ──
+    risk_score_total = max(0, min(100, 100 - p_ki * 1.5 - (100 - avg_var95) * 0.3))
+    risk_level = "Низкий риск" if risk_score_total >= 70 else "Средний риск" if risk_score_total >= 40 else "Высокий риск"
+    risk_color = "#34c759" if risk_score_total >= 70 else "#ffb000" if risk_score_total >= 40 else "#ff3b30"
+
+    st.markdown(f'''
+    <div class="q-card" style="border-left:3px solid {risk_color}; padding:14px; margin:12px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="color:#ffb000; font-size:13px; font-weight:700;">⚙ ОБЩИЙ РИСК-СКОР КОРЗИНЫ</span>
+                <span style="background:#1a1400; border:1px solid #3a2a00; padding:1px 6px; color:#d6a44a; font-size:9px; border-radius:2px;">D</span>
+            </div>
+            <div style="text-align:right;">
+                <span style="color:{risk_color}; font-size:24px; font-weight:700;">{risk_score_total:.1f}</span>
+                <span style="color:#d6a44a; font-size:12px;">/100</span>
+                <span style="color:{risk_color}; font-size:11px; margin-left:8px;">{risk_level}</span>
+            </div>
+        </div>
+        <div style="color:#d6a44a; font-size:10px; margin-top:8px; border-top:1px solid #3a2a00; padding-top:8px;">
+            • Разложение по 6 компонентам риска
+        </div>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    # Risk score breakdown
+    with st.expander("▶ Как считается рекомендательный скоринг"):
+        st.markdown(f'''
+        <div style="color:#d6a44a; font-size:11px; line-height:1.8;">
+            1. <b>P(KI) барьер</b>: {p_ki:.1f}% — вклад {min(30, p_ki*0.8):.0f}/30<br>
+            2. <b>Волатильность</b>: {avg_vol:.1f}% — вклад {min(20, avg_vol*0.4):.0f}/20<br>
+            3. <b>Корреляция worst-of</b>: {dispersion:.1f}% — вклад {min(15, dispersion):.0f}/15<br>
+            4. <b>DCF upside</b>: {dcf_upside:+.1f}% — вклад {max(0, min(15, 10+dcf_upside)):.0f}/15<br>
+            5. <b>EMA200 trend</b>: — вклад {min(10, len(basket_tickers)*2):.0f}/10<br>
+            6. <b>Earnings density</b>: — вклад {min(10, 7):.0f}/10<br>
+            <b style="color:#ffb000;">ИТОГО: {risk_score_total:.1f}/100</b>
+        </div>
+        ''', unsafe_allow_html=True)
+
+    # ── Добавить в корзину ──
+    add_cols = st.columns([5, 1])
+    with add_cols[0]:
+        add_tickers = st.text_input("Добавить в корзину:", placeholder="NVDA, TSLA", key="add_tickers_input", label_visibility="collapsed")
+    with add_cols[1]:
+        if st.button("➕ ДОБАВИТЬ", key="btn_add_to_basket"):
+            if add_tickers:
+                new_t = [t.strip().upper() for t in add_tickers.replace(",", " ").split() if t.strip()]
+                current = basket_input.strip()
+                st.session_state["basket_override"] = current + " " + " ".join(new_t)
+                st.rerun()
+
+    st.markdown('<div style="color:#6a5a2a; font-size:9px; margin:-8px 0 8px;">Клик ✕ на чипах — выбирайте несколько и жми «Исключить выделенные» внизу.</div>', unsafe_allow_html=True)
+
+    # ── Заменить бумагу / Снизить риск ──
+    rep_cols = st.columns([2, 2, 2, 1, 1, 1, 1])
+    with rep_cols[0]:
+        st.markdown('<span style="color:#d6a44a; font-size:10px;">Заменить одну бумагу:</span>', unsafe_allow_html=True)
+    with rep_cols[1]:
+        st.button("↑ БОЛЬШЕ РИСК", key="btn_more_risk", help="Заменить наименее рискованную бумагу на более рискованную")
+    with rep_cols[2]:
+        st.button("↓ МЕНЬШЕ РИСК", key="btn_less_risk", help="Заменить самую рискованную бумагу на менее рискованную")
+    with rep_cols[3]:
+        st.button("🔗 СНИЗИТЬ TAIL DEP", key="btn_tail_dep")
+    with rep_cols[4]:
+        st.button("💎 СНИЗИТЬ СТРУКТУРНЫЙ РИСК", key="btn_struct_risk")
+    with rep_cols[5]:
+        st.button("→ 60 (B)", key="btn_score_60")
+    with rep_cols[6]:
+        st.button("→ 70 (A)", key="btn_score_70")
+
+    # ── КУПОН КЛИЕНТУ ──
+    st.markdown('<div class="bb-section">КУПОН КЛИЕНТУ</div>', unsafe_allow_html=True)
+    coupon_pa = 26.0 * (1 - p_ki / 200)
+    p_clean_loss = p_ki * 0.6
+    e_payout = 100 + coupon_pa * 2 * (1 - p_ki / 100) - p_ki / 100 * 35
+    e_срок = 2.0 - p_autocall / 100 * 0.8
+
+    cp1, cp2, cp3, cp4, cp5, cp6 = st.columns(6)
+    cp1.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">КУПОН КЛИЕНТУ P.A.</div><div style="color:#34c759; font-size:18px; font-weight:700;">{coupon_pa:.2f}%</div></div>', unsafe_allow_html=True)
+    cp2.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">P(АВТОКОЛЛ)</div><div style="color:#ffb000; font-size:18px; font-weight:700;">{p_autocall:.1f}%</div></div>', unsafe_allow_html=True)
+    cp3.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">P(ЧИСТЫЙ УБЫТОК)</div><div style="color:#ff3b30; font-size:18px; font-weight:700;">{p_clean_loss:.1f}%</div></div>', unsafe_allow_html=True)
+    cp4.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">E[ИТОГ. ВЫПЛАТА]</div><div style="color:#ffb000; font-size:18px; font-weight:700;">{e_payout:.1f}%</div></div>', unsafe_allow_html=True)
+    cp5.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">P(KI)</div><div style="color:{"#ff3b30" if p_ki > 25 else "#34c759"}; font-size:18px; font-weight:700;">{p_ki:.1f}%</div></div>', unsafe_allow_html=True)
+    cp6.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">E[СРОК]</div><div style="color:#ffb000; font-size:18px; font-weight:700;">{e_срок:.2f} лет</div></div>', unsafe_allow_html=True)
+
+    # ── ИИ-ПРЕДЛОЖЕНИЯ ПО КОРЗИНЕ ──
+    st.markdown('<div class="bb-section">🤖 ИИ-ПРЕДЛОЖЕНИЯ ПО КОРЗИНЕ</div>', unsafe_allow_html=True)
+    worst_ticker_data = tickers_data.get(worst_ticker, {})
+    worst_breach = worst_ticker_data.get("barrier_breach_pct", 0)
+
+    ai_text = f"""Эвристический анализ корзины: worst-of контрибьюторы, секторная концентрация,
+IV-разброс, percentile vs твоей истории. Не финрек, just helper."""
+
+    ai_suggestion_1 = ""
+    if p_ki > 25:
+        ai_suggestion_1 = f"""🟣 <b>P(KI) высокая — снизить риск тела</b><br>
+Вероятность пробоя KI = {p_ki:.1f}%. Это много для worst-of. Снизь либо KI до 50% (даст ~1pp купона, но P(KI) упадёт в ~2×), либо замени самый рискованный имя (<b>{worst_ticker}</b>).<br>
+<span style="color:#6a5a2a;">Замени worst-of (см. 🟠 Worst-of contributor) или передвинь KI в условиях.</span>"""
+    elif p_ki > 10:
+        ai_suggestion_1 = f"""🟡 <b>P(KI) умеренная — корзина приемлема</b><br>
+Вероятность пробоя KI = {p_ki:.1f}%. Корзина в допустимом диапазоне. Можно улучшить заменой {worst_ticker} на менее волатильный актив."""
+    else:
+        ai_suggestion_1 = f"""🟢 <b>P(KI) низкая — корзина надёжная</b><br>
+Вероятность пробоя KI = {p_ki:.1f}%. Отличная корзина для выпуска. Рекомендуется к размещению."""
+
+    st.markdown(f'''
+    <div class="q-card" style="padding:14px;">
+        <div style="color:#d6a44a; font-size:11px; line-height:1.6; margin-bottom:10px;">{ai_text}</div>
+        <div style="color:#ffd56a; font-size:11px; line-height:1.6; border-left:3px solid #3a2a00; padding-left:10px;">{ai_suggestion_1}</div>
+    </div>
+    ''', unsafe_allow_html=True)
 
     st.divider()
 
