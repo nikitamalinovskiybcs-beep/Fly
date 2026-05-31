@@ -167,12 +167,18 @@ def simulate_basket(
     n_sims = cfg["n_sims"]
     horizon = cfg["horizon_days"]
 
-    # Sobol quasi-random (or fallback to pseudo-random)
-    if SCIPY_QMC:
-        dim = horizon * n_assets
-        sampler = qmc.Sobol(d=dim, scramble=True)
-        sobol_samples = sampler.random(n=n_sims)
+    # Generate random samples — use Sobol for small dims, pseudo-random otherwise
+    # Sobol requires n to be power of 2 and has memory limits
+    max_sobol_dim = 200  # practical limit for Streamlit Cloud memory
+    sobol_dim = horizon * n_assets
+    use_sobol = SCIPY_QMC and sobol_dim <= max_sobol_dim
+
+    if use_sobol:
+        n_pow2 = 1 << (n_sims - 1).bit_length()  # round up to power of 2
+        sampler = qmc.Sobol(d=sobol_dim, scramble=True)
+        sobol_samples = sampler.random(n=n_pow2)[:n_sims]
         z_all = norm.ppf(np.clip(sobol_samples, 1e-8, 1 - 1e-8)).reshape(n_sims, horizon, n_assets)
+        del sobol_samples
     else:
         z_all = np.random.standard_normal((n_sims, horizon, n_assets))
 

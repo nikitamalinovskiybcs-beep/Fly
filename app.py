@@ -568,14 +568,18 @@ if basket_tickers:
                 "coupon": phoenix_coupon / 100,
                 "barrier": phoenix_barrier / 100,
             }
-            with st.spinner(f"🔥 ФЕНИКС v32.0 — {phoenix_n_sims:,} Sobol MC путей..."):
-                t0 = time.time()
-                phoenix_result = phoenix_simulate(basket_tickers, config=phoenix_config)
-                elapsed = time.time() - t0
+            with st.spinner(f"🔥 ФЕНИКС v32.0 — {phoenix_n_sims:,} MC путей..."):
+                try:
+                    t0 = time.time()
+                    phoenix_result = phoenix_simulate(basket_tickers, config=phoenix_config)
+                    elapsed = time.time() - t0
+                except Exception as e:
+                    st.error(f"Ошибка ФЕНИКС MC: {e}")
+                    phoenix_result = None
+                    elapsed = 0
             if phoenix_result:
                 phoenix_result["elapsed"] = elapsed
                 st.session_state["phoenix_result"] = phoenix_result
-                # Auto-save to Google Drive
                 gdrive_path = save_to_gdrive(phoenix_result, basket_tickers)
                 if gdrive_path:
                     st.session_state["last_gdrive_save"] = gdrive_path
