@@ -416,6 +416,10 @@ if basket_tickers:
     </div>
     """, unsafe_allow_html=True)
 
+    # ── Precompute worst ticker ──
+    worst_ticker = min(tickers_data.items(), key=lambda x: x[1].get("var_95", 999))[0] if tickers_data else "N/A"
+    worst_var95 = tickers_data.get(worst_ticker, {}).get("var_95", 0)
+
     # ── МУЛЬТИ-ИНДИКАТОРЫ КОРЗИНЫ ──
     st.markdown('<div class="bb-section">■ МУЛЬТИ-ИНДИКАТОРЫ КОРЗИНЫ</div>', unsafe_allow_html=True)
 
@@ -641,8 +645,6 @@ IV-разброс, percentile vs твоей истории. Не финрек, j
 
     # 🧭 Basket Profile Narrative
     st.markdown('<div class="bb-section">🧭 ПРОФИЛЬ КОРЗИНЫ</div>', unsafe_allow_html=True)
-    worst_ticker = min(tickers_data.items(), key=lambda x: x[1].get("var_95", 999))[0] if tickers_data else "N/A"
-    worst_var95 = tickers_data.get(worst_ticker, {}).get("var_95", 0)
     st.markdown(f"""
     <div class="q-card">
         <div class="q-sub" style="color:#ffd56a; line-height:1.6;">
