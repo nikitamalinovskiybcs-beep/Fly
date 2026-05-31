@@ -1,6 +1,7 @@
 """Quant Risk Hub — Bloomberg Terminal Style Dashboard + MIT Quantum + ClickHouse."""
 
 import datetime
+import time
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -13,6 +14,7 @@ from src.risk_metrics import drawdown_series
 from src.data_module import DEFAULT_TICKERS
 from src.clickhouse_data import fetch_quantum_risk_stats
 from src.quantum_risk import quantum_var_estimation, quantum_monte_carlo_risk, get_quantum_status
+from src.phoenix_engine import simulate_basket as phoenix_simulate, save_to_gdrive, list_gdrive_reports, GDRIVE_PATH, GDRIVE_AVAILABLE
 
 st.set_page_config(
     page_title="Worst-of Phoenix | Quantum Terminal",
@@ -541,6 +543,128 @@ if basket_tickers:
                 dna_rows.append({"Тикер": ticker, "Breach %": f"{d['barrier_breach_pct']:.2f}%",
                                  "Вклад в P(KI)": f"{contribution:.0f}%"})
         st.dataframe(pd.DataFrame(dna_rows), use_container_width=True, hide_index=True)
+
+    # ── ФЕНИКС v32.0 — Sobol MC Engine ──
+    st.markdown('<div class="bb-section">🔥 ФЕНИКС v32.0 — SOBOL MONTE CARLO ENGINE</div>', unsafe_allow_html=True)
+
+    phoenix_cols = st.columns([2, 1, 1])
+    with phoenix_cols[0]:
+        phoenix_n_sims = st.selectbox(
+            "Симуляций", [10_000, 50_000, 100_000, 500_000],
+            index=1, key="phoenix_n_sims",
+            format_func=lambda x: f"{x:,}",
+        )
+    with phoenix_cols[1]:
+        phoenix_coupon = st.number_input("Купон %/кв", value=6.5, step=0.5, key="phoenix_coupon")
+    with phoenix_cols[2]:
+        phoenix_barrier = st.number_input("Барьер %", value=65.0, step=5.0, key="phoenix_barrier")
+
+    run_phoenix = st.button("🔥 ЗАПУСК ФЕНИКС MC", key="run_phoenix", type="primary", use_container_width=True)
+
+    if run_phoenix or st.session_state.get("phoenix_result"):
+        if run_phoenix:
+            phoenix_config = {
+                "n_sims": phoenix_n_sims,
+                "coupon": phoenix_coupon / 100,
+                "barrier": phoenix_barrier / 100,
+            }
+            with st.spinner(f"🔥 ФЕНИКС v32.0 — {phoenix_n_sims:,} Sobol MC путей..."):
+                t0 = time.time()
+                phoenix_result = phoenix_simulate(basket_tickers, config=phoenix_config)
+                elapsed = time.time() - t0
+            if phoenix_result:
+                phoenix_result["elapsed"] = elapsed
+                st.session_state["phoenix_result"] = phoenix_result
+                # Auto-save to Google Drive
+                gdrive_path = save_to_gdrive(phoenix_result, basket_tickers)
+                if gdrive_path:
+                    st.session_state["last_gdrive_save"] = gdrive_path
+
+        phoenix_result = st.session_state.get("phoenix_result")
+        if phoenix_result:
+            elapsed = phoenix_result.get("elapsed", 0)
+            from_cache = phoenix_result.get("from_cache", False)
+            cache_label = "📦 CACHE HIT" if from_cache else f"⚡ {elapsed:.1f}s"
+
+            # Summary card
+            avg_payoff = phoenix_result["avg_payoff"]
+            p_loss = phoenix_result["p_loss"]
+            annual_return = (avg_payoff ** (1 / 2) - 1) * 100
+
+            st.markdown(f"""
+            <div class="q-card" style="border-left:3px solid {'#34c759' if annual_return > 0 else '#ff3b30'}; padding:12px; margin-top:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="color:#fa8000; font-size:12px; font-weight:700;">PAYOFF SIMULATION</div>
+                        <div style="color:#ffd56a; font-size:10px; margin-top:2px;">
+                            {phoenix_result['n_sims']:,} Sobol MC · {len(basket_tickers)} assets · Memory Coupon ✓ · {cache_label}
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="color:{'#34c759' if annual_return > 0 else '#ff3b30'}; font-size:22px; font-weight:700;">
+                            {'+' if annual_return > 0 else ''}{annual_return:.1f}% p.a.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # 6 KPI from ФЕНИКС
+            pk1, pk2, pk3, pk4, pk5, pk6 = st.columns(6)
+            pk1.metric("AVG PAYOFF", f"{avg_payoff:.4f}")
+            pk2.metric("P(LOSS)", f"{p_loss:.1%}")
+            pk3.metric("VAR 95%", f"{phoenix_result['var_95']:.4f}")
+            pk4.metric("CVAR 95%", f"{phoenix_result['cvar_95']:.4f}")
+            pk5.metric("ALL 8 COUPONS", f"{phoenix_result['p_all_coupons']:.1%}")
+            pk6.metric("AVG COUPONS", f"{phoenix_result['mean_coupons']:.1f}/8")
+
+            # P(loss) CI
+            st.markdown(f"""
+            <div style="font-size:10px; color:#d6a44a; margin:4px 0;">
+                P(loss) 95% CI: [{phoenix_result['p_loss_ci_low']:.1%} – {phoenix_result['p_loss_ci_high']:.1%}] ·
+                P(0 купонов): {phoenix_result['p_zero_coupons']:.1%} ·
+                Купон: {phoenix_result['coupon_rate']*4*100:.0f}% годовых ·
+                Барьер: {phoenix_result['barrier']*100:.0f}%
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Per-ticker finals from ФЕНИКС
+            if phoenix_result.get("ticker_finals"):
+                st.markdown('<div class="bb-section">📊 ФЕНИКС — PER-TICKER FINALS</div>', unsafe_allow_html=True)
+                tf_rows = []
+                for t, d in phoenix_result["ticker_finals"].items():
+                    tf_rows.append({
+                        "Тикер": t,
+                        "Mean %": f"{d['mean']:.1f}",
+                        "VaR 95%": f"{d['var_95']:.1f}",
+                        "VaR 99%": f"{d['var_99']:.1f}",
+                        "Breach %": f"{d['breach_pct']:.2f}",
+                        "Vol %": f"{d['volatility']:.1f}",
+                        "Min %": f"{d['min']:.1f}",
+                        "Max %": f"{d['max']:.1f}",
+                    })
+                st.dataframe(pd.DataFrame(tf_rows), use_container_width=True, hide_index=True)
+
+            # Google Drive save status
+            gdrive_save = st.session_state.get("last_gdrive_save")
+            gdrive_label = "Google Drive" if GDRIVE_AVAILABLE else "Local Backup"
+            st.markdown(f"""
+            <div style="font-size:10px; color:#34c759; margin:4px 0;">
+                💾 Результат сохранён: {gdrive_label} · {gdrive_save or GDRIVE_PATH}
+            </div>
+            """, unsafe_allow_html=True)
+
+    # Google Drive Reports
+    st.markdown('<div class="bb-section">💾 СОХРАНЁННЫЕ ОТЧЁТЫ</div>', unsafe_allow_html=True)
+    reports = list_gdrive_reports()
+    if reports:
+        for r in reports[:5]:
+            basket_str = ", ".join(r.get("basket", []))
+            st.markdown(f'<div class="q-card"><span class="q-sub">{r["timestamp"]}</span> · <span class="q-sym">{basket_str}</span> · <span class="q-sub">{r["file"]}</span></div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div style="color:#d6a44a; font-size:10px;">Нет сохранённых отчётов. Запусти ФЕНИКС MC для первого расчёта.</div>', unsafe_allow_html=True)
+
+    st.divider()
 
     # Log to history
     if basket_run:
@@ -1127,16 +1251,18 @@ st.markdown(f"""
         Monte Carlo — коррелированный GBM, 20k путей. Стресс-сценарии — ретроспективный
         CAPM-пуш SPY-beta через GFC 2008, COVID 2020, Tech-крах 2022.
         ClickHouse Cloud: 40,000 quantum simulations · IBM Qiskit AerSimulator: 4 qubits, 4096 shots.
+        ФЕНИКС v32.0: Sobol QMC, memory coupon, vectorized worst-of pricing · Google Drive backup.
     </small>
 </div>
 <div style="text-align:center; color:#3a2a00; font-size:9px; margin-top:8px; text-transform:uppercase; letter-spacing:1px;">
-    Quant Risk Hub &copy; {datetime.datetime.now().year} · MIT Quantum + IBM Qiskit + ClickHouse Cloud · PHOENIX TERMINAL v2.3
+    Quant Risk Hub &copy; {datetime.datetime.now().year} · MIT Quantum + IBM Qiskit + ClickHouse Cloud + ФЕНИКС v32.0 · PHOENIX TERMINAL v2.3
 </div>
 """, unsafe_allow_html=True)
 
 # ── Status Bar (Bloomberg-style bottom bar) ──
 now = datetime.datetime.now(datetime.timezone.utc)
 ny_time = now.strftime("%H:%M:%S")
+gdrive_status = "G-DRIVE" if GDRIVE_AVAILABLE else "LOCAL-BKP"
 st.markdown(f"""
 <div class="status-bar">
     <span>NY {ny_time}</span>
@@ -1144,6 +1270,8 @@ st.markdown(f"""
     <span>API <span class="st-ok">OK</span></span>
     <span>CLICKHOUSE <span class="st-ok">CONNECTED</span></span>
     <span>QISKIT <span class="st-ok">AER-SIM</span></span>
+    <span>ФЕНИКС <span class="st-ok">v32.0</span></span>
+    <span>{gdrive_status} <span class="st-ok">OK</span></span>
     <span style="margin-left:auto;"><span class="st-label">PHOENIX TERMINAL · v2.3</span></span>
 </div>
 """, unsafe_allow_html=True)
