@@ -17,6 +17,7 @@ from src.data_module import DEFAULT_TICKERS
 from src.clickhouse_data import fetch_quantum_risk_stats
 from src.quantum_risk import quantum_var_estimation, quantum_monte_carlo_risk, get_quantum_status
 from src.phoenix_engine import simulate_basket as phoenix_simulate, save_to_gdrive, list_gdrive_reports, GDRIVE_PATH, GDRIVE_AVAILABLE
+from src.conductor import analyze as conductor_analyze
 
 st.set_page_config(
     page_title="Worst-of Phoenix | Quantum Terminal",
@@ -380,16 +381,46 @@ if basket_tickers:
     wo = ch_data["worst_of"]
     src_label = "ClickHouse Cloud" if ch_data["source"] == "clickhouse_cloud" else "CACHE (OFFLINE)"
 
-    # ── РЕКОМЕНДАЦИИ tab ──
-    st.markdown('<div style="border-bottom:2px solid #ffb000; display:inline-block; padding:4px 12px; color:#ffb000; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">РЕКОМЕНДАЦИИ</div>', unsafe_allow_html=True)
+    # ── Compute Qiskit Q-VaR per ticker (used in scoring) ──
+    qiskit_results = {}
+    for _t in basket_tickers:
+        if _t in tickers_data:
+            _d = tickers_data[_t]
+            _sim_rets = np.random.normal(_d["mean_return"], _d["volatility"], 1000)
+            qiskit_results[_t] = quantum_var_estimation(_sim_rets, confidence=0.95)
+    avg_qvar = np.mean([r['var'] for r in qiskit_results.values()]) if qiskit_results else 50.0
 
-    # Score & Status — balanced formula
-    # Components: P(KI) penalty, volatility penalty, mean return bonus, diversification
-    breach_penalty = min(40, wo["barrier_breach_pct"] * 1.0)  # 0-40 pts penalty
-    vol_penalty = min(20, max(0, (wo.get('volatility', 40) - 20) * 0.5))  # 0-20 pts
-    mean_bonus = min(20, max(0, (wo['mean'] - 60) * 0.5))  # 0-20 pts bonus for good mean
-    diversification = min(20, len(basket_tickers) * 3)  # more tickers = better
-    score_pct = max(0, min(100, 100 - breach_penalty - vol_penalty + mean_bonus * 0.3 + diversification * 0.3))
+    # ── Incorporate ФЕНИКС MC results if available ──
+    phoenix_res = st.session_state.get("phoenix_result")
+    phoenix_p_loss = phoenix_res.get("p_loss", None) if phoenix_res else None
+    phoenix_avg_payoff = phoenix_res.get("avg_payoff", None) if phoenix_res else None
+    data_sources = ["ClickHouse (40K sims)"]
+    if qiskit_results:
+        data_sources.append(f"Qiskit ({list(qiskit_results.values())[0].get('method', 'aer')})")
+    if phoenix_res:
+        data_sources.append(f"ФЕНИКС MC ({phoenix_res.get('n_sims', '?')} paths)")
+
+    # ── РЕКОМЕНДАЦИИ tab ──
+    st.markdown(f'''<div style="display:flex; align-items:center; gap:12px;">
+        <div style="border-bottom:2px solid #ffb000; display:inline-block; padding:4px 12px; color:#ffb000; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">РЕКОМЕНДАЦИИ</div>
+        <div style="color:#6a5a2a; font-size:9px;">Источники: {" · ".join(data_sources)}</div>
+    </div>''', unsafe_allow_html=True)
+
+    # Score & Status — multi-source balanced formula
+    # Sources: ClickHouse (breach, vol, mean), Qiskit (Q-VaR), ФЕНИКС (P(loss), payoff)
+    breach_penalty = min(40, wo["barrier_breach_pct"] * 1.0)  # 0-40 pts from ClickHouse
+    vol_penalty = min(20, max(0, (wo.get('volatility', 40) - 20) * 0.5))  # 0-20 pts from ClickHouse
+    mean_bonus = min(20, max(0, (wo['mean'] - 60) * 0.5))  # 0-20 pts from ClickHouse
+    diversification = min(20, len(basket_tickers) * 3)  # structural
+    # Qiskit Q-VaR adjustment: higher Q-VaR = safer = bonus
+    qvar_bonus = min(10, max(-10, (avg_qvar - 50) * 0.2))  # -10 to +10 pts from Qiskit
+    # ФЕНИКС MC adjustment: if available, use P(loss) and avg_payoff
+    phoenix_bonus = 0.0
+    if phoenix_p_loss is not None:
+        phoenix_bonus += max(-10, min(5, (0.15 - phoenix_p_loss) * 30))  # lower P(loss) = bonus
+    if phoenix_avg_payoff is not None:
+        phoenix_bonus += max(-5, min(5, (phoenix_avg_payoff - 1.0) * 20))  # higher payoff = bonus
+    score_pct = max(0, min(100, 100 - breach_penalty - vol_penalty + mean_bonus * 0.3 + diversification * 0.3 + qvar_bonus + phoenix_bonus))
     score_grade = "good" if score_pct >= 70 else "mid" if score_pct >= 40 else "bad"
     score_color = "#2ea043" if score_grade == "good" else "#d29922" if score_grade == "mid" else "#f85149"
     stamp = "READY TO ISSUE" if score_pct >= 70 else "NEEDS REVIEW" if score_pct >= 40 else "AVOID"
@@ -425,7 +456,7 @@ if basket_tickers:
                 ■ Лучше {comparison_pct}% твоих (+{comparison_pct/30:.1f} от среднего)
             </div>
             <div style="background:{score_color}22; border:1px solid {score_color}; padding:4px 10px; font-size:10px; color:{score_color}; font-weight:700;">
-                ▲ {stamp} · score {score_pct:.0f}% {'>' if score_pct >= 70 else '<'} 70% · P(KI) {wo['barrier_breach_pct']:.0f}% {'<' if wo['barrier_breach_pct'] < 35 else '≥'} 35%
+                ▲ {stamp} · score {score_pct:.0f}% {'>' if score_pct >= 70 else '<'} 70% · P(KI) {wo['barrier_breach_pct']:.0f}% {'<' if wo['barrier_breach_pct'] < 35 else '≥'} 35% · Q-VaR {avg_qvar:.0f}%{f' · MC P(loss) {phoenix_p_loss:.0%}' if phoenix_p_loss is not None else ''}
             </div>
         </div>
     </div>
@@ -555,8 +586,20 @@ if basket_tickers:
         st.metric("Notional ноты", f"${notional:,.0f}")
 
     # ── ОБЩИЙ РИСК-СКОР КОРЗИНЫ ──
-    # Weighted risk score: lower = more risky
-    risk_score_total = max(5, min(95, 50 - p_ki * 0.8 + (avg_var95 - 50) * 0.3 + len(basket_tickers) * 1.5 - avg_vol * 0.2 + avg_mean_ret * 0.1))
+    # Multi-source risk score: ClickHouse + Qiskit + ФЕНИКС
+    r_pki = min(30, p_ki * 0.8)  # ClickHouse: P(KI) barrier — max 30
+    r_vol = min(20, avg_vol * 0.4)  # ClickHouse: volatility — max 20
+    r_corr = min(15, dispersion)  # ClickHouse: correlation dispersion — max 15
+    r_dcf = max(0, min(15, 10 + dcf_upside))  # ClickHouse: DCF upside — max 15
+    r_ema = min(10, len(basket_tickers) * 2)  # EMA200 trend — max 10
+    r_earnings = min(10, 7)  # Earnings density — max 10
+    # Qiskit Q-VaR bonus: higher avg_qvar = safer
+    r_qiskit = max(0, min(10, (avg_qvar - 30) * 0.2))  # 0-10 pts from Qiskit
+    # ФЕНИКС MC bonus
+    r_phoenix = 0.0
+    if phoenix_p_loss is not None:
+        r_phoenix = max(0, min(10, (0.3 - phoenix_p_loss) * 20))  # 0-10 pts
+    risk_score_total = max(5, min(95, r_dcf + r_ema + r_earnings + r_qiskit + r_phoenix + 30 - r_pki - r_vol * 0.3 - r_corr * 0.3))
     risk_level = "Низкий риск" if risk_score_total >= 70 else "Средний риск" if risk_score_total >= 40 else "Высокий риск"
     risk_color = "#34c759" if risk_score_total >= 70 else "#ffb000" if risk_score_total >= 40 else "#ff3b30"
 
@@ -574,7 +617,7 @@ if basket_tickers:
             </div>
         </div>
         <div style="color:#d6a44a; font-size:10px; margin-top:8px; border-top:1px solid #3a2a00; padding-top:8px;">
-            • Разложение по 6 компонентам риска
+            • Разложение по 8 компонентам риска (ClickHouse + Qiskit + ФЕНИКС MC)
         </div>
     </div>
     ''', unsafe_allow_html=True)
@@ -583,12 +626,18 @@ if basket_tickers:
     with st.expander("▶ Как считается рекомендательный скоринг"):
         st.markdown(f'''
         <div style="color:#d6a44a; font-size:11px; line-height:1.8;">
-            1. <b>P(KI) барьер</b>: {p_ki:.1f}% — вклад {min(30, p_ki*0.8):.0f}/30<br>
-            2. <b>Волатильность</b>: {avg_vol:.1f}% — вклад {min(20, avg_vol*0.4):.0f}/20<br>
-            3. <b>Корреляция worst-of</b>: {dispersion:.1f}% — вклад {min(15, dispersion):.0f}/15<br>
-            4. <b>DCF upside</b>: {dcf_upside:+.1f}% — вклад {max(0, min(15, 10+dcf_upside)):.0f}/15<br>
-            5. <b>EMA200 trend</b>: — вклад {min(10, len(basket_tickers)*2):.0f}/10<br>
-            6. <b>Earnings density</b>: — вклад {min(10, 7):.0f}/10<br>
+            <span style="color:#6db6ff;">── ClickHouse Cloud (40K sims) ──</span><br>
+            1. <b>P(KI) барьер</b>: {p_ki:.1f}% — вклад {r_pki:.0f}/30<br>
+            2. <b>Волатильность</b>: {avg_vol:.1f}% — вклад {r_vol:.0f}/20<br>
+            3. <b>Корреляция worst-of</b>: {dispersion:.1f}% — вклад {r_corr:.0f}/15<br>
+            4. <b>DCF upside</b>: {dcf_upside:+.1f}% — вклад {r_dcf:.0f}/15<br>
+            <span style="color:#6db6ff;">── Рыночные данные ──</span><br>
+            5. <b>EMA200 trend</b>: — вклад {r_ema:.0f}/10<br>
+            6. <b>Earnings density</b>: — вклад {r_earnings:.0f}/10<br>
+            <span style="color:#6db6ff;">── IBM Qiskit AerSimulator ──</span><br>
+            7. <b>Q-VaR adjustment</b>: avg Q-VaR={avg_qvar:.1f}% — вклад +{r_qiskit:.1f}<br>
+            <span style="color:#6db6ff;">── ФЕНИКС v32.0 Sobol MC ──</span><br>
+            8. <b>MC P(loss) adjustment</b>: {'P(loss)='+f'{phoenix_p_loss:.1%}' if phoenix_p_loss is not None else 'не запущен'} — вклад +{r_phoenix:.1f}<br>
             <b style="color:#ffb000;">ИТОГО: {risk_score_total:.1f}/100</b>
         </div>
         ''', unsafe_allow_html=True)
@@ -625,11 +674,19 @@ if basket_tickers:
         st.button("→ 70 (A)", key="btn_score_70")
 
     # ── КУПОН КЛИЕНТУ ──
-    st.markdown('<div class="bb-section">КУПОН КЛИЕНТУ</div>', unsafe_allow_html=True)
-    coupon_pa = 26.0 * (1 - p_ki / 200)
-    p_clean_loss = p_ki * 0.6
-    e_payout = 100 + coupon_pa * 2 * (1 - p_ki / 100) - p_ki / 100 * 35
+    # Use ФЕНИКС MC results if available, otherwise estimate from ClickHouse
+    coupon_src = "ClickHouse estimate"
+    if phoenix_res and phoenix_p_loss is not None:
+        coupon_pa = 26.0 * (1 - phoenix_p_loss / 2)
+        p_clean_loss = phoenix_p_loss * 100 * 0.6
+        e_payout = (phoenix_avg_payoff or 1.0) * 100
+        coupon_src = "ФЕНИКС MC"
+    else:
+        coupon_pa = 26.0 * (1 - p_ki / 200)
+        p_clean_loss = p_ki * 0.6
+        e_payout = 100 + coupon_pa * 2 * (1 - p_ki / 100) - p_ki / 100 * 35
     e_срок = 2.0 - p_autocall / 100 * 0.8
+    st.markdown(f'<div class="bb-section">КУПОН КЛИЕНТУ <span style="color:#6a5a2a; font-size:9px; font-weight:400;">({coupon_src})</span></div>', unsafe_allow_html=True)
 
     cp1, cp2, cp3, cp4, cp5, cp6 = st.columns(6)
     cp1.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">КУПОН КЛИЕНТУ P.A.</div><div style="color:#34c759; font-size:18px; font-weight:700;">{coupon_pa:.2f}%</div></div>', unsafe_allow_html=True)
@@ -701,21 +758,19 @@ IV-разброс, percentile vs твоей истории. Не финрек, j
     if comp_rows:
         st.dataframe(pd.DataFrame(comp_rows), use_container_width=True, hide_index=True)
 
-    # 🔬 IBM Qiskit Q-VaR
+    # 🔬 IBM Qiskit Q-VaR (uses pre-computed results from scoring)
     st.markdown('<div class="bb-section">🔬 IBM QISKIT — LIVE QUANTUM VAR</div>', unsafe_allow_html=True)
-    st.markdown(f'<div style="font-size:10px; color:#d6a44a; margin-bottom:8px; text-transform:uppercase;">Backend: {q_status["backend"]} · Provider: {q_status["provider"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="font-size:10px; color:#d6a44a; margin-bottom:8px; text-transform:uppercase;">Backend: {q_status["backend"]} · Provider: {q_status["provider"]} · Avg Q-VaR: {avg_qvar:.1f}% (→ scoring +{r_qiskit:.1f}pt)</div>', unsafe_allow_html=True)
     for ticker in basket_tickers:
-        if ticker in tickers_data:
-            d = tickers_data[ticker]
-            sim_returns = np.random.normal(d["mean_return"], d["volatility"], 1000)
-            q_result = quantum_var_estimation(sim_returns, confidence=0.95)
+        if ticker in qiskit_results:
+            q_result = qiskit_results[ticker]
             q_label = f"⚛ {q_result['n_qubits']}q · {q_result['shots']} shots" if q_result.get("quantum") else "CLASSICAL"
             st.markdown(f"""
             <div class="q-card">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="q-sym">{ticker}</span>
                     <span class="q-val">Q-VaR 95%: <strong>{q_result['var']:.2f}%</strong> · Q-CVaR: <strong>{q_result['cvar']:.2f}%</strong></span>
-                    <span class="q-sub">{q_label}</span>
+                    <span class="q-sub">{q_label} · → scoring</span>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -808,56 +863,79 @@ IV-разброс, percentile vs твоей истории. Не финрек, j
                 "barrier": phoenix_barrier / 100,
             }
 
-            # Pre-load prices for all tickers once
-            from src.phoenix_engine import load_prices_yfinance
-            with st.spinner("📡 Загрузка рыночных данных..."):
-                all_prices = load_prices_yfinance(basket_tickers, days_back=730)
+            combos = list(itertools.combinations(basket_tickers, combo_size))
+            combo_results = []
+            t0 = time.time()
+            compute_source = "local"
 
-            missing = [t for t in basket_tickers if t not in all_prices]
-            if missing:
-                st.error(f"Нет данных для: {', '.join(missing)}")
-            else:
-                combos = list(itertools.combinations(basket_tickers, combo_size))
-                combo_results = []
-                progress_bar = st.progress(0, text=f"🔥 ФЕНИКС v32.0 — 0/{len(combos)} комбинаций...")
-                t0 = time.time()
-
-                for idx, combo in enumerate(combos):
+            # Step 1: Try Conductor (ClickHouse cache → Railway → GitHub Actions)
+            with st.spinner("🔗 Conductor: проверка кэша и внешних вычислителей..."):
+                for combo in combos:
                     combo_list = list(combo)
-                    combo_prices = {t: all_prices[t] for t in combo_list}
-                    try:
-                        result = phoenix_simulate(combo_list, config=phoenix_config, prices_data=combo_prices)
-                    except Exception:
-                        result = None
-                    if result:
-                        result["combo"] = combo_list
-                        combo_results.append(result)
-                    progress_bar.progress(
-                        (idx + 1) / len(combos),
-                        text=f"🔥 ФЕНИКС v32.0 — {idx+1}/{len(combos)} комбинаций..."
-                    )
+                    ext_result = conductor_analyze(combo_list, n_sims=phoenix_n_sims)
+                    if ext_result and "error" not in ext_result:
+                        ext_result["combo"] = combo_list
+                        combo_results.append(ext_result)
+                        compute_source = ext_result.get("source", "external")
 
-                elapsed = time.time() - t0
-                progress_bar.empty()
+            # Step 2: If conductor missed some combos, fall back to local ФЕНИКС MC
+            computed_combos = {tuple(r["combo"]) for r in combo_results}
+            remaining_combos = [c for c in combos if c not in computed_combos]
 
-                if combo_results:
-                    combo_results.sort(key=lambda r: r["avg_payoff"], reverse=True)
-                    st.session_state["phoenix_combo_results"] = combo_results
-                    st.session_state["phoenix_combo_elapsed"] = elapsed
-                    st.session_state["phoenix_combo_config"] = phoenix_config
-                    # Save best result to gdrive
-                    best = combo_results[0]
-                    gdrive_path = save_to_gdrive(best, best["combo"])
-                    if gdrive_path:
-                        st.session_state["last_gdrive_save"] = gdrive_path
-                    # Also keep single best for backward compat
-                    best["elapsed"] = elapsed
-                    st.session_state["phoenix_result"] = best
+            if remaining_combos:
+                compute_source = "local+cache" if combo_results else "local"
+                from src.phoenix_engine import load_prices_yfinance
+                with st.spinner("📡 Загрузка рыночных данных (local fallback)..."):
+                    all_prices = load_prices_yfinance(basket_tickers, days_back=730)
+
+                missing = [t for t in basket_tickers if t not in all_prices]
+                if missing:
+                    st.error(f"Нет данных для: {', '.join(missing)}")
+                else:
+                    progress_bar = st.progress(0, text=f"🔥 ФЕНИКС v32.0 — 0/{len(remaining_combos)} комбинаций (local)...")
+
+                    for idx, combo in enumerate(remaining_combos):
+                        combo_list = list(combo)
+                        combo_prices = {t: all_prices[t] for t in combo_list if t in all_prices}
+                        try:
+                            result = phoenix_simulate(combo_list, config=phoenix_config, prices_data=combo_prices)
+                        except Exception:
+                            result = None
+                        if result:
+                            result["combo"] = combo_list
+                            result["source"] = "local_phoenix_mc"
+                            combo_results.append(result)
+                        progress_bar.progress(
+                            (idx + 1) / len(remaining_combos),
+                            text=f"🔥 ФЕНИКС v32.0 — {idx+1}/{len(remaining_combos)} комбинаций (local)..."
+                        )
+                    progress_bar.empty()
+
+            elapsed = time.time() - t0
+
+            if combo_results:
+                combo_results.sort(key=lambda r: r["avg_payoff"], reverse=True)
+                st.session_state["phoenix_combo_results"] = combo_results
+                st.session_state["phoenix_combo_elapsed"] = elapsed
+                st.session_state["phoenix_combo_config"] = phoenix_config
+                st.session_state["phoenix_compute_source"] = compute_source
+                # Save best result to gdrive
+                best = combo_results[0]
+                gdrive_path = save_to_gdrive(best, best["combo"])
+                if gdrive_path:
+                    st.session_state["last_gdrive_save"] = gdrive_path
+                # Also keep single best for backward compat
+                best["elapsed"] = elapsed
+                best["n_sims"] = phoenix_n_sims
+                st.session_state["phoenix_result"] = best
 
         combo_results = st.session_state.get("phoenix_combo_results")
         if combo_results:
             elapsed = st.session_state.get("phoenix_combo_elapsed", 0)
             cfg_display = st.session_state.get("phoenix_combo_config", {})
+            c_source = st.session_state.get("phoenix_compute_source", "local")
+            source_labels = {"clickhouse_cache": "CH-CACHE", "railway_api": "RAILWAY", "github_actions": "GH-ACTIONS", "local": "LOCAL MC", "local+cache": "CH-CACHE+LOCAL"}
+            source_label = source_labels.get(c_source, c_source.upper())
 
             st.markdown(f"""
             <div class="q-card" style="border-left:3px solid #34c759; padding:12px; margin-top:8px;">
@@ -867,7 +945,7 @@ IV-разброс, percentile vs твоей истории. Не финрек, j
                             КОМБИНАТОРНЫЙ АНАЛИЗ — {len(combo_results)} КОРЗИН
                         </div>
                         <div style="color:#ffd56a; font-size:10px; margin-top:2px;">
-                            {combo_results[0].get('n_sims', 0):,} Sobol MC на корзину · {combo_size} имён · 26% годовых · USD · ⚡ {elapsed:.1f}s
+                            {combo_results[0].get('n_sims', 0):,} Sobol MC на корзину · {combo_size} имён · 26% годовых · USD · ⚡ {elapsed:.1f}s · 🔗 {source_label}
                         </div>
                     </div>
                     <div style="text-align:right;">
@@ -1584,8 +1662,9 @@ st.markdown(f"""
     <span>MKT <span class="st-label">PRE-MKT</span></span>
     <span>API <span class="st-ok">OK</span></span>
     <span>CLICKHOUSE <span class="st-ok">CONNECTED</span></span>
-    <span>QISKIT <span class="st-ok">AER-SIM</span></span>
+    <span>QISKIT <span class="st-ok">AER-SIM → SCORING</span></span>
     <span>ФЕНИКС <span class="st-ok">v32.0</span></span>
+    <span>HULK <span class="st-ok">v41 CONDUCTOR</span></span>
     <span>{gdrive_status} <span class="st-ok">OK</span></span>
     <span style="margin-left:auto;"><span class="st-label">PHOENIX TERMINAL · v2.3</span></span>
 </div>
