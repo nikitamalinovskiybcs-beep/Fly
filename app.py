@@ -8,6 +8,7 @@ import streamlit as st
 from src.precompute import precompute_all as _precompute_all, SECTOR_MAP
 from src.phoenix_engine import simulate_basket as phoenix_simulate, save_to_gdrive, GDRIVE_AVAILABLE
 from src.conductor import analyze as conductor_analyze
+from src.backtest import precompute_backtest as _precompute_backtest
 
 st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", layout="wide")
 
@@ -17,6 +18,13 @@ def cached_precompute(tickers_key: str):
     """Cached wrapper — avoids recompute on every Streamlit rerun."""
     tickers = tickers_key.split(",")
     return _precompute_all(tickers)
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def cached_backtest(tickers_key: str, p_ki: float, coupon_pa: float, e_payout: float):
+    """Cached backtest — heavier computation, longer TTL."""
+    tickers = tickers_key.split(",")
+    return _precompute_backtest(tickers, p_ki, coupon_pa, e_payout)
 
 # ═══════════════════════════════════════════════════════════════════
 # CSS — Bloomberg Terminal (black #000, amber #ffb000, monospace)
@@ -129,6 +137,13 @@ with fc[2]:
 
 st.markdown(f'<div style="color:#d6a44a;font-size:10px;padding:2px 0">ГОТОВО: СВОЯ КОРЗИНА {", ".join(basket_tickers)}.</div>', unsafe_allow_html=True)
 
+# Refresh button + last update time
+rc1, rc2 = st.columns([3, 1])
+with rc2:
+    if st.button("🔄 ОБНОВИТЬ ЦЕНЫ", key="refresh_prices", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+
 # ═══════════════════════════════════════════════════════════════════
 # PRECOMPUTE ALL (Karpathy method — one call, all data)
 # ═══════════════════════════════════════════════════════════════════
@@ -151,6 +166,10 @@ if basket_tickers:
     avg_qvar = D["avg_qvar"]
     p_ki = D["p_ki"]
     p_autocall = D["p_autocall"]
+
+    # Show last update time
+    with rc1:
+        st.markdown(f'<div style="color:#6a5a2a;font-size:9px;padding-top:8px">Данные обновлены: {D.get("ts", "N/A")[:19]} · yfinance live prices · Cache TTL 5 min</div>', unsafe_allow_html=True)
 
     # Data sources list
     data_sources = ["ClickHouse (40K sims)"]
@@ -659,6 +678,162 @@ if basket_tickers:
             for bsk, cpn, alt_name in baskets:
                 cpn_color = "#ff3b30" if cpn < 22 else "#34c759" if cpn > 35 else "#ffb000"
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{" · ".join(bsk)}</span><span style="color:{cpn_color};font-size:10px;font-weight:700">{cpn:.2f}%</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [10] BACKTEST + NUMERIX COMPARISON + AGI MODEL
+    # ═══════════════════════════════════════════════════════════════
+    with st.spinner("⚡ Бэктест + AGI..."):
+        BT = cached_backtest(",".join(basket_tickers), D["p_ki"], D["coupon_pa"], D["e_payout"])
+
+    bt_stats = BT.get("bt_stats", {})
+    with st.expander(f"[10] BACKTEST    {BT['n_backtests']} WINDOWS · WIN {bt_stats.get('win_rate',0):.0f}%"):
+        if bt_stats:
+            st.markdown(f'''
+            <div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Скользящий бэктест Phoenix worst-of за 5 лет ({BT["n_backtests"]} окон по 2Y). Каждый window = реальный продукт с 65% барьером.</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">AVG PAYOFF</div><div style="color:#34c759;font-size:16px;font-weight:700">{bt_stats["avg_payoff"]:.1f}%</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">WIN RATE</div><div style="color:#ffb000;font-size:16px;font-weight:700">{bt_stats["win_rate"]:.0f}%</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">P(KI) ACTUAL</div><div style="color:{"#ff3b30" if bt_stats["p_ki_actual"]>25 else "#34c759"};font-size:16px;font-weight:700">{bt_stats["p_ki_actual"]:.1f}%</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">P(AUTOCALL)</div><div style="color:#ffb000;font-size:16px;font-weight:700">{bt_stats["p_autocall_actual"]:.1f}%</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">MAX LOSS</div><div style="color:#ff3b30;font-size:16px;font-weight:700">{bt_stats["max_loss"]:.1f}%</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">MAX GAIN</div><div style="color:#34c759;font-size:16px;font-weight:700">+{bt_stats["max_gain"]:.1f}%</div></div>
+            </div>
+            ''', unsafe_allow_html=True)
+
+            # Payoff distribution chart (HTML bar chart)
+            pdist = BT.get("payoff_dist", {})
+            bins = pdist.get("bins", [])
+            counts = pdist.get("counts", [])
+            max_count = max(counts) if counts else 1
+            if counts:
+                st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:8px 0 4px">■ РАСПРЕДЕЛЕНИЕ P&L</div>', unsafe_allow_html=True)
+                chart_html = '<div style="display:flex;align-items:flex-end;gap:2px;height:100px;padding:4px">'
+                for i, c in enumerate(counts):
+                    h = max(2, c / max_count * 80)
+                    color = "#ff3b30" if bins[i] < 0 else "#34c759" if bins[i] >= 5 else "#ffb000"
+                    chart_html += f'<div style="flex:1;display:flex;flex-direction:column;align-items:center"><div style="width:100%;height:{h}px;background:{color};border-radius:1px"></div><div style="color:#6a5a2a;font-size:7px;margin-top:2px">{bins[i]}%</div></div>'
+                chart_html += '</div>'
+                st.markdown(chart_html, unsafe_allow_html=True)
+
+                stats = pdist.get("stats", {})
+                st.markdown(f'''
+                <div style="display:flex;gap:12px;margin-top:6px;font-size:10px;color:#d6a44a">
+                    <span>μ={stats.get("mean",0):.1f}%</span>
+                    <span>σ={stats.get("std",0):.1f}%</span>
+                    <span>P5={stats.get("p5",0):.1f}%</span>
+                    <span>P95={stats.get("p95",0):.1f}%</span>
+                    <span>Sharpe={stats.get("sharpe",0):.2f}</span>
+                </div>''', unsafe_allow_html=True)
+
+            # Individual backtest windows
+            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:12px 0 4px">■ БЭКТЕСТ-ОКНА</div>', unsafe_allow_html=True)
+            for bt in BT.get("backtest", [])[:15]:
+                pnl_c = "#34c759" if bt["pnl_pct"] >= 0 else "#ff3b30"
+                ki_badge = '<span style="background:#1a0a0a;border:1px solid #ff3b30;padding:1px 6px;color:#ff3b30;font-size:9px">KI</span>' if bt["ki_hit"] else ""
+                ac_badge = '<span style="background:#0a1a0a;border:1px solid #34c759;padding:1px 6px;color:#34c759;font-size:9px">AC Q{}</span>'.format(bt["autocall_quarter"]) if bt["autocalled"] else ""
+                st.markdown(f'<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:9px">{bt["start_date"]} → {bt["end_date"]}</span><span>{ki_badge}{ac_badge}</span><span style="color:#d6a44a;font-size:9px">купон {bt["coupons_pa"]:.1f}% p.a.</span><span style="color:{pnl_c};font-size:10px;font-weight:700">{bt["pnl_pct"]:+.1f}%</span></div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:11px">Недостаточно исторических данных для бэктеста.</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [11] NUMERIX ACCURACY
+    # ═══════════════════════════════════════════════════════════════
+    nmx_comp = BT.get("numerix_comparison", {})
+    nmx_acc = nmx_comp.get("avg_accuracy", 0)
+    with st.expander(f"[11] NUMERIX ACCURACY    {nmx_acc:.0f}% MATCH"):
+        comps = nmx_comp.get("comparisons", [])
+        if comps:
+            st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:8px">Сравнение наших расчётов с реальными продуктами (Barclays KIDs, SEC filings). Accuracy = близость к рыночным значениям.</div>', unsafe_allow_html=True)
+            for c in comps:
+                acc_c = "#34c759" if c["accuracy"] > 70 else "#ffb000" if c["accuracy"] > 40 else "#ff3b30"
+                st.markdown(f'''
+                <div class="qc" style="padding:10px;margin:4px 0;border-left:3px solid {acc_c}">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                        <span style="color:#fa8000;font-size:11px;font-weight:700">{c["benchmark"]}</span>
+                        <span style="color:{acc_c};font-size:11px;font-weight:700">{c["accuracy"]:.0f}% MATCH</span>
+                    </div>
+                    <div style="color:#6a5a2a;font-size:9px;margin-bottom:6px">{" · ".join(c["tickers"])} · Overlap: {c["overlap"]} тикеров</div>
+                    <div style="display:flex;gap:16px;font-size:10px">
+                        <div><span style="color:#d6a44a">P(KI):</span> <span style="color:#ffb000">{c["our_p_ki"]:.1f}%</span> vs <span style="color:#6db6ff">{c["bench_p_ki"]:.1f}%</span> <span style="color:{"#34c759" if abs(c["delta_p_ki"])<5 else "#ff3b30"}">({c["delta_p_ki"]:+.1f})</span></div>
+                        <div><span style="color:#d6a44a">Купон:</span> <span style="color:#ffb000">{c["our_coupon_pa"]:.1f}%</span> vs <span style="color:#6db6ff">{c["bench_coupon_pa"]:.1f}%</span> <span style="color:#fa8000">({c["delta_coupon"]:+.1f})</span></div>
+                        <div><span style="color:#d6a44a">E[payout]:</span> <span style="color:#ffb000">{c["our_e_payoff"]:.1f}%</span> vs <span style="color:#6db6ff">{c["bench_e_payoff"]:.1f}%</span></div>
+                    </div>
+                </div>''', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:11px">Нет совпадающих бенчмарков для текущей корзины.</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [12] AGI SELF-LEARNING MODEL
+    # ═══════════════════════════════════════════════════════════════
+    agi_data = BT.get("agi", {})
+    conv = agi_data.get("convergence", {})
+    gen = agi_data.get("generation", 0)
+    trend = conv.get("trend", "no_data")
+    trend_c = "#34c759" if trend == "improving" else "#ffb000" if trend == "exploring" else "#6a5a2a"
+    with st.expander(f"[12] AGI MODEL    GEN {gen} · {trend.upper()}"):
+        st.markdown(f'''
+        <div style="color:#d6a44a;font-size:10px;margin-bottom:10px;line-height:1.5">
+            Self-learning Phoenix pricing модель. Наблюдает бэктест-результаты, вычисляет ошибку, обновляет параметры.
+            Цель: конвергенция к точности Numerix без ручной калибровки.
+            <b>Архитектура:</b> Observation → Error Signal → Parameter Update → Memory (Karpathy external compute).
+        </div>
+        ''', unsafe_allow_html=True)
+
+        # Current params
+        params = agi_data.get("params", {})
+        if params:
+            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin-bottom:4px">■ ТЕКУЩИЕ ПАРАМЕТРЫ (LEARNED)</div>', unsafe_allow_html=True)
+            param_html = '<div style="display:flex;flex-wrap:wrap;gap:6px">'
+            for k, v in params.items():
+                if k in ("generation", "learning_rate"):
+                    continue
+                param_html += f'<span style="background:#1a1400;border:1px solid #3a2a00;padding:2px 8px;color:#ffb000;font-size:9px">{k}={v}</span>'
+            param_html += '</div>'
+            st.markdown(param_html, unsafe_allow_html=True)
+
+        # AGI predictions vs current model
+        preds = agi_data.get("predictions", {})
+        if preds:
+            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:10px 0 4px">■ AGI PREDICTIONS vs CURRENT MODEL</div>', unsafe_allow_html=True)
+            pred_items = [
+                ("Score", preds.get("score", 0), D["score"], "%"),
+                ("Coupon P.A.", preds.get("coupon_pa", 0), D["coupon_pa"], "%"),
+                ("P(Autocall)", preds.get("p_autocall", 0), D["p_autocall"], "%"),
+                ("E[Life]", preds.get("e_life", 0), D["e_life"], "Y"),
+                ("E[Payout]", preds.get("e_payout", 0), D["e_payout"], "%"),
+            ]
+            for label, agi_val, cur_val, unit in pred_items:
+                delta = agi_val - cur_val
+                delta_c = "#34c759" if abs(delta) < 3 else "#fa8000" if abs(delta) < 10 else "#ff3b30"
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{label}</span><span style="color:#6db6ff;font-size:10px">AGI: {agi_val:.1f}{unit}</span><span style="color:#ffb000;font-size:10px">Current: {cur_val:.1f}{unit}</span><span style="color:{delta_c};font-size:10px">Δ {delta:+.1f}</span></div>', unsafe_allow_html=True)
+
+        # Convergence chart (HTML bar chart)
+        conv_chart = BT.get("convergence_chart", {})
+        errors = conv_chart.get("errors", [])
+        if errors:
+            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:10px 0 4px">■ CONVERGENCE (ERROR BY GENERATION)</div>', unsafe_allow_html=True)
+            max_err = max(errors) if errors else 1
+            chart_html = '<div style="display:flex;align-items:flex-end;gap:4px;height:60px;padding:4px">'
+            for i, e in enumerate(errors):
+                h = max(3, e / max(0.01, max_err) * 50)
+                c = "#ff3b30" if e > 10 else "#fa8000" if e > 5 else "#34c759"
+                chart_html += f'<div style="flex:1;display:flex;flex-direction:column;align-items:center"><div style="width:100%;height:{h}px;background:{c};border-radius:1px"></div><div style="color:#6a5a2a;font-size:7px;margin-top:2px">G{i+1}</div></div>'
+            chart_html += '</div>'
+            st.markdown(chart_html, unsafe_allow_html=True)
+
+            total_err = conv.get("total_error", 0)
+            st.markdown(f'<div style="color:{"#34c759" if total_err < 5 else "#fa8000"};font-size:10px;margin-top:4px">Total Error: {total_err:.2f} · Status: <b>{trend.upper()}</b> · {gen} generations</div>', unsafe_allow_html=True)
+
+        # Learning history
+        history = agi_data.get("history", [])
+        if history:
+            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:10px 0 4px">■ LEARNING LOG</div>', unsafe_allow_html=True)
+            for rec in history[-5:]:
+                actual = rec.get("actual", {})
+                errs = rec.get("errors", {})
+                ups = rec.get("updates", {})
+                ups_str = " · ".join(f"{k}→{v:.3f}" for k, v in ups.items()) if ups else "no updates"
+                st.markdown(f'<div style="padding:3px 8px;border-bottom:1px solid #1a1400;font-size:9px"><span style="color:#fa8000">Gen {rec["generation"]}</span> <span style="color:#6a5a2a">| n={rec["n_samples"]} | P(KI)={actual.get("p_ki",0):.0f}% P(AC)={actual.get("p_autocall",0):.0f}%</span> <span style="color:#ffb000">| {ups_str}</span></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # ФЕНИКС v32.0 — Sobol MC (interactive)
