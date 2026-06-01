@@ -273,7 +273,7 @@ if basket_tickers:
     </div>
     ''', unsafe_allow_html=True)
 
-    with st.expander("▶ Разложение по 6 компонентам риска"):
+    with st.expander("▶ Разложение по 8 компонентам риска"):
         for name, val in rc.items():
             st.markdown(f'<div style="color:#d6a44a;font-size:11px">{name}: <b style="color:#ffb000">{val:.1f}</b></div>', unsafe_allow_html=True)
 
@@ -288,6 +288,26 @@ if basket_tickers:
     cp[3].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[ИТОГ. ВЫПЛАТА]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_payout"]:.1f}%</div></div>', unsafe_allow_html=True)
     cp[4].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(KI)</div><div style="color:{"#ff3b30" if p_ki>25 else "#34c759"};font-size:18px;font-weight:700">{p_ki:.1f}%</div></div>', unsafe_allow_html=True)
     cp[5].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[СРОК]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_life"]:.2f} лет</div></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # NUMERIX BENCHMARK COMPARISON
+    # ═══════════════════════════════════════════════════════════════
+    nmx = D.get("numerix", {})
+    if nmx:
+        with st.expander("▶ NUMERIX BENCHMARK"):
+            st.markdown(f'''
+            <div class="qc" style="padding:12px;border-left:3px solid #6db6ff">
+                <div style="color:#6db6ff;font-size:11px;font-weight:700;margin-bottom:8px">■ СРАВНЕНИЕ С РЫНКОМ (NUMERIX-STYLE)</div>
+                <div style="color:#d6a44a;font-size:10px;line-height:1.6">
+                    <b>Референс:</b> {nmx.get("ref_product","N/A")}<br>
+                    Барьер: {nmx.get("ref_barrier",65)}% · Тенор: {nmx.get("ref_tenor","2Y")} · Риск-класс: {nmx.get("ref_risk_class","6/7")}<br>
+                    <b>Рыночный купон:</b> <span style="color:#ffb000">{nmx.get("ref_coupon_pa",9.52):.2f}% p.a.</span><br>
+                    <b>Наш купон:</b> <span style="color:#34c759">{nmx.get("our_coupon_pa",26):.2f}% p.a.</span>
+                    <span style="color:#fa8000"> (+{nmx.get("coupon_premium",16.5):.2f}% премия)</span><br>
+                    <span style="color:#6a5a2a;font-size:9px">{nmx.get("note","")}</span>
+                </div>
+            </div>
+            ''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # ИИ-ПРЕДЛОЖЕНИЯ ПО КОРЗИНЕ
