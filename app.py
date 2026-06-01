@@ -1,1671 +1,739 @@
-"""Quant Risk Hub — Bloomberg Terminal Style Dashboard + MIT Quantum + ClickHouse."""
+"""Worst-of Phoenix Terminal — Bloomberg-style dashboard.
+Karpathy method: ALL computation in precompute.py, this file is pure rendering."""
 
 import datetime
-import time
-import itertools
 import math
 import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-import plotly.express as px
 
-from src.assessor import StrategyRiskAssessor
-from src.core_metrics import returns_from_prices
-from src.risk_metrics import drawdown_series
-from src.data_module import DEFAULT_TICKERS
-from src.clickhouse_data import fetch_quantum_risk_stats
-from src.quantum_risk import quantum_var_estimation, quantum_monte_carlo_risk, get_quantum_status
-from src.phoenix_engine import simulate_basket as phoenix_simulate, save_to_gdrive, list_gdrive_reports, GDRIVE_PATH, GDRIVE_AVAILABLE
+from src.precompute import precompute_all as _precompute_all, SECTOR_MAP
+from src.phoenix_engine import simulate_basket as phoenix_simulate, save_to_gdrive, GDRIVE_AVAILABLE
 from src.conductor import analyze as conductor_analyze
 
-st.set_page_config(
-    page_title="Worst-of Phoenix | Quantum Terminal",
-    page_icon="■",
-    layout="wide",
-)
+st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", layout="wide")
 
-# ── Bloomberg Terminal CSS ──
+
+@st.cache_data(ttl=300, show_spinner=False)
+def cached_precompute(tickers_key: str):
+    """Cached wrapper — avoids recompute on every Streamlit rerun."""
+    tickers = tickers_key.split(",")
+    return _precompute_all(tickers)
+
+# ═══════════════════════════════════════════════════════════════════
+# CSS — Bloomberg Terminal (black #000, amber #ffb000, monospace)
+# ═══════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
-
-    :root {
-        --bg: #000000;
-        --bg2: #0a0a0a;
-        --bg3: #141414;
-        --border: #3a2a00;
-        --border-strong: #6a4a00;
-        --text: #ffb000;
-        --fg: #ffd56a;
-        --muted: #d6a44a;
-        --accent: #fa8000;
-        --good: #34c759;
-        --bad: #ff3b30;
-        --blue: #6db6ff;
-    }
-
-    html, body, [class*="css"] {
-        font-family: "JetBrains Mono", "SFMono-Regular", "Consolas", "Liberation Mono", monospace !important;
-    }
-    .main { background: var(--bg) !important; }
-    .stApp { background: var(--bg) !important; }
-    [data-testid="stSidebar"] { background: var(--bg2) !important; border-right: 1px solid var(--border) !important; }
-    [data-testid="stSidebar"] * { color: var(--text) !important; }
-    div[data-testid="stMetric"] {
-        background: var(--bg2) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: 0 !important;
-        padding: 0.75rem !important;
-    }
-    div[data-testid="stMetric"] label { color: var(--muted) !important; font-size: 0.7rem !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; }
-    div[data-testid="stMetric"] [data-testid="stMetricValue"] { color: var(--text) !important; font-weight: 700 !important; }
-    .stTabs [data-baseweb="tab-list"] { background: var(--bg2) !important; border-bottom: 1px solid var(--border) !important; }
-    .stTabs [data-baseweb="tab"] { color: var(--muted) !important; font-family: "JetBrains Mono", monospace !important; font-size: 0.75rem !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; }
-    .stTabs [aria-selected="true"] { color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
-    .stDataFrame { border: 1px solid var(--border) !important; }
-    .stButton > button { background: var(--accent) !important; color: #000 !important; border: 2px solid var(--accent) !important; border-radius: 0 !important; font-family: "JetBrains Mono", monospace !important; font-weight: 900 !important; letter-spacing: 2px !important; text-transform: uppercase !important; }
-    .stButton > button:hover { background: #ffd95a !important; border-color: #ffd95a !important; box-shadow: 0 0 22px rgba(255,176,0,0.7) !important; }
-    .stSelectbox > div > div { background: var(--bg2) !important; border-color: var(--border) !important; color: var(--text) !important; }
-    .stSlider > div > div > div { color: var(--text) !important; }
-    .stTextArea > div > div > textarea { background: var(--bg) !important; border-color: var(--border) !important; color: var(--blue) !important; font-family: "JetBrains Mono", monospace !important; }
-    hr { border-color: var(--border) !important; }
-    .stExpander { border: 1px solid var(--border) !important; border-radius: 0 !important; }
-
-    /* Ticker tape */
-    .ticker-tape {
-        background: var(--bg2);
-        border-bottom: 1px solid var(--border);
-        overflow: hidden;
-        white-space: nowrap;
-        padding: 4px 0;
-        font-size: 11px;
-    }
-    .ticker-track {
-        display: inline-block;
-        animation: scroll-tape 60s linear infinite;
-    }
-    @keyframes scroll-tape {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-    }
-    .tick { display: inline-block; margin-right: 24px; }
-    .tick .sym { color: var(--muted); font-weight: 700; margin-right: 4px; }
-    .tick .px { color: var(--text); margin-right: 4px; }
-    .tick .up { color: var(--good); }
-    .tick .dn { color: var(--bad); }
-
-    /* Header */
-    .bb-header {
-        padding: 8px 14px;
-        border-bottom: 1px solid var(--border);
-        background: var(--bg2);
-        display: flex;
-        align-items: baseline;
-        gap: 16px;
-    }
-    .bb-header h1 {
-        margin: 0;
-        font-size: 14px;
-        font-weight: 700;
-        letter-spacing: 1px;
-        color: var(--accent);
-        text-transform: uppercase;
-    }
-    .bb-header h1::before { content: "■ "; }
-    .bb-header .sub { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; }
-
-    /* WEI macro grid */
-    .wei-grid {
-        background: var(--bg2);
-        border-bottom: 1px solid var(--border);
-        padding: 4px 14px;
-    }
-    .wei-title { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-    .wei-grid-body { display: flex; gap: 0; flex-wrap: wrap; }
-    .wei-cell {
-        flex: 1 1 auto;
-        min-width: 120px;
-        padding: 4px 12px;
-        border-right: 1px solid var(--border);
-    }
-    .wei-cell:last-child { border-right: none; }
-    .wei-sym { display: block; font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-    .wei-px { display: block; font-size: 14px; font-weight: 700; color: var(--text); }
-    .wei-dlt { display: block; font-size: 11px; }
-
-    /* Quantum risk cards */
-    .q-card {
-        background: var(--bg2);
-        border: 1px solid var(--border);
-        padding: 8px 12px;
-        margin-bottom: 4px;
-    }
-    .q-card .q-sym { font-weight: 700; color: var(--blue); font-size: 13px; }
-    .q-card .q-val { color: var(--text); font-size: 12px; }
-    .q-card .q-sub { color: var(--muted); font-size: 10px; }
-    .q-card .q-good { color: var(--good); }
-    .q-card .q-bad { color: var(--bad); }
-    .q-card .q-warn { color: var(--text); }
-
-    /* Status bar */
-    .status-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--bg2);
-        border-top: 1px solid var(--border);
-        padding: 4px 14px;
-        font-size: 10px;
-        color: var(--muted);
-        display: flex;
-        gap: 20px;
-        z-index: 9999;
-    }
-    .status-bar .st-ok { color: var(--good); }
-    .status-bar .st-label { color: var(--accent); font-weight: 700; }
-
-    /* Section headers */
-    .bb-section {
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--accent);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 6px 0;
-        border-bottom: 1px solid var(--border);
-        margin: 12px 0 8px;
-    }
-
-    /* Basket hero input (center) */
-    .basket-hero {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        align-items: center;
-        gap: 14px;
-        padding: 8px 14px;
-        margin: 0 auto 16px;
-        max-width: 1180px;
-        border: 1px solid var(--border);
-        background: #050505;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.65);
-    }
-    .basket-hero .hero-title {
-        margin: 0;
-        font-family: "JetBrains Mono", Consolas, monospace;
-        font-size: 14px;
-        letter-spacing: 3px;
-        color: var(--text);
-        font-weight: 700;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-    /* Style the Streamlit text_input inside basket-hero wrapper */
-    .basket-input-wrap input {
-        font-family: "JetBrains Mono", Consolas, monospace !important;
-        font-size: 20px !important;
-        font-weight: 700 !important;
-        letter-spacing: 2px !important;
-        text-transform: uppercase !important;
-        background: #000 !important;
-        color: #6db6ff !important;
-        border: 2px solid #6db6ff !important;
-        border-radius: 0 !important;
-        padding: 12px 16px !important;
-        caret-color: #6db6ff !important;
-        box-shadow: 0 0 0 1px #1a3a5a inset, 0 0 12px rgba(109,182,255,0.25) !important;
-    }
-    .basket-input-wrap input:focus {
-        border-color: #9ad0ff !important;
-        box-shadow: 0 0 0 1px #1a3a5a inset, 0 0 14px rgba(154,208,255,0.35) !important;
-    }
-    .basket-input-wrap input::placeholder {
-        color: #355d80 !important;
-        letter-spacing: 2px !important;
-        font-weight: 500 !important;
-    }
-    .basket-input-wrap label { display: none !important; }
-    .basket-input-wrap .stTextInput > div { margin: 0 !important; }
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+:root {
+    --bg:#000; --bg2:#0a0a0a; --bg3:#141414;
+    --border:#3a2a00; --border2:#6a4a00;
+    --text:#ffb000; --fg:#ffd56a; --muted:#d6a44a; --dim:#6a5a2a;
+    --accent:#fa8000; --good:#34c759; --bad:#ff3b30; --blue:#6db6ff;
+}
+html,body,[class*="css"]{font-family:"JetBrains Mono",Consolas,monospace!important}
+.main,.stApp{background:var(--bg)!important}
+[data-testid="stSidebar"]{background:var(--bg2)!important;border-right:1px solid var(--border)!important}
+[data-testid="stSidebar"] *{color:var(--text)!important}
+div[data-testid="stMetric"]{background:var(--bg2)!important;border:1px solid var(--border)!important;border-radius:0!important;padding:.75rem!important}
+div[data-testid="stMetric"] label{color:var(--muted)!important;font-size:.7rem!important;text-transform:uppercase!important}
+div[data-testid="stMetric"] [data-testid="stMetricValue"]{color:var(--text)!important;font-weight:700!important}
+.stButton>button{background:var(--accent)!important;color:#000!important;border:2px solid var(--accent)!important;border-radius:0!important;font-family:"JetBrains Mono",monospace!important;font-weight:900!important;letter-spacing:2px!important;text-transform:uppercase!important}
+.stButton>button:hover{background:#ffd95a!important;border-color:#ffd95a!important;box-shadow:0 0 22px rgba(255,176,0,.7)!important}
+.stSelectbox>div>div{background:var(--bg2)!important;border-color:var(--border)!important;color:var(--text)!important}
+.stTextArea>div>div>textarea{background:var(--bg)!important;border-color:var(--border)!important;color:var(--blue)!important;font-family:"JetBrains Mono",monospace!important}
+.stExpander{border:1px solid var(--border)!important;border-radius:0!important}
+hr{border-color:var(--border)!important}
+/* Ticker tape */
+.tt{background:var(--bg2);border-bottom:1px solid var(--border);overflow:hidden;white-space:nowrap;padding:4px 0;font-size:11px}
+.tt-track{display:inline-block;animation:scroll-tape 60s linear infinite}
+@keyframes scroll-tape{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.tk{display:inline-block;margin-right:24px}.tk .s{color:var(--muted);font-weight:700;margin-right:4px}.tk .p{color:var(--text);margin-right:4px}.tk .up{color:var(--good)}.tk .dn{color:var(--bad)}
+/* Header */
+.hdr{padding:8px 14px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:baseline;gap:16px}
+.hdr h1{margin:0;font-size:14px;font-weight:700;letter-spacing:1px;color:var(--accent);text-transform:uppercase}.hdr h1::before{content:"■ "}.hdr .sub{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+/* WEI */
+.wei{background:var(--bg2);border-bottom:1px solid var(--border);padding:4px 14px}
+.wei-t{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.wei-b{display:flex;gap:0;flex-wrap:wrap}
+.wei-c{flex:1 1 auto;min-width:120px;padding:4px 12px;border-right:1px solid var(--border)}.wei-c:last-child{border-right:none}
+.wei-s{display:block;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.wei-p{display:block;font-size:14px;font-weight:700;color:var(--text)}.wei-d{display:block;font-size:11px}
+/* Cards */
+.qc{background:var(--bg2);border:1px solid var(--border);padding:8px 12px;margin-bottom:4px}
+/* Section header — collapsible style */
+.sec{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border:1px solid var(--border);margin:16px 0 4px;background:var(--bg2);display:flex;justify-content:space-between;align-items:center}
+.sec .ri{color:var(--muted);font-size:10px;font-weight:400}
+/* Status bar */
+.sbar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:4px 14px;font-size:10px;color:var(--muted);display:flex;gap:20px;z-index:9999}
+.sbar .ok{color:var(--good)}.sbar .lb{color:var(--accent);font-weight:700}
+/* Basket input */
+.bi input{font-family:"JetBrains Mono",monospace!important;font-size:20px!important;font-weight:700!important;letter-spacing:2px!important;text-transform:uppercase!important;background:#000!important;color:#6db6ff!important;border:2px solid #6db6ff!important;border-radius:0!important;padding:12px 16px!important}
+.bi input:focus{border-color:#9ad0ff!important;box-shadow:0 0 14px rgba(154,208,255,.35)!important}
+.bi input::placeholder{color:#355d80!important}.bi label{display:none!important}.bi .stTextInput>div{margin:0!important}
+/* Bar helper */
+.bar{height:14px;border-radius:1px;display:inline-block;vertical-align:middle}
 </style>
 """, unsafe_allow_html=True)
 
-# ── Macro data (static snapshot, matching original) ──
-MACRO = [
-    ("SPX", "7,473.47", "+0.54%", True),
-    ("NDX", "29,481.64", "+0.63%", True),
-    ("VIX", "16.68", "-0.12%", False),
-    ("DXY", "99", "-0.33%", False),
-    ("US10Y", "4.56", "-0.61%", False),
-    ("GOLD", "4,523.2", "+0.05%", True),
-    ("BRENT", "100.21", "-3.22%", False),
-]
+# ═══════════════════════════════════════════════════════════════════
+# MACRO TAPE
+# ═══════════════════════════════════════════════════════════════════
+MACRO = [("SPX","7,580.06","+0.79%",True),("NDX","30,333.18","+1.20%",True),("VIX","15.32","-2.67%",False),
+         ("DXY","98.94","+0.03%",True),("US10Y","4.45","-0.04%",False),("GOLD","4,593","+0.71%",True),("BRENT","91.12","-1.01%",False)]
+TAPE = MACRO + [("AAPL","273.17","+2.17%",True),("MSFT","418.57","-0.59%",False),("AMZN","266.32","+0.49%",True),
+                ("GOOG","337.73","-1.43%",False),("DELL","214.65","+3.12%",True),("NVDA","215.33","-3.64%",False)]
+tape_html = "".join(f'<span class="tk"><span class="s">{s}</span><span class="p">{p}</span><span class="{"up" if u else "dn"}">{"▲" if u else "▼"} {d}</span></span>' for s,p,d,u in TAPE)
+st.markdown(f'<div class="tt"><div class="tt-track">{tape_html}{tape_html}</div></div>', unsafe_allow_html=True)
 
-TAPE_TICKERS = [
-    ("SPX", "7,473.47", "+0.54%", True), ("NDX", "29,481.64", "+0.63%", True),
-    ("VIX", "16.68", "-0.12%", False), ("AAPL", "308.82", "+2.17%", True),
-    ("MSFT", "418.57", "-0.59%", False), ("AMZN", "266.32", "+0.49%", True),
-    ("GOOG", "379.38", "-1.43%", False), ("NVDA", "215.33", "-3.64%", False),
-    ("TSLA", "426.01", "+2.10%", True), ("AMD", "467.51", "+4.45%", True),
-    ("GOLD", "4,523.2", "+0.05%", True), ("BRENT", "100.21", "-3.22%", False),
-    ("DXY", "99", "-0.33%", False), ("US10Y", "4.56", "-0.61%", False),
-    ("JPM", "306.38", "+1.46%", True), ("IBM", "253.84", "+12.82%", True),
-]
+# ═══════════════════════════════════════════════════════════════════
+# HEADER + WEI MACRO
+# ═══════════════════════════════════════════════════════════════════
+st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">MIT QUANTUM · CLICKHOUSE CLOUD · IBM QISKIT · ФЕНИКС v32.0</span></div>', unsafe_allow_html=True)
+wei = "".join(f'<div class="wei-c"><span class="wei-s">{s}</span><span class="wei-p">{p}</span><span class="wei-d {"up" if u else "dn"}">{"▲" if u else "▼"} {d}</span></div>' for s,p,d,u in MACRO)
+st.markdown(f'<div class="wei"><div class="wei-t">WEI · GIP MACRO SNAPSHOT</div><div class="wei-b">{wei}</div></div>', unsafe_allow_html=True)
 
-# ── Ticker Tape ──
-tape_html = "".join(
-    f'<span class="tick"><span class="sym">{s}</span><span class="px">{p}</span>'
-    f'<span class="{"up" if u else "dn"}">{"▲" if u else "▼"} {d}</span></span>'
-    for s, p, d, u in TAPE_TICKERS
-)
-st.markdown(f"""
-<div class="ticker-tape">
-    <div class="ticker-track">{tape_html}{tape_html}</div>
-</div>
-""", unsafe_allow_html=True)
-
-# ── Header ──
-st.markdown("""
-<div class="bb-header">
-    <h1>WORST-OF PHOENIX</h1>
-    <span class="sub">MIT QUANTUM · CLICKHOUSE CLOUD · IBM QISKIT</span>
-</div>
-""", unsafe_allow_html=True)
-
-# ── WEI Macro Grid ──
-wei_cells = "".join(
-    f'<div class="wei-cell"><span class="wei-sym">{s}</span>'
-    f'<span class="wei-px">{p}</span>'
-    f'<span class="wei-dlt {"up" if u else "dn"}">{"▲" if u else "▼"} {d}</span></div>'
-    for s, p, d, u in MACRO
-)
-st.markdown(f"""
-<div class="wei-grid">
-    <div class="wei-title">WEI · GIP MACRO SNAPSHOT</div>
-    <div class="wei-grid-body">{wei_cells}</div>
-</div>
-""", unsafe_allow_html=True)
-
-# ── Basket Input (center, Bloomberg-style) ──
-basket_cols = st.columns([1, 5, 1])
-with basket_cols[0]:
-    st.markdown('<div style="padding:10px 0;"><span style="color:#ffb000; font-size:14px; font-weight:700; letter-spacing:3px;">PHOENIX</span></div>', unsafe_allow_html=True)
-with basket_cols[1]:
-    st.markdown('<div class="basket-input-wrap">', unsafe_allow_html=True)
-    basket_input = st.text_input(
-        "basket",
-        value="AAPL MSFT GOOGL AMZN",
-        placeholder="AAPL MSFT NVDA AMD TSLA",
-        label_visibility="collapsed",
-    )
+# ═══════════════════════════════════════════════════════════════════
+# BASKET INPUT
+# ═══════════════════════════════════════════════════════════════════
+bc = st.columns([1,5,1])
+with bc[0]:
+    st.markdown('<div style="padding:10px 0"><span style="color:#ffb000;font-size:14px;font-weight:700;letter-spacing:3px">PHOENIX</span></div>', unsafe_allow_html=True)
+with bc[1]:
+    st.markdown('<div class="bi">', unsafe_allow_html=True)
+    basket_input = st.text_input("basket", value="AAPL DELL GOOG", placeholder="AAPL MSFT NVDA AMD TSLA", label_visibility="collapsed")
     st.markdown('</div>', unsafe_allow_html=True)
-with basket_cols[2]:
-    basket_run = st.button("▶ РАСЧЁТ ↵", key="basket_run", type="primary", use_container_width=True)
+with bc[2]:
+    st.button("▶ РАСЧЁТ ↵", key="run_basket", type="primary", use_container_width=True)
 
-# Parse basket tickers
 basket_tickers = [t.strip().upper() for t in basket_input.replace(",", " ").split() if t.strip()]
+n_tickers = len(basket_tickers)
 
-# ── Sidebar ──
-with st.sidebar:
-    st.markdown("### ⚙️ НАСТРОЙКИ")
-    tickers_input = st.text_area(
-        "Тикеры (по одному на строку)",
-        value="\n".join(DEFAULT_TICKERS),
-        height=200,
-    )
-    tickers = [t.strip() for t in tickers_input.strip().split("\n") if t.strip()]
-
-    benchmark = st.selectbox("Бенчмарк", options=tickers, index=0)
-    rf_rate = st.slider("Risk-free rate", 0.0, 0.10, 0.05, 0.005, format="%.3f")
-    n_perms = st.slider("Monte Carlo перестановок", 100, 2000, 2000, 100)
-    slippage = st.slider("Slippage (bps)", 0, 50, 5)
-    commission = st.slider("Комиссия (bps)", 0, 20, 2)
-    trades_day = st.slider("Сделок в день", 0.1, 10.0, 1.0, 0.1)
-    period = st.selectbox("Период данных", ["1y", "2y", "3y", "5y", "10y", "max"], index=3)
-    run_btn = st.button("▶ РАСЧЁТ", use_container_width=True, type="primary")
-
-# ── Plotly Bloomberg template ──
-PLOT_LAYOUT = dict(
-    template="plotly_dark",
-    paper_bgcolor="#000000",
-    plot_bgcolor="#0a0a0a",
-    font=dict(family="JetBrains Mono, Consolas, monospace", color="#ffb000", size=11),
-    margin=dict(l=40, r=20, t=40, b=40),
-    xaxis=dict(gridcolor="#1a1400", zerolinecolor="#3a2a00"),
-    yaxis=dict(gridcolor="#1a1400", zerolinecolor="#3a2a00"),
-)
-
-
-def color_for_level(level: str) -> str:
-    return {"LOW": "#34c759", "MEDIUM": "#ffb000", "HIGH": "#ff3b30"}.get(level, "#d6a44a")
-
-
-# ── Favorites Bar ──
+# Favorites
 if "favorites" not in st.session_state:
     st.session_state.favorites = []
-if "history" not in st.session_state:
-    st.session_state.history = []
-
-fav_cols = st.columns([1, 6, 2])
-with fav_cols[0]:
-    st.markdown('<div style="color:#ffb000; font-size:11px; padding:6px 0;">★ ИЗБРАННЫЕ:</div>', unsafe_allow_html=True)
-with fav_cols[1]:
+fc = st.columns([1,6,2])
+with fc[0]:
+    st.markdown('<div style="color:#ffb000;font-size:11px;padding:6px 0">★ ИЗБРАННЫЕ:</div>', unsafe_allow_html=True)
+with fc[1]:
     if st.session_state.favorites:
-        for i, fav in enumerate(st.session_state.favorites):
+        for i,fav in enumerate(st.session_state.favorites):
             if st.button(fav, key=f"fav_{i}"):
-                st.session_state["basket_override"] = fav
-                st.rerun()
+                st.session_state["basket_override"] = fav; st.rerun()
     else:
-        st.markdown('<span style="color:#d6a44a; font-size:11px;">— пусто. Сохрани корзину для быстрого recall</span>', unsafe_allow_html=True)
-with fav_cols[2]:
+        st.markdown('<span style="color:#d6a44a;font-size:11px">— пусто. Сохрани корзину для быстрого recall</span>', unsafe_allow_html=True)
+with fc[2]:
     if st.button("+ В ИЗБРАННОЕ", key="add_fav"):
         bk = basket_input.strip()
         if bk and bk not in st.session_state.favorites and len(st.session_state.favorites) < 12:
-            st.session_state.favorites.append(bk)
-            st.rerun()
+            st.session_state.favorites.append(bk); st.rerun()
 
-# ── History ──
-with st.expander(f"🕒 ИСТОРИЯ ({len(st.session_state.history)})"):
-    if st.session_state.history:
-        for h in st.session_state.history[:20]:
-            st.markdown(f'<span style="color:#d6a44a; font-size:10px;">{h["time"]} — {h["basket"]} — {h["score"]}</span>', unsafe_allow_html=True)
-    else:
-        st.caption("Пусто")
+st.markdown(f'<div style="color:#d6a44a;font-size:10px;padding:2px 0">ГОТОВО: СВОЯ КОРЗИНА {", ".join(basket_tickers)}.</div>', unsafe_allow_html=True)
 
-# ── Always show quantum analysis card when basket tickers present ──
+# ═══════════════════════════════════════════════════════════════════
+# PRECOMPUTE ALL (Karpathy method — one call, all data)
+# ═══════════════════════════════════════════════════════════════════
 if basket_tickers:
-    with st.spinner("🗄️ Подключение к ClickHouse Cloud..."):
-        ch_data = fetch_quantum_risk_stats()
-    q_status = get_quantum_status()
-    tickers_data = ch_data["tickers"]
-    wo = ch_data["worst_of"]
-    src_label = "ClickHouse Cloud" if ch_data["source"] == "clickhouse_cloud" else "CACHE (OFFLINE)"
+    with st.spinner("⚡ Precomputing all sections..."):
+        D = cached_precompute(",".join(basket_tickers))
 
-    # ── Compute Qiskit Q-VaR per ticker (used in scoring) ──
-    qiskit_results = {}
-    for _t in basket_tickers:
-        if _t in tickers_data:
-            _d = tickers_data[_t]
-            _sim_rets = np.random.normal(_d["mean_return"], _d["volatility"], 1000)
-            qiskit_results[_t] = quantum_var_estimation(_sim_rets, confidence=0.95)
-    avg_qvar = np.mean([r['var'] for r in qiskit_results.values()]) if qiskit_results else 50.0
+    ch = D["ch"]
+    wo = ch.get("worst_of", {})
+    td = ch.get("tickers", {})
+    yf = D.get("yf", {})
+    corr = D.get("corr", {})
+    aladdin = D.get("aladdin", {})
+    tail = D.get("tail", {})
+    stress = D.get("stress", [])
+    earnings = D.get("earnings", {})
+    ind = D.get("ind", {})
+    wo_analysis = D.get("worst_of_analysis", [])
+    score = D["score"]
+    avg_qvar = D["avg_qvar"]
+    p_ki = D["p_ki"]
+    p_autocall = D["p_autocall"]
 
-    # ── Incorporate ФЕНИКС MC results if available ──
-    phoenix_res = st.session_state.get("phoenix_result")
-    phoenix_p_loss = phoenix_res.get("p_loss", None) if phoenix_res else None
-    phoenix_avg_payoff = phoenix_res.get("avg_payoff", None) if phoenix_res else None
+    # Data sources list
     data_sources = ["ClickHouse (40K sims)"]
-    if qiskit_results:
-        data_sources.append(f"Qiskit ({list(qiskit_results.values())[0].get('method', 'aer')})")
-    if phoenix_res:
-        data_sources.append(f"ФЕНИКС MC ({phoenix_res.get('n_sims', '?')} paths)")
+    if D["qiskit"]:
+        data_sources.append(f"Qiskit ({list(D['qiskit'].values())[0].get('method','aer') if D['qiskit'] else 'aer'})")
 
-    # ── РЕКОМЕНДАЦИИ tab ──
-    st.markdown(f'''<div style="display:flex; align-items:center; gap:12px;">
-        <div style="border-bottom:2px solid #ffb000; display:inline-block; padding:4px 12px; color:#ffb000; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">РЕКОМЕНДАЦИИ</div>
-        <div style="color:#6a5a2a; font-size:9px;">Источники: {" · ".join(data_sources)}</div>
-    </div>''', unsafe_allow_html=True)
-
-    # Score & Status — multi-source balanced formula
-    # Sources: ClickHouse (breach, vol, mean), Qiskit (Q-VaR), ФЕНИКС (P(loss), payoff)
-    breach_penalty = min(40, wo["barrier_breach_pct"] * 1.0)  # 0-40 pts from ClickHouse
-    vol_penalty = min(20, max(0, (wo.get('volatility', 40) - 20) * 0.5))  # 0-20 pts from ClickHouse
-    mean_bonus = min(20, max(0, (wo['mean'] - 60) * 0.5))  # 0-20 pts from ClickHouse
-    diversification = min(20, len(basket_tickers) * 3)  # structural
-    # Qiskit Q-VaR adjustment: higher Q-VaR = safer = bonus
-    qvar_bonus = min(10, max(-10, (avg_qvar - 50) * 0.2))  # -10 to +10 pts from Qiskit
-    # ФЕНИКС MC adjustment: if available, use P(loss) and avg_payoff
-    phoenix_bonus = 0.0
-    if phoenix_p_loss is not None:
-        phoenix_bonus += max(-10, min(5, (0.15 - phoenix_p_loss) * 30))  # lower P(loss) = bonus
-    if phoenix_avg_payoff is not None:
-        phoenix_bonus += max(-5, min(5, (phoenix_avg_payoff - 1.0) * 20))  # higher payoff = bonus
-    score_pct = max(0, min(100, 100 - breach_penalty - vol_penalty + mean_bonus * 0.3 + diversification * 0.3 + qvar_bonus + phoenix_bonus))
-    score_grade = "good" if score_pct >= 70 else "mid" if score_pct >= 40 else "bad"
+    # Score styling
+    score_grade = "good" if score >= 70 else "mid" if score >= 40 else "bad"
     score_color = "#2ea043" if score_grade == "good" else "#d29922" if score_grade == "mid" else "#f85149"
-    stamp = "READY TO ISSUE" if score_pct >= 70 else "NEEDS REVIEW" if score_pct >= 40 else "AVOID"
-    stamp_icon = "🟢" if score_pct >= 70 else "🟡" if score_pct >= 40 else "🔴"
-    # Лучше 44% — сравнение с медианной корзиной
-    comparison_pct = max(0, min(99, int(score_pct * 0.8 + 5)))
+    stamp = "READY TO ISSUE" if score >= 70 else "NEEDS REVIEW" if score >= 40 else "AVOID"
+    grade_text = "Высокий" if score >= 70 else "Средний" if score >= 40 else "Низкий"
+    comparison_pct = max(0, min(99, int(score * 0.8 + 5)))
 
-    # Per-ticker direction arrows (from ClickHouse mean_return vs 100%)
-    def _ticker_chip(t):
-        d = tickers_data.get(t, {})
-        mr = d.get('mean_return', 100)
-        arrow = '↑' if mr >= 100 else '↓'
-        arrow_color = '#34c759' if mr >= 100 else '#ff3b30'
-        return f'<span style="background:#1a1400; border:1px solid #3a2a00; padding:2px 8px; color:#6db6ff; font-size:12px; font-weight:700;">{t} <span style="color:{arrow_color};">{arrow}</span> ✕</span>'
+    # ═══════════════════════════════════════════════════════════════
+    # РЕКОМЕНДАЦИИ + SCORING
+    # ═══════════════════════════════════════════════════════════════
+    st.markdown('<div style="border-bottom:2px solid #ffb000;display:inline-block;padding:4px 12px;color:#ffb000;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px">РЕКОМЕНДАЦИИ</div>', unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div class="q-card" style="border-left:3px solid {score_color}; padding:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <div style="color:#ffb000; font-size:14px; font-weight:700;">КОРЗИНА ИЗ {len(basket_tickers)} БУМАГ</div>
-                <div style="display:flex; gap:6px; margin-top:4px; flex-wrap:wrap;">
-                    {''.join(_ticker_chip(t) for t in basket_tickers)}
-                </div>
-            </div>
-            <div style="text-align:right;">
-                <div style="color:#d6a44a; font-size:10px; text-transform:uppercase;">Рекоменд. скоринг</div>
-                <div style="color:{score_color}; font-size:28px; font-weight:700;">{score_pct:.1f}%</div>
-                <div style="color:#d6a44a; font-size:9px;">● {'Средний' if score_grade == 'mid' else 'Высокий' if score_grade == 'good' else 'Низкий'}</div>
-            </div>
-        </div>
-        <div style="margin-top:8px; display:flex; flex-direction:column; gap:4px;">
-            <div style="background:#1a1400; border:1px solid #3a2a00; padding:4px 10px; font-size:10px; color:#6db6ff;">
-                ■ Лучше {comparison_pct}% твоих (+{comparison_pct/30:.1f} от среднего)
-            </div>
-            <div style="background:{score_color}22; border:1px solid {score_color}; padding:4px 10px; font-size:10px; color:{score_color}; font-weight:700;">
-                ▲ {stamp} · score {score_pct:.0f}% {'>' if score_pct >= 70 else '<'} 70% · P(KI) {wo['barrier_breach_pct']:.0f}% {'<' if wo['barrier_breach_pct'] < 35 else '≥'} 35% · Q-VaR {avg_qvar:.0f}%{f' · MC P(loss) {phoenix_p_loss:.0%}' if phoenix_p_loss is not None else ''}
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Terms formula
-    st.markdown("""
-    <div class="q-card" style="padding:6px 12px; margin-top:4px;">
-        <code style="color:#d6a44a; font-size:10px;">
-            2Y · KI 60% · CB 70% · AC 100% · OBS 4/Y · MARGIN 6% · MEMORY ✓ · T-COPULA df=5 · MC 2000
-        </code>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ── Precompute worst ticker ──
-    worst_ticker = min(tickers_data.items(), key=lambda x: x[1].get("var_95", 999))[0] if tickers_data else "N/A"
-    worst_var95 = tickers_data.get(worst_ticker, {}).get("var_95", 0)
-
-    # ── МУЛЬТИ-ИНДИКАТОРЫ КОРЗИНЫ ──
-    st.markdown('<div class="bb-section">■ МУЛЬТИ-ИНДИКАТОРЫ КОРЗИНЫ</div>', unsafe_allow_html=True)
-
-    # Compute basket-level multi-indicators from ClickHouse data
-    avg_var95 = np.mean([tickers_data.get(t, {}).get("var_95", 80) for t in basket_tickers]) if tickers_data else 80
-    avg_vol = np.mean([tickers_data.get(t, {}).get("volatility", 30) for t in basket_tickers]) if tickers_data else 30
-    p_ki = wo["barrier_breach_pct"]
-    p_autocall = 42.8  # from ClickHouse MC estimate
-    avg_mean_ret = np.mean([tickers_data.get(t, {}).get("mean_return", 100) for t in basket_tickers]) if tickers_data else 100
-    iv30_avg = avg_vol * 0.8  # IV30 approximation from realized vol
-    real_iv = round(avg_vol * 0.8 / max(1, iv30_avg) if iv30_avg > 0 else 0.75, 2)
-    beta_avg = round(1.0 + (avg_vol - 30) / 100, 2)
-    pe_avg = round(25 + np.random.RandomState(42).normal(0, 5), 1)
-    peg_avg = round(pe_avg / max(10, avg_mean_ret - 80) if avg_mean_ret > 80 else 2.0, 2)
-    dcf_upside = round((avg_mean_ret - 100) * 0.15, 1)
-    iv_rank_1y = min(99, max(5, int(avg_vol * 1.2)))  # 0-100% percentile rank
-    dispersion = round(np.std([tickers_data.get(t, {}).get("var_95", 80) for t in basket_tickers]), 1) if tickers_data else 5.0
-
-    def _mi_cell(label, value, sub="", color="#ffb000"):
-        return f'''<div style="flex:1 1 18%; min-width:130px; padding:8px 10px; border:1px solid #3a2a00; margin:2px;">
-            <div style="color:#d6a44a; font-size:9px; text-transform:uppercase; letter-spacing:0.5px;">{label}</div>
-            <div style="color:{color}; font-size:16px; font-weight:700;">{value}</div>
-            <div style="color:#6a5a2a; font-size:9px;">{sub}</div>
-        </div>'''
-
-    row1 = "".join([
-        _mi_cell("IV30 (avg)", f"{iv30_avg:.0f}%", f"min {iv30_avg*0.85:.0f}% · max {iv30_avg*1.15:.0f}%"),
-        _mi_cell("Real / IV", f"{real_iv:.2f}", f"real {int(real_iv*100)}% vs IV {int(iv30_avg)}%"),
-        _mi_cell("β (avg)", f"{beta_avg:.2f}", f"|min| {beta_avg*0.7:.2f} · |max| {beta_avg*1.3:.2f}"),
-        _mi_cell("P/E (avg)", f"{pe_avg:.1f}", f"range {pe_avg*0.7:.0f} – {pe_avg*1.3:.0f}"),
-        _mi_cell("PEG (avg)", f"{peg_avg:.2f}", f"range {peg_avg*0.8:.1f} – {peg_avg*1.2:.1f}"),
-    ])
-    row2 = "".join([
-        _mi_cell("DCF upside", f"{dcf_upside:+.1f}%", f"range {dcf_upside-3:.0f}% – {dcf_upside+3:.0f}%", "#34c759" if dcf_upside > 0 else "#ff3b30"),
-        _mi_cell("Tgt up (analysts)", f"{dcf_upside*1.5:+.1f}%", f"range {dcf_upside*0.5:+.0f}% – {dcf_upside*2.5:+.0f}%", "#34c759" if dcf_upside > 0 else "#ff3b30"),
-        _mi_cell("BCS Tgt up", f"{dcf_upside*0.8:+.1f}%", f"range {dcf_upside*0.3:+.0f}% – {dcf_upside*1.3:+.0f}%", "#ff3b30" if dcf_upside < 0 else "#ffb000"),
-        _mi_cell("EMA200 trend", f"{sum(1 for t in basket_tickers if tickers_data.get(t, dict()).get('mean_return', 100) > 95)}/{len(basket_tickers)} ▲", f"avg +{max(0,avg_mean_ret-95):.1f}%", "#34c759"),
-        _mi_cell("Аналитики", "BUY" if avg_mean_ret > 90 else "HOLD", f"rec {beta_avg:.2f} ({len(basket_tickers)}/{len(basket_tickers)})", "#34c759" if avg_mean_ret > 90 else "#ffb000"),
-    ])
-    row3 = "".join([
-        _mi_cell("IV rank 1y", f"{iv_rank_1y}%", f"range {max(1,iv_rank_1y-15)}–{min(99,iv_rank_1y+15)}%", "#ff3b30" if iv_rank_1y > 75 else "#ffb000"),
-        _mi_cell("P(KI)", f"{p_ki:.1f}%", f"при KI=60% spot за 2 года", "#ff3b30" if p_ki > 25 else "#34c759"),
-        _mi_cell("P(autocall)", f"{p_autocall:.1f}%", f"1.60г E[жизнь]"),
-        _mi_cell("Dispersion", f"σ {dispersion:.1f}%", f"vol-spread {dispersion*0.8:.2f}"),
-        _mi_cell("Earnings density", f"{min(24, len(basket_tickers)*3)}/{len(basket_tickers)}", f"nearest 4д · score {min(9.6, 7+len(basket_tickers)*0.5):.1f}/10"),
-    ])
+    # Ticker chips
+    chips = ""
+    for t in basket_tickers:
+        arrow = "↑" if td.get(t, {}).get("mean_return", 100) > 100 else "↓"
+        chips += f'<span style="display:inline-block;background:#1a1400;border:1px solid #3a2a00;padding:3px 10px;margin:2px;color:#ffb000;font-size:11px;font-weight:700">{t} <span style="color:#ff3b30">📍</span> ✕</span>'
+    st.markdown(f'<div style="margin:8px 0">{chips}</div>', unsafe_allow_html=True)
 
     st.markdown(f'''
-    <div style="display:flex; flex-wrap:wrap; gap:0;">{row1}</div>
-    <div style="display:flex; flex-wrap:wrap; gap:0;">{row2}</div>
-    <div style="display:flex; flex-wrap:wrap; gap:0;">{row3}</div>
-    ''', unsafe_allow_html=True)
-
-    # ── Config line ──
-    basket_str = "/".join(basket_tickers)
-    st.markdown(f'''
-    <div class="q-card" style="padding:4px 10px; margin:8px 0; display:flex; justify-content:space-between; align-items:center;">
-        <code style="color:#d6a44a; font-size:10px;">{basket_str} 24 months USD ] 0.7 1 1 4 0.7 1 0.6 0</code>
+    <div style="color:#ffb000;font-size:10px;margin-bottom:4px">КОРЗИНА ИЗ {n_tickers} БУМАГ</div>
+    <div style="color:#d6a44a;font-size:9px">РЕКОМЕНД. СКОРИНГ</div>
+    <div style="color:{score_color};font-size:32px;font-weight:700">{score:.1f}%</div>
+    <div style="color:#d6a44a;font-size:10px">● {grade_text}</div>
+    <div style="margin:6px 0;height:6px;background:#1a1400;border-radius:1px;position:relative">
+        <div style="height:100%;width:{score}%;background:linear-gradient(90deg,#ff3b30,#ffb000,#34c759);border-radius:1px"></div>
+    </div>
+    <div style="background:#1a1400;border:1px solid #3a2a00;padding:3px 8px;color:#6db6ff;font-size:10px;display:inline-block">
+        ■ Лучше {comparison_pct}% твоих (+{comparison_pct/30:.1f} от среднего)
+    </div>
+    <div style="background:{score_color}22;border:1px solid {score_color};padding:3px 8px;color:{score_color};font-size:10px;font-weight:700;margin-top:4px;display:inline-block">
+        ▲ {stamp} · score {score:.0f}% {">" if score >= 70 else "<"} 70% · P(KI) {p_ki:.0f}% {"<" if p_ki < 35 else "≥"} 35%
     </div>
     ''', unsafe_allow_html=True)
 
-    # ── Action Buttons Row ──
-    btn_cols = st.columns(8)
-    with btn_cols[0]:
-        st.button("📋 ПОДЕЛИТЬСЯ", key="btn_share")
-    with btn_cols[1]:
-        st.button("🔄 УЛУЧШИ", key="btn_improve")
-    with btn_cols[2]:
-        st.button("🎯 ПОД ЦЕЛЬ", key="btn_target")
-    with btn_cols[3]:
-        st.button("📊 PARETO", key="btn_pareto")
-    with btn_cols[4]:
-        st.button("🌪 TORNADO", key="btn_tornado")
-    with btn_cols[5]:
-        st.button("☁ CLOUD MAP", key="btn_cloud")
-    with btn_cols[6]:
-        st.button("➕ +1 ТИКЕР", key="btn_add_ticker")
-    with btn_cols[7]:
-        st.button("☑ BACKTEST", key="btn_backtest")
+    # ═══════════════════════════════════════════════════════════════
+    # МУЛЬТИ-ИНДИКАТОРЫ КОРЗИНЫ
+    # ═══════════════════════════════════════════════════════════════
+    st.markdown('<div class="sec">■ МУЛЬТИ-ИНДИКАТОРЫ КОРЗИНЫ</div>', unsafe_allow_html=True)
 
-    # 6 KPI Tiles
-    st.markdown('<div class="bb-section">6 KPI — QUANTUM MONTE CARLO ({:,} SIMULATIONS)</div>'.format(ch_data["total_simulations"]), unsafe_allow_html=True)
-    kp1, kp2, kp3, kp4, kp5, kp6 = st.columns(6)
-    kp1.metric("P(KI) BARRIER", f"{wo['barrier_breach_pct']:.1f}%")
-    kp2.metric("P(AUTOCALL)", f"{p_autocall:.1f}%")
-    kp3.metric("WORST-OF VAR 95%", f"{wo['var_95']:.1f}%")
-    kp4.metric("WORST-OF VAR 99%", f"{wo['var_99']:.1f}%")
-    kp5.metric("AVG WORST-OF", f"{wo['mean']:.1f}%")
-    kp6.metric("VOLATILITY", f"{wo.get('volatility', 45.2):.1f}%")
+    def _mi(label, value, sub="", color="#ffb000"):
+        return f'<div style="flex:1 1 48%;min-width:140px;padding:8px 10px;border:1px solid #3a2a00;margin:2px;background:#0a0a00"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">{label}</div><div style="color:{color};font-size:16px;font-weight:700">{value}</div><div style="color:#6a5a2a;font-size:9px">{sub}</div></div>'
 
-    st.markdown(f"""
-    <div style="font-size:10px; color:#d6a44a; margin:4px 0 8px; text-transform:uppercase; letter-spacing:0.5px;">
-        Источник: {src_label} · Таблица: {ch_data['table']} · Симуляций: {ch_data['total_simulations']:,} · Barrier: {ch_data['barrier_level']}%
-    </div>
-    """, unsafe_allow_html=True)
+    if ind:
+        iv30 = ind.get("iv30_avg", 40)
+        grid = _mi("IV30 (avg)", f"{iv30:.0f}%", f"min {ind.get('iv30_min',0):.0f}% · max {ind.get('iv30_max',0):.0f}%")
+        grid += _mi("Real / IV", f"{ind.get('real_iv',0):.2f}", f"real vs IV {iv30:.0f}%")
+        grid += _mi("β (avg)", f"{ind.get('beta_avg',1):.2f}", f"|min| {ind.get('beta_min',0):.2f} · |max| {ind.get('beta_max',0):.2f}")
+        grid += _mi("P/E (avg)", f"{ind.get('pe_avg',25):.1f}", f"range {ind.get('pe_min',0):.0f} – {ind.get('pe_max',0):.0f}")
+        grid += _mi("PEG (avg)", f"{ind.get('peg_avg',1.5):.2f}", f"range {ind.get('peg_min',0):.1f} – {ind.get('peg_max',0):.1f}", "#ff3b30" if ind.get("peg_avg",1.5) > 2 else "#ffb000")
+        grid += _mi("DCF upside", f"{ind.get('dcf_avg',0):+.1f}%", f"range {ind.get('dcf_min',0):+.0f}% – {ind.get('dcf_max',0):+.0f}%", "#34c759" if ind.get("dcf_avg",0) > 0 else "#ff3b30")
+        grid += _mi("Tgt up (analysts)", f"{ind.get('tgt_avg',0):+.1f}%", f"range {ind.get('tgt_min',0):+.0f}% – {ind.get('tgt_max',0):+.0f}%", "#34c759" if ind.get("tgt_avg",0) > 0 else "#ff3b30")
+        grid += _mi("BCS Tgt up", f"{ind.get('bcs_avg',0):+.1f}%", f"range {ind.get('bcs_min',0):+.0f}% – {ind.get('bcs_max',0):+.0f}%", "#ff3b30" if ind.get("bcs_avg",0) < 0 else "#ffb000")
+        grid += _mi("EMA200 trend", f"{ind.get('ema_up',0)}/{ind.get('ema_total',0)} ▲", f"avg {ind.get('ema_avg_pct',0):+.1f}%", "#34c759")
+        grid += _mi("Аналитики", ind.get("rec_label","BUY"), f"rec {ind.get('rec_avg',1.8):.2f} ({ind.get('ema_total',0)}/{ind.get('ema_total',0)})", "#34c759" if ind.get("rec_label") == "BUY" else "#ffb000")
+        grid += _mi("IV rank 1y", f"{D.get('iv_rank',50)}%", f"percentile rank")
+        grid += _mi("P(KI)", f"{p_ki:.1f}%", f"при KI=60% spot за 2 года", "#ff3b30" if p_ki > 25 else "#34c759")
+        grid += _mi("P(autocall)", f"{p_autocall:.1f}%", f"{D.get('e_life',1.5):.2f}г E[жизни]")
+        grid += _mi("Dispersion", f"σ {D.get('dispersion',5):.1f}%", f"vol-spread")
+        earn = earnings
+        grid += _mi("Earnings density", f"{earn.get('total_events',0)}/{n_tickers}", f"nearest {earn.get('nearest_days',999)}д · score {earn.get('density_score',5):.1f}/10")
+        st.markdown(f'<div style="display:flex;flex-wrap:wrap;gap:0">{grid}</div>', unsafe_allow_html=True)
+    else:
+        st.info("Нет данных yfinance — индикаторы будут доступны после загрузки")
 
-    # Position sizer
-    st.markdown('<div class="bb-section">POSITION SIZER</div>', unsafe_allow_html=True)
-    ps1, ps2, ps3, ps4 = st.columns(4)
-    with ps1:
-        aum = st.number_input("AUM клиента, $", min_value=10000, value=1000000, step=10000)
-    with ps2:
-        risk_budget = st.number_input("Риск-бюджет, %", min_value=0.5, max_value=50.0, value=5.0, step=0.5)
-    with ps3:
-        e_loss = wo["barrier_breach_pct"] * 0.35
-        st.metric("E[loss], %", f"{e_loss:.1f}%")
-    with ps4:
-        notional = aum * (risk_budget / 100) / max(e_loss / 100, 0.01)
-        st.metric("Notional ноты", f"${notional:,.0f}")
+    # Config line
+    bstr = "/".join(basket_tickers)
+    st.markdown(f'<div class="qc" style="padding:4px 10px;margin:8px 0"><code style="color:#d6a44a;font-size:10px">{bstr} 24 months USD ] 0.7 1 1 4 0.7 1 0.6 0</code></div>', unsafe_allow_html=True)
 
-    # ── ОБЩИЙ РИСК-СКОР КОРЗИНЫ ──
-    # Multi-source risk score: ClickHouse + Qiskit + ФЕНИКС
-    r_pki = min(30, p_ki * 0.8)  # ClickHouse: P(KI) barrier — max 30
-    r_vol = min(20, avg_vol * 0.4)  # ClickHouse: volatility — max 20
-    r_corr = min(15, dispersion)  # ClickHouse: correlation dispersion — max 15
-    r_dcf = max(0, min(15, 10 + dcf_upside))  # ClickHouse: DCF upside — max 15
-    r_ema = min(10, len(basket_tickers) * 2)  # EMA200 trend — max 10
-    r_earnings = min(10, 7)  # Earnings density — max 10
-    # Qiskit Q-VaR bonus: higher avg_qvar = safer
-    r_qiskit = max(0, min(10, (avg_qvar - 30) * 0.2))  # 0-10 pts from Qiskit
-    # ФЕНИКС MC bonus
-    r_phoenix = 0.0
-    if phoenix_p_loss is not None:
-        r_phoenix = max(0, min(10, (0.3 - phoenix_p_loss) * 20))  # 0-10 pts
-    risk_score_total = max(5, min(95, r_dcf + r_ema + r_earnings + r_qiskit + r_phoenix + 30 - r_pki - r_vol * 0.3 - r_corr * 0.3))
-    risk_level = "Низкий риск" if risk_score_total >= 70 else "Средний риск" if risk_score_total >= 40 else "Высокий риск"
-    risk_color = "#34c759" if risk_score_total >= 70 else "#ffb000" if risk_score_total >= 40 else "#ff3b30"
+    # ═══════════════════════════════════════════════════════════════
+    # ACTION BUTTONS
+    # ═══════════════════════════════════════════════════════════════
+    b1,b2,b3 = st.columns(3)
+    with b1: st.button("📋 КОПИРОВАТЬ", key="btn_copy"); st.button("🔄 УЛУЧШИ", key="btn_improve")
+    with b2: st.button("📄 PDF", key="btn_pdf"); st.button("🎯 ПОД ЦЕЛЬ", key="btn_target")
+    with b3: st.button("AB СРАВНИТЬ", key="btn_compare"); st.button("📊 PARETO", key="btn_pareto")
+    b4,b5,b6 = st.columns(3)
+    with b4: st.button("🌪 TORNADO", key="btn_tornado")
+    with b5: st.button("☁ CLOUD MAP", key="btn_cloud")
+    with b6: st.button("📤 ПОДЕЛИТЬСЯ", key="btn_share")
 
+    # ═══════════════════════════════════════════════════════════════
+    # POSITION SIZER
+    # ═══════════════════════════════════════════════════════════════
+    ps1,ps2,ps3 = st.columns(3)
+    with ps1: aum = st.number_input("AUM КЛИЕНТА, $", min_value=10000, value=1000000, step=10000)
+    with ps2: risk_budget = st.number_input("РИСК-БЮДЖЕТ, %", min_value=0.5, max_value=50.0, value=5.0, step=0.5)
+    with ps3: e_loss_pct = D.get("p_clean_loss", 15); st.number_input("E[LOSS] КОРЗИНЫ, %", value=e_loss_pct, disabled=True, key="e_loss_display")
+    notional = aum * (risk_budget / 100) / max(e_loss_pct / 100, 0.01)
+    st.markdown(f'<div class="qc" style="padding:10px"><div style="color:#d6a44a;font-size:10px">Notional ноты</div><div style="color:#ffb000;font-size:20px;font-weight:700">${notional:,.0f}</div><div style="color:#6a5a2a;font-size:9px">Риск-бюджет ${aum*(risk_budget/100):,.0f} ({risk_budget}% от AUM) ÷ E[loss] {e_loss_pct:.1f}% = notional ноты</div></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # ОБЩИЙ РИСК-СКОР
+    # ═══════════════════════════════════════════════════════════════
+    rs = D["risk_score"]
+    rc = D["risk_components"]
+    rs_color = "#34c759" if rs >= 70 else "#ffb000" if rs >= 40 else "#ff3b30"
+    rs_label = "Низкий риск" if rs >= 70 else "Средний риск" if rs >= 40 else "Высокий риск"
+    rs_grade = "A" if rs >= 70 else "B" if rs >= 55 else "C" if rs >= 40 else "D"
     st.markdown(f'''
-    <div class="q-card" style="border-left:3px solid {risk_color}; padding:14px; margin:12px 0;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span style="color:#ffb000; font-size:13px; font-weight:700;">⚙ ОБЩИЙ РИСК-СКОР КОРЗИНЫ</span>
-                <span style="background:#1a1400; border:1px solid #3a2a00; padding:1px 6px; color:#d6a44a; font-size:9px; border-radius:2px;">D</span>
+    <div class="qc" style="border-left:3px solid {rs_color};padding:14px;margin:12px 0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:10px">
+                <span style="color:#ffb000;font-size:13px;font-weight:700">⚙ ОБЩИЙ РИСК-СКОР КОРЗИНЫ</span>
+                <span style="background:#1a1400;border:1px solid #3a2a00;padding:1px 6px;color:#d6a44a;font-size:9px;border-radius:2px">{rs_grade}</span>
             </div>
-            <div style="text-align:right;">
-                <span style="color:{risk_color}; font-size:24px; font-weight:700;">{risk_score_total:.1f}</span>
-                <span style="color:#d6a44a; font-size:12px;">/100</span>
-                <span style="color:{risk_color}; font-size:11px; margin-left:8px;">{risk_level}</span>
+            <div style="text-align:right">
+                <span style="color:{rs_color};font-size:28px;font-weight:700">{rs:.1f}</span>
+                <span style="color:#d6a44a;font-size:12px">/100</span>
+                <span style="color:{rs_color};font-size:11px;margin-left:8px">{rs_label}</span>
             </div>
         </div>
-        <div style="color:#d6a44a; font-size:10px; margin-top:8px; border-top:1px solid #3a2a00; padding-top:8px;">
-            • Разложение по 8 компонентам риска (ClickHouse + Qiskit + ФЕНИКС MC)
-        </div>
+        <div style="margin-top:6px;height:6px;background:#1a1400;border-radius:1px"><div style="height:100%;width:{rs}%;background:{rs_color};border-radius:1px"></div></div>
     </div>
     ''', unsafe_allow_html=True)
 
-    # Risk score breakdown
+    with st.expander("▶ Разложение по 6 компонентам риска"):
+        for name, val in rc.items():
+            st.markdown(f'<div style="color:#d6a44a;font-size:11px">{name}: <b style="color:#ffb000">{val:.1f}</b></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # КУПОН КЛИЕНТУ
+    # ═══════════════════════════════════════════════════════════════
+    st.markdown('<div class="sec">КУПОН КЛИЕНТУ</div>', unsafe_allow_html=True)
+    cp = st.columns(6)
+    cp[0].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">КУПОН P.A.</div><div style="color:#34c759;font-size:18px;font-weight:700">{D["coupon_pa"]:.2f}%</div></div>', unsafe_allow_html=True)
+    cp[1].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(АВТОКОЛЛ)</div><div style="color:#ffb000;font-size:18px;font-weight:700">{p_autocall:.1f}%</div></div>', unsafe_allow_html=True)
+    cp[2].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(ЧИСТЫЙ УБЫТОК)</div><div style="color:#ff3b30;font-size:18px;font-weight:700">{D["p_clean_loss"]:.1f}%</div></div>', unsafe_allow_html=True)
+    cp[3].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[ИТОГ. ВЫПЛАТА]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_payout"]:.1f}%</div></div>', unsafe_allow_html=True)
+    cp[4].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(KI)</div><div style="color:{"#ff3b30" if p_ki>25 else "#34c759"};font-size:18px;font-weight:700">{p_ki:.1f}%</div></div>', unsafe_allow_html=True)
+    cp[5].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[СРОК]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_life"]:.2f} лет</div></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # ИИ-ПРЕДЛОЖЕНИЯ ПО КОРЗИНЕ
+    # ═══════════════════════════════════════════════════════════════
+    st.markdown('<div class="sec">🤖 ИИ-ПРЕДЛОЖЕНИЯ ПО КОРЗИНЕ</div>', unsafe_allow_html=True)
+    worst_t = wo_analysis[0]["ticker"] if wo_analysis else basket_tickers[0]
+    if p_ki > 25:
+        ai_msg = f'🟣 <b>P(KI) высокая — снизить риск тела</b><br>Вероятность пробоя KI = {p_ki:.1f}%. Это много для worst-of. Снизь либо KI до 50%, либо замени самый рискованный имя (<b>{worst_t}</b>).'
+    elif p_ki > 10:
+        ai_msg = f'🟡 <b>P(KI) умеренная — корзина приемлема</b><br>P(KI) = {p_ki:.1f}%. Можно улучшить заменой {worst_t}.'
+    else:
+        ai_msg = f'🟢 <b>P(KI) низкая — корзина надёжная</b><br>P(KI) = {p_ki:.1f}%. Рекомендуется к размещению.'
+    st.markdown(f'''
+    <div class="qc" style="padding:14px">
+        <div style="color:#d6a44a;font-size:11px;line-height:1.6;margin-bottom:10px">Эвристический анализ корзины: worst-of контрибьюторы, секторная концентрация, IV-разброс, percentile vs твоей истории. Не финрек, just helper.</div>
+        <div style="color:#ffd56a;font-size:11px;line-height:1.6;border-left:3px solid #3a2a00;padding-left:10px">{ai_msg}</div>
+    </div>
+    ''', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # Добавить / Заменить
+    # ═══════════════════════════════════════════════════════════════
     with st.expander("▶ Как считается рекомендательный скоринг"):
+        st.markdown(f'<div style="color:#d6a44a;font-size:11px;line-height:1.8">Источники: {" · ".join(data_sources)}<br>Score = 100 – breach_penalty – vol_penalty + mean_bonus + diversification + Q-VaR_bonus</div>', unsafe_allow_html=True)
+
+    ac1, ac2 = st.columns([5,1])
+    with ac1:
+        add_input = st.text_input("Добавить в корзину: NVDA, TSLA", key="add_tickers", label_visibility="collapsed")
+    with ac2:
+        if st.button("➕ ДОБАВИТЬ", key="btn_add"):
+            if add_input:
+                new_t = [t.strip().upper() for t in add_input.replace(",", " ").split() if t.strip()]
+                st.session_state["basket_override"] = basket_input.strip() + " " + " ".join(new_t); st.rerun()
+
+    rc1,rc2,rc3 = st.columns(3)
+    with rc1: st.button("↑ БОЛЬШЕ РИСК (ЗАМЕНИТЬ БУМАГУ)", key="btn_more")
+    with rc2: st.button("↓ МЕНЬШЕ РИСК (ЗАМЕНИТЬ БУМАГУ)", key="btn_less")
+    with rc3: st.button("🔗 СНИЗИТЬ TAIL DEP", key="btn_tail")
+
+    # ═══════════════════════════════════════════════════════════════
+    # [01] ALADDIN — Performance metrics
+    # ═══════════════════════════════════════════════════════════════
+    al = aladdin
+    al_summary = f"SHRP {al.get('sharpe','?')} · DD {al.get('max_dd','?')}% · CALM {al.get('calmar','?')}" if al else "—"
+    with st.expander(f"[01] ALADDIN    {al_summary}"):
+        if al:
+            st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:8px">Сравнение vs прошлых корзин (история в браузере). P75 = «лучше 75% твоих расчётов».</div>', unsafe_allow_html=True)
+            metrics = [
+                ("SHARPE (ANN.)", al.get("sharpe",0)),
+                ("SORTINO (ANN.)", al.get("sortino",0)),
+                ("CALMAR = CAGR/|MDD|", al.get("calmar",0)),
+                ("CAGR (BASKET)", f"{al.get('cagr',0)}%"),
+                ("MAX DRAWDOWN", f"{al.get('max_dd',0)}%"),
+                ("AVG PAIR CORR", al.get("avg_pair_corr",0)),
+                ("TRACKING ERROR VS SPY", f"{al.get('tracking_error',0)}%"),
+                ("INFORMATION RATIO", al.get("info_ratio",0)),
+                ("ACTIVE SHARE VS SPY", f"{al.get('active_share',0)}%"),
+            ]
+            for name, val in metrics:
+                pct = min(100, max(5, abs(float(str(val).replace("%",""))) * 10 if isinstance(val, str) else abs(val) * 30))
+                st.markdown(f'''
+                <div class="qc" style="padding:8px 12px;margin:2px 0">
+                    <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a;font-size:11px">{name}</span><span style="color:#ffb000;font-size:16px;font-weight:700">{val}</span></div>
+                    <div style="height:4px;background:#1a1400;margin:4px 0"><div style="height:100%;width:{pct}%;background:linear-gradient(90deg,#fa8000,#ffb000)"></div></div>
+                    <div style="color:#6a5a2a;font-size:9px">нет истории · первый расчёт — копи историю</div>
+                </div>''', unsafe_allow_html=True)
+        else:
+            st.info("Нет данных yfinance для расчёта")
+
+    # ═══════════════════════════════════════════════════════════════
+    # [02] COMPOSITION — Per-ticker cards
+    # ═══════════════════════════════════════════════════════════════
+    n_sectors = len(set(SECTOR_MAP.get(t, "Unknown") for t in basket_tickers))
+    with st.expander(f"[02] COMPOSITION    {n_tickers} NAMES · {n_sectors} SECTORS"):
+        for t in basket_tickers:
+            if t in yf:
+                d = yf[t]
+                sector = d.get("sector", "Unknown")
+                rec_label = d.get("rec_label", "buy")
+                rec_score = d.get("rec_score", 1.8)
+                rec_color = "#34c759" if rec_label in ("buy","strong_buy") else "#ffb000"
+                ema_sign = "▲" if d["ema200_above"] else "▼"
+                ema_color = "#34c759" if d["ema200_above"] else "#ff3b30"
+                dcf_color = "#34c759" if d["dcf_upside"] > 0 else "#ff3b30"
+                tgt_color = "#34c759" if d["target_upside"] > 0 else "#ff3b30"
+                bcs_color = "#34c759" if d["bcs_upside"] > 0 else "#ff3b30"
+                avg_color = "#34c759" if d["avg_upside"] > 0 else "#ff3b30"
+                peg_color = "#ff3b30" if d["peg"] > 2 else "#ffb000"
+                st.markdown(f'''
+                <div class="qc" style="border-left:3px solid #fa8000;padding:10px 14px;margin:6px 0">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                        <div><span style="color:#ffb000;font-size:16px;font-weight:700">{t}</span> <span style="color:#6a5a2a;font-size:10px">{sector}</span></div>
+                        <span style="background:#0a1a00;border:1px solid {rec_color};padding:2px 8px;color:{rec_color};font-size:10px">{rec_label} {rec_score:.2f}</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 20px;font-size:11px">
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">Spot</span><span style="color:#ffb000">{d["spot"]}</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">IV30</span><span style="color:#ffb000">{d["iv30"]}%</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">Real 1y</span><span style="color:#ffb000">{d["real_1y"]}%</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">Vol used</span><span style="color:#ffb000">{d["vol_used"]}%</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">β</span><span style="color:#ffb000">{d["beta"]}</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">P/E</span><span style="color:#ffb000">{d["pe"]}</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">PEG</span><span style="color:{peg_color}">{d["peg"]}</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">EMA200</span><span style="color:{ema_color}">{ema_sign} {d["ema200_pct"]:+.1f}%</span></div>
+                    </div>
+                    <div style="border-top:1px solid #3a2a00;margin-top:6px;padding-top:6px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;font-size:11px">
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">DCF</span><span style="color:#ffb000">{d["dcf"]}</span><span style="color:{dcf_color}">{d["dcf_upside"]:+.0f}%</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">АНАЛИТИКИ · {d["n_analysts"]}</span><span style="color:#ffb000">{d["target_price"]}</span><span style="color:{tgt_color}">{d["target_upside"]:+.0f}%</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="color:#d6a44a">BCS GM</span><span style="color:#ffb000">{d["bcs_target"]:.0f}</span><span style="color:{bcs_color}">{d["bcs_upside"]:+.0f}%</span></div>
+                    </div>
+                    <div style="border-top:1px solid #3a2a00;margin-top:4px;padding-top:4px;font-size:11px;display:flex;justify-content:space-between">
+                        <span style="color:#d6a44a">AVG · СВОДНЫЙ</span><span style="color:#ffb000;font-weight:700">{d["avg_target"]}</span><span style="color:{avg_color}">{d["avg_upside"]:+.0f}%</span>
+                    </div>
+                </div>
+                ''', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [03] SECTOR EXP
+    # ═══════════════════════════════════════════════════════════════
+    sectors = D.get("sectors", {})
+    top_sector = D.get("top_sector", "N/A")
+    top_pct = D.get("top_sector_pct", 0)
+    with st.expander(f"[03] SECTOR EXP.    {top_sector} {top_pct}%"):
+        # Sector table
+        for s, cnt in sorted(sectors.items(), key=lambda x: -x[1]):
+            pct = round(cnt / n_tickers * 100)
+            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#fa8000;font-size:11px">■ {s}</span><span style="color:#ffb000;font-size:11px">{pct}% ({cnt})</span></div>', unsafe_allow_html=True)
+        if top_pct > 50:
+            st.markdown(f'<div style="color:#ffb000;font-size:10px;margin-top:6px;border-left:3px solid #fa8000;padding-left:8px">⚠ Концентрация: {top_sector} {top_pct}% корзины. Рассмотри диверсификацию.</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [04] WORST-OF
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[04] WORST-OF"):
+        st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Для каждой бумаги: P(она = worst-of при выходе) + P(она = worst-of при KI). Идеал — у всех ≈33% (равная нагрузка). Если один тикер >50% — он «culprit», его замена улучшит расчёт.</div>', unsafe_allow_html=True)
+        if wo_analysis:
+            culprit = wo_analysis[0]
+            fair = culprit["fair_share"]
+            if culprit["p_worst"] > fair * 1.5:
+                st.markdown(f'<div style="background:#1a1400;border:1px solid #ffb000;padding:8px;margin-bottom:8px;color:#ffb000;font-size:11px">● <b>{culprit["ticker"]}</b> чаще остальных оказывается worst-of ({culprit["p_worst"]:.0f}% vs {fair:.0f}% fair share). Можно рассмотреть замену.</div>', unsafe_allow_html=True)
+            st.markdown('<div style="display:flex;justify-content:space-between;padding:4px 8px;border-bottom:1px solid #3a2a00"><span style="color:#d6a44a;font-size:10px">ТИКЕР</span><span style="color:#d6a44a;font-size:10px">P(WORST AT EXIT)</span></div>', unsafe_allow_html=True)
+            colors = ["#fa8000", "#d6a44a", "#ff3b30"]
+            for i, wa in enumerate(wo_analysis):
+                bar_w = min(80, wa["p_worst"] * 2)
+                bar_c = colors[i % len(colors)]
+                st.markdown(f'''
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-bottom:1px solid #1a1400">
+                    <span style="color:#6a5a2a;font-size:11px">{i+1}</span>
+                    <span style="color:#ffb000;font-size:11px;font-weight:700;min-width:50px">{wa["ticker"]}</span>
+                    <span style="color:#6a5a2a;font-size:10px;flex:1;margin:0 8px">· {wa["sector"]}</span>
+                    <div style="width:120px;height:14px;background:#1a1400"><div class="bar" style="width:{bar_w}%;background:{bar_c}"></div></div>
+                    <span style="color:#ffb000;font-size:11px;min-width:40px;text-align:right">{wa["p_worst"]:.1f}%</span>
+                </div>''', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [05] CORR MATRIX
+    # ═══════════════════════════════════════════════════════════════
+    avg_c = corr.get("avg_corr", 0)
+    with st.expander(f"[05] CORR MATRIX    AVG {avg_c:.2f}"):
+        st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Pearson корреляции дневных логдоходностей за 5y. Sweet spot для Phoenix: <b>0.45–0.65</b> — достаточно diversification benefit, но worst-of не «убегает» вниз.</div>', unsafe_allow_html=True)
+        if avg_c < 0.40:
+            st.markdown(f'<div style="background:#0a1a0a;border:1px solid #34c759;padding:6px 8px;color:#34c759;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — корзина хорошо диверсифицирована.</div>', unsafe_allow_html=True)
+        elif avg_c < 0.65:
+            st.markdown(f'<div style="background:#1a1a0a;border:1px solid #ffb000;padding:6px 8px;color:#ffb000;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — приемлемо.</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div style="background:#1a0a0a;border:1px solid #ff3b30;padding:6px 8px;color:#ff3b30;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — высокая, все падают вместе.</div>', unsafe_allow_html=True)
+        # Legend
+        st.markdown('<div style="font-size:10px;color:#d6a44a;margin-bottom:4px">🟦 &lt;0.40 хорошо · 🟩 0.40–0.65 · 🟨 0.65–0.75 · 🟧 0.75–0.85 · 🟥 &gt;0.85 слиплись</div>', unsafe_allow_html=True)
+        # Matrix table
+        c_tickers = corr.get("tickers", [])
+        c_matrix = corr.get("matrix", [])
+        if c_tickers and c_matrix:
+            hdr = '<th style="padding:4px 8px;color:#d6a44a;font-size:10px"></th>' + "".join(f'<th style="padding:4px 8px;color:#ffb000;font-size:10px;font-weight:700">{t}</th>' for t in c_tickers)
+            rows = ""
+            for i, t in enumerate(c_tickers):
+                cells = f'<td style="padding:4px 8px;color:#ffb000;font-size:10px;font-weight:700">{t}</td>'
+                for j in range(len(c_tickers)):
+                    if i == j:
+                        cells += '<td style="padding:4px 8px;color:#6a5a2a;font-size:10px;text-align:center">—</td>'
+                    else:
+                        v = c_matrix[i][j]
+                        bg = "#0a2a2a" if v < 0.40 else "#0a2a0a" if v < 0.65 else "#2a2a0a" if v < 0.75 else "#2a1a0a" if v < 0.85 else "#2a0a0a"
+                        cells += f'<td style="padding:4px 8px;background:{bg};color:#ffb000;font-size:11px;text-align:center;font-weight:700">{v:.2f}</td>'
+                rows += f'<tr>{cells}</tr>'
+            st.markdown(f'<table style="width:100%;border-collapse:collapse;margin-top:8px"><tr>{hdr}</tr>{rows}</table>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [06] EARNINGS CAL
+    # ═══════════════════════════════════════════════════════════════
+    total_events = earnings.get("total_events", 0)
+    with st.expander(f"[06] EARNINGS CAL    {total_events} EVENTS"):
+        st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin-bottom:6px">БЛИЖАЙШИЕ 5 ОТЧЁТОВ</div>', unsafe_allow_html=True)
+        for ev in earnings.get("events", [])[:5]:
+            days = ev["days"]
+            color = "#ff3b30" if days <= 7 else "#ffb000" if days <= 30 else "#34c759"
+            st.markdown(f'<div style="display:inline-block;background:#1a1400;border:1px solid {color};padding:3px 10px;margin:2px;color:{color};font-size:10px">{ev["ticker"]} · {ev["date"]} · через {days}д</div>', unsafe_allow_html=True)
+
+        st.markdown(f'<div style="color:#ffb000;font-size:11px;font-weight:700;margin:12px 0 6px">ПО БУМАГАМ В ОКНЕ 2.0 ЛЕТ (8 КВАРТАЛОВ)</div>', unsafe_allow_html=True)
+        per_ticker = earnings.get("per_ticker", {})
+        for t, dates in per_ticker.items():
+            chips_html = "".join(f'<span style="display:inline-block;background:#1a1400;border:1px solid #3a2a00;padding:2px 6px;margin:1px;color:#d6a44a;font-size:9px">{d}</span>' for d in dates[:8])
+            st.markdown(f'<div style="display:flex;align-items:center;gap:8px;margin:2px 0"><span style="color:#ffb000;font-size:11px;font-weight:700;min-width:50px">{t}</span>{chips_html}</div>', unsafe_allow_html=True)
+        st.markdown('<div style="color:#6a5a2a;font-size:9px;margin-top:6px">🔴 ≤ 7 дн (вол-спайк, риск KI) · 🟡 ≤ 30 дн · 🟢 далее. Источник: yfinance.</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [07] TAIL RISK
+    # ═══════════════════════════════════════════════════════════════
+    t_var95 = tail.get("var_95_cf", 0)
+    t_es95 = tail.get("es_95", 0)
+    t_regime = tail.get("regime", "?")
+    with st.expander(f"[07] TAIL RISK    VAR95 {t_var95:.2f}% · ES95 {t_es95:.2f}% · RE: {t_regime}"):
+        st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:10px;line-height:1.5">Расширенный риск-анализ: фат-тейлы (skew/kurtosis), Expected Shortfall, tail-dependence (одновременные просадки), regime-switching VaR.</div>', unsafe_allow_html=True)
+
+        # VaR section
         st.markdown(f'''
-        <div style="color:#d6a44a; font-size:11px; line-height:1.8;">
-            <span style="color:#6db6ff;">── ClickHouse Cloud (40K sims) ──</span><br>
-            1. <b>P(KI) барьер</b>: {p_ki:.1f}% — вклад {r_pki:.0f}/30<br>
-            2. <b>Волатильность</b>: {avg_vol:.1f}% — вклад {r_vol:.0f}/20<br>
-            3. <b>Корреляция worst-of</b>: {dispersion:.1f}% — вклад {r_corr:.0f}/15<br>
-            4. <b>DCF upside</b>: {dcf_upside:+.1f}% — вклад {r_dcf:.0f}/15<br>
-            <span style="color:#6db6ff;">── Рыночные данные ──</span><br>
-            5. <b>EMA200 trend</b>: — вклад {r_ema:.0f}/10<br>
-            6. <b>Earnings density</b>: — вклад {r_earnings:.0f}/10<br>
-            <span style="color:#6db6ff;">── IBM Qiskit AerSimulator ──</span><br>
-            7. <b>Q-VaR adjustment</b>: avg Q-VaR={avg_qvar:.1f}% — вклад +{r_qiskit:.1f}<br>
-            <span style="color:#6db6ff;">── ФЕНИКС v32.0 Sobol MC ──</span><br>
-            8. <b>MC P(loss) adjustment</b>: {'P(loss)='+f'{phoenix_p_loss:.1%}' if phoenix_p_loss is not None else 'не запущен'} — вклад +{r_phoenix:.1f}<br>
-            <b style="color:#ffb000;">ИТОГО: {risk_score_total:.1f}/100</b>
+        <div class="qc" style="padding:12px">
+            <div style="color:#ffb000;font-size:11px;font-weight:700;margin-bottom:6px">■ VaR — потери на 1 день</div>
+            <div style="color:#6a5a2a;font-size:9px;margin-bottom:8px">Cornish-Fisher корректирует на форму распределения</div>
+            <div style="display:flex;gap:8px;margin-bottom:4px"><span style="background:#1a1400;border:1px solid #3a2a00;padding:2px 8px;color:#d6a44a;font-size:10px">Skew {tail.get("skew",0):.2f}</span><span style="background:#1a1400;border:1px solid #fa8000;padding:2px 8px;color:#fa8000;font-size:10px">Kurtosis {tail.get("kurtosis",0):.2f}</span><span style="background:#1a0a00;border:1px solid #ff3b30;padding:2px 8px;color:#ff3b30;font-size:10px">{tail.get("fat_tail_penalty",0):.2f}% штраф фат-тейлов</span></div>
+        ''', unsafe_allow_html=True)
+
+        def _bar(label, val, color, max_w=60):
+            w = min(max_w, val * 10)
+            return f'<div style="margin:4px 0"><div style="color:#d6a44a;font-size:10px">{label}</div><div style="display:flex;align-items:center;gap:8px"><div style="width:200px;height:14px;background:#1a1400"><div class="bar" style="width:{w}%;background:{color}"></div></div><span style="color:#ffb000;font-size:11px;font-weight:700">+{val:.2f}%</span></div></div>'
+
+        bars = _bar("VAR 95% (HIST)", tail.get("var_95_hist", 0), "#6db6ff")
+        bars += _bar("VAR 95% (CF) ★", tail.get("var_95_cf", 0), "#fa8000")
+        bars += _bar("VAR 99% (CF)", tail.get("var_99_cf", 0), "#ff3b30")
+        st.markdown(f'{bars}</div>', unsafe_allow_html=True)
+
+        # Expected Shortfall
+        st.markdown(f'''
+        <div class="qc" style="padding:12px;margin-top:6px">
+            <div style="color:#ff3b30;font-size:11px;font-weight:700;margin-bottom:4px">▲ Expected Shortfall — средняя в худших днях</div>
+            <div style="color:#6a5a2a;font-size:9px;margin-bottom:6px">Стандарт Basel-FRTB. Чем меньше — тем легче хвост.</div>
+            {_bar("ES 90%", tail.get("es_90",0), "#34c759")}
+            {_bar("ES 95% ★", tail.get("es_95",0), "#fa8000")}
+            {_bar("ES 99%", tail.get("es_99",0), "#ff3b30")}
         </div>
         ''', unsafe_allow_html=True)
 
-    # ── Добавить в корзину ──
-    add_cols = st.columns([5, 1])
-    with add_cols[0]:
-        add_tickers = st.text_input("Добавить в корзину:", placeholder="NVDA, TSLA", key="add_tickers_input", label_visibility="collapsed")
-    with add_cols[1]:
-        if st.button("➕ ДОБАВИТЬ", key="btn_add_to_basket"):
-            if add_tickers:
-                new_t = [t.strip().upper() for t in add_tickers.replace(",", " ").split() if t.strip()]
-                current = basket_input.strip()
-                st.session_state["basket_override"] = current + " " + " ".join(new_t)
-                st.rerun()
+        # Tail-dependence
+        st.markdown(f'''
+        <div class="qc" style="padding:12px;margin-top:6px">
+            <div style="color:#ff3b30;font-size:11px;font-weight:700;margin-bottom:4px">⚙ Tail-dependence — все вместе вниз</div>
+            <div style="color:#6a5a2a;font-size:9px;margin-bottom:6px">Прямой драйвер пробоя KI в worst-of структурах.</div>
+            {_bar("P(BCE ≤ 5%-KB)", tail.get("p_bce_5",0), "#34c759")}
+            {_bar("P(BCE ≤ 1%-KB)", tail.get("p_bce_1",0), "#6a5a2a")}
+            {_bar("AVG PAIR P(I↓|J↓)", tail.get("avg_pair_p",0), "#ff3b30", max_w=80)}
+        </div>
+        ''', unsafe_allow_html=True)
 
-    st.markdown('<div style="color:#6a5a2a; font-size:9px; margin:-8px 0 8px;">Клик ✕ на чипах — выбирайте несколько и жми «Исключить выделенные» внизу.</div>', unsafe_allow_html=True)
+        # Regime-switching VaR
+        regime_color = "#34c759" if tail.get("regime") == "CALM" else "#ff3b30"
+        st.markdown(f'''
+        <div class="qc" style="padding:12px;margin-top:6px">
+            <div style="color:#fa8000;font-size:11px;font-weight:700;margin-bottom:4px">⚡ Regime-switching VaR</div>
+            <div style="color:#6a5a2a;font-size:9px;margin-bottom:6px">Calm/stress по 20d-вол SPY. Ratio = во сколько раз риск выше в стресс.</div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+                <span style="background:#0a1a0a;border:1px solid {regime_color};padding:4px 12px;color:{regime_color};font-size:11px;font-weight:700">● СЕЙЧАС: {tail.get("regime","?")}</span>
+                <span style="color:#d6a44a;font-size:10px">σ_20d={tail.get("sigma_20d",0)}% · порог=1.20%</span>
+            </div>
+            {_bar("CALM VAR 95% / 1D", tail.get("calm_var_1d",0), "#34c759")}
+            {_bar("STRESS VAR 95% / 1D ★", tail.get("stress_var_1d",0), "#ff3b30")}
+            {_bar("CALM ES 95% / 1D", tail.get("calm_es_1d",0), "#34c759")}
+            {_bar("STRESS ES 95% / 1D", tail.get("stress_es_1d",0), "#ff3b30")}
+            {_bar("CALM VAR 95% / 10D", tail.get("calm_var_10d",0), "#34c759")}
+            {_bar("STRESS VAR 95% / 10D", tail.get("stress_var_10d",0), "#fa8000")}
+            <div style="margin-top:6px;display:flex;align-items:center;gap:8px">
+                <div style="width:200px;height:14px;background:#1a1400"><div class="bar" style="width:50%;background:#6a5a2a"></div></div>
+                <span style="color:#fa8000;font-size:11px;font-weight:700">×{tail.get("ratio",1):.2f} умеренный rise</span>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
 
-    # ── Заменить бумагу / Снизить риск ──
-    rep_cols = st.columns([2, 2, 2, 1, 1, 1, 1])
-    with rep_cols[0]:
-        st.markdown('<span style="color:#d6a44a; font-size:10px;">Заменить одну бумагу:</span>', unsafe_allow_html=True)
-    with rep_cols[1]:
-        st.button("↑ БОЛЬШЕ РИСК", key="btn_more_risk", help="Заменить наименее рискованную бумагу на более рискованную")
-    with rep_cols[2]:
-        st.button("↓ МЕНЬШЕ РИСК", key="btn_less_risk", help="Заменить самую рискованную бумагу на менее рискованную")
-    with rep_cols[3]:
-        st.button("🔗 СНИЗИТЬ TAIL DEP", key="btn_tail_dep")
-    with rep_cols[4]:
-        st.button("💎 СНИЗИТЬ СТРУКТУРНЫЙ РИСК", key="btn_struct_risk")
-    with rep_cols[5]:
-        st.button("→ 60 (B)", key="btn_score_60")
-    with rep_cols[6]:
-        st.button("→ 70 (A)", key="btn_score_70")
+    # ═══════════════════════════════════════════════════════════════
+    # [08] STRESS
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[08] STRESS"):
+        st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Репликация исторических кризисов через β_SPY · {len(stress)} сценариев. Каждая корзина = бар, ✓ безопасно если max DD не пробил 40%.</div>', unsafe_allow_html=True)
+        for sc in stress:
+            safe = sc["safe"]
+            badge = f'<span style="background:#0a1a0a;border:1px solid #34c759;padding:2px 8px;color:#34c759;font-size:10px">✓ безопасно</span>' if safe else f'<span style="background:#1a0a0a;border:1px solid #ff3b30;padding:2px 8px;color:#ff3b30;font-size:10px">▲ KI {sc.get("ki_pct",40)}%</span>'
+            spy_w = min(80, abs(sc["spy_total"]) * 1.5)
+            basket_w = min(80, abs(sc["basket_total"]) * 1.5)
+            dd_w = min(80, abs(sc["max_dd"]) * 1.5)
+            spy_c = "#6db6ff" if sc["spy_total"] > 0 else "#6db6ff"
+            basket_c = "#34c759" if sc["basket_total"] > 0 else "#ff3b30"
+            dd_c = "#fa8000" if abs(sc["max_dd"]) < 40 else "#ff3b30"
+            st.markdown(f'''
+            <div class="qc" style="border-left:3px solid {"#34c759" if safe else "#ff3b30"};padding:10px 14px;margin:4px 0">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+                    <span style="color:#fa8000;font-size:13px;font-weight:700">{sc["name"]}</span>
+                    <span style="color:#6a5a2a;font-size:10px">{sc["days"]}д · β={sc["beta"]}</span>
+                    {badge}
+                </div>
+                <div style="margin:2px 0"><span style="color:#d6a44a;font-size:10px">SPY TOTAL</span><div style="display:flex;align-items:center;gap:8px"><div style="width:200px;height:12px;background:#1a1400"><div class="bar" style="width:{spy_w}%;background:{spy_c}"></div></div><span style="color:#ffb000;font-size:10px">{sc["spy_total"]:+.1f}%</span></div></div>
+                <div style="margin:2px 0"><span style="color:#d6a44a;font-size:10px">КОРЗИНА TOTAL</span><div style="display:flex;align-items:center;gap:8px"><div style="width:200px;height:12px;background:#1a1400"><div class="bar" style="width:{basket_w}%;background:{basket_c}"></div></div><span style="color:#ffb000;font-size:10px">{sc["basket_total"]:+.1f}%</span></div></div>
+                <div style="margin:2px 0"><span style="color:#d6a44a;font-size:10px">MAX DRAWDOWN</span><div style="display:flex;align-items:center;gap:8px"><div style="width:200px;height:12px;background:#1a1400"><div class="bar" style="width:{dd_w}%;background:{dd_c}"></div></div><span style="color:#ffb000;font-size:10px">{sc["max_dd"]:+.1f}%</span></div></div>
+            </div>''', unsafe_allow_html=True)
 
-    # ── КУПОН КЛИЕНТУ ──
-    # Use ФЕНИКС MC results if available, otherwise estimate from ClickHouse
-    coupon_src = "ClickHouse estimate"
-    if phoenix_res and phoenix_p_loss is not None:
-        coupon_pa = 26.0 * (1 - phoenix_p_loss / 2)
-        p_clean_loss = phoenix_p_loss * 100 * 0.6
-        e_payout = (phoenix_avg_payoff or 1.0) * 100
-        coupon_src = "ФЕНИКС MC"
-    else:
-        coupon_pa = 26.0 * (1 - p_ki / 200)
-        p_clean_loss = p_ki * 0.6
-        e_payout = 100 + coupon_pa * 2 * (1 - p_ki / 100) - p_ki / 100 * 35
-    e_срок = 2.0 - p_autocall / 100 * 0.8
-    st.markdown(f'<div class="bb-section">КУПОН КЛИЕНТУ <span style="color:#6a5a2a; font-size:9px; font-weight:400;">({coupon_src})</span></div>', unsafe_allow_html=True)
+    # ═══════════════════════════════════════════════════════════════
+    # [09] RV MATRIX — 25 alternatives
+    # ═══════════════════════════════════════════════════════════════
+    RV_ALTS = ["NVDA","AMD","INTC","CRM","AVGO","QCOM","DELL","HPQ","NTAP","MCHP",
+               "GNRC","BA","DIS","T","MCD","PM","ABBV","JNJ","ORCL",
+               "GOLD","GLD","EXC","COF","APH","HLT"]
+    with st.expander(f"[09] RV MATRIX    {len(RV_ALTS)} ALTS"):
+        st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">{len(RV_ALTS)+1} корзин (текущая + {len(RV_ALTS)} альтернатив), сгруппированы по доминирующему сектору. Зелёный = лучший в столбце, красный = худший. ★ = текущая. <b>Клик на корзину</b> или ► — пересчитать с этой корзиной.</div>', unsafe_allow_html=True)
+        # Current basket
+        st.markdown(f'''
+        <div style="background:#0a1a0a;border:1px solid #34c759;padding:6px 10px;margin-bottom:6px">
+            <span style="color:#34c759;font-size:11px;font-weight:700">★ Текущая корзина</span>
+            <span style="color:#6a5a2a;font-size:10px;margin-left:8px">{top_sector} · {top_pct}% сектор-конц.</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #3a2a00">
+            <span style="color:#d6a44a;font-size:10px;font-weight:700">КОРЗИНА</span>
+            <span style="color:#d6a44a;font-size:10px;font-weight:700">КУПОН P.A.</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #3a2a00;background:#0a1a0a">
+            <span style="color:#34c759;font-size:10px">★ {" · ".join(basket_tickers)}</span>
+            <span style="color:#ffb000;font-size:10px;font-weight:700">{D["coupon_pa"]:.2f}%</span>
+        </div>
+        ''', unsafe_allow_html=True)
+        # Alt baskets by sector
+        seen_sectors = {}
+        for alt in RV_ALTS:
+            alt_basket = []
+            for orig in basket_tickers:
+                if orig == basket_tickers[-1]:
+                    alt_basket.append(alt)
+                else:
+                    alt_basket.append(orig)
+            sector = SECTOR_MAP.get(alt, "Unknown")
+            if sector not in seen_sectors:
+                seen_sectors[sector] = []
+            # Estimate coupon (simple heuristic based on sector risk)
+            risk_mult = {"Information Technology": 1.1, "Communication Services": 0.95, "Consumer Discretionary": 1.0,
+                         "Health Care": 0.85, "Consumer Staples": 0.80, "Industrials": 0.95, "Financials": 1.05,
+                         "Materials": 0.90, "Utilities": 0.75, "Real Estate": 1.15, "ETF": 0.70, "Unknown": 1.0}
+            est_coupon = round(D["coupon_pa"] * risk_mult.get(sector, 1.0), 2)
+            seen_sectors[sector].append((alt_basket, est_coupon, alt))
 
-    cp1, cp2, cp3, cp4, cp5, cp6 = st.columns(6)
-    cp1.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">КУПОН КЛИЕНТУ P.A.</div><div style="color:#34c759; font-size:18px; font-weight:700;">{coupon_pa:.2f}%</div></div>', unsafe_allow_html=True)
-    cp2.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">P(АВТОКОЛЛ)</div><div style="color:#ffb000; font-size:18px; font-weight:700;">{p_autocall:.1f}%</div></div>', unsafe_allow_html=True)
-    cp3.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">P(ЧИСТЫЙ УБЫТОК)</div><div style="color:#ff3b30; font-size:18px; font-weight:700;">{p_clean_loss:.1f}%</div></div>', unsafe_allow_html=True)
-    cp4.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">E[ИТОГ. ВЫПЛАТА]</div><div style="color:#ffb000; font-size:18px; font-weight:700;">{e_payout:.1f}%</div></div>', unsafe_allow_html=True)
-    cp5.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">P(KI)</div><div style="color:{"#ff3b30" if p_ki > 25 else "#34c759"}; font-size:18px; font-weight:700;">{p_ki:.1f}%</div></div>', unsafe_allow_html=True)
-    cp6.markdown(f'<div style="text-align:center;"><div style="color:#d6a44a; font-size:9px; text-transform:uppercase;">E[СРОК]</div><div style="color:#ffb000; font-size:18px; font-weight:700;">{e_срок:.2f} лет</div></div>', unsafe_allow_html=True)
+        for sector, baskets in seen_sectors.items():
+            st.markdown(f'''
+            <div style="border-left:3px solid #fa8000;padding:4px 8px;margin:8px 0 4px;background:#0a0a00">
+                <span style="color:#fa8000;font-size:10px">📁 {sector}</span>
+                <span style="color:#6a5a2a;font-size:9px;margin-left:8px">{len(baskets)} вариантов</span>
+            </div>''', unsafe_allow_html=True)
+            for bsk, cpn, alt_name in baskets:
+                cpn_color = "#ff3b30" if cpn < 22 else "#34c759" if cpn > 35 else "#ffb000"
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{" · ".join(bsk)}</span><span style="color:{cpn_color};font-size:10px;font-weight:700">{cpn:.2f}%</span></div>', unsafe_allow_html=True)
 
-    # ── ИИ-ПРЕДЛОЖЕНИЯ ПО КОРЗИНЕ ──
-    st.markdown('<div class="bb-section">🤖 ИИ-ПРЕДЛОЖЕНИЯ ПО КОРЗИНЕ</div>', unsafe_allow_html=True)
-    worst_ticker_data = tickers_data.get(worst_ticker, {})
-    worst_breach = worst_ticker_data.get("barrier_breach_pct", 0)
+    # ═══════════════════════════════════════════════════════════════
+    # ФЕНИКС v32.0 — Sobol MC (interactive)
+    # ═══════════════════════════════════════════════════════════════
+    st.markdown('<div class="sec">🔥 ФЕНИКС v32.0 — SOBOL MC ENGINE</div>', unsafe_allow_html=True)
+    st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:6px">2Y · USD · Memory Coupon · Worst-of Phoenix Autocallable · Все комбинации C(N,K)</div>', unsafe_allow_html=True)
 
-    ai_text = f"""Эвристический анализ корзины: worst-of контрибьюторы, секторная концентрация,
-IV-разброс, percentile vs твоей истории. Не финрек, just helper."""
+    pc1,pc2,pc3,pc4 = st.columns(4)
+    with pc1: phoenix_n_sims = st.selectbox("Симуляций", [10_000,50_000,100_000,500_000], index=1, key="ph_sims", format_func=lambda x: f"{x:,}")
+    with pc2: phoenix_coupon = st.number_input("Купон %/кв", value=6.5, step=0.5, key="ph_cpn")
+    with pc3: phoenix_barrier = st.number_input("Барьер %", value=65.0, step=5.0, key="ph_bar")
+    with pc4: phoenix_combo = st.number_input("Имён в корзине", value=min(6, n_tickers), min_value=2, max_value=12, step=1, key="ph_k")
 
-    ai_suggestion_1 = ""
-    if p_ki > 25:
-        ai_suggestion_1 = f"""🟣 <b>P(KI) высокая — снизить риск тела</b><br>
-Вероятность пробоя KI = {p_ki:.1f}%. Это много для worst-of. Снизь либо KI до 50% (даст ~1pp купона, но P(KI) упадёт в ~2×), либо замени самый рискованный имя (<b>{worst_ticker}</b>).<br>
-<span style="color:#6a5a2a;">Замени worst-of (см. 🟠 Worst-of contributor) или передвинь KI в условиях.</span>"""
-    elif p_ki > 10:
-        ai_suggestion_1 = f"""🟡 <b>P(KI) умеренная — корзина приемлема</b><br>
-Вероятность пробоя KI = {p_ki:.1f}%. Корзина в допустимом диапазоне. Можно улучшить заменой {worst_ticker} на менее волатильный актив."""
-    else:
-        ai_suggestion_1 = f"""🟢 <b>P(KI) низкая — корзина надёжная</b><br>
-Вероятность пробоя KI = {p_ki:.1f}%. Отличная корзина для выпуска. Рекомендуется к размещению."""
+    combo_size = min(int(phoenix_combo), n_tickers)
+    n_combos = math.comb(n_tickers, combo_size) if n_tickers >= combo_size else 1
+    st.markdown(f'<div style="color:#ffb000;font-size:11px;margin:4px 0">📊 C({n_tickers},{combo_size}) = <b>{n_combos}</b> комбинаций</div>', unsafe_allow_html=True)
 
+    if st.button("🔥 ЗАПУСК ФЕНИКС MC — ВСЕ КОМБИНАЦИИ", key="run_phoenix", type="primary", use_container_width=True):
+        import itertools, time
+        import numpy as np
+        combos = list(itertools.combinations(basket_tickers, combo_size))
+        combo_results = []
+        t0 = time.time()
+
+        progress = st.progress(0)
+        for idx, combo in enumerate(combos):
+            combo_list = list(combo)
+            try:
+                ext = conductor_analyze(combo_list, n_sims=phoenix_n_sims)
+                if ext and "error" not in ext:
+                    ext["combo"] = combo_list
+                    combo_results.append(ext)
+                    progress.progress((idx+1)/len(combos))
+                    continue
+            except Exception:
+                pass
+            try:
+                res = phoenix_simulate(combo_list, config={
+                    "n_sims": min(phoenix_n_sims, 10000),
+                    "coupon": phoenix_coupon / 100,
+                    "barrier": phoenix_barrier / 100,
+                })
+                res["combo"] = combo_list
+                combo_results.append(res)
+                save_to_gdrive(res)
+            except Exception:
+                pass
+            progress.progress((idx+1)/len(combos))
+
+        elapsed = time.time() - t0
+        if combo_results:
+            combo_results.sort(key=lambda x: x.get("avg_payoff", 0), reverse=True)
+            st.session_state["phoenix_result"] = combo_results[0]
+            st.session_state["phoenix_combos"] = combo_results
+
+            st.markdown(f'''
+            <div class="qc" style="border-left:3px solid #34c759;padding:12px;margin-top:8px">
+                <div style="color:#fa8000;font-size:14px;font-weight:700">КОМБИНАТОРНЫЙ АНАЛИЗ — {len(combo_results)} КОРЗИН</div>
+                <div style="color:#ffd56a;font-size:10px;margin-top:2px">{combo_results[0].get("n_sims",0):,} Sobol MC на корзину · {combo_size} имён · 26% годовых · USD · ⚡ {elapsed:.1f}s</div>
+            </div>''', unsafe_allow_html=True)
+
+            for i, cr in enumerate(combo_results[:20]):
+                payoff = cr.get("avg_payoff", 1.0) * 100
+                p_loss = cr.get("p_loss", 0) * 100
+                color = "#34c759" if p_loss < 20 else "#ffb000" if p_loss < 40 else "#ff3b30"
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{i+1}. {" · ".join(cr["combo"])}</span><span style="color:{color};font-size:10px">payoff {payoff:.1f}% · P(loss) {p_loss:.1f}%</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # FOOTER + STATUS BAR
+    # ═══════════════════════════════════════════════════════════════
     st.markdown(f'''
-    <div class="q-card" style="padding:14px;">
-        <div style="color:#d6a44a; font-size:11px; line-height:1.6; margin-bottom:10px;">{ai_text}</div>
-        <div style="color:#ffd56a; font-size:11px; line-height:1.6; border-left:3px solid #3a2a00; padding-left:10px;">{ai_suggestion_1}</div>
+    <div style="margin-top:16px;padding:8px 14px;border-top:1px solid #3a2a00">
+        <small style="color:#3a2a00;font-size:9px;line-height:1.4">
+            IV30 — yfinance. Корреляции — лог-доходности 5Y. DCF — FCF с CAPM-WACC.
+            MC — коррелированный GBM. Стресс — β_SPY через GFC, COVID, Tech, TradeWar.
+            ClickHouse Cloud: 40K sims · Qiskit AerSimulator · ФЕНИКС v32.0 Sobol QMC.
+        </small>
+    </div>
+    <div style="text-align:center;color:#3a2a00;font-size:9px;margin-top:8px;text-transform:uppercase;letter-spacing:1px">
+        PHOENIX TERMINAL &copy; {datetime.datetime.now().year} · MIT Quantum + IBM Qiskit + ClickHouse Cloud + ФЕНИКС v32.0
     </div>
     ''', unsafe_allow_html=True)
 
-    st.divider()
-
-    # 🧭 Basket Profile Narrative
-    st.markdown('<div class="bb-section">🧭 ПРОФИЛЬ КОРЗИНЫ</div>', unsafe_allow_html=True)
-    st.markdown(f"""
-    <div class="q-card">
-        <div class="q-sub" style="color:#ffd56a; line-height:1.6;">
-            Корзина из {len(basket_tickers)} бумаг ({', '.join(basket_tickers)}). Worst-of определяется по <b style="color:#ff3b30;">{worst_ticker}</b>
-            (наименьший VaR 95% = {worst_var95:.1f}%).
-            Барьер {ch_data['barrier_level']}% будет пробит в <b style="color:#ff3b30;">{wo['barrier_breach_pct']:.1f}%</b> симуляций по worst-of.
-            Средний worst-of return: {wo['mean']:.1f}%.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # 📋 Basket Composition Table
-    st.markdown('<div class="bb-section">📋 СОСТАВ КОРЗИНЫ</div>', unsafe_allow_html=True)
-    comp_rows = []
-    for ticker in basket_tickers:
-        if ticker in tickers_data:
-            d = tickers_data[ticker]
-            comp_rows.append({
-                "Тикер": ticker,
-                "VaR 95%": f"{d['var_95']:.1f}%",
-                "VaR 99%": f"{d['var_99']:.1f}%",
-                "Breach %": f"{d['barrier_breach_pct']:.2f}%",
-                "Mean": f"{d['mean_return']:.1f}%",
-                "Vol": f"{d['volatility']:.1f}%",
-                "Min": f"{d['min_return']:.1f}%",
-                "Max": f"{d['max_return']:.1f}%",
-                "Sims": f"{d['num_simulations']:,}",
-            })
-    if comp_rows:
-        st.dataframe(pd.DataFrame(comp_rows), use_container_width=True, hide_index=True)
-
-    # 🔬 IBM Qiskit Q-VaR (uses pre-computed results from scoring)
-    st.markdown('<div class="bb-section">🔬 IBM QISKIT — LIVE QUANTUM VAR</div>', unsafe_allow_html=True)
-    st.markdown(f'<div style="font-size:10px; color:#d6a44a; margin-bottom:8px; text-transform:uppercase;">Backend: {q_status["backend"]} · Provider: {q_status["provider"]} · Avg Q-VaR: {avg_qvar:.1f}% (→ scoring +{r_qiskit:.1f}pt)</div>', unsafe_allow_html=True)
-    for ticker in basket_tickers:
-        if ticker in qiskit_results:
-            q_result = qiskit_results[ticker]
-            q_label = f"⚛ {q_result['n_qubits']}q · {q_result['shots']} shots" if q_result.get("quantum") else "CLASSICAL"
-            st.markdown(f"""
-            <div class="q-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="q-sym">{ticker}</span>
-                    <span class="q-val">Q-VaR 95%: <strong>{q_result['var']:.2f}%</strong> · Q-CVaR: <strong>{q_result['cvar']:.2f}%</strong></span>
-                    <span class="q-sub">{q_label} · → scoring</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-    # 🔬 Tail Risk Metrics
-    st.markdown('<div class="bb-section">🔬 ХВОСТОВЫЕ РИСКИ</div>', unsafe_allow_html=True)
-    st.markdown(f"""
-    <div class="q-card">
-        <div class="q-sub" style="color:#ffd56a;">
-            CVaR 95%: <b>{wo['var_95']:.1f}%</b> · CVaR 99%: <b>{wo['var_99']:.1f}%</b> ·
-            Worst-of Mean: <b>{wo['mean']:.1f}%</b> · Barrier Breach: <b>{wo['barrier_breach_pct']:.1f}%</b>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # 📊 Percentile Distribution
-    st.markdown('<div class="bb-section">📊 RETURN DISTRIBUTION — QUANTUM MC</div>', unsafe_allow_html=True)
-    fig_dist = go.Figure()
-    for ticker in basket_tickers:
-        if ticker in tickers_data and "percentiles" in tickers_data[ticker]:
-            p = tickers_data[ticker]["percentiles"]
-            fig_dist.add_trace(go.Bar(
-                name=ticker,
-                x=["P5", "P25", "P50", "P75", "P95"],
-                y=[p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]],
-                text=[f"{v:.0f}%" for v in [p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]]],
-                textposition="outside", textfont=dict(size=9),
-            ))
-    fig_dist.add_hline(y=ch_data["barrier_level"], line_dash="dash", line_color="#ff3b30",
-                       annotation_text=f"Barrier {ch_data['barrier_level']}%",
-                       annotation_font_color="#ff3b30")
-    fig_dist.update_layout(title="PERCENTILE DISTRIBUTION", yaxis_title="Final Return %",
-                           barmode="group", height=350, **PLOT_LAYOUT)
-    st.plotly_chart(fig_dist, use_container_width=True)
-
-    # 🧬 DNA Risk Decomposition
-    st.markdown('<div class="bb-section">🧬 DNA · RISK DECOMPOSITION</div>', unsafe_allow_html=True)
-    total_breach = sum(tickers_data.get(t, {}).get("barrier_breach_pct", 0) for t in basket_tickers)
-    if total_breach > 0:
-        dna_rows = []
-        for ticker in basket_tickers:
-            if ticker in tickers_data:
-                d = tickers_data[ticker]
-                contribution = (d["barrier_breach_pct"] / total_breach * 100) if total_breach > 0 else 0
-                dna_rows.append({"Тикер": ticker, "Breach %": f"{d['barrier_breach_pct']:.2f}%",
-                                 "Вклад в P(KI)": f"{contribution:.0f}%"})
-        st.dataframe(pd.DataFrame(dna_rows), use_container_width=True, hide_index=True)
-
-    # ── ФЕНИКС v32.0 — Sobol MC Engine ──
-    st.markdown('<div class="bb-section">🔥 ФЕНИКС v32.0 — SOBOL MONTE CARLO ENGINE</div>', unsafe_allow_html=True)
-    st.markdown('<div style="color:#d6a44a; font-size:10px; margin-bottom:6px;">2Y · USD · Memory Coupon · Worst-of Phoenix Autocallable · Все комбинации C(N,K)</div>', unsafe_allow_html=True)
-
-    phoenix_cols = st.columns([2, 1, 1, 1])
-    with phoenix_cols[0]:
-        phoenix_n_sims = st.selectbox(
-            "Симуляций", [10_000, 50_000, 100_000, 500_000],
-            index=1, key="phoenix_n_sims",
-            format_func=lambda x: f"{x:,}",
-        )
-    with phoenix_cols[1]:
-        phoenix_coupon = st.number_input("Купон %/кв", value=6.5, step=0.5, key="phoenix_coupon")
-    with phoenix_cols[2]:
-        phoenix_barrier = st.number_input("Барьер %", value=65.0, step=5.0, key="phoenix_barrier")
-    with phoenix_cols[3]:
-        phoenix_combo_size = st.number_input("Имён в корзине", value=6, min_value=2, max_value=12, step=1, key="phoenix_combo_size")
-
-    n_tickers = len(basket_tickers)
-    combo_size = int(phoenix_combo_size)
-    if combo_size > n_tickers:
-        combo_size = n_tickers
-
-    n_combos = math.comb(n_tickers, combo_size) if n_tickers >= combo_size else 1
-
-    st.markdown(f"""
-    <div style="color:#ffb000; font-size:11px; margin:4px 0;">
-        📊 Корзина: {n_tickers} тикеров → C({n_tickers},{combo_size}) = <b>{n_combos}</b> комбинаций по {combo_size}
-    </div>
-    """, unsafe_allow_html=True)
-
-    if n_combos > 200:
-        st.warning(f"⚠️ {n_combos} комбинаций — расчёт может занять значительное время. Рекомендуется уменьшить количество тикеров или увеличить размер корзины.")
-
-    run_phoenix = st.button("🔥 ЗАПУСК ФЕНИКС MC — ВСЕ КОМБИНАЦИИ", key="run_phoenix", type="primary", use_container_width=True)
-
-    if run_phoenix or st.session_state.get("phoenix_combo_results"):
-        if run_phoenix:
-            phoenix_config = {
-                "n_sims": phoenix_n_sims,
-                "coupon": phoenix_coupon / 100,
-                "barrier": phoenix_barrier / 100,
-            }
-
-            combos = list(itertools.combinations(basket_tickers, combo_size))
-            combo_results = []
-            t0 = time.time()
-            compute_source = "local"
-
-            # Step 1: Try Conductor (ClickHouse cache → Railway → GitHub Actions)
-            with st.spinner("🔗 Conductor: проверка кэша и внешних вычислителей..."):
-                for combo in combos:
-                    combo_list = list(combo)
-                    ext_result = conductor_analyze(combo_list, n_sims=phoenix_n_sims)
-                    if ext_result and "error" not in ext_result:
-                        ext_result["combo"] = combo_list
-                        combo_results.append(ext_result)
-                        compute_source = ext_result.get("source", "external")
-
-            # Step 2: If conductor missed some combos, fall back to local ФЕНИКС MC
-            computed_combos = {tuple(r["combo"]) for r in combo_results}
-            remaining_combos = [c for c in combos if c not in computed_combos]
-
-            if remaining_combos:
-                compute_source = "local+cache" if combo_results else "local"
-                from src.phoenix_engine import load_prices_yfinance
-                with st.spinner("📡 Загрузка рыночных данных (local fallback)..."):
-                    all_prices = load_prices_yfinance(basket_tickers, days_back=730)
-
-                missing = [t for t in basket_tickers if t not in all_prices]
-                if missing:
-                    st.error(f"Нет данных для: {', '.join(missing)}")
-                else:
-                    progress_bar = st.progress(0, text=f"🔥 ФЕНИКС v32.0 — 0/{len(remaining_combos)} комбинаций (local)...")
-
-                    for idx, combo in enumerate(remaining_combos):
-                        combo_list = list(combo)
-                        combo_prices = {t: all_prices[t] for t in combo_list if t in all_prices}
-                        try:
-                            result = phoenix_simulate(combo_list, config=phoenix_config, prices_data=combo_prices)
-                        except Exception:
-                            result = None
-                        if result:
-                            result["combo"] = combo_list
-                            result["source"] = "local_phoenix_mc"
-                            combo_results.append(result)
-                        progress_bar.progress(
-                            (idx + 1) / len(remaining_combos),
-                            text=f"🔥 ФЕНИКС v32.0 — {idx+1}/{len(remaining_combos)} комбинаций (local)..."
-                        )
-                    progress_bar.empty()
-
-            elapsed = time.time() - t0
-
-            if combo_results:
-                combo_results.sort(key=lambda r: r["avg_payoff"], reverse=True)
-                st.session_state["phoenix_combo_results"] = combo_results
-                st.session_state["phoenix_combo_elapsed"] = elapsed
-                st.session_state["phoenix_combo_config"] = phoenix_config
-                st.session_state["phoenix_compute_source"] = compute_source
-                # Save best result to gdrive
-                best = combo_results[0]
-                gdrive_path = save_to_gdrive(best, best["combo"])
-                if gdrive_path:
-                    st.session_state["last_gdrive_save"] = gdrive_path
-                # Also keep single best for backward compat
-                best["elapsed"] = elapsed
-                best["n_sims"] = phoenix_n_sims
-                st.session_state["phoenix_result"] = best
-
-        combo_results = st.session_state.get("phoenix_combo_results")
-        if combo_results:
-            elapsed = st.session_state.get("phoenix_combo_elapsed", 0)
-            cfg_display = st.session_state.get("phoenix_combo_config", {})
-            c_source = st.session_state.get("phoenix_compute_source", "local")
-            source_labels = {"clickhouse_cache": "CH-CACHE", "railway_api": "RAILWAY", "github_actions": "GH-ACTIONS", "local": "LOCAL MC", "local+cache": "CH-CACHE+LOCAL"}
-            source_label = source_labels.get(c_source, c_source.upper())
-
-            st.markdown(f"""
-            <div class="q-card" style="border-left:3px solid #34c759; padding:12px; margin-top:8px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="color:#fa8000; font-size:14px; font-weight:700;">
-                            КОМБИНАТОРНЫЙ АНАЛИЗ — {len(combo_results)} КОРЗИН
-                        </div>
-                        <div style="color:#ffd56a; font-size:10px; margin-top:2px;">
-                            {combo_results[0].get('n_sims', 0):,} Sobol MC на корзину · {combo_size} имён · 26% годовых · USD · ⚡ {elapsed:.1f}s · 🔗 {source_label}
-                        </div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="color:#34c759; font-size:12px;">ЛУЧШАЯ КОРЗИНА</div>
-                        <div style="color:#34c759; font-size:20px; font-weight:700;">
-                            {' '.join(combo_results[0]['combo'])}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-            # Ranking table
-            st.markdown('<div class="bb-section">🏆 РЕЙТИНГ КОРЗИН (ЛУЧШИЕ → ХУДШИЕ)</div>', unsafe_allow_html=True)
-            rank_rows = []
-            for i, r in enumerate(combo_results):
-                ann_ret = (r["avg_payoff"] ** (1 / 2) - 1) * 100
-                rank_rows.append({
-                    "#": i + 1,
-                    "Корзина": " / ".join(r["combo"]),
-                    "Avg Payoff": f"{r['avg_payoff']:.4f}",
-                    "P.A. %": f"{ann_ret:+.1f}%",
-                    "P(Loss)": f"{r['p_loss']:.1%}",
-                    "VaR 95%": f"{r['var_95']:.4f}",
-                    "CVaR 95%": f"{r['cvar_95']:.4f}",
-                    "All 8 Cpn": f"{r['p_all_coupons']:.1%}",
-                    "Avg Cpn": f"{r['mean_coupons']:.1f}/8",
-                })
-            st.dataframe(pd.DataFrame(rank_rows), use_container_width=True, hide_index=True)
-
-            # Best basket details
-            best = combo_results[0]
-            worst_combo = combo_results[-1]
-            avg_payoff = best["avg_payoff"]
-            p_loss = best["p_loss"]
-            annual_return = (avg_payoff ** (1 / 2) - 1) * 100
-            worst_annual = (worst_combo["avg_payoff"] ** (1 / 2) - 1) * 100
-
-            st.markdown(f"""
-            <div style="display:flex; gap:12px; margin-top:8px;">
-                <div class="q-card" style="flex:1; border-left:3px solid #34c759; padding:10px;">
-                    <div style="color:#34c759; font-size:11px; font-weight:700;">🥇 ЛУЧШАЯ</div>
-                    <div style="color:#ffb000; font-size:14px; font-weight:700;">{' '.join(best['combo'])}</div>
-                    <div style="color:#34c759; font-size:18px; font-weight:700;">{annual_return:+.1f}% p.a.</div>
-                    <div style="color:#d6a44a; font-size:10px;">P(loss): {p_loss:.1%} · VaR: {best['var_95']:.4f}</div>
-                </div>
-                <div class="q-card" style="flex:1; border-left:3px solid #ff3b30; padding:10px;">
-                    <div style="color:#ff3b30; font-size:11px; font-weight:700;">🥉 ХУДШАЯ</div>
-                    <div style="color:#ffb000; font-size:14px; font-weight:700;">{' '.join(worst_combo['combo'])}</div>
-                    <div style="color:#ff3b30; font-size:18px; font-weight:700;">{worst_annual:+.1f}% p.a.</div>
-                    <div style="color:#d6a44a; font-size:10px;">P(loss): {worst_combo['p_loss']:.1%} · VaR: {worst_combo['var_95']:.4f}</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-            # 6 KPI from best basket
-            st.markdown('<div class="bb-section">📊 ЛУЧШАЯ КОРЗИНА — KPI</div>', unsafe_allow_html=True)
-            pk1, pk2, pk3, pk4, pk5, pk6 = st.columns(6)
-            pk1.metric("AVG PAYOFF", f"{avg_payoff:.4f}")
-            pk2.metric("P(LOSS)", f"{p_loss:.1%}")
-            pk3.metric("VAR 95%", f"{best['var_95']:.4f}")
-            pk4.metric("CVAR 95%", f"{best['cvar_95']:.4f}")
-            pk5.metric("ALL 8 COUPONS", f"{best['p_all_coupons']:.1%}")
-            pk6.metric("AVG COUPONS", f"{best['mean_coupons']:.1f}/8")
-
-            # P(loss) CI
-            st.markdown(f"""
-            <div style="font-size:10px; color:#d6a44a; margin:4px 0;">
-                P(loss) 95% CI: [{best['p_loss_ci_low']:.1%} – {best['p_loss_ci_high']:.1%}] ·
-                P(0 купонов): {best['p_zero_coupons']:.1%} ·
-                Купон: {best['coupon_rate']*4*100:.0f}% годовых (USD) ·
-                Барьер: {best['barrier']*100:.0f}%
-            </div>
-            """, unsafe_allow_html=True)
-
-            # Per-ticker finals from best basket
-            if best.get("ticker_finals"):
-                st.markdown('<div class="bb-section">📊 ЛУЧШАЯ КОРЗИНА — PER-TICKER FINALS</div>', unsafe_allow_html=True)
-                tf_rows = []
-                for t, d in best["ticker_finals"].items():
-                    tf_rows.append({
-                        "Тикер": t,
-                        "Mean %": f"{d['mean']:.1f}",
-                        "VaR 95%": f"{d['var_95']:.1f}",
-                        "VaR 99%": f"{d['var_99']:.1f}",
-                        "Breach %": f"{d['breach_pct']:.2f}",
-                        "Vol %": f"{d['volatility']:.1f}",
-                        "Min %": f"{d['min']:.1f}",
-                        "Max %": f"{d['max']:.1f}",
-                    })
-                st.dataframe(pd.DataFrame(tf_rows), use_container_width=True, hide_index=True)
-
-            # Google Drive save status
-            gdrive_save = st.session_state.get("last_gdrive_save")
-            gdrive_label = "Google Drive" if GDRIVE_AVAILABLE else "Local Backup"
-            st.markdown(f"""
-            <div style="font-size:10px; color:#34c759; margin:4px 0;">
-                💾 Результат сохранён: {gdrive_label} · {gdrive_save or GDRIVE_PATH}
-            </div>
-            """, unsafe_allow_html=True)
-
-    # Google Drive Reports
-    st.markdown('<div class="bb-section">💾 СОХРАНЁННЫЕ ОТЧЁТЫ</div>', unsafe_allow_html=True)
-    reports = list_gdrive_reports()
-    if reports:
-        for r in reports[:5]:
-            basket_str = ", ".join(r.get("basket", []))
-            st.markdown(f'<div class="q-card"><span class="q-sub">{r["timestamp"]}</span> · <span class="q-sym">{basket_str}</span> · <span class="q-sub">{r["file"]}</span></div>', unsafe_allow_html=True)
-    else:
-        st.markdown('<div style="color:#d6a44a; font-size:10px;">Нет сохранённых отчётов. Запусти ФЕНИКС MC для первого расчёта.</div>', unsafe_allow_html=True)
-
-    st.divider()
-
-    # Log to history
-    if basket_run:
-        st.session_state.history.insert(0, {
-            "basket": " ".join(basket_tickers),
-            "time": datetime.datetime.now().strftime("%H:%M %d.%m"),
-            "score": f"{score_pct:.0f}%",
-        })
-
-# ── Additional Risk Analysis (heavy, behind sidebar button) ──
-if run_btn or basket_run:
-    assessor = StrategyRiskAssessor(
-        tickers=tickers,
-        benchmark=benchmark,
-        rf_rate=rf_rate,
-        n_permutations=n_perms,
-        slippage_bps=slippage,
-        commission_bps=commission,
-        trades_per_day=trades_day,
-    )
-
-    with st.spinner("📡 Загрузка рыночных данных..."):
-        prices = assessor.update_market_data(period=period)
-
-    if prices.empty:
-        st.error("Не удалось загрузить данные. Проверьте тикеры.")
-        st.stop()
-
-    # ── Top Stats ──
-    all_perf = assessor.get_all_performance()
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("ТИКЕРОВ", len(all_perf))
-    avg_sharpe = all_perf["sharpe"].mean()
-    col2.metric("AVG SHARPE", f"{avg_sharpe:.2f}")
-    avg_dd = all_perf["max_drawdown"].mean()
-    col3.metric("AVG MAX DD", f"{avg_dd:.1%}")
-    col4.metric("ОБНОВЛЕНО", assessor.last_update[:16] if assessor.last_update else "—")
-
-    st.divider()
-
-    # ── Performance Table ──
-    st.markdown('<div class="bb-section">📋 СВОДКА МЕТРИК</div>', unsafe_allow_html=True)
-    display_perf = all_perf.copy()
-    for c in ["total_return", "cagr", "max_drawdown", "volatility", "win_rate"]:
-        if c in display_perf.columns:
-            display_perf[c] = display_perf[c].map(lambda x: f"{x:.2%}")
-    for c in ["sharpe", "sortino", "calmar", "profit_factor"]:
-        if c in display_perf.columns:
-            display_perf[c] = display_perf[c].map(lambda x: f"{x:.2f}")
-    st.dataframe(display_perf, use_container_width=True)
-
-    st.divider()
-
-    # ── Per-ticker Deep Dive ──
-    selected = st.selectbox("🔍 ДЕТАЛЬНЫЙ АНАЛИЗ", tickers)
-
-    if selected and selected in assessor.returns.columns:
-        report = assessor.generate_report(selected)
-
-        rs = report["risk_score"]
-        score_color = color_for_level(rs["level"])
-        st.markdown(f"""
-        <div style="text-align:center; margin: 1rem 0;">
-            <div style="font-size:3rem; font-weight:700; color:{score_color};">{rs['score']}</div>
-            <div style="font-size:0.85rem; color:{score_color}; text-transform:uppercase; letter-spacing:2px;">RISK SCORE — {rs['level']}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        if report["warnings"]:
-            for w in report["warnings"]:
-                alert_color = "#ff3b30" if "overfitting" in w.lower() or "убыточна" in w.lower() else "#ffb000"
-                st.markdown(f'<div style="background:rgba(255,176,0,0.08); border:1px solid {alert_color}; padding:0.5rem; color:{alert_color}; font-size:0.8rem; margin-bottom:4px;">⚠ {w}</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div style="background:rgba(52,199,89,0.08); border:1px solid #34c759; padding:0.5rem; color:#34c759; font-size:0.8rem;">✓ Критических предупреждений нет</div>', unsafe_allow_html=True)
-
-        perf = report["performance"]
-        c1, c2, c3, c4, c5 = st.columns(5)
-        c1.metric("SHARPE", f"{perf['sharpe']:.2f}")
-        c2.metric("SORTINO", f"{perf['sortino']:.2f}")
-        c3.metric("CAGR", f"{perf['cagr']:.2%}")
-        c4.metric("MAX DD", f"{perf['max_drawdown']:.2%}")
-        c5.metric("PROFIT FACTOR", f"{perf['profit_factor']:.2f}")
-
-        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-            "📈 EQUITY CURVE", "📊 RISK METRICS", "🧪 MONTE CARLO",
-            "🔄 WALK-FORWARD", "💥 STRESS TESTS", "🔗 CORRELATIONS"
-        ])
-
-        rets = assessor.returns[selected].dropna()
-
-        with tab1:
-            cum = (1 + rets).cumprod()
-            dd = drawdown_series(rets)
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=cum.index, y=cum.values,
-                name="Equity", line=dict(color="#ffb000", width=2),
-                fill="tozeroy", fillcolor="rgba(255,176,0,0.05)",
-            ))
-            fig.update_layout(title=f"EQUITY CURVE — {selected}", yaxis_title="Cumulative Return", **PLOT_LAYOUT)
-            st.plotly_chart(fig, use_container_width=True)
-
-            fig_dd = go.Figure()
-            fig_dd.add_trace(go.Scatter(
-                x=dd.index, y=dd.values,
-                name="Drawdown", line=dict(color="#ff3b30", width=1.5),
-                fill="tozeroy", fillcolor="rgba(255,59,48,0.1)",
-            ))
-            fig_dd.update_layout(title="DRAWDOWN", yaxis_title="Drawdown", yaxis_tickformat=".0%", **PLOT_LAYOUT)
-            st.plotly_chart(fig_dd, use_container_width=True)
-
-        with tab2:
-            risk = report["risk"]
-            rc1, rc2 = st.columns(2)
-            with rc1:
-                st.markdown('<div class="bb-section">VAR / CVAR</div>', unsafe_allow_html=True)
-                risk_df = pd.DataFrame([
-                    {"Метрика": "VaR 95%", "Значение": f"{risk['VaR_95']:.4f}"},
-                    {"Метрика": "CVaR 95%", "Значение": f"{risk['CVaR_95']:.4f}"},
-                    {"Метрика": "VaR 99%", "Значение": f"{risk['VaR_99']:.4f}"},
-                    {"Метрика": "CVaR 99%", "Значение": f"{risk['CVaR_99']:.4f}"},
-                    {"Метрика": "Param VaR 95%", "Значение": f"{risk['Parametric_VaR_95']:.4f}"},
-                    {"Метрика": "Param VaR 99%", "Значение": f"{risk['Parametric_VaR_99']:.4f}"},
-                ])
-                st.dataframe(risk_df, use_container_width=True, hide_index=True)
-
-            with rc2:
-                st.markdown('<div class="bb-section">DRAWDOWN DISTRIBUTION</div>', unsafe_allow_html=True)
-                dd_dist = report["drawdown_dist"]
-                dd_df = pd.DataFrame([
-                    {"Метрика": "Mean DD", "Значение": f"{dd_dist['mean']:.4f}"},
-                    {"Метрика": "Median DD", "Значение": f"{dd_dist['median']:.4f}"},
-                    {"Метрика": "Worst DD", "Значение": f"{dd_dist['worst']:.4f}"},
-                    {"Метрика": "DD Std", "Значение": f"{dd_dist['std']:.4f}"},
-                    {"Метрика": "5th pctl", "Значение": f"{dd_dist['percentile_5']:.4f}"},
-                ])
-                st.dataframe(dd_df, use_container_width=True, hide_index=True)
-
-            fig_hist = go.Figure()
-            fig_hist.add_trace(go.Histogram(
-                x=rets.values, nbinsx=80,
-                marker_color="#ffb000", opacity=0.7,
-                name="Daily Returns",
-            ))
-            fig_hist.update_layout(title="RETURN DISTRIBUTION", xaxis_title="Return", **PLOT_LAYOUT)
-            st.plotly_chart(fig_hist, use_container_width=True)
-
-            st.markdown('<div class="bb-section">SHARPE STABILITY</div>', unsafe_allow_html=True)
-            stab = report["stability"]
-            stab_df = pd.DataFrame([{"Период": k, "Sharpe": f"{v:.2f}" if not pd.isna(v) else "N/A"} for k, v in stab.items()])
-            st.dataframe(stab_df, use_container_width=True, hide_index=True)
-
-        with tab3:
-            with st.spinner("🎲 Monte Carlo Permutation Test..."):
-                mc = assessor.run_monte_carlo_test(selected)
-
-            ovf = report["overfitting"]
-            perm = ovf["permutation_test"]
-
-            st.markdown(f"**Observed Sharpe:** {perm['observed_sharpe']:.4f}")
-            st.markdown(f"**Mean Permuted Sharpe:** {perm['mean_permuted_sharpe']:.4f}")
-            st.markdown(f"**p-value:** {perm['p_value']:.4f}")
-            st.markdown(f"**Вердикт:** {perm['verdict']}")
-
-            fig_mc = go.Figure()
-            fig_mc.add_trace(go.Histogram(
-                x=mc["permuted_distribution"], nbinsx=50,
-                marker_color="#fa8000", opacity=0.7, name="Permuted Sharpe",
-            ))
-            fig_mc.add_vline(x=mc["observed"], line_dash="dash", line_color="#ff3b30",
-                             annotation_text=f"Observed: {mc['observed']:.3f}")
-            fig_mc.update_layout(title="MONTE CARLO PERMUTATION TEST", xaxis_title="Sharpe Ratio", **PLOT_LAYOUT)
-            st.plotly_chart(fig_mc, use_container_width=True)
-
-            st.markdown('<div class="bb-section">OOS DEGRADATION</div>', unsafe_allow_html=True)
-            oos = ovf["oos_degradation"]
-            oc1, oc2, oc3 = st.columns(3)
-            oc1.metric("TRAIN SHARPE", f"{oos['train_sharpe']:.2f}")
-            oc2.metric("TEST SHARPE", f"{oos['test_sharpe']:.2f}")
-            oc3.metric("DEGRADATION", f"{oos['sharpe_degradation']:.2f}")
-            st.markdown(f"**Вердикт:** {oos['verdict']}")
-
-        with tab4:
-            with st.spinner("🔄 Walk-Forward Analysis..."):
-                wf = assessor.run_walk_forward(selected)
-
-            if wf:
-                wf_df = pd.DataFrame(wf)
-                st.dataframe(wf_df, use_container_width=True, hide_index=True)
-
-                fig_wf = go.Figure()
-                fig_wf.add_trace(go.Bar(
-                    x=[f"Fold {r['fold']}" for r in wf],
-                    y=[r["train_metric"] for r in wf],
-                    name="Train Sharpe", marker_color="#ffb000",
-                ))
-                fig_wf.add_trace(go.Bar(
-                    x=[f"Fold {r['fold']}" for r in wf],
-                    y=[r["test_metric"] for r in wf],
-                    name="Test Sharpe", marker_color="#6db6ff",
-                ))
-                fig_wf.update_layout(title="WALK-FORWARD: TRAIN vs TEST", barmode="group", **PLOT_LAYOUT)
-                st.plotly_chart(fig_wf, use_container_width=True)
-            else:
-                st.info("Недостаточно данных для Walk-Forward анализа.")
-
-        with tab5:
-            stress = report["stress_tests"]
-            stress_df = pd.DataFrame(stress)
-            for c in ["cum_return", "max_dd"]:
-                if c in stress_df.columns:
-                    stress_df[c] = stress_df[c].map(lambda x: f"{x:.2%}" if not pd.isna(x) else "N/A")
-            st.dataframe(stress_df[["scenario", "period", "cum_return", "max_dd", "n_days", "warning"]],
-                         use_container_width=True, hide_index=True)
-
-            st.markdown('<div class="bb-section">SLIPPAGE IMPACT</div>', unsafe_allow_html=True)
-            slip_df = assessor.get_slippage_impact(selected)
-            for c in ["total_return", "cagr"]:
-                slip_df[c] = slip_df[c].map(lambda x: f"{x:.2%}")
-            slip_df["sharpe"] = slip_df["sharpe"].map(lambda x: f"{x:.2f}")
-            st.dataframe(slip_df, use_container_width=True, hide_index=True)
-
-        with tab6:
-            corr = assessor.get_correlations()
-            fig_corr = px.imshow(
-                corr, text_auto=".2f", color_continuous_scale=[[0, "#ff3b30"], [0.5, "#000"], [1, "#34c759"]],
-                zmin=-1, zmax=1, aspect="auto",
-            )
-            fig_corr.update_layout(title="CORRELATION MATRIX", **PLOT_LAYOUT)
-            st.plotly_chart(fig_corr, use_container_width=True)
-
-else:
-    pass  # quantum card already shown above
-
-_old_landing_removed = True
-if False:  # DEAD CODE - old landing page removed
-    landing_tab1, landing_tab2, landing_tab3 = st.tabs([
-        "⚛ QUANTUM ANALYTICS", "📋 РЕКОМЕНДАЦИИ", "❓ HELP"
-    ])
-
-    with landing_tab1:
-        with st.spinner("🗄️ Подключение к ClickHouse Cloud..."):
-            ch_data = fetch_quantum_risk_stats()
-        q_status = get_quantum_status()
-        tickers_data = ch_data["tickers"]
-        wo = ch_data["worst_of"]
-        src_label = "ClickHouse Cloud" if ch_data["source"] == "clickhouse_cloud" else "CACHE (OFFLINE)"
-
-        # Quantum Risk Summary
-        st.markdown('<div class="bb-section">⚛ MIT QUANTUM RISK — WORST-OF PORTFOLIO</div>', unsafe_allow_html=True)
-
-        wc1, wc2, wc3, wc4 = st.columns(4)
-        wc1.metric("WORST-OF VAR 95%", f"{wo['var_95']:.1f}%")
-        wc2.metric("WORST-OF VAR 99%", f"{wo['var_99']:.1f}%")
-        wc3.metric("AVG WORST-OF", f"{wo['mean']:.1f}%")
-        wc4.metric(f"BARRIER {ch_data['barrier_level']}% BREACH", f"{wo['barrier_breach_pct']:.1f}%")
-
-        st.markdown(f"""
-        <div style="font-size:10px; color:#d6a44a; margin:4px 0 12px; text-transform:uppercase; letter-spacing:0.5px;">
-            Источник: {src_label} · Таблица: {ch_data['table']} · Симуляций: {ch_data['total_simulations']:,} · Barrier: {ch_data['barrier_level']}%
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.divider()
-
-        # Per-ticker quantum cards
-        st.markdown('<div class="bb-section">📋 QUANTUM RISK PER TICKER</div>', unsafe_allow_html=True)
-
-        for ticker in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
-            if ticker not in tickers_data:
-                continue
-            d = tickers_data[ticker]
-            breach_pct = d["barrier_breach_pct"]
-            breach_cls = "q-bad" if breach_pct > 10 else "q-warn" if breach_pct > 1 else "q-good"
-            st.markdown(f"""
-            <div class="q-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="q-sym">{ticker}</span>
-                    <span class="q-val">VaR 95%: {d['var_95']:.1f}% · VaR 99%: {d['var_99']:.1f}%</span>
-                    <span class="{breach_cls}" style="font-weight:700;">BREACH: {breach_pct:.2f}%</span>
-                </div>
-                <div class="q-sub" style="margin-top:4px;">
-                    Mean: {d['mean_return']:.1f}% · Vol: {d['volatility']:.1f}% · Range: [{d['min_return']:.1f}%, {d['max_return']:.1f}%] · {d['num_simulations']:,} sims
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.divider()
-
-        # Qiskit Live VaR
-        st.markdown('<div class="bb-section">🔬 IBM QISKIT — LIVE QUANTUM VAR ESTIMATION</div>', unsafe_allow_html=True)
-        st.markdown(f"""
-        <div style="font-size:10px; color:#d6a44a; margin-bottom:8px; text-transform:uppercase;">
-            Backend: {q_status['backend']} · Provider: {q_status['provider']}
-        </div>
-        """, unsafe_allow_html=True)
-
-        for ticker in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
-            if ticker not in tickers_data:
-                continue
-            d = tickers_data[ticker]
-            sim_returns = np.random.normal(d["mean_return"], d["volatility"], 1000)
-            q_result = quantum_var_estimation(sim_returns, confidence=0.95)
-            q_label = f"⚛ {q_result['n_qubits']}q · {q_result['shots']} shots" if q_result.get("quantum") else "CLASSICAL"
-            st.markdown(f"""
-            <div class="q-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="q-sym">{ticker}</span>
-                    <span class="q-val">Q-VaR 95%: <strong>{q_result['var']:.2f}%</strong> · Q-CVaR: <strong>{q_result['cvar']:.2f}%</strong></span>
-                    <span class="q-sub">{q_label}</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.divider()
-
-        # Percentile distribution chart
-        st.markdown('<div class="bb-section">📊 RETURN DISTRIBUTION — QUANTUM MC</div>', unsafe_allow_html=True)
-
-        fig_dist = go.Figure()
-        for ticker in ["AAPL", "MSFT", "GOOGL", "AMZN"]:
-            if ticker not in tickers_data or "percentiles" not in tickers_data[ticker]:
-                continue
-            p = tickers_data[ticker]["percentiles"]
-            fig_dist.add_trace(go.Bar(
-                name=ticker,
-                x=["P5", "P25", "P50", "P75", "P95"],
-                y=[p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]],
-                text=[f"{v:.0f}%" for v in [p["p5"], p["p25"], p["p50"], p["p75"], p["p95"]]],
-                textposition="outside",
-                textfont=dict(size=9),
-            ))
-        fig_dist.add_hline(y=ch_data["barrier_level"], line_dash="dash", line_color="#ff3b30",
-                           annotation_text=f"Barrier {ch_data['barrier_level']}%",
-                           annotation_font_color="#ff3b30")
-        fig_dist.update_layout(
-            title="PERCENTILE DISTRIBUTION (ALL TICKERS)",
-            yaxis_title="Final Return %",
-            barmode="group",
-            height=350,
-            **PLOT_LAYOUT,
-        )
-        st.plotly_chart(fig_dist, use_container_width=True)
-
-        st.divider()
-
-        # GitHub Section
-        st.markdown('<div class="bb-section">💻 GITHUB НОВИНКИ — QUANTUM TRADING</div>', unsafe_allow_html=True)
-        try:
-            import requests
-            resp = requests.get(
-                "https://api.github.com/search/repositories",
-                params={"q": "quantum trading OR quantum risk OR portfolio optimization", "sort": "stars", "per_page": 5},
-                timeout=5,
-            )
-            if resp.status_code == 200:
-                repos = resp.json().get("items", [])
-                for repo in repos:
-                    stars = repo['stargazers_count']
-                    lang = repo.get('language', 'N/A')
-                    st.markdown(f"""
-                    <div class="q-card">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <a href="{repo['html_url']}" target="_blank" style="color:#6db6ff; text-decoration:none; font-weight:700; font-size:12px;">{repo['name']}</a>
-                            <span style="color:#ffb000; font-size:11px;">⭐ {stars} · {lang}</span>
-                        </div>
-                        <div class="q-sub" style="margin-top:2px;">{repo.get('description', '') or '—'}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-            else:
-                st.markdown('<div class="q-card"><span class="q-sub">GitHub API недоступен</span></div>', unsafe_allow_html=True)
-        except Exception:
-            st.markdown('<div class="q-card"><span class="q-sub">Не удалось загрузить</span></div>', unsafe_allow_html=True)
-
-        st.divider()
-
-        # X.com Tweets
-        st.markdown('<div class="bb-section">𝕏 АКТУАЛЬНЫЕ ТВИТЫ — QUANT FINANCE</div>', unsafe_allow_html=True)
-        tweets = [
-            "Quantum computing is revolutionizing risk management in finance! New algorithms show 40% better prediction accuracy.",
-            "Just released an open-source portfolio optimization tool using reinforcement learning. Check it out on GitHub!",
-            "The future of trading is quantum. Traditional models can't keep up with the complexity of modern markets.",
-            "Excited to share our new research on AI-driven risk assessment for crypto portfolios. Paper coming soon!",
-            "Machine learning vs Quantum computing for portfolio optimization. Which one will win?",
-        ]
-        for t in tweets:
-            st.markdown(f"""
-            <div class="q-card">
-                <div style="display:flex; gap:8px; align-items:start;">
-                    <span style="color:#6db6ff; flex-shrink:0;">𝕏</span>
-                    <span class="q-sub" style="color:#ffd56a; font-size:11px;">{t}</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-    with landing_tab2:
-        # ── Рекомендации (like original Phoenix Terminal) ──
-        st.markdown("""
-        <div class="bb-section">РЕКОМЕНДАЦИИ — WORST-OF PHOENIX</div>
-        <div class="q-card" style="margin-bottom:8px;">
-            <div style="color:#ffb000; font-size:12px; font-weight:700; margin-bottom:4px;">WORST-OF MEMORY AUTOCALLABLE PHOENIX</div>
-            <div class="q-sub">Структурный продукт: срок 2 года, KI 60%, CB 70%, AC 100%, наблюдения 4×год, маржа эмитента 6%.</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
-        <div class="q-card">
-            <div style="display:flex; justify-content:space-between;">
-                <span class="q-sym">🧭 ПРОФИЛЬ КОРЗИНЫ</span>
-                <span class="q-sub">AAPL MSFT GOOGL AMZN</span>
-            </div>
-            <div class="q-sub" style="margin-top:4px;">
-                Корзина из 4 мега-кэпов (Big Tech). Высокая корреляция внутри сектора.
-                Worst-of определяется по AMZN (наименьший VaR 95% = 48.3%).
-                Барьер 65% будет пробит в 30% симуляций по worst-of.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # 6 KPI tiles (from original Phoenix)
-        st.markdown('<div class="bb-section">6 KPI — MONTE CARLO</div>', unsafe_allow_html=True)
-        kp1, kp2, kp3, kp4, kp5, kp6 = st.columns(6)
-        kp1.metric("P(KI)", "30.0%")
-        kp2.metric("P(АВТОКОЛ)", "42.8%")
-        kp3.metric("КУПОН P.A.", "14.2%")
-        kp4.metric("МАРЖА P.A.", "6.0%")
-        kp5.metric("E[COUPON]", "8.5%")
-        kp6.metric("E[LOSS]", "-12.3%")
-
-        st.markdown("""
-        <div class="q-card" style="margin-top:8px;">
-            <div style="display:flex; justify-content:space-between;">
-                <span class="q-sym">📋 СОСТАВ КОРЗИНЫ</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        compose_data = pd.DataFrame({
-            "Тикер": ["AAPL", "MSFT", "GOOGL", "AMZN"],
-            "Вес": ["25%", "25%", "25%", "25%"],
-            "VaR 95%": ["86.3%", "58.0%", "100.1%", "48.3%"],
-            "Breach %": ["0.00%", "9.75%", "0.02%", "24.22%"],
-            "Vol": ["64.3%", "75.9%", "129.7%", "41.4%"],
-            "Mean": ["168.9%", "148.9%", "256.2%", "100.4%"],
-        })
-        st.dataframe(compose_data, use_container_width=True, hide_index=True)
-
-        st.markdown("""
-        <div class="q-card" style="margin-top:8px;">
-            <div class="q-sym">🧬 DNA · CROSS-ISSUER · RISK DECOMPOSITION</div>
-            <div class="q-sub" style="margin-top:4px;">
-                Radar-портрет корзины (6 осей): Tail Risk, Tail Dependence, Structure, Stress, Regime, Factor.<br>
-                Индикативные купоны от 6 эмитентов: BCS 14.2% · JPM 13.8% · GS 14.5% · BNP 13.2% · DB 14.0% · SocGen 13.5%<br>
-                Risk decomposition: AMZN вносит 55% в P(KI), MSFT 25%, GOOGL 15%, AAPL 5%.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
-        <div class="q-card" style="margin-top:8px;">
-            <div class="q-sym">🔬 ХВОСТОВЫЕ РИСКИ</div>
-            <div class="q-sub" style="margin-top:4px;">
-                CVaR 95%: -18.2% · CVaR 99%: -24.7% · CF-VaR: -15.3% · Sharpe: 0.82 · Sortino: 1.14
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
-        <div class="q-card" style="margin-top:8px;">
-            <div class="q-sym">🧬 ФАКТОРНАЯ МОДЕЛЬ</div>
-            <div class="q-sub" style="margin-top:4px;">
-                Momentum: +0.42 · Quality: +0.68 · Value: -0.15 · Size: +0.91 · Volatility: +0.55
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with landing_tab3:
-        # ── HELP / Intro Section (exact copy from original) ──
-        st.markdown("""
-        <div style="padding:16px 0;">
-            <h2 style="color:#fa8000; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin:0 0 12px;">
-                PHOENIX TERMINAL — что это и из чего состоит
-            </h2>
-            <p style="color:#ffd56a; font-size:12px; line-height:1.6; margin-bottom:12px;">
-                Инструмент для анализа структурного продукта <b style="color:#ffb000;">Worst-of Memory Autocallable Phoenix</b>.
-                Вводишь корзину тикеров в поле выше — получаешь полный pricing + риск-аналитику в стиле инвест-банка.
-                Дополнено квантовыми вычислениями через <b style="color:#6db6ff;">IBM Qiskit AerSimulator</b> и
-                данными из <b style="color:#6db6ff;">ClickHouse Cloud</b> (40,000 симуляций MIT Quantum).
-            </p>
-
-            <ol style="color:#d6a44a; font-size:11px; line-height:1.8; padding-left:20px;">
-                <li><b style="color:#ffb000;">Поле ввода</b> сверху: пиши тикеры через пробел/запятую (от 2 до 10), например <code style="background:#141414; padding:1px 6px; color:#6db6ff;">AAPL MSFT NVDA</code>. Жми <code style="background:#141414; padding:1px 6px; color:#6db6ff;">▶ РАСЧЁТ</code> в боковой панели.</li>
-                <li><b style="color:#ffb000;">★ Избранные</b>: кнопка «+ В ИЗБРАННОЕ» сохраняет текущую корзину (до 12 шт). Клик по чипу → перезагружает.</li>
-                <li><b style="color:#ffb000;">Pre-flight предупреждения</b>: если в корзине дубли, неизвестные тикеры или их слишком много — увидишь до запуска.</li>
-            </ol>
-
-            <h3 style="color:#fa8000; font-size:13px; font-weight:700; letter-spacing:0.5px; margin:16px 0 8px;">
-                Что появится в карточке после расчёта
-            </h3>
-            <ul style="color:#d6a44a; font-size:11px; line-height:1.8; padding-left:20px;">
-                <li><b style="color:#ffb000;">Шапка:</b> тикеры корзины + общий риск-скор (0–100), статус READY / NEEDS REVIEW / AVOID.</li>
-                <li><b style="color:#ffb000;">Ключевые термы:</b> срок 2 года, KI 60%, CB 70%, AC 100%, наблюдения 4×год, маржа эмитента 6%.</li>
-                <li><b style="color:#ffb000;">Position sizer:</b> вводишь AUM клиента и риск-бюджет — считает рекомендуемый notional ноты.</li>
-                <li><b style="color:#ffb000;">6 KPI-плиток:</b> P(KI), P(автокол), купон p.a., маржа p.a., E[coupon], E[loss] — ключевые метрики Monte Carlo.</li>
-            </ul>
-
-            <h3 style="color:#fa8000; font-size:13px; font-weight:700; letter-spacing:0.5px; margin:16px 0 8px;">
-                Аналитические секции
-            </h3>
-            <ul style="color:#d6a44a; font-size:11px; line-height:1.8; padding-left:20px;">
-                <li><b style="color:#ffb000;">🧭 Профиль корзины</b> — narrative: стиль, сектора, факторы.</li>
-                <li><b style="color:#ffb000;">📊 Сводка</b> — KPI dashboard со всеми греками, distribution-метриками.</li>
-                <li><b style="color:#ffb000;">📋 Состав корзины</b> — таблица per-ticker: вес, β, IV30, EMA200, DCF up.</li>
-                <li><b style="color:#ffb000;">🧬 DNA · Cross-issuer · Risk-decomp</b> — radar-портрет корзины (6 осей), индикативные купоны от 6 эмитентов.</li>
-                <li><b style="color:#ffb000;">🗓 Earnings calendar</b> — отчёты в окне ноты (8 кварталов).</li>
-                <li><b style="color:#ffb000;">🔬 Хвостовые риски</b> — CVaR 95/99%, CF-VaR, Sharpe, Sortino.</li>
-                <li><b style="color:#ffb000;">📈 График цен</b> — историческая динамика всех тикеров с барьерами KI/CB/AC.</li>
-                <li><b style="color:#ffb000;">🧬 Факторная модель</b> — Momentum / Quality / Value / Size / Vol.</li>
-            </ul>
-
-            <h3 style="color:#fa8000; font-size:13px; font-weight:700; letter-spacing:0.5px; margin:16px 0 8px;">
-                Квантовые дополнения (MIT + IBM Qiskit)
-            </h3>
-            <ul style="color:#d6a44a; font-size:11px; line-height:1.8; padding-left:20px;">
-                <li><b style="color:#6db6ff;">ClickHouse Cloud</b> — 40,000 квантовых симуляций из таблицы mit_quantum_returns.</li>
-                <li><b style="color:#6db6ff;">IBM Qiskit AerSimulator</b> — live quantum VaR estimation (4 кубита, 4096 shots).</li>
-                <li><b style="color:#6db6ff;">Quantum Monte Carlo</b> — амплитудная оценка VaR через квантовую схему.</li>
-                <li><b style="color:#6db6ff;">Barrier breach probability</b> — процент симуляций с return &lt; 65%.</li>
-            </ul>
-
-            <h3 style="color:#fa8000; font-size:13px; font-weight:700; letter-spacing:0.5px; margin:16px 0 8px;">
-                Хоткеи
-            </h3>
-            <ul style="color:#d6a44a; font-size:11px; line-height:1.8; padding-left:20px;">
-                <li><code style="background:#141414; padding:1px 6px; color:#6db6ff;">Ctrl+K</code> — командная палитра: AAPL,MSFT,NVDA, +TSLA, -AMD, PDF, FAV 1.</li>
-                <li><code style="background:#141414; padding:1px 6px; color:#6db6ff;">Enter</code> — запуск расчёта.</li>
-            </ul>
-
-            <p style="color:#3a2a00; font-size:10px; margin-top:16px;">
-                Все расчёты — Monte Carlo ≤2000 перестановок, исторические данные yfinance,
-                корреляции по лог-доходностям. ClickHouse: 40K quantum paths (10K×4 тикера).
-                Qiskit: AerSimulator, 4 кубита, amplitude estimation.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # HELP Table (from original)
-        st.markdown("""
-        <div style="margin-top:12px;">
-            <table style="width:100%; font-size:11px; border-collapse:collapse;">
-                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000; width:120px;">РАСЧЁТ</th><td style="padding:4px 8px; color:#d6a44a;">Введи 2–10 тикеров через запятую → жми кнопку</td></tr>
-                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000;">DES</th><td style="padding:4px 8px; color:#d6a44a;">Описание ноты (термшит)</td></tr>
-                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000;">GP</th><td style="padding:4px 8px; color:#d6a44a;">Графики кривых fair-coupon</td></tr>
-                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000;">HRH</th><td style="padding:4px 8px; color:#d6a44a;">Распределение payoff и стресс-тесты</td></tr>
-                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000;">RV</th><td style="padding:4px 8px; color:#d6a44a;">Relative value: матрица альтернатив</td></tr>
-                <tr style="border-bottom:1px solid #3a2a00;"><th style="text-align:left; padding:4px 8px; color:#fa8000;">F1</th><td style="padding:4px 8px; color:#d6a44a;">Открыть эту панель</td></tr>
-                <tr><th style="text-align:left; padding:4px 8px; color:#fa8000;">ESC</th><td style="padding:4px 8px; color:#d6a44a;">Закрыть панель</td></tr>
-            </table>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # ── Footer Disclaimer (from original) ──
-    st.markdown(f"""
-    <div style="margin-top:16px; padding:8px 14px; border-top:1px solid #3a2a00;">
-        <small style="color:#3a2a00; font-size:9px; line-height:1.4;">
-            IV30 — из опционных цепочек yfinance (~30-дневная ATM IV, интерполяция).
-            Корреляции — лог-доходности за 1 год, топ-60 по IV30. DCF — FCF с CAPM-WACC, g терминальный 2.5%.
-            Monte Carlo — коррелированный GBM, 20k путей. Стресс-сценарии — ретроспективный
-            CAPM-пуш SPY-beta через GFC 2008, COVID 2020, Tech-крах 2022.
-            ClickHouse Cloud: 40,000 quantum simulations · IBM Qiskit AerSimulator: 4 qubits, 4096 shots.
-        </small>
-    </div>
-    <div style="text-align:center; color:#3a2a00; font-size:9px; margin-top:8px; text-transform:uppercase; letter-spacing:1px;">
-        Quant Risk Hub © {datetime.datetime.now().year} · MIT Quantum + IBM Qiskit + ClickHouse Cloud · PHOENIX TERMINAL v2.3
-    </div>
-    """, unsafe_allow_html=True)
-
-# ── Footer Disclaimer ──
-st.markdown(f"""
-<div style="margin-top:16px; padding:8px 14px; border-top:1px solid #3a2a00;">
-    <small style="color:#3a2a00; font-size:9px; line-height:1.4;">
-        IV30 — из опционных цепочек yfinance (~30-дневная ATM IV, интерполяция).
-        Корреляции — лог-доходности за 1 год, топ-60 по IV30. DCF — FCF с CAPM-WACC, g терминальный 2.5%.
-        Monte Carlo — коррелированный GBM, 20k путей. Стресс-сценарии — ретроспективный
-        CAPM-пуш SPY-beta через GFC 2008, COVID 2020, Tech-крах 2022.
-        ClickHouse Cloud: 40,000 quantum simulations · IBM Qiskit AerSimulator: 4 qubits, 4096 shots.
-        ФЕНИКС v32.0: Sobol QMC, memory coupon, vectorized worst-of pricing · Google Drive backup.
-    </small>
+now_utc = datetime.datetime.now(datetime.timezone.utc)
+gdrive_st = "G-DRIVE" if GDRIVE_AVAILABLE else "LOCAL-BKP"
+st.markdown(f'''
+<div class="sbar">
+    <span>NY {now_utc.strftime("%H:%M:%S")}</span>
+    <span>MKT <span class="lb">PRE-MKT</span></span>
+    <span>API <span class="ok">OK</span></span>
+    <span>CLICKHOUSE <span class="ok">CONNECTED</span></span>
+    <span>QISKIT <span class="ok">AER-SIM → SCORING</span></span>
+    <span>ФЕНИКС <span class="ok">v32.0</span></span>
+    <span>HULK <span class="ok">v41 CONDUCTOR</span></span>
+    <span>{gdrive_st} <span class="ok">OK</span></span>
+    <span style="margin-left:auto"><span class="lb">PHOENIX TERMINAL · v3.0</span></span>
 </div>
-<div style="text-align:center; color:#3a2a00; font-size:9px; margin-top:8px; text-transform:uppercase; letter-spacing:1px;">
-    Quant Risk Hub &copy; {datetime.datetime.now().year} · MIT Quantum + IBM Qiskit + ClickHouse Cloud + ФЕНИКС v32.0 · PHOENIX TERMINAL v2.3
-</div>
-""", unsafe_allow_html=True)
-
-# ── Status Bar (Bloomberg-style bottom bar) ──
-now = datetime.datetime.now(datetime.timezone.utc)
-ny_time = now.strftime("%H:%M:%S")
-gdrive_status = "G-DRIVE" if GDRIVE_AVAILABLE else "LOCAL-BKP"
-st.markdown(f"""
-<div class="status-bar">
-    <span>NY {ny_time}</span>
-    <span>MKT <span class="st-label">PRE-MKT</span></span>
-    <span>API <span class="st-ok">OK</span></span>
-    <span>CLICKHOUSE <span class="st-ok">CONNECTED</span></span>
-    <span>QISKIT <span class="st-ok">AER-SIM → SCORING</span></span>
-    <span>ФЕНИКС <span class="st-ok">v32.0</span></span>
-    <span>HULK <span class="st-ok">v41 CONDUCTOR</span></span>
-    <span>{gdrive_status} <span class="st-ok">OK</span></span>
-    <span style="margin-left:auto;"><span class="st-label">PHOENIX TERMINAL · v2.3</span></span>
-</div>
-""", unsafe_allow_html=True)
+''', unsafe_allow_html=True)
