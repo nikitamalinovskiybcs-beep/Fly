@@ -17,6 +17,7 @@ except ImportError:
 
 from src.clickhouse_data import fetch_quantum_risk_stats
 from src.quantum_risk import quantum_var_estimation, get_quantum_status
+from src.real_data import compute_toxicity
 
 
 # ── Sector map ──
@@ -489,8 +490,14 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # Factor 7: Qiskit quantum adjustment (±5 pts)
     f_qiskit = max(-5, min(5, (result["avg_qvar"] - 50) * 0.15))
 
+    # Factor 8: Real toxicity from settled notes (±10 pts)
+    tox_info = compute_toxicity(basket_tickers)
+    avg_tox = tox_info["avg_tox"]
+    f_tox = -min(10, max(0, (avg_tox - 0.3) * 25))  # tox>0.3 penalizes, max -10pt
+    result["toxicity"] = tox_info
+
     # Final score: start at 50 (neutral), add/subtract factors
-    score_pct = 50 + f_corr + f_mean + f_div * 0.5 + f_fund - f_pki - f_vol + f_qiskit
+    score_pct = 50 + f_corr + f_mean + f_div * 0.5 + f_fund - f_pki - f_vol + f_qiskit + f_tox
     score_pct = max(5, min(95, score_pct))
     result["score"] = round(score_pct, 1)
 
@@ -536,13 +543,15 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     r_ema = min(10, sum(1 for t in basket_tickers if t in yf_data and yf_data[t].get("ema200_above")) * 2.5)
     r_earn = min(8, max(2, 8 - result["earnings"].get("density_score", 5) * 0.5))
     r_qiskit = max(0, min(8, (result["avg_qvar"] - 40) * 0.15))
+    r_tox = min(12, max(0, avg_tox * 20))  # toxicity penalty in risk score
     r_phoenix = 0.0  # populated when ФЕНИКС MC runs
-    risk_total = max(5, min(95, 55 + r_fund + r_ema + r_earn + r_qiskit + r_phoenix - r_pki - r_vol - r_corr))
+    risk_total = max(5, min(95, 55 + r_fund + r_ema + r_earn + r_qiskit + r_phoenix - r_pki - r_vol - r_corr - r_tox))
     result["risk_score"] = round(risk_total, 1)
     result["risk_components"] = {
         "P(KI) barrier": round(r_pki, 1),
         "Volatility": round(r_vol, 1),
         "Correlation (worst-of)": round(r_corr, 1),
+        "Toxicity (опыт)": round(r_tox, 1),
         "Fundamental quality": round(r_fund, 1),
         "EMA200 trend": round(r_ema, 1),
         "Earnings proximity": round(r_earn, 1),

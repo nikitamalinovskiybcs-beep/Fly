@@ -9,6 +9,7 @@ from src.precompute import precompute_all as _precompute_all, SECTOR_MAP
 from src.phoenix_engine import simulate_basket as phoenix_simulate, save_to_gdrive, GDRIVE_AVAILABLE
 from src.conductor import analyze as conductor_analyze
 from src.backtest import precompute_backtest as _precompute_backtest
+from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 
 st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", layout="wide")
 
@@ -25,6 +26,13 @@ def cached_backtest(tickers_key: str, p_ki: float, coupon_pa: float, e_payout: f
     """Cached backtest — heavier computation, longer TTL."""
     tickers = tickers_key.split(",")
     return _precompute_backtest(tickers, p_ki, coupon_pa, e_payout)
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def cached_dealer(tickers_key: str, coupon_pa: float, p_ki: float, score: float):
+    """Cached dealer benchmark — real quote comparison."""
+    tickers = tickers_key.split(",")
+    return _precompute_dealer(tickers, coupon_pa, p_ki, score)
 
 # ═══════════════════════════════════════════════════════════════════
 # CSS — Bloomberg Terminal (black #000, amber #ffb000, monospace)
@@ -834,6 +842,95 @@ if basket_tickers:
                 ups = rec.get("updates", {})
                 ups_str = " · ".join(f"{k}→{v:.3f}" for k, v in ups.items()) if ups else "no updates"
                 st.markdown(f'<div style="padding:3px 8px;border-bottom:1px solid #1a1400;font-size:9px"><span style="color:#fa8000">Gen {rec["generation"]}</span> <span style="color:#6a5a2a">| n={rec["n_samples"]} | P(KI)={actual.get("p_ki",0):.0f}% P(AC)={actual.get("p_autocall",0):.0f}%</span> <span style="color:#ffb000">| {ups_str}</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [13] DEALER BENCHMARK — Real Data Comparison
+    # ═══════════════════════════════════════════════════════════════
+    DL = cached_dealer(",".join(basket_tickers), D["coupon_pa"], D["p_ki"], D["score"])
+    tox_data = DL.get("toxicity", {})
+    p_loss_data = DL.get("p_loss", {})
+    cpn_pred = DL.get("coupon_prediction", {})
+    guard = DL.get("guard_flag", False)
+    guard_icon = "🔴" if guard else "✅"
+    acc_dealer = DL.get("accuracy_vs_dealer")
+    acc_str = f"{acc_dealer:.0f}% MATCH" if acc_dealer else "N/A"
+
+    with st.expander(f"[13] DEALER BENCHMARK    {guard_icon} P(loss)={p_loss_data.get('p_loss',0):.0f}% · {acc_str}"):
+        st.markdown(f'''
+        <div style="color:#d6a44a;font-size:10px;margin-bottom:10px;line-height:1.5">
+            Сравнение с реальными котировками дилеров (828 USD-заявок). Токсичность — из опыта 50+ погашенных нот 2021-2024.
+            <b>Источник:</b> Real dealer pricing responses · Settled notes backtest · Karpathy external compute.
+        </div>
+        ''', unsafe_allow_html=True)
+
+        # GUARD flag
+        if guard:
+            st.markdown(f'''
+            <div style="background:#3a0000;border:1px solid #ff3b30;border-radius:4px;padding:10px;margin-bottom:12px">
+                <div style="color:#ff3b30;font-size:12px;font-weight:700">🔴 GUARD: {p_loss_data.get("guard_msg","")}</div>
+                <div style="color:#ff9999;font-size:9px;margin-top:4px">Модель помнит: AMD/AMZN/NFLX/QCOM/WDC утонула в 2021. Высокая токсичность → высокий P(убыток).</div>
+            </div>
+            ''', unsafe_allow_html=True)
+
+        # Toxicity per ticker
+        st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin-bottom:4px">■ ТОКСИЧНОСТЬ КОРЗИНЫ (ОПЫТ 2021-2024)</div>', unsafe_allow_html=True)
+        tox_html = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'
+        per_ticker = tox_data.get("per_ticker", {})
+        for ticker, info in per_ticker.items():
+            tox_val = info.get("tox", 0.5)
+            label = info.get("label", "?")
+            if label == "TOXIC":
+                tc = "#ff3b30"
+            elif label == "RISKY":
+                tc = "#fa8000"
+            elif label == "SAFE":
+                tc = "#34c759"
+            else:
+                tc = "#6a5a2a"
+            l, w = info.get("losses", 0), info.get("wins", 0)
+            tox_html += f'<span style="background:#1a1400;border:1px solid {tc};padding:3px 10px;color:{tc};font-size:9px;border-radius:2px">{ticker} {tox_val:.2f} [{l}L/{w}W] {label}</span>'
+        tox_html += '</div>'
+        avg_tox = tox_data.get("avg_tox", 0.5)
+        risk_lvl = tox_data.get("risk_level", "?")
+        tox_html += f'<div style="color:#d6a44a;font-size:10px">Ср. токсичность: <b style="color:{"#ff3b30" if avg_tox>0.5 else "#fa8000" if avg_tox>0.3 else "#34c759"}">{avg_tox:.3f}</b> · Уровень: <b>{risk_lvl}</b> · Известно {tox_data.get("known_count",0)}/{tox_data.get("total_count",0)} бумаг</div>'
+        st.markdown(tox_html, unsafe_allow_html=True)
+
+        # P(loss) + Dealer coupon prediction
+        st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:12px 0 4px">■ ПРОГНОЗ ДИЛЕРА vs НАША МОДЕЛЬ</div>', unsafe_allow_html=True)
+        dealer_cpn = cpn_pred.get("predicted_coupon", 0)
+        our_cpn = D["coupon_pa"]
+        delta_cpn = DL.get("delta_coupon_vs_model", 0)
+        band = cpn_pred.get("confidence_band", (0, 0))
+        st.markdown(f'''
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+            <div class="qc" style="flex:1;min-width:130px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">P(УБЫТОК) ОПЫТ</div><div style="color:{"#ff3b30" if p_loss_data.get("p_loss",0)>25 else "#fa8000" if p_loss_data.get("p_loss",0)>15 else "#34c759"};font-size:16px;font-weight:700">{p_loss_data.get("p_loss",0):.1f}%</div></div>
+            <div class="qc" style="flex:1;min-width:130px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">КУПОН ДИЛЕР</div><div style="color:#6db6ff;font-size:16px;font-weight:700">{dealer_cpn:.1f}%</div></div>
+            <div class="qc" style="flex:1;min-width:130px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">КУПОН НАШ</div><div style="color:#ffb000;font-size:16px;font-weight:700">{our_cpn:.1f}%</div></div>
+            <div class="qc" style="flex:1;min-width:130px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">Δ МОДЕЛЬ-ДИЛЕР</div><div style="color:{"#34c759" if abs(delta_cpn)<3 else "#fa8000" if abs(delta_cpn)<8 else "#ff3b30"};font-size:16px;font-weight:700">{delta_cpn:+.1f}%</div></div>
+        </div>
+        <div style="color:#6a5a2a;font-size:9px">Диапазон дилера: {band[0]:.1f}% – {band[1]:.1f}% (±1σ из {cpn_pred.get("lookup_n",0)} котировок, срок {cpn_pred.get("term_used",0)}m)</div>
+        ''', unsafe_allow_html=True)
+
+        # Similar real quotes
+        similar = DL.get("similar_quotes", [])
+        if similar:
+            avg_sim = DL.get("avg_similar_coupon")
+            st.markdown(f'<div style="color:#ffb000;font-size:11px;font-weight:700;margin:12px 0 4px">■ ПОХОЖИЕ РЕАЛЬНЫЕ КОТИРОВКИ ({len(similar)} шт, ср. купон {avg_sim:.1f}%)</div>', unsafe_allow_html=True)
+            for i, q in enumerate(similar[:6]):
+                ovl = q["overlap"]
+                cpn = q["coupon"]
+                color = "#34c759" if cpn < 15 else "#ffb000" if cpn < 25 else "#ff3b30"
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:9px">{q["basket"]}</span><span style="color:#6a5a2a;font-size:9px">{q["term_m"]}m · overlap {ovl}</span><span style="color:{color};font-size:10px;font-weight:700">{cpn:.1f}%</span></div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:10px">Нет похожих котировок (overlap &lt; 2 для текущей корзины).</div>', unsafe_allow_html=True)
+
+        # Database stats
+        db = DL.get("db_stats", {})
+        st.markdown(f'''
+        <div style="color:#6a5a2a;font-size:9px;margin-top:8px;border-top:1px solid #1a1400;padding-top:6px">
+            База: {db.get("total_quotes",0)} USD-котировок · {db.get("total_rejects",0)} отказов ({db.get("reject_rate",0):.1f}%) · Источник: реальные заявки на структурные ноты
+        </div>
+        ''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # ФЕНИКС v32.0 — Sobol MC (interactive)
