@@ -8,7 +8,7 @@ import streamlit as st
 from src.precompute import precompute_all as _precompute_all, SECTOR_MAP
 from src.phoenix_engine import simulate_basket as phoenix_simulate, save_to_gdrive, GDRIVE_AVAILABLE
 from src.conductor import analyze as conductor_analyze
-from src.backtest import precompute_backtest as _precompute_backtest
+from src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI
 from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 
 st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", layout="wide")
@@ -771,33 +771,61 @@ if basket_tickers:
             st.markdown('<div style="color:#6a5a2a;font-size:11px">Нет совпадающих бенчмарков для текущей корзины.</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [12] AGI SELF-LEARNING MODEL
+    # [12] AGI SELF-LEARNING MODEL (REAL)
     # ═══════════════════════════════════════════════════════════════
     agi_data = BT.get("agi", {})
     conv = agi_data.get("convergence", {})
     gen = agi_data.get("generation", 0)
     trend = conv.get("trend", "no_data")
-    trend_c = "#34c759" if trend == "improving" else "#ffb000" if trend == "exploring" else "#6a5a2a"
-    with st.expander(f"[12] AGI MODEL    GEN {gen} · {trend.upper()}"):
+    train_m = agi_data.get("train_metrics", {})
+    test_m = agi_data.get("test_metrics", {})
+    train_acc = train_m.get("accuracy", 0)
+    test_acc = test_m.get("accuracy", 0)
+    trend_c = "#34c759" if trend in ("improving", "converged") else "#ffb000" if trend == "exploring" else "#6a5a2a"
+
+    with st.expander(f"[12] AGI MODEL    GEN {gen} · ACC {test_acc:.0f}% · {trend.upper()}"):
         st.markdown(f'''
         <div style="color:#d6a44a;font-size:10px;margin-bottom:10px;line-height:1.5">
-            Self-learning Phoenix pricing модель. Наблюдает бэктест-результаты, вычисляет ошибку, обновляет параметры.
-            Цель: конвергенция к точности Numerix без ручной калибровки.
-            <b>Архитектура:</b> Observation → Error Signal → Parameter Update → Memory (Karpathy external compute).
+            Реальная self-learning модель. Обучена на <b>50+ погашенных нотах</b> (settled notes 2021-2024) + <b>828 дилерских котировках</b>.
+            Метод: coordinate descent по 15 параметрам, binary cross-entropy + coupon MAE.
+            Train/test split 70/30. Параметры сохраняются в ClickHouse между сессиями.
         </div>
         ''', unsafe_allow_html=True)
 
-        # Current params
+        # Train vs Test metrics
+        if train_m or test_m:
+            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin-bottom:4px">■ МЕТРИКИ ОБУЧЕНИЯ (TRAIN / TEST)</div>', unsafe_allow_html=True)
+            overfit = test_m.get("bce", 0) > train_m.get("bce", 0) * 1.3 if train_m.get("bce") else False
+            overfit_warn = ' <span style="color:#ff3b30">⚠ OVERFIT</span>' if overfit else ' <span style="color:#34c759">OK</span>'
+            st.markdown(f'''
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">ACCURACY TRAIN</div><div style="color:#34c759;font-size:16px;font-weight:700">{train_m.get("accuracy",0):.0f}%</div><div style="color:#6a5a2a;font-size:8px">n={train_m.get("n",0)}</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">ACCURACY TEST</div><div style="color:{"#34c759" if test_acc>=60 else "#fa8000" if test_acc>=45 else "#ff3b30"};font-size:16px;font-weight:700">{test_acc:.0f}%</div><div style="color:#6a5a2a;font-size:8px">n={test_m.get("n",0)}</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">BCE TRAIN</div><div style="color:#ffb000;font-size:16px;font-weight:700">{train_m.get("bce",0):.3f}</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">BCE TEST</div><div style="color:#ffb000;font-size:16px;font-weight:700">{test_m.get("bce",0):.3f}</div>{overfit_warn}</div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">COUPON MAE</div><div style="color:#6db6ff;font-size:16px;font-weight:700">{test_m.get("coupon_mae",0):.1f}%</div></div>
+            </div>
+            ''', unsafe_allow_html=True)
+
+        # Learned params (grouped)
         params = agi_data.get("params", {})
         if params:
-            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin-bottom:4px">■ ТЕКУЩИЕ ПАРАМЕТРЫ (LEARNED)</div>', unsafe_allow_html=True)
-            param_html = '<div style="display:flex;flex-wrap:wrap;gap:6px">'
-            for k, v in params.items():
-                if k in ("generation", "learning_rate"):
-                    continue
-                param_html += f'<span style="background:#1a1400;border:1px solid #3a2a00;padding:2px 8px;color:#ffb000;font-size:9px">{k}={v}</span>'
-            param_html += '</div>'
-            st.markdown(param_html, unsafe_allow_html=True)
+            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin-bottom:4px">■ LEARNED PARAMETERS (15 params, coordinate descent)</div>', unsafe_allow_html=True)
+            param_groups = {
+                "P(loss)": ["tox_weight", "term_weight", "size_weight", "tox_threshold", "loss_intercept"],
+                "Coupon": ["coupon_base", "coupon_tox_scale", "coupon_term_scale", "coupon_size_scale", "coupon_bar_scale"],
+                "Score/Risk": ["ki_sensitivity", "vol_sensitivity", "corr_benefit", "recovery_base", "recovery_tox_scale"],
+            }
+            for group_name, keys in param_groups.items():
+                group_html = f'<div style="color:#6db6ff;font-size:9px;margin:6px 0 2px">{group_name}:</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px">'
+                for k in keys:
+                    v = params.get(k, 0)
+                    default = PhoenixAGI.DEFAULT_PARAMS.get(k, v) if hasattr(PhoenixAGI, 'DEFAULT_PARAMS') else v
+                    changed = abs(v - default) > 0.001 if isinstance(v, float) else v != default
+                    border_c = "#34c759" if changed else "#3a2a00"
+                    group_html += f'<span style="background:#1a1400;border:1px solid {border_c};padding:2px 6px;color:{"#34c759" if changed else "#ffb000"};font-size:8px">{k}={v}</span>'
+                group_html += '</div>'
+                st.markdown(group_html, unsafe_allow_html=True)
 
         # AGI predictions vs current model
         preds = agi_data.get("predictions", {})
@@ -806,42 +834,68 @@ if basket_tickers:
             pred_items = [
                 ("Score", preds.get("score", 0), D["score"], "%"),
                 ("Coupon P.A.", preds.get("coupon_pa", 0), D["coupon_pa"], "%"),
+                ("P(Loss)", preds.get("p_loss", 0), D.get("p_clean_loss", 0), "%"),
                 ("P(Autocall)", preds.get("p_autocall", 0), D["p_autocall"], "%"),
-                ("E[Life]", preds.get("e_life", 0), D["e_life"], "Y"),
                 ("E[Payout]", preds.get("e_payout", 0), D["e_payout"], "%"),
+                ("Recovery", preds.get("recovery", 0), 65.0, "%"),
             ]
             for label, agi_val, cur_val, unit in pred_items:
                 delta = agi_val - cur_val
                 delta_c = "#34c759" if abs(delta) < 3 else "#fa8000" if abs(delta) < 10 else "#ff3b30"
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{label}</span><span style="color:#6db6ff;font-size:10px">AGI: {agi_val:.1f}{unit}</span><span style="color:#ffb000;font-size:10px">Current: {cur_val:.1f}{unit}</span><span style="color:{delta_c};font-size:10px">Δ {delta:+.1f}</span></div>', unsafe_allow_html=True)
 
-        # Convergence chart (HTML bar chart)
+        # Convergence chart
         conv_chart = BT.get("convergence_chart", {})
         errors = conv_chart.get("errors", [])
+        chart_train_acc = conv_chart.get("train_acc", [])
+        chart_test_acc = conv_chart.get("test_acc", [])
         if errors:
-            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:10px 0 4px">■ CONVERGENCE (ERROR BY GENERATION)</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:10px 0 4px">■ CONVERGENCE (LOSS BY EPOCH)</div>', unsafe_allow_html=True)
             max_err = max(errors) if errors else 1
-            chart_html = '<div style="display:flex;align-items:flex-end;gap:4px;height:60px;padding:4px">'
+            chart_html = '<div style="display:flex;align-items:flex-end;gap:3px;height:60px;padding:4px">'
             for i, e in enumerate(errors):
-                h = max(3, e / max(0.01, max_err) * 50)
-                c = "#ff3b30" if e > 10 else "#fa8000" if e > 5 else "#34c759"
-                chart_html += f'<div style="flex:1;display:flex;flex-direction:column;align-items:center"><div style="width:100%;height:{h}px;background:{c};border-radius:1px"></div><div style="color:#6a5a2a;font-size:7px;margin-top:2px">G{i+1}</div></div>'
+                h = max(3, e / max(0.001, max_err) * 50)
+                c = "#ff3b30" if e > max_err * 0.8 else "#fa8000" if e > max_err * 0.5 else "#34c759"
+                chart_html += f'<div style="flex:1;display:flex;flex-direction:column;align-items:center"><div style="width:100%;height:{h}px;background:{c};border-radius:1px"></div><div style="color:#6a5a2a;font-size:7px;margin-top:2px">E{i+1}</div></div>'
             chart_html += '</div>'
             st.markdown(chart_html, unsafe_allow_html=True)
 
-            total_err = conv.get("total_error", 0)
-            st.markdown(f'<div style="color:{"#34c759" if total_err < 5 else "#fa8000"};font-size:10px;margin-top:4px">Total Error: {total_err:.2f} · Status: <b>{trend.upper()}</b> · {gen} generations</div>', unsafe_allow_html=True)
+            # Accuracy chart
+            if chart_test_acc and any(a > 0 for a in chart_test_acc):
+                st.markdown('<div style="color:#6db6ff;font-size:11px;font-weight:700;margin:8px 0 4px">■ ACCURACY BY EPOCH (TRAIN / TEST)</div>', unsafe_allow_html=True)
+                acc_html = '<div style="display:flex;align-items:flex-end;gap:3px;height:50px;padding:4px">'
+                for i in range(len(chart_test_acc)):
+                    ta = chart_train_acc[i] if i < len(chart_train_acc) else 0
+                    va = chart_test_acc[i]
+                    h_train = max(2, ta / 100 * 45)
+                    h_test = max(2, va / 100 * 45)
+                    acc_html += f'<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px"><div style="width:45%;height:{h_train}px;background:#34c759;border-radius:1px;display:inline-block"></div><div style="width:45%;height:{h_test}px;background:#6db6ff;border-radius:1px;display:inline-block"></div><div style="color:#6a5a2a;font-size:7px">E{i+1}</div></div>'
+                acc_html += '</div>'
+                acc_html += '<div style="color:#6a5a2a;font-size:8px;margin-top:2px"><span style="color:#34c759">■</span> train <span style="color:#6db6ff">■</span> test</div>'
+                st.markdown(acc_html, unsafe_allow_html=True)
 
-        # Learning history
+            imp = conv.get("improvement_pct", 0)
+            total_err = conv.get("total_error", 0)
+            st.markdown(f'<div style="color:{trend_c};font-size:10px;margin-top:4px">Loss: {total_err:.4f} · Improvement: <b>{imp:+.1f}%</b> · Status: <b>{trend.upper()}</b> · {gen} generations</div>', unsafe_allow_html=True)
+
+        # Learning log
         history = agi_data.get("history", [])
         if history:
             st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:10px 0 4px">■ LEARNING LOG</div>', unsafe_allow_html=True)
-            for rec in history[-5:]:
-                actual = rec.get("actual", {})
-                errs = rec.get("errors", {})
-                ups = rec.get("updates", {})
-                ups_str = " · ".join(f"{k}→{v:.3f}" for k, v in ups.items()) if ups else "no updates"
-                st.markdown(f'<div style="padding:3px 8px;border-bottom:1px solid #1a1400;font-size:9px"><span style="color:#fa8000">Gen {rec["generation"]}</span> <span style="color:#6a5a2a">| n={rec["n_samples"]} | P(KI)={actual.get("p_ki",0):.0f}% P(AC)={actual.get("p_autocall",0):.0f}%</span> <span style="color:#ffb000">| {ups_str}</span></div>', unsafe_allow_html=True)
+            for rec in history[-8:]:
+                src = rec.get("source", "real_data")
+                if src == "backtest":
+                    actual = rec.get("actual", {})
+                    ups = rec.get("updates", {})
+                    ups_str = " · ".join(f"{k}→{v:.3f}" for k, v in ups.items()) if ups else "—"
+                    st.markdown(f'<div style="padding:3px 8px;border-bottom:1px solid #1a1400;font-size:9px"><span style="color:#fa8000">G{rec["generation"]}</span> <span style="color:#6db6ff">BACKTEST</span> <span style="color:#6a5a2a">n={rec.get("n_samples",0)} P(KI)={actual.get("p_ki",0):.0f}%</span> <span style="color:#ffb000">{ups_str}</span></div>', unsafe_allow_html=True)
+                else:
+                    ta = rec.get("train_accuracy", 0)
+                    va = rec.get("test_accuracy", 0)
+                    tl = rec.get("train_loss", 0)
+                    mae = rec.get("test_coupon_mae", 0)
+                    imp_flag = "↑" if rec.get("improved") else "="
+                    st.markdown(f'<div style="padding:3px 8px;border-bottom:1px solid #1a1400;font-size:9px"><span style="color:#fa8000">G{rec["generation"]}</span> <span style="color:#34c759">REAL DATA</span> <span style="color:#6a5a2a">train_acc={ta:.0f}% test_acc={va:.0f}% loss={tl:.4f} MAE={mae:.1f}%</span> <span style="color:#ffb000">{imp_flag}</span></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [13] DEALER BENCHMARK — Real Data Comparison
