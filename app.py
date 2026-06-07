@@ -703,35 +703,87 @@ if basket_tickers:
 
     with st.expander(f"[12] AGI PIPELINE    ACC {cal_after.get('test_acc',0):.0f}% · CONF {fc_conf:.0f}%"):
 
-        # ── COMPONENT 1: БЭКТЕСТ ──
+        # ── COMPONENT 1: БЭКТЕСТ v2 ──
         st.markdown('<div style="color:#6db6ff;font-size:12px;font-weight:700;margin-bottom:6px;border-bottom:1px solid #3a2a00;padding-bottom:4px">① БЭКТЕСТ — ТОЧНОСТЬ МОДЕЛИ</div>', unsafe_allow_html=True)
+
+        bt_f1 = pl_bt.get("f1", 0)
+        bt_prec = pl_bt.get("precision", 0)
+        bt_recall = pl_bt.get("recall", 0)
+        bt_r2 = pl_bt.get("coupon_r2", 0)
+        bt_cm = pl_bt.get("confusion_matrix", {})
+        kfold = pl_bt.get("kfold", {})
+        kf_mean = kfold.get("mean_acc", 0)
+        kf_std = kfold.get("std_acc", 0)
+
         st.markdown(f'''
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-            <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:8px">P(LOSS) ACCURACY</div><div style="color:{acc_color};font-size:18px;font-weight:700">{pl_bt.get("loss_accuracy",0):.0f}%</div><div style="color:#6a5a2a;font-size:8px">n={pl_bt.get("loss_n",0)} notes</div></div>
-            <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:8px">COUPON MAE</div><div style="color:#ffb000;font-size:18px;font-weight:700">{pl_bt.get("coupon_mae",0):.1f}%</div><div style="color:#6a5a2a;font-size:8px">n={pl_bt.get("coupon_n",0)} quotes</div></div>
-            <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:8px">COUPON MAPE</div><div style="color:#ffb000;font-size:18px;font-weight:700">{pl_bt.get("coupon_mape",0):.1f}%</div></div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">ACCURACY</div><div style="color:{acc_color};font-size:16px;font-weight:700">{pl_bt.get("loss_accuracy",0):.0f}%</div><div style="color:#6a5a2a;font-size:7px">n={pl_bt.get("loss_n",0)}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">PRECISION</div><div style="color:#6db6ff;font-size:16px;font-weight:700">{bt_prec:.0f}%</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">RECALL</div><div style="color:#6db6ff;font-size:16px;font-weight:700">{bt_recall:.0f}%</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">F1</div><div style="color:{"#34c759" if bt_f1>=60 else "#ffb000"};font-size:16px;font-weight:700">{bt_f1:.0f}%</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">MAE</div><div style="color:#ffb000;font-size:16px;font-weight:700">{pl_bt.get("coupon_mae",0):.1f}%</div><div style="color:#6a5a2a;font-size:7px">n={pl_bt.get("coupon_n",0)}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">R²</div><div style="color:{"#34c759" if bt_r2>0.3 else "#ffb000"};font-size:16px;font-weight:700">{bt_r2:.3f}</div></div>
         </div>''', unsafe_allow_html=True)
+
+        # Confusion matrix
+        if bt_cm:
+            st.markdown(f'''
+            <div style="display:flex;gap:4px;margin-bottom:6px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;flex:1">
+                    <div style="background:#0a2000;padding:4px;text-align:center;border:1px solid #1a3a00"><div style="color:#34c759;font-size:12px;font-weight:700">{bt_cm.get("tp",0)}</div><div style="color:#6a5a2a;font-size:7px">TP</div></div>
+                    <div style="background:#200a00;padding:4px;text-align:center;border:1px solid #3a1a00"><div style="color:#ff3b30;font-size:12px;font-weight:700">{bt_cm.get("fp",0)}</div><div style="color:#6a5a2a;font-size:7px">FP</div></div>
+                    <div style="background:#200a00;padding:4px;text-align:center;border:1px solid #3a1a00"><div style="color:#ff3b30;font-size:12px;font-weight:700">{bt_cm.get("fn",0)}</div><div style="color:#6a5a2a;font-size:7px">FN</div></div>
+                    <div style="background:#0a2000;padding:4px;text-align:center;border:1px solid #1a3a00"><div style="color:#34c759;font-size:12px;font-weight:700">{bt_cm.get("tn",0)}</div><div style="color:#6a5a2a;font-size:7px">TN</div></div>
+                </div>
+                <div style="flex:1;padding:4px">
+                    <div style="color:#d6a44a;font-size:8px;margin-bottom:4px">K-FOLD CV (k={kfold.get("k",5)})</div>
+                    <div style="color:{"#34c759" if kf_mean>=65 else "#ffb000"};font-size:14px;font-weight:700">{kf_mean:.0f}% ±{kf_std:.0f}%</div>
+                    <div style="color:#6a5a2a;font-size:7px">F1 avg: {kfold.get("mean_f1",0):.0f}%</div>
+                </div>
+            </div>''', unsafe_allow_html=True)
+
+        # K-fold per-fold mini bars
+        folds = kfold.get("folds", [])
+        if folds:
+            fold_html = '<div style="display:flex;gap:2px;height:24px;align-items:flex-end">'
+            for f in folds:
+                h = max(4, f["acc"] / 100 * 22)
+                c = "#34c759" if f["acc"] >= 70 else "#ffb000" if f["acc"] >= 50 else "#ff3b30"
+                fold_html += f'<div style="flex:1;text-align:center"><div style="height:{h}px;background:{c};border-radius:1px"></div><div style="color:#6a5a2a;font-size:6px">F{f["fold"]}</div></div>'
+            fold_html += '</div>'
+            st.markdown(fold_html, unsafe_allow_html=True)
 
         # Error by term bucket
         err_term = pl_bt.get("error_by_term", {})
         if err_term:
-            st.markdown('<div style="color:#d6a44a;font-size:9px;margin-bottom:4px">Ошибка по сроку:</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#d6a44a;font-size:9px;margin:6px 0 2px">Bias по сроку:</div>', unsafe_allow_html=True)
             for term, stats in err_term.items():
                 bias_c = "#ff3b30" if abs(stats["mean"]) > 3 else "#ffb000" if abs(stats["mean"]) > 1 else "#34c759"
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:9px">{term}m</span><span style="color:{bias_c};font-size:9px">bias {stats["mean"]:+.1f}% ±{stats["std"]:.1f}</span><span style="color:#6a5a2a;font-size:9px">n={stats["n"]}</span></div>', unsafe_allow_html=True)
 
-        # ── COMPONENT 2: КАЛИБРОВКА ──
+        # ── COMPONENT 2: КАЛИБРОВКА v2 ──
         st.markdown('<div style="color:#fa8000;font-size:12px;font-weight:700;margin:12px 0 6px;border-bottom:1px solid #3a2a00;padding-bottom:4px">② КАЛИБРОВКА — МНОЖИТЕЛИ</div>', unsafe_allow_html=True)
 
         n_changed = pl_cal.get("n_params_changed", 0)
         acc_delta = pl_cal.get("improvement", {}).get("accuracy_delta", 0)
+        final_lr = pl_cal.get("final_lr", 0)
+        early_stopped = pl_cal.get("early_stopped", False)
+        l2_lam = pl_cal.get("l2_lambda", 0)
+        n_iters = pl_cal.get("n_iterations", 0)
+
         st.markdown(f'''
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-            <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:8px">ACC ДО</div><div style="color:#ff3b30;font-size:16px;font-weight:700">{cal_before.get("test_acc",0):.0f}%</div></div>
-            <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:8px">ACC ПОСЛЕ</div><div style="color:{acc_color};font-size:16px;font-weight:700">{cal_after.get("test_acc",0):.0f}%</div></div>
-            <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:8px">Δ ACCURACY</div><div style="color:{"#34c759" if acc_delta > 0 else "#ff3b30"};font-size:16px;font-weight:700">{acc_delta:+.1f}%</div></div>
-            <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:8px">PARAMS CHANGED</div><div style="color:#ffb000;font-size:16px;font-weight:700">{n_changed}/15</div></div>
-            <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:8px">COUPON MAE</div><div style="color:#6db6ff;font-size:16px;font-weight:700">{cal_after.get("coupon_mae",0):.1f}%</div></div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">ACC ДО</div><div style="color:#ff3b30;font-size:15px;font-weight:700">{cal_before.get("test_acc",0):.0f}%</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">ACC ПОСЛЕ</div><div style="color:{acc_color};font-size:15px;font-weight:700">{cal_after.get("test_acc",0):.0f}%</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">Δ ACC</div><div style="color:{"#34c759" if acc_delta > 0 else "#ff3b30"};font-size:15px;font-weight:700">{acc_delta:+.1f}%</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">PARAMS</div><div style="color:#ffb000;font-size:15px;font-weight:700">{n_changed}/15</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:7px">MAE ПОСЛЕ</div><div style="color:#6db6ff;font-size:15px;font-weight:700">{cal_after.get("coupon_mae",0):.1f}%</div></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:4px;padding:4px 8px;background:#0a0800;border-left:2px solid #fa8000">
+            <span style="color:#6a5a2a;font-size:8px">LR: {final_lr:.4f}</span>
+            <span style="color:#6a5a2a;font-size:8px">L2: {l2_lam}</span>
+            <span style="color:#6a5a2a;font-size:8px">Iters: {n_iters}/20</span>
+            <span style="color:{"#34c759" if early_stopped else "#6a5a2a"};font-size:8px">{"✓ Early stop" if early_stopped else "Full run"}</span>
         </div>''', unsafe_allow_html=True)
 
         # Calibration log (convergence mini-chart)
@@ -756,16 +808,26 @@ if basket_tickers:
             delta_html += '</div>'
             st.markdown(delta_html, unsafe_allow_html=True)
 
-        # ── COMPONENT 3: ПРОГНОЗ ──
+        # ── COMPONENT 3: ПРОГНОЗ v2 ──
         st.markdown('<div style="color:#34c759;font-size:12px;font-weight:700;margin:12px 0 6px;border-bottom:1px solid #3a2a00;padding-bottom:4px">③ ПРОГНОЗ — КАЛИБРОВАННАЯ МОДЕЛЬ</div>', unsafe_allow_html=True)
 
         conf_color = "#34c759" if fc_conf >= 70 else "#ffb000" if fc_conf >= 50 else "#ff3b30"
         fc_pred = pl_fc.get("prediction", {})
+        fc_ensemble = pl_fc.get("ensemble_size", 1)
+        fc_spread = pl_fc.get("model_spread", {})
+
         st.markdown(f'''
-        <div class="qc" style="border-left:3px solid {conf_color};padding:10px;margin-bottom:8px">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-                <span style="color:#ffb000;font-size:11px;font-weight:700">CONFIDENCE</span>
-                <span style="color:{conf_color};font-size:22px;font-weight:700">{fc_conf:.0f}%</span>
+        <div style="display:flex;gap:4px;margin-bottom:6px">
+            <div class="qc" style="flex:2;border-left:3px solid {conf_color};padding:8px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span style="color:#ffb000;font-size:10px;font-weight:700">CONFIDENCE</span>
+                    <span style="color:{conf_color};font-size:20px;font-weight:700">{fc_conf:.0f}%</span>
+                </div>
+            </div>
+            <div class="qc" style="flex:1;padding:8px;text-align:center">
+                <div style="color:#d6a44a;font-size:7px">ENSEMBLE</div>
+                <div style="color:#6db6ff;font-size:14px;font-weight:700">{fc_ensemble} models</div>
+                <div style="color:#6a5a2a;font-size:7px">σ score: {fc_spread.get("score_spread",0):.1f}</div>
             </div>
         </div>''', unsafe_allow_html=True)
 
