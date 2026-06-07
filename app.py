@@ -854,6 +854,74 @@ if basket_tickers:
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:9px">{metric}</span><span style="color:#d6a44a;font-size:9px">[{vals["p10"]:.1f} — {vals["p50"]:.1f} — {vals["p90"]:.1f}]</span></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
+    # [13] EXTERNAL COMPUTE — Google Colab + Supabase + NVIDIA AI
+    # ═══════════════════════════════════════════════════════════════
+    ext = D.get("external_services", {})
+    colab_s = ext.get("colab", {})
+    supa_s = ext.get("supabase", {})
+    nv_s = ext.get("nvidia", {})
+    nv_risk = D.get("nvidia_risk", {})
+
+    with st.expander("[13] EXTERNAL COMPUTE    Colab · Supabase · NVIDIA AI"):
+        st.markdown(f'''
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if colab_s.get("available") else "#6a5a2a"}">
+                <div style="color:#d6a44a;font-size:8px">GOOGLE COLAB</div>
+                <div style="color:{"#34c759" if colab_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if colab_s.get("available") else "○ OFF"}</div>
+                <div style="color:#6a5a2a;font-size:7px">{colab_s.get("description","T4 GPU MC")}</div>
+            </div>
+            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if supa_s.get("available") else "#6a5a2a"}">
+                <div style="color:#d6a44a;font-size:8px">SUPABASE</div>
+                <div style="color:{"#34c759" if supa_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if supa_s.get("available") else "○ OFF"}</div>
+                <div style="color:#6a5a2a;font-size:7px">{supa_s.get("description","PostgreSQL storage")}</div>
+            </div>
+            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if nv_s.get("available") else "#6a5a2a"}">
+                <div style="color:#d6a44a;font-size:8px">NVIDIA AI</div>
+                <div style="color:{"#34c759" if nv_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if nv_s.get("available") else "○ OFF"}</div>
+                <div style="color:#6a5a2a;font-size:7px">{nv_s.get("description","NIM Llama 3.1")}</div>
+            </div>
+        </div>''', unsafe_allow_html=True)
+
+        # NVIDIA risk analysis result
+        nv_level = nv_risk.get("risk_level", "N/A")
+        nv_adj = nv_risk.get("score_adjustment", 0)
+        nv_source = nv_risk.get("source", "N/A")
+        nv_level_c = {"low": "#34c759", "medium": "#ffb000", "high": "#ff3b30", "extreme": "#ff0000"}.get(nv_level, "#6a5a2a")
+
+        st.markdown(f'''
+        <div style="color:#6db6ff;font-size:10px;font-weight:700;margin:8px 0 4px;border-bottom:1px solid #3a2a00;padding-bottom:3px">AI RISK ANALYSIS ({nv_source})</div>
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+            <div class="qc" style="flex:1;padding:6px;text-align:center">
+                <div style="color:#d6a44a;font-size:7px">RISK LEVEL</div>
+                <div style="color:{nv_level_c};font-size:14px;font-weight:700">{nv_level.upper()}</div>
+            </div>
+            <div class="qc" style="flex:1;padding:6px;text-align:center">
+                <div style="color:#d6a44a;font-size:7px">SCORE ADJ</div>
+                <div style="color:{"#34c759" if nv_adj > 0 else "#ff3b30" if nv_adj < 0 else "#6a5a2a"};font-size:14px;font-weight:700">{nv_adj:+.1f}</div>
+            </div>
+            <div class="qc" style="flex:1;padding:6px;text-align:center">
+                <div style="color:#d6a44a;font-size:7px">CONCENTRATION</div>
+                <div style="color:{"#ff3b30" if nv_risk.get("concentration_warning") else "#34c759"};font-size:14px;font-weight:700">{"⚠ YES" if nv_risk.get("concentration_warning") else "OK"}</div>
+            </div>
+        </div>''', unsafe_allow_html=True)
+
+        # Key risks
+        risks = nv_risk.get("key_risks", [])
+        if risks:
+            for r in risks[:3]:
+                st.markdown(f'<div style="padding:2px 8px;border-left:2px solid #ff3b30;margin-bottom:2px;color:#d6a44a;font-size:8px">⚠ {r}</div>', unsafe_allow_html=True)
+
+        rec = nv_risk.get("recommendation", "")
+        if rec:
+            st.markdown(f'<div style="padding:4px 8px;background:#0a0800;color:#6db6ff;font-size:8px;margin-top:4px">💡 {rec}</div>', unsafe_allow_html=True)
+
+        # Setup instructions
+        st.markdown('''
+        <div style="color:#6a5a2a;font-size:7px;margin-top:8px;border-top:1px solid #1a1400;padding-top:4px">
+            Подключение: SUPABASE_URL + SUPABASE_KEY → Supabase | NVIDIA_API_KEY → build.nvidia.com | COLAB_WEBHOOK → Google Colab
+        </div>''', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
     # ФЕНИКС v32.0 — Sobol MC (interactive)
     # ═══════════════════════════════════════════════════════════════
     st.markdown('<div class="sec">🔥 ФЕНИКС v32.0 — SOBOL MC ENGINE</div>', unsafe_allow_html=True)

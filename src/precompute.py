@@ -18,6 +18,9 @@ except ImportError:
 from src.clickhouse_data import fetch_quantum_risk_stats
 from src.quantum_risk import quantum_var_estimation, get_quantum_status
 from src.real_data import compute_toxicity
+from src.colab_engine import get_colab_status, local_sobol_mc
+from src.supabase_store import get_status as supabase_status
+from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
 
 
 # ── Sector map ──
@@ -559,7 +562,30 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
         "ФЕНИКС MC P(loss)": round(r_phoenix, 1),
     }
 
-    # 17. Numerix comparison benchmarks
+    # 17. External services status
+    result["external_services"] = {
+        "colab": get_colab_status(),
+        "supabase": supabase_status(),
+        "nvidia": nvidia_status(),
+    }
+
+    # 18. NVIDIA AI risk analysis (free, graceful fallback)
+    nvidia_risk = analyze_basket_risk(
+        tickers=basket_tickers,
+        scores={t: yf_data[t].get("score", 50) for t in basket_tickers if t in yf_data},
+        p_ki=p_ki * 100,
+        avg_vol=result["ind"]["iv30_avg"] if result["ind"] else 35,
+        avg_corr=avg_corr,
+    )
+    result["nvidia_risk"] = nvidia_risk
+
+    # Apply NVIDIA score adjustment to risk_score
+    nvidia_adj = nvidia_risk.get("score_adjustment", 0)
+    risk_total = max(5, min(95, risk_total + nvidia_adj))
+    result["risk_score"] = round(risk_total, 1)
+    result["risk_components"]["NVIDIA AI adj"] = round(nvidia_adj, 1)
+
+    # 19. Numerix comparison benchmarks
     # Real market products for similar baskets (source: Barclays KIDs, SEC filings)
     result["numerix"] = {
         "ref_product": "Barclays XS2959260741 (MSFT/AMZN/NVDA/META)",

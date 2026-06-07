@@ -669,7 +669,19 @@ def run_pipeline(
         param_bounds=PhoenixAGI.PARAM_BOUNDS,
     )
 
-    # Save calibrated params
+    # Save to Supabase (if available)
+    try:
+        from src.supabase_store import save_calibrated_params, save_backtest_result, save_pipeline_run
+        save_backtest_result(backtest_result, basket_tickers)
+        save_calibrated_params(
+            calibration_result["calibrated_params"],
+            calibration_result["after"],
+            basket_tickers,
+        )
+    except Exception:
+        pass
+
+    # Save calibrated params to ClickHouse
     calibrated_agi = PhoenixAGI(params=calibration_result["calibrated_params"])
     calibrated_agi.train_metrics = {
         "accuracy": calibration_result["after"]["train_acc"],
@@ -681,9 +693,17 @@ def run_pipeline(
     }
     calibrated_agi.save_to_clickhouse()
 
-    return {
+    pipeline_result = {
         "backtest": backtest_result,
         "calibration": calibration_result,
         "forecast": forecast_result,
         "pipeline_ts": datetime.now().isoformat(),
     }
+
+    # Save pipeline run to Supabase
+    try:
+        save_pipeline_run(pipeline_result, basket_tickers)
+    except Exception:
+        pass
+
+    return pipeline_result
