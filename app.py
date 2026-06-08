@@ -158,10 +158,13 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     rs = D["risk_score"]
     rc_components = D["risk_components"]
-    rs_color = "#34c759" if rs >= 70 else "#ffb000" if rs >= 40 else "#ff3b30"
-    rs_label = "Низкий риск" if rs >= 70 else "Средний риск" if rs >= 40 else "Высокий риск"
-    rs_grade = "A" if rs >= 70 else "B" if rs >= 55 else "C" if rs >= 40 else "D"
-    stamp = "READY TO ISSUE" if rs >= 70 else "NEEDS REVIEW" if rs >= 40 else "AVOID"
+    rs_color = "#34c759" if rs >= 80 else "#ffb000" if rs >= 65 else "#ff3b30"
+    rs_label = "Отлично" if rs >= 85 else "Хорошо" if rs >= 75 else "Приемлемо" if rs >= 65 else "Рискованно"
+    rs_grade = "A+" if rs >= 90 else "A" if rs >= 80 else "B" if rs >= 70 else "C" if rs >= 60 else "D"
+    stamp = "READY TO ISSUE" if rs >= 75 else "NEEDS REVIEW" if rs >= 60 else "AVOID"
+
+    # Progress bar width scaled 50-100
+    bar_w = max(0, min(100, (rs - 50) * 2))
 
     st.markdown(f'''
     <div class="qc" style="border-left:3px solid {rs_color};padding:14px;margin:8px 0">
@@ -171,14 +174,15 @@ if basket_tickers:
                 <span style="background:#1a1400;border:1px solid #3a2a00;padding:1px 6px;color:#d6a44a;font-size:9px;border-radius:2px;margin-left:6px">{rs_grade}</span>
             </div>
             <div style="text-align:right">
-                <span style="color:{rs_color};font-size:28px;font-weight:700">{rs:.1f}</span>
+                <span style="color:{rs_color};font-size:28px;font-weight:700">{rs:.0f}</span>
                 <span style="color:#d6a44a;font-size:12px">/100</span>
             </div>
         </div>
-        <div style="margin:6px 0;height:6px;background:#1a1400;border-radius:1px"><div style="height:100%;width:{rs}%;background:{rs_color};border-radius:1px"></div></div>
+        <div style="margin:6px 0;height:6px;background:#1a1400;border-radius:1px;position:relative"><div style="height:100%;width:{bar_w}%;background:{rs_color};border-radius:1px"></div></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
             <span style="color:{rs_color};font-size:11px">{rs_label}</span>
-            <span style="background:{rs_color}22;border:1px solid {rs_color};padding:2px 8px;color:{rs_color};font-size:10px;font-weight:700">{stamp} · P(KI) {p_ki:.0f}%</span>
+            <span style="color:#6a5a2a;font-size:9px">S&P500 = 100 (эталон)</span>
+            <span style="background:{rs_color}22;border:1px solid {rs_color};padding:2px 8px;color:{rs_color};font-size:10px;font-weight:700">{stamp}</span>
         </div>
     </div>
     ''', unsafe_allow_html=True)
@@ -205,16 +209,6 @@ if basket_tickers:
         st.markdown(f'<div style="display:flex;flex-wrap:wrap;gap:0">{grid}</div>', unsafe_allow_html=True)
 
 
-
-    # ═══════════════════════════════════════════════════════════════
-    # POSITION SIZER
-    # ═══════════════════════════════════════════════════════════════
-    ps1,ps2,ps3 = st.columns(3)
-    with ps1: aum = st.number_input("AUM КЛИЕНТА, $", min_value=10000, value=1000000, step=10000)
-    with ps2: risk_budget = st.number_input("РИСК-БЮДЖЕТ, %", min_value=0.5, max_value=50.0, value=5.0, step=0.5)
-    with ps3: e_loss_pct = D.get("p_clean_loss", 15); st.number_input("E[LOSS] КОРЗИНЫ, %", value=e_loss_pct, disabled=True, key="e_loss_display")
-    notional = aum * (risk_budget / 100) / max(e_loss_pct / 100, 0.01)
-    st.markdown(f'<div class="qc" style="padding:10px"><div style="color:#d6a44a;font-size:10px">Notional ноты</div><div style="color:#ffb000;font-size:20px;font-weight:700">${notional:,.0f}</div><div style="color:#6a5a2a;font-size:9px">Риск-бюджет ${aum*(risk_budget/100):,.0f} ({risk_budget}% от AUM) ÷ E[loss] {e_loss_pct:.1f}% = notional ноты</div></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # КУПОН КЛИЕНТУ
@@ -355,39 +349,7 @@ if basket_tickers:
                 </div>''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [05] CORR MATRIX
-    # ═══════════════════════════════════════════════════════════════
-    avg_c = corr.get("avg_corr", 0)
-    with st.expander(f"[05] CORR MATRIX    AVG {avg_c:.2f}"):
-        st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Pearson корреляции дневных логдоходностей за 5y. Sweet spot для Phoenix: <b>0.45–0.65</b> — достаточно diversification benefit, но worst-of не «убегает» вниз.</div>', unsafe_allow_html=True)
-        if avg_c < 0.40:
-            st.markdown(f'<div style="background:#0a1a0a;border:1px solid #34c759;padding:6px 8px;color:#34c759;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — корзина хорошо диверсифицирована.</div>', unsafe_allow_html=True)
-        elif avg_c < 0.65:
-            st.markdown(f'<div style="background:#1a1a0a;border:1px solid #ffb000;padding:6px 8px;color:#ffb000;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — приемлемо.</div>', unsafe_allow_html=True)
-        else:
-            st.markdown(f'<div style="background:#1a0a0a;border:1px solid #ff3b30;padding:6px 8px;color:#ff3b30;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — высокая, все падают вместе.</div>', unsafe_allow_html=True)
-        # Legend
-        st.markdown('<div style="font-size:10px;color:#d6a44a;margin-bottom:4px">🟦 &lt;0.40 хорошо · 🟩 0.40–0.65 · 🟨 0.65–0.75 · 🟧 0.75–0.85 · 🟥 &gt;0.85 слиплись</div>', unsafe_allow_html=True)
-        # Matrix table
-        c_tickers = corr.get("tickers", [])
-        c_matrix = corr.get("matrix", [])
-        if c_tickers and c_matrix:
-            hdr = '<th style="padding:4px 8px;color:#d6a44a;font-size:10px"></th>' + "".join(f'<th style="padding:4px 8px;color:#ffb000;font-size:10px;font-weight:700">{t}</th>' for t in c_tickers)
-            rows = ""
-            for i, t in enumerate(c_tickers):
-                cells = f'<td style="padding:4px 8px;color:#ffb000;font-size:10px;font-weight:700">{t}</td>'
-                for j in range(len(c_tickers)):
-                    if i == j:
-                        cells += '<td style="padding:4px 8px;color:#6a5a2a;font-size:10px;text-align:center">—</td>'
-                    else:
-                        v = c_matrix[i][j]
-                        bg = "#0a2a2a" if v < 0.40 else "#0a2a0a" if v < 0.65 else "#2a2a0a" if v < 0.75 else "#2a1a0a" if v < 0.85 else "#2a0a0a"
-                        cells += f'<td style="padding:4px 8px;background:{bg};color:#ffb000;font-size:11px;text-align:center;font-weight:700">{v:.2f}</td>'
-                rows += f'<tr>{cells}</tr>'
-            st.markdown(f'<table style="width:100%;border-collapse:collapse;margin-top:8px"><tr>{hdr}</tr>{rows}</table>', unsafe_allow_html=True)
-
-    # ═══════════════════════════════════════════════════════════════
-    # [06] EARNINGS CAL
+    # [05] EARNINGS CAL
     # ═══════════════════════════════════════════════════════════════
     total_events = earnings.get("total_events", 0)
     with st.expander(f"[06] EARNINGS CAL    {total_events} EVENTS"):
@@ -931,74 +893,6 @@ if basket_tickers:
                 st.markdown(hist_html, unsafe_allow_html=True)
         elif current_acc > 0:
             st.markdown('<div style="color:#6a5a2a;font-size:8px;margin:6px 0;padding:4px 8px;background:#0a0800;border:1px solid #1a1400">📡 Supabase OFF — история обучения будет доступна после подключения</div>', unsafe_allow_html=True)
-
-    # ═══════════════════════════════════════════════════════════════
-    # [13] EXTERNAL COMPUTE — Google Colab + Supabase + NVIDIA AI
-    # ═══════════════════════════════════════════════════════════════
-    ext = D.get("external_services", {})
-    colab_s = ext.get("colab", {})
-    supa_s = ext.get("supabase", {})
-    nv_s = ext.get("nvidia", {})
-    nv_risk = D.get("nvidia_risk", {})
-
-    with st.expander("[13] EXTERNAL COMPUTE    Colab · Supabase · NVIDIA AI"):
-        st.markdown(f'''
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
-            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if colab_s.get("available") else "#6a5a2a"}">
-                <div style="color:#d6a44a;font-size:8px">GOOGLE COLAB</div>
-                <div style="color:{"#34c759" if colab_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if colab_s.get("available") else "○ OFF"}</div>
-                <div style="color:#6a5a2a;font-size:7px">{colab_s.get("description","T4 GPU MC")}</div>
-            </div>
-            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if supa_s.get("available") else "#6a5a2a"}">
-                <div style="color:#d6a44a;font-size:8px">SUPABASE</div>
-                <div style="color:{"#34c759" if supa_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if supa_s.get("available") else "○ OFF"}</div>
-                <div style="color:#6a5a2a;font-size:7px">{supa_s.get("description","PostgreSQL storage")}</div>
-            </div>
-            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if nv_s.get("available") else "#6a5a2a"}">
-                <div style="color:#d6a44a;font-size:8px">NVIDIA AI</div>
-                <div style="color:{"#34c759" if nv_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if nv_s.get("available") else "○ OFF"}</div>
-                <div style="color:#6a5a2a;font-size:7px">{nv_s.get("description","NIM Llama 3.1")}</div>
-            </div>
-        </div>''', unsafe_allow_html=True)
-
-        # NVIDIA risk analysis result
-        nv_level = nv_risk.get("risk_level", "N/A")
-        nv_adj = nv_risk.get("score_adjustment", 0)
-        nv_source = nv_risk.get("source", "N/A")
-        nv_level_c = {"low": "#34c759", "medium": "#ffb000", "high": "#ff3b30", "extreme": "#ff0000"}.get(nv_level, "#6a5a2a")
-
-        st.markdown(f'''
-        <div style="color:#6db6ff;font-size:10px;font-weight:700;margin:8px 0 4px;border-bottom:1px solid #3a2a00;padding-bottom:3px">AI RISK ANALYSIS ({nv_source})</div>
-        <div style="display:flex;gap:6px;margin-bottom:6px">
-            <div class="qc" style="flex:1;padding:6px;text-align:center">
-                <div style="color:#d6a44a;font-size:7px">RISK LEVEL</div>
-                <div style="color:{nv_level_c};font-size:14px;font-weight:700">{nv_level.upper()}</div>
-            </div>
-            <div class="qc" style="flex:1;padding:6px;text-align:center">
-                <div style="color:#d6a44a;font-size:7px">SCORE ADJ</div>
-                <div style="color:{"#34c759" if nv_adj > 0 else "#ff3b30" if nv_adj < 0 else "#6a5a2a"};font-size:14px;font-weight:700">{nv_adj:+.1f}</div>
-            </div>
-            <div class="qc" style="flex:1;padding:6px;text-align:center">
-                <div style="color:#d6a44a;font-size:7px">CONCENTRATION</div>
-                <div style="color:{"#ff3b30" if nv_risk.get("concentration_warning") else "#34c759"};font-size:14px;font-weight:700">{"⚠ YES" if nv_risk.get("concentration_warning") else "OK"}</div>
-            </div>
-        </div>''', unsafe_allow_html=True)
-
-        # Key risks
-        risks = nv_risk.get("key_risks", [])
-        if risks:
-            for r in risks[:3]:
-                st.markdown(f'<div style="padding:2px 8px;border-left:2px solid #ff3b30;margin-bottom:2px;color:#d6a44a;font-size:8px">⚠ {r}</div>', unsafe_allow_html=True)
-
-        rec = nv_risk.get("recommendation", "")
-        if rec:
-            st.markdown(f'<div style="padding:4px 8px;background:#0a0800;color:#6db6ff;font-size:8px;margin-top:4px">💡 {rec}</div>', unsafe_allow_html=True)
-
-        # Setup instructions
-        st.markdown('''
-        <div style="color:#6a5a2a;font-size:7px;margin-top:8px;border-top:1px solid #1a1400;padding-top:4px">
-            Подключение: SUPABASE_URL + SUPABASE_KEY → Supabase | NVIDIA_API_KEY → build.nvidia.com | COLAB_WEBHOOK → Google Colab
-        </div>''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # ФЕНИКС v32.0 — Sobol MC (interactive)

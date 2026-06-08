@@ -485,42 +485,36 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # Our model calibrates against these benchmarks.
     wo = ch_data.get("worst_of", {})
 
-    # Factor 1: P(KI) penalty (0-30 pts). Numerix benchmark: P(KI)<20% = good
+    # Scoring: 50-100 scale. S&P500 index = 100 (benchmark).
+    # Blue-chip basket (AAPL/MSFT/GOOGL) ≈ 80-90. Risky/toxic ≈ 50-65.
+    # Start at 90 (good quality), apply penalties, clamp [50, 100].
+
     raw_pki = wo.get("barrier_breach_pct", 25)
-    f_pki = min(30, raw_pki * 0.9)  # 25% breach → 22.5pt penalty
-
-    # Factor 2: Volatility penalty (0-15 pts). High vol = harder to stay above barrier
     avg_vol_score = _safe_mean(_safe_vols(td, basket_tickers), 35)
-    f_vol = min(15, max(0, (avg_vol_score - 20) * 0.35))  # 35% vol → 5.25pt
-
-    # Factor 3: Correlation benefit (0-15 pts). Low corr = diversification
     avg_corr = result["corr"].get("avg_corr", 0.5)
-    f_corr = min(15, max(0, 15 - avg_corr * 20))  # 0.5 corr → 5pt benefit
-
-    # Factor 4: Mean return bonus (0-10 pts)
-    mean_ret = wo.get("mean", 90)
-    f_mean = min(10, max(0, (mean_ret - 80) * 0.5))  # 90% mean → 5pt
-
-    # Factor 5: Diversification by count (0-10 pts)
-    f_div = min(10, len(basket_tickers) * 1.5)  # 6 names → 9pt
-
-    # Factor 6: Fundamental quality (0-10 pts) — DCF upside, analyst consensus
     dcf_up = result["ind"].get("dcf_avg", 0) if result["ind"] else 0
     rec_avg = result["ind"].get("rec_avg", 2.5) if result["ind"] else 2.5
-    f_fund = min(10, max(0, 5 + dcf_up * 0.1 + (2.5 - rec_avg) * 2))
-
-    # Factor 7: Qiskit quantum adjustment (±5 pts)
-    f_qiskit = max(-5, min(5, (result["avg_qvar"] - 50) * 0.15))
-
-    # Factor 8: Real toxicity from settled notes (±10 pts)
+    mean_ret = wo.get("mean", 90)
     tox_info = compute_toxicity(basket_tickers)
     avg_tox = tox_info["avg_tox"]
-    f_tox = -min(10, max(0, (avg_tox - 0.3) * 25))  # tox>0.3 penalizes, max -10pt
     result["toxicity"] = tox_info
 
-    # Final score: start at 50 (neutral), add/subtract factors
-    score_pct = 50 + f_corr + f_mean + f_div * 0.5 + f_fund - f_pki - f_vol + f_qiskit + f_tox
-    score_pct = max(5, min(95, score_pct))
+    # Penalties (reduce from 90)
+    f_pki = min(12, raw_pki * 0.35)         # 25% P(KI) → -8.75pt
+    f_vol = min(8, max(0, (avg_vol_score - 25) * 0.2))   # 35% vol → -2pt
+    f_corr_pen = min(5, max(0, (avg_corr - 0.5) * 12))   # >0.5 corr → penalty
+    f_tox = min(20, max(0, (avg_tox - 0.2) * 30))        # 0.7 tox → -15pt (key differentiator)
+
+    # Bonuses (add to base)
+    f_div = min(5, len(basket_tickers) * 0.8)   # 6 names → +4.8
+    f_fund = min(5, max(0, 2 + dcf_up * 0.05 + (2.5 - rec_avg)))
+    f_mean = min(3, max(0, (mean_ret - 85) * 0.3))
+    f_low_corr = min(5, max(0, (0.5 - avg_corr) * 12))   # <0.5 corr → bonus
+    f_qiskit = max(-3, min(3, (result["avg_qvar"] - 50) * 0.08))
+
+    # Final: base 90 - penalties + bonuses, clamped [50, 100]
+    score_pct = 90 - f_pki - f_vol - f_corr_pen - f_tox + f_div + f_fund + f_mean + f_low_corr + f_qiskit
+    score_pct = max(50, min(100, score_pct))
     result["score"] = round(score_pct, 1)
 
     # 13. P(KI), P(autocall) — Numerix-calibrated
@@ -560,29 +554,18 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     result["p_clean_loss"] = p_clean_loss
     result["e_payout"] = e_payout
 
-    # 16. Risk score — 8 weighted components (0-100, higher=safer)
-    r_pki = min(25, p_ki * 0.8)        # P(KI) penalty: 25%→20pt
-    r_vol = min(15, max(0, (float(avg_vol) - 20) * 0.4))  # Vol penalty
-    r_corr = min(10, max(0, avg_corr * 12))  # High corr = bad for worst-of
-    dcf_up = result["ind"].get("dcf_avg", 0) if result["ind"] else 0
-    r_fund = max(0, min(15, 8 + dcf_up * 0.15))  # Fundamental quality bonus
-    r_ema = min(10, sum(1 for t in basket_tickers if t in yf_data and yf_data[t].get("ema200_above")) * 2.5)
-    r_earn = min(8, max(2, 8 - result["earnings"].get("density_score", 5) * 0.5))
-    r_qiskit = max(0, min(8, (result["avg_qvar"] - 40) * 0.15))
-    r_tox = min(12, max(0, avg_tox * 20))  # toxicity penalty in risk score
-    r_phoenix = 0.0  # populated when ФЕНИКС MC runs
-    risk_total = max(5, min(95, 55 + r_fund + r_ema + r_earn + r_qiskit + r_phoenix - r_pki - r_vol - r_corr - r_tox))
-    result["risk_score"] = round(risk_total, 1)
+    # 16. Risk score = unified score (50-100 scale, S&P500 = 100)
+    # Uses the same scoring formula from above (result["score"])
+    result["risk_score"] = result["score"]
     result["risk_components"] = {
-        "P(KI) barrier": round(r_pki, 1),
-        "Volatility": round(r_vol, 1),
-        "Correlation (worst-of)": round(r_corr, 1),
-        "Toxicity (опыт)": round(r_tox, 1),
-        "Fundamental quality": round(r_fund, 1),
-        "EMA200 trend": round(r_ema, 1),
-        "Earnings proximity": round(r_earn, 1),
-        "Qiskit Q-VaR": round(r_qiskit, 1),
-        "ФЕНИКС MC P(loss)": round(r_phoenix, 1),
+        "P(KI) штраф": round(-f_pki, 1),
+        "Волатильность": round(-f_vol, 1),
+        "Корреляция": round(-f_corr_pen, 1),
+        "Токсичность": round(-f_tox, 1),
+        "Диверсификация": round(f_div, 1),
+        "Фундаментал": round(f_fund, 1),
+        "Низкая корр.": round(f_low_corr, 1),
+        "Q-VaR": round(f_qiskit, 1),
     }
 
     # 17. External services status
@@ -612,9 +595,10 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
 
     # Apply NVIDIA score adjustment to risk_score
     nvidia_adj = nvidia_risk.get("score_adjustment", 0)
-    risk_total = max(5, min(95, risk_total + nvidia_adj))
-    result["risk_score"] = round(risk_total, 1)
-    result["risk_components"]["NVIDIA AI adj"] = round(nvidia_adj, 1)
+    adjusted = max(50, min(100, result["risk_score"] + nvidia_adj))
+    result["risk_score"] = round(adjusted, 1)
+    if nvidia_adj != 0:
+        result["risk_components"]["NVIDIA AI"] = round(nvidia_adj, 1)
 
     # 19. Numerix comparison benchmarks
     # Real market products for similar baskets (source: Barclays KIDs, SEC filings)
