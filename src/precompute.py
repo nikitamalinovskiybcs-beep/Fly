@@ -23,6 +23,25 @@ from src.supabase_store import get_status as supabase_status
 from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
 
 
+def _safe_vols(td: Dict, tickers: List[str]) -> List[float]:
+    """Volatility values for tickers present in data, dropping NaN/None."""
+    out = []
+    for t in tickers:
+        if t in td:
+            v = td[t].get("volatility")
+            if v is not None and not (isinstance(v, float) and math.isnan(v)):
+                out.append(float(v))
+    return out
+
+
+def _safe_mean(vals: List[float], default: float) -> float:
+    """Mean that never returns NaN — falls back to default on empty input."""
+    if not vals:
+        return float(default)
+    m = float(np.mean(vals))
+    return float(default) if math.isnan(m) else m
+
+
 # ── Sector map ──
 SECTOR_MAP = {
     "AAPL": "Information Technology", "MSFT": "Information Technology",
@@ -471,7 +490,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     f_pki = min(30, raw_pki * 0.9)  # 25% breach → 22.5pt penalty
 
     # Factor 2: Volatility penalty (0-15 pts). High vol = harder to stay above barrier
-    avg_vol_score = float(np.mean([td[t]["volatility"] for t in basket_tickers if t in td])) if td else 35
+    avg_vol_score = _safe_mean(_safe_vols(td, basket_tickers), 35)
     f_vol = min(15, max(0, (avg_vol_score - 20) * 0.35))  # 35% vol → 5.25pt
 
     # Factor 3: Correlation benefit (0-15 pts). Low corr = diversification
@@ -509,15 +528,19 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # P(autocall) typically 40-70% for 100% autocall barrier
     p_ki = wo.get("barrier_breach_pct", 25)
     p_autocall = min(85, max(10, 100 - p_ki * 1.5 - avg_corr * 10))
-    avg_vol = np.mean([td[t]["volatility"] for t in basket_tickers if t in td]) if td else 35
-    dispersion = float(np.std([td[t]["volatility"] for t in basket_tickers if t in td])) if len([t for t in basket_tickers if t in td]) > 1 else 8
+    _vols = _safe_vols(td, basket_tickers)
+    avg_vol = _safe_mean(_vols, 35)
+    dispersion = float(np.std(_vols)) if len(_vols) > 1 else 8.0
     result["p_ki"] = round(p_ki, 1)
     result["p_autocall"] = round(p_autocall, 1)
     result["avg_vol"] = round(float(avg_vol), 1)
     result["dispersion"] = round(dispersion, 1)
 
     # 14. IV rank — percentile of current IV vs 1Y range
-    result["iv_rank"] = min(99, max(5, int(float(avg_vol) * 1.1 + 10)))
+    _ivr = float(avg_vol) * 1.1 + 10
+    if math.isnan(_ivr):
+        _ivr = 45.0
+    result["iv_rank"] = min(99, max(5, int(_ivr)))
 
     # 15. E[life] and coupon estimates — Numerix-comparable
     # Barclays benchmark: 9.5% p.a. for MSFT/AMZN/NVDA/META (65% barrier)
@@ -570,13 +593,21 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     }
 
     # 18. NVIDIA AI risk analysis (free, graceful fallback)
-    nvidia_risk = analyze_basket_risk(
-        tickers=basket_tickers,
-        scores={t: yf_data[t].get("score", 50) for t in basket_tickers if t in yf_data},
-        p_ki=p_ki * 100,
-        avg_vol=result["ind"]["iv30_avg"] if result["ind"] else 35,
-        avg_corr=avg_corr,
-    )
+    _iv30 = result["ind"].get("iv30_avg", 35) if result["ind"] else 35
+    if _iv30 is None or (isinstance(_iv30, float) and math.isnan(_iv30)):
+        _iv30 = 35
+    try:
+        nvidia_risk = analyze_basket_risk(
+            tickers=basket_tickers,
+            scores={t: yf_data[t].get("score", 50) for t in basket_tickers if t in yf_data},
+            p_ki=p_ki,
+            avg_vol=_iv30,
+            avg_corr=avg_corr,
+        )
+    except Exception:
+        nvidia_risk = {"risk_level": "N/A", "score_adjustment": 0,
+                       "key_risks": [], "concentration_warning": False,
+                       "recommendation": "—", "source": "error"}
     result["nvidia_risk"] = nvidia_risk
 
     # Apply NVIDIA score adjustment to risk_score
