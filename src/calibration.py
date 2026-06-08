@@ -558,6 +558,59 @@ def generate_forecast(
         },
     }
 
+    # ── NVIDIA AI risk adjustment (if available) ──
+    nvidia_adj = 0
+    nvidia_source = "unavailable"
+    try:
+        from src.nvidia_ai import analyze_basket_risk
+        nvidia_risk = analyze_basket_risk(
+            tickers=basket_tickers,
+            scores={},
+            p_ki=p_ki,
+            avg_vol=avg_vol,
+            avg_corr=avg_corr,
+        )
+        nvidia_adj = nvidia_risk.get("score_adjustment", 0)
+        nvidia_source = nvidia_risk.get("source", "unavailable")
+        # Adjust base scenario by NVIDIA insight
+        if nvidia_adj != 0:
+            scenarios["base"]["score"] = round(scenarios["base"]["score"] + nvidia_adj, 1)
+            scenarios["base"]["score"] = max(5, min(95, scenarios["base"]["score"]))
+    except Exception:
+        pass
+
+    # ── Feature importance (sensitivity analysis) ──
+    feature_importance = {}
+    base_pred_score = base_score
+    # Input feature sensitivities
+    input_deltas = [
+        ("p_ki", p_ki * 1.1, p_ki, {"p_ki": p_ki * 1.1}),
+        ("avg_vol", avg_vol * 1.1, avg_vol, {"avg_vol": avg_vol * 1.1}),
+        ("avg_corr", min(1, avg_corr * 1.1), avg_corr, {"avg_corr": min(1, avg_corr * 1.1)}),
+        ("avg_tox", min(1, avg_tox * 1.1), avg_tox, {"avg_tox": min(1, avg_tox * 1.1)}),
+    ]
+    for feat_name, _, _, kw_override in input_deltas:
+        kw = {"p_ki": p_ki, "avg_vol": avg_vol, "avg_corr": avg_corr,
+               "n_tickers": n, "avg_tox": avg_tox}
+        kw.update(kw_override)
+        shifted_pred = agi_main.predict(**kw)
+        delta = abs(shifted_pred["score"] - base_pred_score)
+        feature_importance[feat_name] = round(delta, 2)
+
+    # Parameter sensitivities (top 5 most influential params)
+    param_importance = {}
+    for pname, pval in list(calibrated_params.items())[:15]:
+        shifted_params = dict(calibrated_params)
+        shifted_params[pname] = pval * 1.05 if pval != 0 else 0.05
+        shifted_agi = PhoenixAGI(params=shifted_params)
+        shifted_pred = shifted_agi.predict(p_ki=p_ki, avg_vol=avg_vol, avg_corr=avg_corr,
+                                           n_tickers=n, avg_tox=avg_tox)
+        delta = abs(shifted_pred["score"] - base_pred_score)
+        param_importance[pname] = round(delta, 2)
+    # Top 5
+    top_params = sorted(param_importance.items(), key=lambda x: x[1], reverse=True)[:5]
+    feature_importance["_param_top5"] = [{"name": k, "impact": v} for k, v in top_params]
+
     return {
         "prediction": pred,
         "coupon_forecast": round(pred_coupon, 1),
@@ -584,6 +637,9 @@ def generate_forecast(
         },
         "scenarios": scenarios,
         "n_simulations": n_sims,
+        "nvidia_forecast_adj": nvidia_adj,
+        "nvidia_source": nvidia_source,
+        "feature_importance": feature_importance,
     }
 
 
@@ -693,10 +749,21 @@ def run_pipeline(
     }
     calibrated_agi.save_to_clickhouse()
 
+    # Fetch learning history from Supabase
+    learning_history = []
+    try:
+        from src.supabase_store import get_pipeline_runs, get_backtest_history
+        learning_history = get_pipeline_runs(limit=20)
+    except Exception:
+        pass
+
     pipeline_result = {
         "backtest": backtest_result,
         "calibration": calibration_result,
         "forecast": forecast_result,
+        "learning_history": learning_history,
+        "target_accuracy": 74.0,
+        "current_accuracy": calibration_result["after"]["test_acc"],
         "pipeline_ts": datetime.now().isoformat(),
     }
 

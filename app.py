@@ -853,6 +853,85 @@ if basket_tickers:
             for metric, vals in ci.items():
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:9px">{metric}</span><span style="color:#d6a44a;font-size:9px">[{vals["p10"]:.1f} — {vals["p50"]:.1f} — {vals["p90"]:.1f}]</span></div>', unsafe_allow_html=True)
 
+        # ── PROGRESS TO 74% TARGET ──
+        target_acc = PL.get("target_accuracy", 74.0)
+        current_acc = PL.get("current_accuracy", cal_after.get("test_acc", 0))
+        progress_pct = min(100, max(0, current_acc / target_acc * 100))
+        prog_color = "#34c759" if current_acc >= target_acc else "#ffb000" if current_acc >= 50 else "#ff3b30"
+        gap = target_acc - current_acc
+
+        st.markdown(f'''
+        <div style="margin:12px 0 6px;padding:8px;background:#0a0800;border:1px solid #3a2a00">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                <span style="color:#fa8000;font-size:10px;font-weight:700">🎯 ЦЕЛЬ: {target_acc:.0f}% ACCURACY</span>
+                <span style="color:{prog_color};font-size:12px;font-weight:700">{current_acc:.0f}%</span>
+            </div>
+            <div style="background:#1a1400;border-radius:2px;height:8px;overflow:hidden">
+                <div style="background:{prog_color};height:100%;width:{progress_pct:.0f}%;transition:width 0.3s"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:3px">
+                <span style="color:#6a5a2a;font-size:7px">0%</span>
+                <span style="color:#6a5a2a;font-size:7px">{"✓ ЦЕЛЬ ДОСТИГНУТА" if gap <= 0 else f"Осталось: {gap:.1f}pp"}</span>
+                <span style="color:#6a5a2a;font-size:7px">{target_acc:.0f}%</span>
+            </div>
+        </div>''', unsafe_allow_html=True)
+
+        # ── NVIDIA AI IN FORECAST ──
+        nv_fc_adj = pl_fc.get("nvidia_forecast_adj", 0)
+        nv_fc_src = pl_fc.get("nvidia_source", "unavailable")
+        if nv_fc_adj != 0 or nv_fc_src != "unavailable":
+            nv_c = "#34c759" if nv_fc_adj > 0 else "#ff3b30" if nv_fc_adj < 0 else "#6a5a2a"
+            st.markdown(f'''
+            <div style="padding:4px 8px;margin:4px 0;border-left:2px solid #6db6ff;background:#0a0a14">
+                <span style="color:#6db6ff;font-size:8px;font-weight:700">NVIDIA AI</span>
+                <span style="color:{nv_c};font-size:9px;margin-left:8px">Score adj: {nv_fc_adj:+.0f}pt</span>
+                <span style="color:#6a5a2a;font-size:7px;margin-left:8px">({nv_fc_src})</span>
+            </div>''', unsafe_allow_html=True)
+
+        # ── FEATURE IMPORTANCE ──
+        feat_imp = pl_fc.get("feature_importance", {})
+        if feat_imp:
+            st.markdown('<div style="color:#d6a44a;font-size:9px;margin:8px 0 4px;font-weight:700">FEATURE IMPORTANCE (Δscore при +10% входа)</div>', unsafe_allow_html=True)
+            # Input features
+            input_feats = [(k, v) for k, v in feat_imp.items() if not k.startswith("_")]
+            if input_feats:
+                max_imp = max(v for _, v in input_feats) if input_feats else 1
+                fi_html = '<div style="display:flex;flex-direction:column;gap:2px">'
+                for fname, fval in sorted(input_feats, key=lambda x: x[1], reverse=True):
+                    bar_w = max(3, fval / max(0.01, max_imp) * 100)
+                    fi_html += f'<div style="display:flex;align-items:center;gap:6px"><span style="color:#6a5a2a;font-size:8px;width:55px;text-align:right">{fname}</span><div style="flex:1;background:#1a1400;height:6px;border-radius:1px"><div style="width:{bar_w:.0f}%;height:100%;background:#fa8000;border-radius:1px"></div></div><span style="color:#ffb000;font-size:8px">{fval:.2f}</span></div>'
+                fi_html += '</div>'
+                st.markdown(fi_html, unsafe_allow_html=True)
+
+            # Top params
+            top5 = feat_imp.get("_param_top5", [])
+            if top5:
+                st.markdown('<div style="color:#6a5a2a;font-size:8px;margin:6px 0 2px">Top параметры модели:</div>', unsafe_allow_html=True)
+                tp_html = '<div style="display:flex;flex-wrap:wrap;gap:3px">'
+                for tp in top5:
+                    tp_html += f'<span style="background:#0a1a00;border:1px solid #34c759;padding:1px 5px;color:#34c759;font-size:7px">{tp["name"]}: {tp["impact"]:.2f}</span>'
+                tp_html += '</div>'
+                st.markdown(tp_html, unsafe_allow_html=True)
+
+        # ── LEARNING HISTORY (Supabase) ──
+        history = PL.get("learning_history", [])
+        if history:
+            st.markdown('<div style="color:#d6a44a;font-size:9px;margin:10px 0 4px;font-weight:700">SELF-LEARNING HISTORY (Supabase)</div>', unsafe_allow_html=True)
+            # Mini accuracy trend chart from history
+            accs_hist = [float(h.get("accuracy_after", 0)) for h in history[:15]]
+            if accs_hist:
+                max_h = max(accs_hist) if accs_hist else 1
+                hist_html = '<div style="display:flex;align-items:flex-end;gap:2px;height:30px;padding:2px">'
+                for i, a in enumerate(reversed(accs_hist)):
+                    h = max(3, a / max(1, max_h) * 26)
+                    c = "#34c759" if a >= 70 else "#ffb000" if a >= 50 else "#ff3b30"
+                    hist_html += f'<div style="flex:1;display:flex;flex-direction:column;align-items:center"><div style="width:100%;height:{h}px;background:{c};border-radius:1px"></div></div>'
+                hist_html += '</div>'
+                hist_html += f'<div style="display:flex;justify-content:space-between;color:#6a5a2a;font-size:7px"><span>← старые</span><span>{len(accs_hist)} runs</span><span>новые →</span></div>'
+                st.markdown(hist_html, unsafe_allow_html=True)
+        elif current_acc > 0:
+            st.markdown('<div style="color:#6a5a2a;font-size:8px;margin:6px 0;padding:4px 8px;background:#0a0800;border:1px solid #1a1400">📡 Supabase OFF — история обучения будет доступна после подключения</div>', unsafe_allow_html=True)
+
     # ═══════════════════════════════════════════════════════════════
     # [13] EXTERNAL COMPUTE — Google Colab + Supabase + NVIDIA AI
     # ═══════════════════════════════════════════════════════════════
