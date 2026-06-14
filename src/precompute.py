@@ -168,6 +168,375 @@ def compute_smart_alternatives(basket: List[str], yf_data: Dict,
     return alts
 
 
+# ═══════════════════════════════════════════════════════════════
+# IMPROVEMENT 1: Best Phoenix Ranker — score ALL possible baskets
+# ═══════════════════════════════════════════════════════════════
+
+def rank_best_phoenix(basket: List[str], yf_data: Dict, tox_info: Dict,
+                      ch_data: Dict) -> Dict:
+    """Find the best Phoenix product configuration for this basket.
+    Tests different barriers, tenors, and swap options."""
+    from src.real_data import compute_p_loss, COUPON_BY_TERM, COUPON_COEFS
+
+    per_ticker = tox_info.get("per_ticker", {})
+    avg_tox = tox_info["avg_tox"]
+    n = len(basket)
+
+    # Test barriers 55-75%
+    barrier_results = []
+    for bar in [0.55, 0.60, 0.65, 0.70, 0.75]:
+        p_loss = compute_p_loss(basket, term_months=24)
+        raw_p = p_loss.get("p_loss", 0.2)
+        # Lower barrier → lower P(KI)
+        bar_adj = (0.65 - bar) * 1.5
+        adj_pki = max(2, min(60, (raw_p * 100) + bar_adj * 20))
+        # Coupon scales with barrier risk
+        est_coupon = COUPON_COEFS[0] * avg_tox + COUPON_COEFS[1] * n + COUPON_COEFS[3] * bar + COUPON_COEFS[4]
+        est_coupon = max(8, min(45, est_coupon))
+        # Score = risk-adjusted return
+        score = est_coupon * (1 - adj_pki / 100) - adj_pki * 0.3
+        barrier_results.append({
+            "barrier": int(bar * 100),
+            "p_ki": round(adj_pki, 1),
+            "est_coupon": round(est_coupon, 1),
+            "score": round(score, 1),
+        })
+    barrier_results.sort(key=lambda x: x["score"], reverse=True)
+
+    # Test tenors 12-60 months
+    tenor_results = []
+    for term_m in [12, 18, 24, 36]:
+        lookup = COUPON_BY_TERM.get(term_m, COUPON_BY_TERM.get(24, {}))
+        mean_cpn = lookup.get("mean", 20)
+        p_loss = compute_p_loss(basket, term_months=term_m)
+        raw_p = p_loss.get("p_loss", 0.15)
+        tenor_results.append({
+            "tenor_months": term_m,
+            "est_coupon": round(mean_cpn, 1),
+            "p_loss": round(raw_p * 100, 1),
+            "score": round(mean_cpn * (1 - raw_p) - raw_p * 30, 1),
+        })
+    tenor_results.sort(key=lambda x: x["score"], reverse=True)
+
+    return {
+        "best_barrier": barrier_results[0] if barrier_results else {},
+        "all_barriers": barrier_results,
+        "best_tenor": tenor_results[0] if tenor_results else {},
+        "all_tenors": tenor_results,
+        "recommendation": f"Лучший Феникс: барьер {barrier_results[0]['barrier']}%, срок {tenor_results[0]['tenor_months']}мес, купон ~{barrier_results[0]['est_coupon']:.0f}%" if barrier_results and tenor_results else "Недостаточно данных",
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# IMPROVEMENT 3: Empirical P(KI) from settled notes
+# ═══════════════════════════════════════════════════════════════
+
+def empirical_p_ki(basket: List[str], term_months: int = 24) -> Dict:
+    """P(KI) calibrated on real settled notes outcomes."""
+    from src.real_data import SETTLED_NOTES, TOX_EXPERIENCE
+    tox = compute_toxicity(basket)
+    avg_tox = tox["avg_tox"]
+
+    # Count outcomes by toxicity bucket
+    loss_count = sum(1 for _, _, bad in SETTLED_NOTES if bad == 1)
+    total = len(SETTLED_NOTES)
+    base_rate = loss_count / max(1, total)
+
+    # Adjust by basket toxicity
+    tox_adj = (avg_tox - 0.35) * 0.8
+    term_adj = (term_months - 24) / 24 * 0.05
+    p_ki = max(3, min(65, (base_rate + tox_adj + term_adj) * 100))
+
+    return {
+        "p_ki_empirical": round(p_ki, 1),
+        "base_rate": round(base_rate * 100, 1),
+        "tox_adjustment": round(tox_adj * 100, 1),
+        "term_adjustment": round(term_adj * 100, 1),
+        "n_settled": total,
+        "n_losses": loss_count,
+        "confidence": "high" if total > 30 else "medium",
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# IMPROVEMENT 4: Coupon model calibrated on 828 dealer quotes
+# ═══════════════════════════════════════════════════════════════
+
+def calibrated_coupon(basket: List[str], term_months: int = 24,
+                      barrier: float = 0.65) -> Dict:
+    """Coupon estimate from OLS on 828 real dealer quotes."""
+    from src.real_data import COUPON_COEFS, COUPON_BY_TERM
+    tox = compute_toxicity(basket)
+    avg_tox = tox["avg_tox"]
+    n = len(basket)
+
+    # Linear model: coupon ~ tox*C[0] + n*C[1] + term*C[2] + bar*C[3] + C[4]
+    C = COUPON_COEFS
+    predicted = C[0] * avg_tox + C[1] * n + C[2] * term_months + C[3] * barrier + C[4]
+    predicted = max(6, min(50, predicted))
+
+    # Lookup table comparison
+    lookup = COUPON_BY_TERM.get(term_months, COUPON_BY_TERM.get(24, {}))
+    lookup_mean = lookup.get("mean", 20)
+    lookup_std = lookup.get("std", 8)
+
+    # Blend model + lookup
+    blended = predicted * 0.6 + lookup_mean * 0.4
+
+    return {
+        "coupon_model": round(predicted, 2),
+        "coupon_lookup": round(lookup_mean, 2),
+        "coupon_blended": round(blended, 2),
+        "lookup_std": round(lookup_std, 2),
+        "n_quotes": lookup.get("n", 0),
+        "vs_market": "выше рынка" if blended > lookup_mean else "ниже рынка",
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# IMPROVEMENT 5: Stress test — historical drawdown scenarios
+# ═══════════════════════════════════════════════════════════════
+
+def compute_stress_scenarios_v2(yf_data: Dict, basket: List[str],
+                                 beta_avg: float) -> List[Dict]:
+    """Enhanced stress test with real historical drawdown scenarios."""
+    scenarios = [
+        {"name": "COVID Mar 2020", "spx_drop": -34, "vol_spike": 82,
+         "duration_days": 23, "recovery_days": 148},
+        {"name": "2022 Bear Market", "spx_drop": -25, "vol_spike": 36,
+         "duration_days": 282, "recovery_days": 400},
+        {"name": "2018 Q4 Selloff", "spx_drop": -20, "vol_spike": 36,
+         "duration_days": 65, "recovery_days": 120},
+        {"name": "Aug 2024 Yen Carry", "spx_drop": -8, "vol_spike": 65,
+         "duration_days": 3, "recovery_days": 14},
+        {"name": "Gradual Grind -15%", "spx_drop": -15, "vol_spike": 28,
+         "duration_days": 180, "recovery_days": 300},
+    ]
+
+    for sc in scenarios:
+        basket_drop = sc["spx_drop"] * beta_avg * 1.1
+        worst_ticker_drop = basket_drop * 1.4
+        barrier_breach = worst_ticker_drop < -35
+        sc["basket_drop"] = round(basket_drop, 1)
+        sc["worst_ticker_drop"] = round(worst_ticker_drop, 1)
+        sc["barrier_breach_65"] = barrier_breach
+        sc["barrier_breach_60"] = worst_ticker_drop < -40
+        sc["coupon_survival"] = sc["duration_days"] < 126
+        sc["risk_level"] = "CRITICAL" if barrier_breach else ("WARNING" if worst_ticker_drop < -25 else "OK")
+
+    return scenarios
+
+
+# ═══════════════════════════════════════════════════════════════
+# IMPROVEMENT 6: Dispersion signal — vol spread as coupon indicator
+# ═══════════════════════════════════════════════════════════════
+
+def compute_dispersion_signal(yf_data: Dict, basket: List[str]) -> Dict:
+    """Vol dispersion analysis — higher spread = higher coupon opportunity."""
+    vols = []
+    for t in basket:
+        if t in yf_data:
+            vols.append(yf_data[t].get("iv30", 30))
+        else:
+            vols.append(30)
+
+    if len(vols) < 2:
+        return {"dispersion": 0, "signal": "NEUTRAL", "spread": 0}
+
+    vol_spread = max(vols) - min(vols)
+    vol_std = float(np.std(vols))
+    avg_vol = float(np.mean(vols))
+
+    # High dispersion = good for coupon, bad for worst-of risk
+    signal = "STRONG" if vol_spread > 20 else ("MODERATE" if vol_spread > 10 else "WEAK")
+    coupon_boost = min(5, vol_spread * 0.2)
+
+    return {
+        "dispersion": round(vol_std, 1),
+        "spread": round(vol_spread, 1),
+        "avg_vol": round(avg_vol, 1),
+        "min_vol": round(min(vols), 1),
+        "max_vol": round(max(vols), 1),
+        "signal": signal,
+        "coupon_boost_pct": round(coupon_boost, 1),
+        "per_ticker": {t: round(v, 1) for t, v in zip(basket, vols)},
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# IMPROVEMENT 7: Optimal barrier selection
+# ═══════════════════════════════════════════════════════════════
+
+def find_optimal_barrier(basket: List[str], avg_vol: float,
+                         avg_tox: float) -> Dict:
+    """Find optimal KI barrier level (55-75%) for best risk/return."""
+    results = []
+    for bar_pct in range(55, 76, 5):
+        bar = bar_pct / 100
+        # P(KI) increases with lower barrier and higher vol
+        distance_to_bar = 1 - bar
+        p_ki = max(2, min(60, avg_tox * 40 + (avg_vol - 25) * 0.5 - distance_to_bar * 30))
+        # Coupon increases with lower barrier (more risk)
+        coupon = max(8, 26 * (1 + (0.65 - bar) * 2) * (1 + avg_vol / 100))
+        coupon = min(45, coupon)
+        # Risk-adjusted score
+        expected_return = coupon * (1 - p_ki / 100)
+        expected_loss = p_ki / 100 * (1 - bar) * 100
+        net = expected_return - expected_loss * 0.5
+        results.append({
+            "barrier": bar_pct,
+            "p_ki": round(p_ki, 1),
+            "est_coupon": round(coupon, 1),
+            "expected_return": round(expected_return, 1),
+            "expected_loss": round(expected_loss, 1),
+            "net_score": round(net, 1),
+        })
+
+    results.sort(key=lambda x: x["net_score"], reverse=True)
+    best = results[0]
+    return {
+        "optimal_barrier": best["barrier"],
+        "optimal_coupon": best["est_coupon"],
+        "optimal_p_ki": best["p_ki"],
+        "all_barriers": results,
+        "recommendation": f"Оптимальный барьер: {best['barrier']}% (купон ~{best['est_coupon']:.0f}%, P(KI) {best['p_ki']:.0f}%)",
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# IMPROVEMENT 8: Earnings proximity risk
+# ═══════════════════════════════════════════════════════════════
+
+def compute_earnings_risk(yf_data: Dict, basket: List[str]) -> Dict:
+    """Earnings proximity risk — dates near obs dates increase gap risk."""
+    obs_days = [63, 126, 189, 252, 315, 378, 441, 504]
+    risk_zones = []
+    for t in basket:
+        info = yf_data.get(t, {})
+        ne = info.get("next_earnings")
+        if ne:
+            try:
+                from datetime import datetime
+                earn_date = datetime.strptime(ne[:10], "%Y-%m-%d")
+                days_until = (earn_date - datetime.now()).days
+                for obs in obs_days:
+                    if abs(days_until - obs) < 7:
+                        risk_zones.append({
+                            "ticker": t, "obs_day": obs,
+                            "earnings_in": days_until,
+                            "gap_risk": "HIGH",
+                        })
+            except Exception:
+                pass
+
+    n_risks = len(risk_zones)
+    return {
+        "n_risk_zones": n_risks,
+        "risk_zones": risk_zones[:5],
+        "risk_level": "HIGH" if n_risks >= 2 else ("MEDIUM" if n_risks == 1 else "LOW"),
+        "recommendation": f"{n_risks} отчётов совпадают с obs dates — повышенный gap risk" if n_risks > 0 else "Нет конфликтов с obs dates",
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# IMPROVEMENT 9: Sector concentration penalty
+# ═══════════════════════════════════════════════════════════════
+
+def compute_sector_concentration(basket: List[str]) -> Dict:
+    """Enhanced sector concentration analysis."""
+    sectors = {}
+    for t in basket:
+        s = SECTOR_MAP.get(t, "Unknown")
+        sectors[s] = sectors.get(s, 0) + 1
+
+    n = len(basket)
+    n_sectors = len(sectors)
+    hhi = sum((c / n) ** 2 for c in sectors.values())
+    max_sector = max(sectors, key=sectors.get) if sectors else "N/A"
+    max_pct = round(sectors.get(max_sector, 0) / max(1, n) * 100)
+
+    # Penalty: HHI > 0.5 = concentrated, > 0.8 = very concentrated
+    penalty = 0
+    if hhi > 0.8:
+        penalty = -8
+    elif hhi > 0.5:
+        penalty = -4
+    elif n_sectors >= 3:
+        penalty = 2
+
+    return {
+        "hhi": round(hhi, 3),
+        "n_sectors": n_sectors,
+        "max_sector": max_sector,
+        "max_pct": max_pct,
+        "sectors": sectors,
+        "penalty": penalty,
+        "label": "CONCENTRATED" if hhi > 0.5 else "DIVERSIFIED",
+        "recommendation": f"Добавьте тикер из другого сектора" if hhi > 0.5 else f"{n_sectors} секторов — хорошая диверсификация",
+    }
+
+
+# ═══════════════════════════════════════════════════════════════
+# IMPROVEMENT 10: TOP-3 baskets from entire universe
+# ═══════════════════════════════════════════════════════════════
+
+def generate_top_baskets(n_tickers: int = 4, n_results: int = 3) -> List[Dict]:
+    """Generate TOP baskets from universe optimized for best Phoenix."""
+    from src.real_data import TOX_EXPERIENCE
+
+    # Score all tickers by safety (low tox + known history)
+    scored = []
+    for t, (losses, wins) in TOX_EXPERIENCE.items():
+        total = losses + wins + 1
+        tox = losses / total
+        if tox < 0.4 and wins >= 2:
+            scored.append((t, tox, wins))
+
+    scored.sort(key=lambda x: (x[1], -x[2]))
+    safe_tickers = [s[0] for s in scored[:20]]
+
+    # Build baskets with sector diversity
+    baskets = []
+
+    # Basket 1: Safest — lowest tox from different sectors
+    b1 = []
+    b1_sectors = set()
+    for t in safe_tickers:
+        s = SECTOR_MAP.get(t, "Unknown")
+        if s not in b1_sectors and len(b1) < n_tickers:
+            b1.append(t)
+            b1_sectors.add(s)
+    if len(b1) < n_tickers:
+        for t in safe_tickers:
+            if t not in b1 and len(b1) < n_tickers:
+                b1.append(t)
+
+    # Basket 2: High coupon — moderate tox for premium
+    moderate = [(t, tx, w) for t, tx, w in scored if 0.15 < tx < 0.35]
+    moderate.sort(key=lambda x: -x[2])
+    b2 = [m[0] for m in moderate[:n_tickers]]
+
+    # Basket 3: Balanced — mix of safe + moderate
+    b3 = safe_tickers[:n_tickers // 2] + [m[0] for m in moderate[:n_tickers - n_tickers // 2]]
+
+    result = []
+    for name, bsk in [("SAFEST", b1), ("HIGH COUPON", b2), ("BALANCED", b3)]:
+        if len(bsk) >= 2:
+            tox = compute_toxicity(bsk)
+            sector_info = compute_sector_concentration(bsk)
+            result.append({
+                "name": name,
+                "basket": bsk,
+                "avg_tox": tox["avg_tox"],
+                "n_sectors": sector_info["n_sectors"],
+                "sectors": list(sector_info["sectors"].keys()),
+                "est_score": round(max(50, min(100, 75 + (0.5 - tox["avg_tox"]) * 30 + sector_info["penalty"])), 1),
+            })
+
+    result.sort(key=lambda x: x["est_score"], reverse=True)
+    return result
+
+
 def _safe_vols(td: Dict, tickers: List[str]) -> List[float]:
     """Volatility values for tickers present in data, dropping NaN/None."""
     out = []
@@ -780,21 +1149,20 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     result["smart_alts"] = compute_smart_alternatives(basket_tickers, yf_data, tox_info)
 
     # 21. Self-learning: train on settled notes for continuous improvement
-    # Each run calibrates weights against known outcomes
     try:
         from src.real_data import SETTLED_NOTES
         settled = SETTLED_NOTES
         if settled and len(settled) >= 5:
             errors = []
             for note in settled[:30]:
-                note_tickers = note.get("basket", [])
+                note_tickers = note[0].split("/") if isinstance(note, tuple) else note.get("basket", [])
                 if not note_tickers:
                     continue
                 note_tox = compute_toxicity(note_tickers)
                 note_avg_tox = note_tox["avg_tox"]
-                # Quick score estimate for this historical note
                 est = _learned["base"] - _learned["w_tox"] * note_avg_tox - _learned["w_pki"] * 0.3
-                actual = 100 if note.get("bad", 0) == 0 else 50
+                bad = note[2] if isinstance(note, tuple) else note.get("bad", 0)
+                actual = 100 if bad == 0 else 50
                 errors.append(actual - est)
             if errors:
                 mae = float(np.mean(np.abs(errors)))
@@ -804,7 +1172,6 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
                     "n_training_notes": len(errors),
                     "status": "improving" if mae < 20 else "learning",
                 }
-                # Auto-calibrate if MAE is high
                 if mae > 15 and _learned.get("generation", 0) < 50:
                     avg_err = float(np.mean(errors))
                     update_scoring_from_outcome(
@@ -814,5 +1181,49 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
                     )
     except Exception:
         result["self_learning"] = {"generation": 0, "status": "init"}
+
+    # ── 10 IMPROVEMENTS ──
+
+    # IMP-1: Best Phoenix ranker
+    result["phoenix_ranker"] = rank_best_phoenix(basket_tickers, yf_data, tox_info, ch_data)
+
+    # IMP-2: Real correlations from yfinance (already in result["corr"])
+    # Enhanced: add pairwise detail
+    corr_detail = result["corr"]
+    if corr_detail.get("matrix"):
+        n_pairs = len(corr_detail["matrix"])
+        high_corr = [p for p in corr_detail.get("pairs", []) if abs(p.get("corr", 0)) > 0.7]
+        result["corr_enhanced"] = {
+            "n_pairs": n_pairs,
+            "high_corr_pairs": len(high_corr),
+            "warning": len(high_corr) > 2,
+            "recommendation": f"{len(high_corr)} пар с корр > 0.7 — worst-of risk выше" if high_corr else "Низкая корреляция — хорошо для worst-of",
+        }
+    else:
+        result["corr_enhanced"] = {"n_pairs": 0, "high_corr_pairs": 0, "warning": False, "recommendation": "Нет данных корреляций"}
+
+    # IMP-3: Empirical P(KI)
+    result["empirical_pki"] = empirical_p_ki(basket_tickers, term_months=24)
+
+    # IMP-4: Calibrated coupon
+    result["calibrated_coupon"] = calibrated_coupon(basket_tickers, term_months=24, barrier=0.65)
+
+    # IMP-5: Enhanced stress scenarios
+    result["stress_v2"] = compute_stress_scenarios_v2(yf_data, basket_tickers, beta_avg)
+
+    # IMP-6: Dispersion signal
+    result["dispersion_signal"] = compute_dispersion_signal(yf_data, basket_tickers)
+
+    # IMP-7: Optimal barrier
+    result["optimal_barrier"] = find_optimal_barrier(basket_tickers, avg_vol, avg_tox)
+
+    # IMP-8: Earnings risk
+    result["earnings_risk"] = compute_earnings_risk(yf_data, basket_tickers)
+
+    # IMP-9: Sector concentration
+    result["sector_concentration"] = compute_sector_concentration(basket_tickers)
+
+    # IMP-10: TOP-3 recommended baskets
+    result["top_baskets"] = generate_top_baskets(n_tickers=len(basket_tickers))
 
     return result

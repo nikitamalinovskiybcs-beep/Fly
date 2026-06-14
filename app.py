@@ -568,13 +568,141 @@ if basket_tickers:
             st.markdown('<div style="color:#6a5a2a;font-size:10px">Недостаточно данных для генерации альтернатив</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [10] BACKTEST + NUMERIX COMPARISON + AGI MODEL
+    # [10] ПОДБОР ЛУЧШЕГО ФЕНИКСА — automatic Phoenix optimizer
+    # ═══════════════════════════════════════════════════════════════
+    phoenix_r = D.get("phoenix_ranker", {})
+    best_bar = phoenix_r.get("best_barrier", {})
+    best_ten = phoenix_r.get("best_tenor", {})
+    opt_bar = D.get("optimal_barrier", {})
+    cal_cpn = D.get("calibrated_coupon", {})
+    emp_pki = D.get("empirical_pki", {})
+    disp = D.get("dispersion_signal", {})
+    sec_conc = D.get("sector_concentration", {})
+    earn_risk = D.get("earnings_risk", {})
+    top_bsk = D.get("top_baskets", [])
+
+    rec_text = phoenix_r.get("recommendation", "—")
+    opt_rec = opt_bar.get("recommendation", "—")
+    with st.expander(f"[10] ПОДБОР ЛУЧШЕГО ФЕНИКСА    {opt_bar.get('optimal_barrier', 65)}% барьер"):
+        # Main recommendation
+        st.markdown(f'''
+        <div style="background:#1a2600;border:1px solid #2a3600;border-radius:4px;padding:10px;margin-bottom:10px">
+            <div style="color:#34c759;font-size:11px;font-weight:700">🎯 РЕКОМЕНДАЦИЯ</div>
+            <div style="color:#ffb000;font-size:12px;margin-top:4px">{rec_text}</div>
+            <div style="color:#d6a44a;font-size:10px;margin-top:2px">{opt_rec}</div>
+        </div>''', unsafe_allow_html=True)
+
+        c1, c2 = st.columns(2)
+        with c1:
+            # Barrier comparison
+            st.markdown('<div style="color:#d6a44a;font-size:10px;font-weight:700;margin-bottom:6px">БАРЬЕР СРАВНЕНИЕ</div>', unsafe_allow_html=True)
+            for b in phoenix_r.get("all_barriers", []):
+                is_best = b["barrier"] == best_bar.get("barrier", 65)
+                marker = "★" if is_best else " "
+                bar_c = "#34c759" if is_best else "#6a5a2a"
+                st.markdown(f'<div style="display:flex;gap:10px;font-size:10px;color:{bar_c}"><span>{marker} {b["barrier"]}%</span><span>P(KI) {b["p_ki"]}%</span><span>купон {b["est_coupon"]}%</span><span>score {b["score"]}</span></div>', unsafe_allow_html=True)
+
+        with c2:
+            # Tenor comparison
+            st.markdown('<div style="color:#d6a44a;font-size:10px;font-weight:700;margin-bottom:6px">СРОК СРАВНЕНИЕ</div>', unsafe_allow_html=True)
+            for t in phoenix_r.get("all_tenors", []):
+                is_best = t["tenor_months"] == best_ten.get("tenor_months", 24)
+                marker = "★" if is_best else " "
+                ten_c = "#34c759" if is_best else "#6a5a2a"
+                st.markdown(f'<div style="display:flex;gap:10px;font-size:10px;color:{ten_c}"><span>{marker} {t["tenor_months"]}мес</span><span>P(loss) {t["p_loss"]}%</span><span>купон {t["est_coupon"]}%</span><span>score {t["score"]}</span></div>', unsafe_allow_html=True)
+
+        # Calibrated coupon + Empirical P(KI) + Dispersion
+        st.markdown(f'''
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+            <div class="qc" style="flex:1;min-width:110px;padding:8px;text-align:center">
+                <div style="color:#d6a44a;font-size:9px">КУПОН (828 QUOTES)</div>
+                <div style="color:#ffb000;font-size:14px;font-weight:700">{cal_cpn.get("coupon_blended", 0):.1f}%</div>
+                <div style="color:#6a5a2a;font-size:8px">модель {cal_cpn.get("coupon_model", 0):.1f}% · lookup {cal_cpn.get("coupon_lookup", 0):.1f}%</div>
+            </div>
+            <div class="qc" style="flex:1;min-width:110px;padding:8px;text-align:center">
+                <div style="color:#d6a44a;font-size:9px">P(KI) ЭМПИРИЧ.</div>
+                <div style="color:{"#ff3b30" if emp_pki.get("p_ki_empirical", 0) > 35 else "#ffb000"};font-size:14px;font-weight:700">{emp_pki.get("p_ki_empirical", 0):.1f}%</div>
+                <div style="color:#6a5a2a;font-size:8px">{emp_pki.get("n_settled", 0)} settled notes · {emp_pki.get("confidence", "?")}</div>
+            </div>
+            <div class="qc" style="flex:1;min-width:110px;padding:8px;text-align:center">
+                <div style="color:#d6a44a;font-size:9px">DISPERSION</div>
+                <div style="color:#ffb000;font-size:14px;font-weight:700">{disp.get("spread", 0):.0f}%</div>
+                <div style="color:#6a5a2a;font-size:8px">сигнал: {disp.get("signal", "—")} · boost +{disp.get("coupon_boost_pct", 0):.1f}%</div>
+            </div>
+        </div>''', unsafe_allow_html=True)
+
+        # Sector concentration + Earnings risk
+        sec_c = "#ff3b30" if sec_conc.get("label") == "CONCENTRATED" else "#34c759"
+        earn_c = "#ff3b30" if earn_risk.get("risk_level") == "HIGH" else "#6a5a2a"
+        st.markdown(f'''
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+            <div class="qc" style="flex:1;min-width:140px;padding:8px">
+                <div style="color:#d6a44a;font-size:9px">СЕКТОРЫ</div>
+                <div style="color:{sec_c};font-size:11px;font-weight:700">{sec_conc.get("label", "?")} · HHI {sec_conc.get("hhi", 0):.2f}</div>
+                <div style="color:#6a5a2a;font-size:8px">{sec_conc.get("recommendation", "")}</div>
+            </div>
+            <div class="qc" style="flex:1;min-width:140px;padding:8px">
+                <div style="color:#d6a44a;font-size:9px">EARNINGS RISK</div>
+                <div style="color:{earn_c};font-size:11px;font-weight:700">{earn_risk.get("risk_level", "?")} · {earn_risk.get("n_risk_zones", 0)} zones</div>
+                <div style="color:#6a5a2a;font-size:8px">{earn_risk.get("recommendation", "")}</div>
+            </div>
+        </div>''', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [11] STRESS TEST v2 — historical drawdown scenarios
+    # ═══════════════════════════════════════════════════════════════
+    stress_v2 = D.get("stress_v2", [])
+    n_critical = sum(1 for s in stress_v2 if s.get("risk_level") == "CRITICAL")
+    stress_label = f"{n_critical} CRITICAL" if n_critical > 0 else "ALL OK"
+    stress_c = "#ff3b30" if n_critical > 0 else "#34c759"
+    with st.expander(f"[11] STRESS TEST    {stress_label}"):
+        for sc in stress_v2:
+            rc = "#ff3b30" if sc["risk_level"] == "CRITICAL" else ("#fa8000" if sc["risk_level"] == "WARNING" else "#34c759")
+            ki_badge = f'<span style="background:#ff3b30;color:#fff;font-size:8px;padding:1px 4px;border-radius:2px">KI BREACH</span>' if sc["barrier_breach_65"] else ""
+            st.markdown(f'''
+            <div class="qc" style="padding:8px;margin-bottom:6px">
+                <div style="display:flex;align-items:center;gap:8px">
+                    <span style="color:{rc};font-size:11px;font-weight:700">{sc["name"]}</span>
+                    <span style="color:#6a5a2a;font-size:9px">SPX {sc["spx_drop"]:+d}% · {sc["duration_days"]}д</span>
+                    {ki_badge}
+                </div>
+                <div style="display:flex;gap:12px;margin-top:4px">
+                    <span style="color:#ffb000;font-size:10px">Корзина: {sc["basket_drop"]:+.1f}%</span>
+                    <span style="color:#ff3b30;font-size:10px">Worst: {sc["worst_ticker_drop"]:+.1f}%</span>
+                    <span style="color:#6a5a2a;font-size:9px">Recovery: {sc["recovery_days"]}д</span>
+                </div>
+            </div>''', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [12] TOP-3 РЕКОМЕНДУЕМЫЕ КОРЗИНЫ
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander(f"[12] TOP-3 КОРЗИНЫ    рекомендации"):
+        if top_bsk:
+            st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:8px">Лучшие корзины из universe (оптимизированы по тикеру токсичности + секторной диверсификации)</div>', unsafe_allow_html=True)
+            for i, b in enumerate(top_bsk):
+                medal = ["🥇", "🥈", "🥉"][i] if i < 3 else ""
+                sc_c = "#34c759" if b["est_score"] >= 80 else "#ffb000"
+                st.markdown(f'''
+                <div class="qc" style="padding:8px;margin-bottom:6px">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span style="font-size:14px">{medal}</span>
+                        <span style="color:#ffb000;font-size:12px;font-weight:700">{b["name"]}</span>
+                        <span style="color:{sc_c};font-size:14px;font-weight:700">{b["est_score"]}</span>
+                    </div>
+                    <div style="color:#d6a44a;font-size:11px;margin-top:4px">{" · ".join(b["basket"])}</div>
+                    <div style="color:#6a5a2a;font-size:9px">{b["n_sectors"]} секторов · avg tox {b["avg_tox"]:.2f} · {", ".join(b["sectors"])}</div>
+                </div>''', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:10px">Недостаточно данных</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [13] BACKTEST + NUMERIX COMPARISON + AGI MODEL
     # ═══════════════════════════════════════════════════════════════
     with st.spinner("⚡ Бэктест + AGI..."):
         BT = cached_backtest(",".join(basket_tickers), D["p_ki"], D["coupon_pa"], D["e_payout"])
 
     bt_stats = BT.get("bt_stats", {})
-    with st.expander(f"[10] BACKTEST    {BT['n_backtests']} WINDOWS · WIN {bt_stats.get('win_rate',0):.0f}%"):
+    with st.expander(f"[13] BACKTEST    {BT['n_backtests']} WINDOWS · WIN {bt_stats.get('win_rate',0):.0f}%"):
         if bt_stats:
             st.markdown(f'''
             <div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Скользящий бэктест Phoenix worst-of за 5 лет ({BT["n_backtests"]} окон по 2Y). Каждый window = реальный продукт с 65% барьером.</div>
@@ -639,7 +767,7 @@ if basket_tickers:
     if acc_str:
         summary_str += f" · {acc_str}"
 
-    with st.expander(f"[11] СРАВНЕНИЕ С РЫНКОМ    {summary_str}"):
+    with st.expander(f"[14] СРАВНЕНИЕ С РЫНКОМ    {summary_str}"):
         # GUARD flag
         if guard:
             st.markdown(f'''
@@ -715,7 +843,7 @@ if basket_tickers:
 
     acc_color = "#34c759" if cal_after.get("test_acc", 0) >= 70 else "#ffb000" if cal_after.get("test_acc", 0) >= 50 else "#ff3b30"
 
-    with st.expander(f"[12] AGI PIPELINE    ACC {cal_after.get('test_acc',0):.0f}% · CONF {fc_conf:.0f}%"):
+    with st.expander(f"[15] AGI PIPELINE    ACC {cal_after.get('test_acc',0):.0f}% · CONF {fc_conf:.0f}%"):
 
         # ── COMPONENT 1: БЭКТЕСТ v2 ──
         st.markdown('<div style="color:#6db6ff;font-size:12px;font-weight:700;margin-bottom:6px;border-bottom:1px solid #3a2a00;padding-bottom:4px">① БЭКТЕСТ — ТОЧНОСТЬ МОДЕЛИ</div>', unsafe_allow_html=True)

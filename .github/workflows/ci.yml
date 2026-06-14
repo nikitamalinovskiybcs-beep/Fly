@@ -1,0 +1,51 @@
+name: Phoenix CI
+
+on:
+  push:
+    branches: [base-branch, main]
+  pull_request:
+    branches: [base-branch, main]
+
+jobs:
+  lint-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Syntax check — all Python files
+        run: python -m py_compile app.py && find src/ -name "*.py" -exec python -m py_compile {} +
+
+      - name: Import validation — precompute pipeline
+        run: |
+          python -c "
+          from src.precompute import precompute_all, compute_smart_alternatives
+          from src.backtest import precompute_backtest, PhoenixAGI
+          from src.calibration import run_pipeline
+          from src.real_data import compute_toxicity, precompute_dealer_benchmark
+          from src.phoenix_engine import simulate_basket
+          from src.gdrive_store import get_status
+          print('All imports OK')
+          "
+
+      - name: Smoke test — precompute with ClickHouse fallback
+        run: |
+          python -c "
+          from src.precompute import precompute_all
+          D = precompute_all(['AAPL', 'MSFT', 'NVDA', 'AMZN'])
+          assert 50 <= D['score'] <= 100, f'Score {D[\"score\"]} out of range 50-100'
+          assert 'smart_alts' in D, 'Missing smart_alts'
+          assert 'score_factors' in D, 'Missing score_factors'
+          assert D['p_ki'] >= 0, f'Invalid P(KI): {D[\"p_ki\"]}'
+          print(f'Score: {D[\"score\"]}, P(KI): {D[\"p_ki\"]}, Alts: {len(D[\"smart_alts\"])}')
+          print('Smoke test PASSED')
+          "
