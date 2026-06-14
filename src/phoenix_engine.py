@@ -43,7 +43,7 @@ DEFAULT_CONFIG = {
     "barrier": 0.65,           # 65% barrier
     "horizon_days": 504,       # 2 years
     "obs_days": [63, 126, 189, 252, 315, 378, 441, 504],
-    "n_sims": 50_000,          # 50K for Streamlit (fast); user code does 500K
+    "n_sims": 10_000,          # 10K for Streamlit (fast); Colab does 500K
     "lookback_years": 2,
 }
 

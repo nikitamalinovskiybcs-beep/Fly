@@ -158,13 +158,19 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     rs = D["risk_score"]
     rc_components = D["risk_components"]
+    score_factors = D.get("score_factors", {})
+    gen = D.get("scoring_generation", 0)
+    sl = D.get("self_learning", {})
     rs_color = "#34c759" if rs >= 80 else "#ffb000" if rs >= 65 else "#ff3b30"
-    rs_label = "Отлично" if rs >= 85 else "Хорошо" if rs >= 75 else "Приемлемо" if rs >= 65 else "Рискованно"
+    rs_label = "Низкий риск" if rs >= 80 else "Средний риск" if rs >= 65 else "Высокий риск"
     rs_grade = "A+" if rs >= 90 else "A" if rs >= 80 else "B" if rs >= 70 else "C" if rs >= 60 else "D"
     stamp = "READY TO ISSUE" if rs >= 75 else "NEEDS REVIEW" if rs >= 60 else "AVOID"
 
-    # Progress bar width scaled 50-100
-    bar_w = max(0, min(100, (rs - 50) * 2))
+    sl_badge = ""
+    if gen > 0:
+        sl_badge = f' · Gen {gen}'
+        if sl.get("status") == "improving":
+            sl_badge += " 📈"
 
     st.markdown(f'''
     <div class="qc" style="border-left:3px solid {rs_color};padding:14px;margin:8px 0">
@@ -172,24 +178,40 @@ if basket_tickers:
             <div>
                 <span style="color:#ffb000;font-size:13px;font-weight:700">СКОРИНГ КОРЗИНЫ</span>
                 <span style="background:#1a1400;border:1px solid #3a2a00;padding:1px 6px;color:#d6a44a;font-size:9px;border-radius:2px;margin-left:6px">{rs_grade}</span>
+                <span style="color:#6a5a2a;font-size:8px;margin-left:4px">50-100 · S&P500=100{sl_badge}</span>
             </div>
             <div style="text-align:right">
-                <span style="color:{rs_color};font-size:28px;font-weight:700">{rs:.0f}</span>
+                <span style="color:{rs_color};font-size:28px;font-weight:700">{rs:.1f}</span>
                 <span style="color:#d6a44a;font-size:12px">/100</span>
             </div>
         </div>
-        <div style="margin:6px 0;height:6px;background:#1a1400;border-radius:1px;position:relative"><div style="height:100%;width:{bar_w}%;background:{rs_color};border-radius:1px"></div></div>
+        <div style="margin:6px 0;height:6px;background:#1a1400;border-radius:1px"><div style="height:100%;width:{max(0, (rs - 50) * 2)}%;background:{rs_color};border-radius:1px"></div></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
             <span style="color:{rs_color};font-size:11px">{rs_label}</span>
-            <span style="color:#6a5a2a;font-size:9px">S&P500 = 100 (эталон)</span>
-            <span style="background:{rs_color}22;border:1px solid {rs_color};padding:2px 8px;color:{rs_color};font-size:10px;font-weight:700">{stamp}</span>
+            <span style="background:{rs_color}22;border:1px solid {rs_color};padding:2px 8px;color:{rs_color};font-size:10px;font-weight:700">{stamp} · P(KI) {p_ki:.0f}%</span>
         </div>
     </div>
     ''', unsafe_allow_html=True)
 
-    with st.expander("▶ Разложение скора по компонентам"):
-        for name, val in rc_components.items():
-            st.markdown(f'<div style="color:#d6a44a;font-size:11px">{name}: <b style="color:#ffb000">{val:.1f}</b></div>', unsafe_allow_html=True)
+    with st.expander("▶ Разложение скора по факторам"):
+        for name, info in score_factors.items():
+            impact = info["impact"] if isinstance(info, dict) else info
+            raw = info.get("raw", "") if isinstance(info, dict) else ""
+            impact_c = "#34c759" if impact > 0 else "#ff3b30" if impact < 0 else "#6a5a2a"
+            bar_dir = "right" if impact >= 0 else "left"
+            bar_w = min(100, abs(impact) * 8)
+            st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:2px 0">
+                <span style="color:#d6a44a;font-size:10px;width:90px;text-align:right">{name}</span>
+                <div style="flex:1;height:8px;background:#1a1400;position:relative">
+                    <div style="position:absolute;{bar_dir}:50%;width:{bar_w}%;height:100%;background:{impact_c}"></div>
+                </div>
+                <span style="color:{impact_c};font-size:10px;width:40px;font-weight:700">{impact:+.1f}</span>
+                <span style="color:#6a5a2a;font-size:8px;width:50px">{raw}</span>
+            </div>''', unsafe_allow_html=True)
+        if sl:
+            mae = sl.get("mae_on_settled", 0)
+            n_notes = sl.get("n_training_notes", 0)
+            st.markdown(f'<div style="color:#6a5a2a;font-size:8px;margin-top:4px;border-top:1px solid #1a1400;padding-top:4px">Self-learning: {n_notes} settled notes · MAE {mae:.1f} · Gen {gen} · {sl.get("status","init")}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # КЛЮЧЕВЫЕ ИНДИКАТОРЫ (6 метрик)
@@ -209,6 +231,16 @@ if basket_tickers:
         st.markdown(f'<div style="display:flex;flex-wrap:wrap;gap:0">{grid}</div>', unsafe_allow_html=True)
 
 
+
+    # ═══════════════════════════════════════════════════════════════
+    # POSITION SIZER
+    # ═══════════════════════════════════════════════════════════════
+    ps1,ps2,ps3 = st.columns(3)
+    with ps1: aum = st.number_input("AUM КЛИЕНТА, $", min_value=10000, value=1000000, step=10000)
+    with ps2: risk_budget = st.number_input("РИСК-БЮДЖЕТ, %", min_value=0.5, max_value=50.0, value=5.0, step=0.5)
+    with ps3: e_loss_pct = D.get("p_clean_loss", 15); st.number_input("E[LOSS] КОРЗИНЫ, %", value=e_loss_pct, disabled=True, key="e_loss_display")
+    notional = aum * (risk_budget / 100) / max(e_loss_pct / 100, 0.01)
+    st.markdown(f'<div class="qc" style="padding:10px"><div style="color:#d6a44a;font-size:10px">Notional ноты</div><div style="color:#ffb000;font-size:20px;font-weight:700">${notional:,.0f}</div><div style="color:#6a5a2a;font-size:9px">Риск-бюджет ${aum*(risk_budget/100):,.0f} ({risk_budget}% от AUM) ÷ E[loss] {e_loss_pct:.1f}% = notional ноты</div></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # КУПОН КЛИЕНТУ
@@ -349,7 +381,39 @@ if basket_tickers:
                 </div>''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [05] EARNINGS CAL
+    # [05] CORR MATRIX
+    # ═══════════════════════════════════════════════════════════════
+    avg_c = corr.get("avg_corr", 0)
+    with st.expander(f"[05] CORR MATRIX    AVG {avg_c:.2f}"):
+        st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Pearson корреляции дневных логдоходностей за 5y. Sweet spot для Phoenix: <b>0.45–0.65</b> — достаточно diversification benefit, но worst-of не «убегает» вниз.</div>', unsafe_allow_html=True)
+        if avg_c < 0.40:
+            st.markdown(f'<div style="background:#0a1a0a;border:1px solid #34c759;padding:6px 8px;color:#34c759;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — корзина хорошо диверсифицирована.</div>', unsafe_allow_html=True)
+        elif avg_c < 0.65:
+            st.markdown(f'<div style="background:#1a1a0a;border:1px solid #ffb000;padding:6px 8px;color:#ffb000;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — приемлемо.</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div style="background:#1a0a0a;border:1px solid #ff3b30;padding:6px 8px;color:#ff3b30;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — высокая, все падают вместе.</div>', unsafe_allow_html=True)
+        # Legend
+        st.markdown('<div style="font-size:10px;color:#d6a44a;margin-bottom:4px">🟦 &lt;0.40 хорошо · 🟩 0.40–0.65 · 🟨 0.65–0.75 · 🟧 0.75–0.85 · 🟥 &gt;0.85 слиплись</div>', unsafe_allow_html=True)
+        # Matrix table
+        c_tickers = corr.get("tickers", [])
+        c_matrix = corr.get("matrix", [])
+        if c_tickers and c_matrix:
+            hdr = '<th style="padding:4px 8px;color:#d6a44a;font-size:10px"></th>' + "".join(f'<th style="padding:4px 8px;color:#ffb000;font-size:10px;font-weight:700">{t}</th>' for t in c_tickers)
+            rows = ""
+            for i, t in enumerate(c_tickers):
+                cells = f'<td style="padding:4px 8px;color:#ffb000;font-size:10px;font-weight:700">{t}</td>'
+                for j in range(len(c_tickers)):
+                    if i == j:
+                        cells += '<td style="padding:4px 8px;color:#6a5a2a;font-size:10px;text-align:center">—</td>'
+                    else:
+                        v = c_matrix[i][j]
+                        bg = "#0a2a2a" if v < 0.40 else "#0a2a0a" if v < 0.65 else "#2a2a0a" if v < 0.75 else "#2a1a0a" if v < 0.85 else "#2a0a0a"
+                        cells += f'<td style="padding:4px 8px;background:{bg};color:#ffb000;font-size:11px;text-align:center;font-weight:700">{v:.2f}</td>'
+                rows += f'<tr>{cells}</tr>'
+            st.markdown(f'<table style="width:100%;border-collapse:collapse;margin-top:8px"><tr>{hdr}</tr>{rows}</table>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [06] EARNINGS CAL
     # ═══════════════════════════════════════════════════════════════
     total_events = earnings.get("total_events", 0)
     with st.expander(f"[06] EARNINGS CAL    {total_events} EVENTS"):
@@ -464,56 +528,44 @@ if basket_tickers:
             </div>''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [09] RV MATRIX — 25 alternatives
+    # [09] SMART ALTERNATIVES — data-driven basket suggestions
     # ═══════════════════════════════════════════════════════════════
-    RV_ALTS = ["NVDA","AMD","INTC","CRM","AVGO","QCOM","DELL","HPQ","NTAP","MCHP",
-               "GNRC","BA","DIS","T","MCD","PM","ABBV","JNJ","ORCL",
-               "GOLD","GLD","EXC","COF","APH","HLT"]
-    with st.expander(f"[09] RV MATRIX    {len(RV_ALTS)} ALTS"):
-        st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">{len(RV_ALTS)+1} корзин (текущая + {len(RV_ALTS)} альтернатив), сгруппированы по доминирующему сектору. Зелёный = лучший в столбце, красный = худший. ★ = текущая. <b>Клик на корзину</b> или ► — пересчитать с этой корзиной.</div>', unsafe_allow_html=True)
-        # Current basket
-        st.markdown(f'''
-        <div style="background:#0a1a0a;border:1px solid #34c759;padding:6px 10px;margin-bottom:6px">
-            <span style="color:#34c759;font-size:11px;font-weight:700">★ Текущая корзина</span>
-            <span style="color:#6a5a2a;font-size:10px;margin-left:8px">{top_sector} · {top_pct}% сектор-конц.</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #3a2a00">
-            <span style="color:#d6a44a;font-size:10px;font-weight:700">КОРЗИНА</span>
-            <span style="color:#d6a44a;font-size:10px;font-weight:700">КУПОН P.A.</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #3a2a00;background:#0a1a0a">
-            <span style="color:#34c759;font-size:10px">★ {" · ".join(basket_tickers)}</span>
-            <span style="color:#ffb000;font-size:10px;font-weight:700">{D["coupon_pa"]:.2f}%</span>
-        </div>
-        ''', unsafe_allow_html=True)
-        # Alt baskets by sector
-        seen_sectors = {}
-        for alt in RV_ALTS:
-            alt_basket = []
-            for orig in basket_tickers:
-                if orig == basket_tickers[-1]:
-                    alt_basket.append(alt)
-                else:
-                    alt_basket.append(orig)
-            sector = SECTOR_MAP.get(alt, "Unknown")
-            if sector not in seen_sectors:
-                seen_sectors[sector] = []
-            # Estimate coupon (simple heuristic based on sector risk)
-            risk_mult = {"Information Technology": 1.1, "Communication Services": 0.95, "Consumer Discretionary": 1.0,
-                         "Health Care": 0.85, "Consumer Staples": 0.80, "Industrials": 0.95, "Financials": 1.05,
-                         "Materials": 0.90, "Utilities": 0.75, "Real Estate": 1.15, "ETF": 0.70, "Unknown": 1.0}
-            est_coupon = round(D["coupon_pa"] * risk_mult.get(sector, 1.0), 2)
-            seen_sectors[sector].append((alt_basket, est_coupon, alt))
-
-        for sector, baskets in seen_sectors.items():
+    smart_alts = D.get("smart_alts", [])
+    n_alts = len(smart_alts)
+    with st.expander(f"[09] SMART ALTERNATIVES    {n_alts} вариантов"):
+        if smart_alts:
+            worst_replaced = smart_alts[0].get("replaced", "?")
             st.markdown(f'''
-            <div style="border-left:3px solid #fa8000;padding:4px 8px;margin:8px 0 4px;background:#0a0a00">
-                <span style="color:#fa8000;font-size:10px">📁 {sector}</span>
-                <span style="color:#6a5a2a;font-size:9px;margin-left:8px">{len(baskets)} вариантов</span>
+            <div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">
+                Замена слабого тикера <b style="color:#ff3b30">{worst_replaced}</b> на лучшие альтернативы из разных секторов.
+                Ранжировано по estimated score. ★ = текущая корзина.
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:4px 8px;border-bottom:1px solid #3a2a00;background:#0a1a0a">
+                <span style="color:#34c759;font-size:11px;font-weight:700">★ {" · ".join(basket_tickers)}</span>
+                <span style="color:{rs_color};font-size:11px;font-weight:700">{rs:.1f}</span>
             </div>''', unsafe_allow_html=True)
-            for bsk, cpn, alt_name in baskets:
-                cpn_color = "#ff3b30" if cpn < 22 else "#34c759" if cpn > 35 else "#ffb000"
-                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{" · ".join(bsk)}</span><span style="color:{cpn_color};font-size:10px;font-weight:700">{cpn:.2f}%</span></div>', unsafe_allow_html=True)
+
+            for alt in smart_alts:
+                alt_score = alt["est_score"]
+                alt_c = "#34c759" if alt_score > rs else "#ffb000" if alt_score >= rs - 3 else "#6a5a2a"
+                delta = alt_score - rs
+                delta_str = f"+{delta:.0f}" if delta > 0 else f"{delta:.0f}"
+                basket_str = " · ".join(alt["basket"])
+                sector = alt["sector"]
+                tox_val = alt["tox"]
+                st.markdown(f'''<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-bottom:1px solid #1a1400">
+                    <div>
+                        <span style="color:#d6a44a;font-size:10px">{basket_str}</span>
+                        <span style="color:#6a5a2a;font-size:8px;margin-left:4px">({sector})</span>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <span style="color:#6a5a2a;font-size:8px">tox {tox_val:.2f}</span>
+                        <span style="color:{alt_c};font-size:10px;font-weight:700">{alt_score:.0f}</span>
+                        <span style="color:{alt_c};font-size:9px">{delta_str}</span>
+                    </div>
+                </div>''', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:10px">Недостаточно данных для генерации альтернатив</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [10] BACKTEST + NUMERIX COMPARISON + AGI MODEL
@@ -815,40 +867,73 @@ if basket_tickers:
             for metric, vals in ci.items():
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:9px">{metric}</span><span style="color:#d6a44a;font-size:9px">[{vals["p10"]:.1f} — {vals["p50"]:.1f} — {vals["p90"]:.1f}]</span></div>', unsafe_allow_html=True)
 
-        # ── PROGRESS TO 74% TARGET ──
-        target_acc = PL.get("target_accuracy", 74.0)
-        current_acc = PL.get("current_accuracy", cal_after.get("test_acc", 0))
-        progress_pct = min(100, max(0, current_acc / target_acc * 100))
-        prog_color = "#34c759" if current_acc >= target_acc else "#ffb000" if current_acc >= 50 else "#ff3b30"
-        gap = target_acc - current_acc
+    # ═══════════════════════════════════════════════════════════════
+    # [13] EXTERNAL COMPUTE — Google Colab + Supabase + NVIDIA AI
+    # ═══════════════════════════════════════════════════════════════
+    ext = D.get("external_services", {})
+    colab_s = ext.get("colab", {})
+    supa_s = ext.get("supabase", {})
+    nv_s = ext.get("nvidia", {})
+    nv_risk = D.get("nvidia_risk", {})
 
+    with st.expander("[13] EXTERNAL COMPUTE    Colab · Supabase · NVIDIA AI"):
         st.markdown(f'''
-        <div style="margin:12px 0 6px;padding:8px;background:#0a0800;border:1px solid #3a2a00">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-                <span style="color:#fa8000;font-size:10px;font-weight:700">🎯 ЦЕЛЬ: {target_acc:.0f}% ACCURACY</span>
-                <span style="color:{prog_color};font-size:12px;font-weight:700">{current_acc:.0f}%</span>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if colab_s.get("available") else "#6a5a2a"}">
+                <div style="color:#d6a44a;font-size:8px">GOOGLE COLAB</div>
+                <div style="color:{"#34c759" if colab_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if colab_s.get("available") else "○ OFF"}</div>
+                <div style="color:#6a5a2a;font-size:7px">{colab_s.get("description","T4 GPU MC")}</div>
             </div>
-            <div style="background:#1a1400;border-radius:2px;height:8px;overflow:hidden">
-                <div style="background:{prog_color};height:100%;width:{progress_pct:.0f}%;transition:width 0.3s"></div>
+            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if supa_s.get("available") else "#6a5a2a"}">
+                <div style="color:#d6a44a;font-size:8px">SUPABASE</div>
+                <div style="color:{"#34c759" if supa_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if supa_s.get("available") else "○ OFF"}</div>
+                <div style="color:#6a5a2a;font-size:7px">{supa_s.get("description","PostgreSQL storage")}</div>
             </div>
-            <div style="display:flex;justify-content:space-between;margin-top:3px">
-                <span style="color:#6a5a2a;font-size:7px">0%</span>
-                <span style="color:#6a5a2a;font-size:7px">{"✓ ЦЕЛЬ ДОСТИГНУТА" if gap <= 0 else f"Осталось: {gap:.1f}pp"}</span>
-                <span style="color:#6a5a2a;font-size:7px">{target_acc:.0f}%</span>
+            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if nv_s.get("available") else "#6a5a2a"}">
+                <div style="color:#d6a44a;font-size:8px">NVIDIA AI</div>
+                <div style="color:{"#34c759" if nv_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if nv_s.get("available") else "○ OFF"}</div>
+                <div style="color:#6a5a2a;font-size:7px">{nv_s.get("description","NIM Llama 3.1")}</div>
             </div>
         </div>''', unsafe_allow_html=True)
 
-        # ── NVIDIA AI IN FORECAST ──
-        nv_fc_adj = pl_fc.get("nvidia_forecast_adj", 0)
-        nv_fc_src = pl_fc.get("nvidia_source", "unavailable")
-        if nv_fc_adj != 0 or nv_fc_src != "unavailable":
-            nv_c = "#34c759" if nv_fc_adj > 0 else "#ff3b30" if nv_fc_adj < 0 else "#6a5a2a"
-            st.markdown(f'''
-            <div style="padding:4px 8px;margin:4px 0;border-left:2px solid #6db6ff;background:#0a0a14">
-                <span style="color:#6db6ff;font-size:8px;font-weight:700">NVIDIA AI</span>
-                <span style="color:{nv_c};font-size:9px;margin-left:8px">Score adj: {nv_fc_adj:+.0f}pt</span>
-                <span style="color:#6a5a2a;font-size:7px;margin-left:8px">({nv_fc_src})</span>
-            </div>''', unsafe_allow_html=True)
+        # NVIDIA risk analysis result
+        nv_level = nv_risk.get("risk_level", "N/A")
+        nv_adj = nv_risk.get("score_adjustment", 0)
+        nv_source = nv_risk.get("source", "N/A")
+        nv_level_c = {"low": "#34c759", "medium": "#ffb000", "high": "#ff3b30", "extreme": "#ff0000"}.get(nv_level, "#6a5a2a")
+
+        st.markdown(f'''
+        <div style="color:#6db6ff;font-size:10px;font-weight:700;margin:8px 0 4px;border-bottom:1px solid #3a2a00;padding-bottom:3px">AI RISK ANALYSIS ({nv_source})</div>
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+            <div class="qc" style="flex:1;padding:6px;text-align:center">
+                <div style="color:#d6a44a;font-size:7px">RISK LEVEL</div>
+                <div style="color:{nv_level_c};font-size:14px;font-weight:700">{nv_level.upper()}</div>
+            </div>
+            <div class="qc" style="flex:1;padding:6px;text-align:center">
+                <div style="color:#d6a44a;font-size:7px">SCORE ADJ</div>
+                <div style="color:{"#34c759" if nv_adj > 0 else "#ff3b30" if nv_adj < 0 else "#6a5a2a"};font-size:14px;font-weight:700">{nv_adj:+.1f}</div>
+            </div>
+            <div class="qc" style="flex:1;padding:6px;text-align:center">
+                <div style="color:#d6a44a;font-size:7px">CONCENTRATION</div>
+                <div style="color:{"#ff3b30" if nv_risk.get("concentration_warning") else "#34c759"};font-size:14px;font-weight:700">{"⚠ YES" if nv_risk.get("concentration_warning") else "OK"}</div>
+            </div>
+        </div>''', unsafe_allow_html=True)
+
+        # Key risks
+        risks = nv_risk.get("key_risks", [])
+        if risks:
+            for r in risks[:3]:
+                st.markdown(f'<div style="padding:2px 8px;border-left:2px solid #ff3b30;margin-bottom:2px;color:#d6a44a;font-size:8px">⚠ {r}</div>', unsafe_allow_html=True)
+
+        rec = nv_risk.get("recommendation", "")
+        if rec:
+            st.markdown(f'<div style="padding:4px 8px;background:#0a0800;color:#6db6ff;font-size:8px;margin-top:4px">💡 {rec}</div>', unsafe_allow_html=True)
+
+        # Setup instructions
+        st.markdown('''
+        <div style="color:#6a5a2a;font-size:7px;margin-top:8px;border-top:1px solid #1a1400;padding-top:4px">
+            Подключение: NVIDIA_API_KEY → build.nvidia.com | COLAB_WEBHOOK → Google Colab | Google Drive — автоматически
+        </div>''', unsafe_allow_html=True)
 
         # ── FEATURE IMPORTANCE ──
         feat_imp = pl_fc.get("feature_importance", {})
@@ -875,10 +960,10 @@ if basket_tickers:
                 tp_html += '</div>'
                 st.markdown(tp_html, unsafe_allow_html=True)
 
-        # ── LEARNING HISTORY (Supabase) ──
+        # ── LEARNING HISTORY (Google Drive) ──
         history = PL.get("learning_history", [])
         if history:
-            st.markdown('<div style="color:#d6a44a;font-size:9px;margin:10px 0 4px;font-weight:700">SELF-LEARNING HISTORY (Supabase)</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#d6a44a;font-size:9px;margin:10px 0 4px;font-weight:700">SELF-LEARNING HISTORY (Google Drive)</div>', unsafe_allow_html=True)
             # Mini accuracy trend chart from history
             accs_hist = [float(h.get("accuracy_after", 0)) for h in history[:15]]
             if accs_hist:
@@ -892,7 +977,7 @@ if basket_tickers:
                 hist_html += f'<div style="display:flex;justify-content:space-between;color:#6a5a2a;font-size:7px"><span>← старые</span><span>{len(accs_hist)} runs</span><span>новые →</span></div>'
                 st.markdown(hist_html, unsafe_allow_html=True)
         elif current_acc > 0:
-            st.markdown('<div style="color:#6a5a2a;font-size:8px;margin:6px 0;padding:4px 8px;background:#0a0800;border:1px solid #1a1400">📡 Supabase OFF — история обучения будет доступна после подключения</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#6a5a2a;font-size:8px;margin:6px 0;padding:4px 8px;background:#0a0800;border:1px solid #1a1400">📡 Запустите пайплайн несколько раз для накопления истории обучения</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # ФЕНИКС v32.0 — Sobol MC (interactive)
