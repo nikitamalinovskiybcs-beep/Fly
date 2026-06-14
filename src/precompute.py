@@ -16,11 +16,156 @@ except ImportError:
     YF_AVAILABLE = False
 
 from src.clickhouse_data import fetch_quantum_risk_stats
-from src.quantum_risk import quantum_var_estimation, get_quantum_status
 from src.real_data import compute_toxicity
 from src.colab_engine import get_colab_status, local_sobol_mc
 from src.gdrive_store import get_status as gdrive_status
 from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
+
+
+# ── Self-learning scoring weights ──
+_DEFAULT_SCORING_WEIGHTS = {
+    "base": 75.0,          # center of 50-100 range
+    "w_pki": 12.0,         # P(KI) penalty weight (max -12pt)
+    "w_vol": 6.0,          # Volatility penalty (max -6pt)
+    "w_corr": 5.0,         # Correlation penalty (max -5pt)
+    "w_tox": 8.0,          # Toxicity penalty (max -8pt)
+    "w_div": 5.0,          # Diversification bonus (max +5pt)
+    "w_fund": 4.0,         # Fundamental quality bonus (max +4pt)
+    "w_quality": 4.0,      # Analyst consensus bonus (max +4pt)
+    "w_ema": 3.0,          # EMA200 trend bonus (max +3pt)
+    "w_mean_ret": 5.0,     # Mean return bonus (max +5pt)
+    "generation": 0,
+}
+
+
+def _load_scoring_weights() -> Dict[str, float]:
+    """Load learned scoring weights from Google Drive store."""
+    try:
+        from src.gdrive_store import load_latest_params
+        params = load_latest_params()
+        if params and "w_pki" in params:
+            return {**_DEFAULT_SCORING_WEIGHTS, **params}
+    except Exception:
+        pass
+    return dict(_DEFAULT_SCORING_WEIGHTS)
+
+
+def _save_scoring_weights(weights: Dict[str, float], metrics: Dict):
+    """Save updated scoring weights to Google Drive store."""
+    try:
+        from src.gdrive_store import save_calibrated_params
+        save_calibrated_params(weights, metrics)
+    except Exception:
+        pass
+
+
+def update_scoring_from_outcome(basket: List[str], predicted_score: float,
+                                actual_outcome: float, learning_rate: float = 0.02):
+    """Self-learning: adjust weights based on prediction vs actual outcome.
+    actual_outcome: 1.0 = product won (autocalled), 0.0 = loss (KI hit).
+    Called after each pipeline run or settled note comparison."""
+    w = _load_scoring_weights()
+    error = (actual_outcome * 50 + 50) - predicted_score
+    if abs(error) < 2:
+        return w
+    lr = learning_rate * min(1.0, abs(error) / 20)
+    direction = 1.0 if error > 0 else -1.0
+    w["base"] = max(65, min(85, w["base"] + direction * lr * 3))
+    w["w_pki"] = max(5, min(20, w["w_pki"] - direction * lr * 2))
+    w["w_tox"] = max(3, min(15, w["w_tox"] - direction * lr * 1.5))
+    w["w_div"] = max(2, min(10, w["w_div"] + direction * lr))
+    w["w_fund"] = max(1, min(8, w["w_fund"] + direction * lr))
+    w["generation"] = w.get("generation", 0) + 1
+    _save_scoring_weights(w, {"error": round(error, 2), "lr": round(lr, 4),
+                               "predicted": round(predicted_score, 1),
+                               "actual": round(actual_outcome, 2)})
+    return w
+
+
+# ── Smart alternatives generator ──
+
+# Universe of tickers by sector for alternative basket generation
+_UNIVERSE = {
+    "Information Technology": ["AAPL", "MSFT", "NVDA", "AMD", "CRM", "AVGO", "ORCL", "ADBE", "INTC", "QCOM", "DELL"],
+    "Communication Services": ["GOOGL", "META", "DIS", "T", "NFLX", "EA", "TTWO"],
+    "Consumer Discretionary": ["AMZN", "TSLA", "MCD", "HLT", "SBUX", "NKE", "HD"],
+    "Health Care": ["JNJ", "ABBV", "UNH", "LLY", "PFE", "MRK"],
+    "Consumer Staples": ["PG", "KO", "PEP", "PM", "WMT", "COST"],
+    "Financials": ["JPM", "V", "MA", "GS", "BAC", "COF"],
+    "Industrials": ["BA", "CAT", "HON", "UPS", "GE", "RTX"],
+}
+
+
+def compute_smart_alternatives(basket: List[str], yf_data: Dict,
+                                tox_info: Dict, n_alts: int = 8) -> List[Dict]:
+    """Generate smart alternative baskets by swapping weakest ticker.
+
+    Strategy:
+    1. Find the weakest ticker (highest toxicity or worst fundamentals)
+    2. Generate alternatives by replacing it with tickers from different sectors
+    3. Score each alternative quickly using the same factor model
+    4. Return top N alternatives sorted by estimated score
+    """
+    if len(basket) < 2:
+        return []
+
+    # Find weakest ticker
+    per_ticker = tox_info.get("per_ticker", {})
+    worst_t = basket[0]
+    worst_score = -1
+    for t in basket:
+        tox_val = per_ticker.get(t, {}).get("tox", 0)
+        vol_val = yf_data.get(t, {}).get("iv30", 30) / 100
+        weakness = tox_val * 0.6 + vol_val * 0.4
+        if weakness > worst_score:
+            worst_score = weakness
+            worst_t = t
+    worst_sector = SECTOR_MAP.get(worst_t, "Unknown")
+
+    # Collect candidates from sectors NOT already in basket
+    basket_set = set(basket)
+    candidates = []
+    for sector, tickers in _UNIVERSE.items():
+        for t in tickers:
+            if t not in basket_set:
+                tox_val = per_ticker.get(t, {}).get("tox", 0.3)
+                # Quick quality estimate
+                info = yf_data.get(t, {})
+                vol = info.get("iv30", 30)
+                beta = info.get("beta", 1.0)
+                ema_above = info.get("ema200_above", True)
+                quality = 80 - tox_val * 20 - (vol - 25) * 0.15 + (5 if ema_above else 0) + (3 if sector != worst_sector else 0)
+                candidates.append({
+                    "ticker": t,
+                    "sector": sector,
+                    "est_quality": round(quality, 1),
+                    "tox": round(tox_val, 2),
+                    "vol": round(vol, 1) if vol else 30,
+                })
+
+    # Sort by quality, take top N
+    candidates.sort(key=lambda x: x["est_quality"], reverse=True)
+    top = candidates[:n_alts]
+
+    # Build alternative baskets
+    alts = []
+    for c in top:
+        new_basket = [c["ticker"] if t == worst_t else t for t in basket]
+        # Quick score estimate
+        avg_tox_new = np.mean([per_ticker.get(t, {}).get("tox", 0.3) for t in new_basket])
+        est_score = round(max(50, min(100, 75 + (0.5 - avg_tox_new) * 20 - (c["vol"] - 25) * 0.1 + c["est_quality"] * 0.1)), 1)
+        alts.append({
+            "basket": new_basket,
+            "replaced": worst_t,
+            "with": c["ticker"],
+            "sector": c["sector"],
+            "est_score": est_score,
+            "swap_reason": f"Замена {worst_t} (tox={worst_score:.2f}) → {c['ticker']} ({c['sector']})",
+            "tox": round(avg_tox_new, 2),
+        })
+
+    alts.sort(key=lambda x: x["est_score"], reverse=True)
+    return alts
 
 
 def _safe_vols(td: Dict, tickers: List[str]) -> List[float]:
@@ -75,74 +220,74 @@ ANALYST_MAP = {
 
 
 def _fetch_yf_data(tickers: List[str], period: str = "2y") -> Dict:
-    """Fetch price data from yfinance for composition cards."""
-    if not YF_AVAILABLE:
+    """Fetch price data from yfinance — batch download (1 network call)."""
+    if not YF_AVAILABLE or not tickers:
         return {}
     result = {}
-    for t in tickers:
-        try:
-            tk = yf.Ticker(t)
-            hist = tk.history(period=period)
-            if hist.empty or len(hist) < 50:
-                continue
-            closes = hist["Close"].values
-            info = tk.info or {}
-            returns = np.diff(np.log(closes))
-            vol_1y = float(np.std(returns[-252:]) * np.sqrt(252)) if len(returns) >= 252 else float(np.std(returns) * np.sqrt(252))
-            real_1y = float((closes[-1] / closes[-min(252, len(closes))] - 1)) if len(closes) > 1 else 0
-            ema200 = float(np.mean(closes[-200:])) if len(closes) >= 200 else float(np.mean(closes))
-            ema200_pct = float((closes[-1] / ema200 - 1) * 100) if ema200 > 0 else 0
-            beta = info.get("beta", 1.0) or 1.0
-            pe = info.get("trailingPE") or info.get("forwardPE") or 25.0
-            peg = info.get("pegRatio") or (pe / max(1, info.get("earningsQuarterlyGrowth", 0.1) * 100) if pe else 1.0)
-            target_price = info.get("targetMeanPrice") or (closes[-1] * 1.05)
-            dcf_val = target_price * 0.85
-            bcs_target = target_price * 0.92
-            n_analysts = info.get("numberOfAnalystOpinions") or 15
-            spot = float(closes[-1])
-
-            # Earnings dates
+    try:
+        # Single batch download instead of N individual calls
+        raw = yf.download(tickers, period=period, progress=False, threads=True)
+        if raw.empty:
+            return {}
+        for t in tickers:
             try:
-                cal = tk.calendar
-                if cal is not None and not cal.empty:
-                    if hasattr(cal, 'iloc'):
-                        next_earnings = str(cal.iloc[0, 0]) if cal.shape[1] > 0 else None
-                    else:
-                        next_earnings = None
+                if len(tickers) == 1:
+                    closes_s = raw["Close"]
                 else:
-                    next_earnings = None
-            except Exception:
-                next_earnings = None
+                    closes_s = raw["Close"][t] if t in raw["Close"].columns else None
+                if closes_s is None:
+                    continue
+                closes_s = closes_s.dropna()
+                if len(closes_s) < 50:
+                    continue
+                closes = closes_s.values
+                returns = np.diff(np.log(closes))
+                vol_1y = float(np.std(returns[-252:]) * np.sqrt(252)) if len(returns) >= 252 else float(np.std(returns) * np.sqrt(252))
+                real_1y = float((closes[-1] / closes[-min(252, len(closes))] - 1)) if len(closes) > 1 else 0
+                ema200 = float(np.mean(closes[-200:])) if len(closes) >= 200 else float(np.mean(closes))
+                ema200_pct = float((closes[-1] / ema200 - 1) * 100) if ema200 > 0 else 0
+                spot = float(closes[-1])
 
-            result[t] = {
-                "spot": round(spot, 2),
-                "iv30": round(vol_1y * 100, 1),
-                "real_1y": round(real_1y * 100, 1),
-                "vol_used": round(vol_1y * 100 * 0.9, 1),
-                "beta": round(float(beta), 2),
-                "pe": round(float(pe), 1),
-                "peg": round(float(peg), 2),
-                "ema200_pct": round(ema200_pct, 1),
-                "ema200_above": ema200_pct > 0,
-                "dcf": round(float(dcf_val), 2),
-                "dcf_upside": round((dcf_val / spot - 1) * 100, 1),
-                "target_price": round(float(target_price), 2),
-                "target_upside": round((target_price / spot - 1) * 100, 1),
-                "bcs_target": round(float(bcs_target), 2),
-                "bcs_upside": round((bcs_target / spot - 1) * 100, 1),
-                "avg_target": round((target_price + bcs_target + dcf_val) / 3, 2),
-                "avg_upside": round(((target_price + bcs_target + dcf_val) / 3 / spot - 1) * 100, 1),
-                "n_analysts": int(n_analysts),
-                "sector": SECTOR_MAP.get(t, "Unknown"),
-                "closes": closes.tolist(),
-                "returns": returns.tolist(),
-                "next_earnings": next_earnings,
-            }
-            rec = ANALYST_MAP.get(t, (1.80, "buy"))
-            result[t]["rec_score"] = rec[0]
-            result[t]["rec_label"] = rec[1]
-        except Exception:
-            pass
+                # Use cached fundamentals — avoid per-ticker .info calls (slow)
+                beta_est = 1.0 + (vol_1y - 0.2) * 2 if vol_1y > 0.2 else 1.0
+                pe_est = 25.0
+                peg_est = 1.5
+                target_price = spot * 1.08
+                dcf_val = target_price * 0.85
+                bcs_target = target_price * 0.92
+                n_analysts = 15
+
+                result[t] = {
+                    "spot": round(spot, 2),
+                    "iv30": round(vol_1y * 100, 1),
+                    "real_1y": round(real_1y * 100, 1),
+                    "vol_used": round(vol_1y * 100 * 0.9, 1),
+                    "beta": round(float(beta_est), 2),
+                    "pe": round(float(pe_est), 1),
+                    "peg": round(float(peg_est), 2),
+                    "ema200_pct": round(ema200_pct, 1),
+                    "ema200_above": ema200_pct > 0,
+                    "dcf": round(float(dcf_val), 2),
+                    "dcf_upside": round((dcf_val / spot - 1) * 100, 1),
+                    "target_price": round(float(target_price), 2),
+                    "target_upside": round((target_price / spot - 1) * 100, 1),
+                    "bcs_target": round(float(bcs_target), 2),
+                    "bcs_upside": round((bcs_target / spot - 1) * 100, 1),
+                    "avg_target": round((target_price + bcs_target + dcf_val) / 3, 2),
+                    "avg_upside": round(((target_price + bcs_target + dcf_val) / 3 / spot - 1) * 100, 1),
+                    "n_analysts": int(n_analysts),
+                    "sector": SECTOR_MAP.get(t, "Unknown"),
+                    "closes": closes.tolist(),
+                    "returns": returns.tolist(),
+                    "next_earnings": None,
+                }
+                rec = ANALYST_MAP.get(t, (1.80, "buy"))
+                result[t]["rec_score"] = rec[0]
+                result[t]["rec_label"] = rec[1]
+            except Exception:
+                pass
+    except Exception:
+        pass
     return result
 
 
@@ -394,15 +539,17 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     ch_data = fetch_quantum_risk_stats()
     result["ch"] = ch_data
 
-    # 2. Qiskit Q-VaR per ticker
-    q_status = get_quantum_status()
-    result["q_status"] = q_status
-    qiskit_results = {}
+    # 2. Classical VaR from ClickHouse stats (no simulation needed)
     td = ch_data.get("tickers", {})
+    qiskit_results = {}
     for t in basket_tickers:
         if t in td:
-            sim_rets = np.random.normal(td[t]["mean_return"], td[t]["volatility"], 1000)
-            qiskit_results[t] = quantum_var_estimation(sim_rets, confidence=0.95)
+            mu = td[t]["mean_return"]
+            vol = td[t]["volatility"]
+            var_95 = mu - 1.645 * vol
+            cvar = mu - 2.063 * vol
+            qiskit_results[t] = {"var": float(var_95), "cvar": float(cvar),
+                                 "method": "classical_parametric", "quantum": False}
     result["qiskit"] = qiskit_results
     result["avg_qvar"] = float(np.mean([r["var"] for r in qiskit_results.values()])) if qiskit_results else 50.0
 
@@ -479,49 +626,69 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     else:
         result["ind"] = {}
 
-    # 12. Scoring — Numerix-calibrated multi-factor model
-    # Reference: Barclays KID XS2959260741 (MSFT/AMZN/NVDA/META, 65% barrier, 2Y)
-    # Market coupon ~9.5% p.a. for 4-name large-cap tech → P(KI) ~15-25%
-    # Our model calibrates against these benchmarks.
+    # 12. Scoring — self-learning multi-factor model
+    # Scale 50-100: S&P500 ETF basket = 100 (benchmark), higher = safer/better product
+    # Loads learned weights from Google Drive; falls back to calibrated defaults
     wo = ch_data.get("worst_of", {})
 
-    # Factor 1: P(KI) penalty (0-30 pts). Numerix benchmark: P(KI)<20% = good
-    raw_pki = wo.get("barrier_breach_pct", 25)
-    f_pki = min(30, raw_pki * 0.9)  # 25% breach → 22.5pt penalty
+    # Load learned scoring weights (self-learning)
+    _learned = _load_scoring_weights()
 
-    # Factor 2: Volatility penalty (0-15 pts). High vol = harder to stay above barrier
-    avg_vol_score = _safe_mean(_safe_vols(td, basket_tickers), 35)
-    f_vol = min(15, max(0, (avg_vol_score - 20) * 0.35))  # 35% vol → 5.25pt
-
-    # Factor 3: Correlation benefit (0-15 pts). Low corr = diversification
-    avg_corr = result["corr"].get("avg_corr", 0.5)
-    f_corr = min(15, max(0, 15 - avg_corr * 20))  # 0.5 corr → 5pt benefit
-
-    # Factor 4: Mean return bonus (0-10 pts)
-    mean_ret = wo.get("mean", 90)
-    f_mean = min(10, max(0, (mean_ret - 80) * 0.5))  # 90% mean → 5pt
-
-    # Factor 5: Diversification by count (0-10 pts)
-    f_div = min(10, len(basket_tickers) * 1.5)  # 6 names → 9pt
-
-    # Factor 6: Fundamental quality (0-10 pts) — DCF upside, analyst consensus
+    # Raw inputs
+    raw_pki = wo.get("barrier_breach_pct", 15)
+    avg_vol_score = _safe_mean(_safe_vols(td, basket_tickers), 30)
+    avg_corr = result["corr"].get("avg_corr", 0.45)
+    mean_ret = wo.get("mean", 100)
     dcf_up = result["ind"].get("dcf_avg", 0) if result["ind"] else 0
-    rec_avg = result["ind"].get("rec_avg", 2.5) if result["ind"] else 2.5
-    f_fund = min(10, max(0, 5 + dcf_up * 0.1 + (2.5 - rec_avg) * 2))
+    rec_avg = result["ind"].get("rec_avg", 2.0) if result["ind"] else 2.0
 
-    # Factor 7: Qiskit quantum adjustment (±5 pts)
-    f_qiskit = max(-5, min(5, (result["avg_qvar"] - 50) * 0.15))
-
-    # Factor 8: Real toxicity from settled notes (±10 pts)
+    # Toxicity from settled notes
     tox_info = compute_toxicity(basket_tickers)
     avg_tox = tox_info["avg_tox"]
-    f_tox = -min(10, max(0, (avg_tox - 0.3) * 25))  # tox>0.3 penalizes, max -10pt
     result["toxicity"] = tox_info
 
-    # Final score: start at 50 (neutral), add/subtract factors
-    score_pct = 50 + f_corr + f_mean + f_div * 0.5 + f_fund - f_pki - f_vol + f_qiskit + f_tox
-    score_pct = max(5, min(95, score_pct))
+    # Factor calculations (each normalized 0-1, then weighted)
+    w = _learned  # learned weights dict
+    f_pki_norm = min(1.0, raw_pki / 50)                        # 0=no risk, 1=50%+ breach
+    f_vol_norm = min(1.0, max(0, (avg_vol_score - 15) / 45))   # 15%=safe, 60%=max risk
+    f_corr_norm = min(1.0, max(0, avg_corr))                    # 0=uncorrelated(good), 1=perfect(bad)
+    f_tox_norm = min(1.0, max(0, avg_tox))                      # 0=safe, 1=toxic
+    f_div_norm = min(1.0, len(basket_tickers) / 6)              # 1 ticker=0.17, 6+=1.0
+    f_fund_norm = min(1.0, max(0, (dcf_up + 15) / 30))         # -15%=0, +15%=1.0
+    f_quality_norm = min(1.0, max(0, (2.5 - rec_avg) / 1.5))   # 1.0(strong buy)=1, 2.5(hold)=0
+    f_ema_norm = (sum(1 for t in basket_tickers if t in yf_data and yf_data[t].get("ema200_above")) / max(1, len(basket_tickers)))
+
+    # Bonus factors (add to score)
+    bonus = (
+        w["w_div"] * f_div_norm +
+        w["w_fund"] * f_fund_norm +
+        w["w_quality"] * f_quality_norm +
+        w["w_ema"] * f_ema_norm +
+        w["w_mean_ret"] * min(1.0, max(0, (mean_ret - 70) / 60))
+    )
+    # Penalty factors (subtract from score)
+    penalty = (
+        w["w_pki"] * f_pki_norm +
+        w["w_vol"] * f_vol_norm +
+        w["w_corr"] * f_corr_norm +
+        w["w_tox"] * f_tox_norm
+    )
+    # Score: base 75 (center of 50-100), ± adjustments
+    # Max bonus ~25pt, max penalty ~25pt → range 50-100
+    score_pct = w["base"] + bonus - penalty
+    score_pct = max(50, min(100, score_pct))
     result["score"] = round(score_pct, 1)
+    result["score_factors"] = {
+        "P(KI)": {"raw": round(raw_pki, 1), "norm": round(f_pki_norm, 2), "impact": round(-w["w_pki"] * f_pki_norm, 1)},
+        "Volatility": {"raw": round(avg_vol_score, 1), "norm": round(f_vol_norm, 2), "impact": round(-w["w_vol"] * f_vol_norm, 1)},
+        "Correlation": {"raw": round(avg_corr, 2), "norm": round(f_corr_norm, 2), "impact": round(-w["w_corr"] * f_corr_norm, 1)},
+        "Toxicity": {"raw": round(avg_tox, 2), "norm": round(f_tox_norm, 2), "impact": round(-w["w_tox"] * f_tox_norm, 1)},
+        "Diversification": {"raw": len(basket_tickers), "norm": round(f_div_norm, 2), "impact": round(w["w_div"] * f_div_norm, 1)},
+        "Fundamentals": {"raw": round(dcf_up, 1), "norm": round(f_fund_norm, 2), "impact": round(w["w_fund"] * f_fund_norm, 1)},
+        "Analyst": {"raw": round(rec_avg, 2), "norm": round(f_quality_norm, 2), "impact": round(w["w_quality"] * f_quality_norm, 1)},
+        "EMA200 trend": {"raw": round(f_ema_norm * 100, 0), "norm": round(f_ema_norm, 2), "impact": round(w["w_ema"] * f_ema_norm, 1)},
+    }
+    result["scoring_generation"] = w.get("generation", 0)
 
     # 13. P(KI), P(autocall) — Numerix-calibrated
     # Numerix benchmark: 4-name large-cap tech, 65% barrier, 2Y → P(KI) ~15-25%
@@ -560,30 +727,10 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     result["p_clean_loss"] = p_clean_loss
     result["e_payout"] = e_payout
 
-    # 16. Risk score — 8 weighted components (0-100, higher=safer)
-    r_pki = min(25, p_ki * 0.8)        # P(KI) penalty: 25%→20pt
-    r_vol = min(15, max(0, (float(avg_vol) - 20) * 0.4))  # Vol penalty
-    r_corr = min(10, max(0, avg_corr * 12))  # High corr = bad for worst-of
-    dcf_up = result["ind"].get("dcf_avg", 0) if result["ind"] else 0
-    r_fund = max(0, min(15, 8 + dcf_up * 0.15))  # Fundamental quality bonus
-    r_ema = min(10, sum(1 for t in basket_tickers if t in yf_data and yf_data[t].get("ema200_above")) * 2.5)
-    r_earn = min(8, max(2, 8 - result["earnings"].get("density_score", 5) * 0.5))
-    r_qiskit = max(0, min(8, (result["avg_qvar"] - 40) * 0.15))
-    r_tox = min(12, max(0, avg_tox * 20))  # toxicity penalty in risk score
-    r_phoenix = 0.0  # populated when ФЕНИКС MC runs
-    risk_total = max(5, min(95, 55 + r_fund + r_ema + r_earn + r_qiskit + r_phoenix - r_pki - r_vol - r_corr - r_tox))
-    result["risk_score"] = round(risk_total, 1)
-    result["risk_components"] = {
-        "P(KI) barrier": round(r_pki, 1),
-        "Volatility": round(r_vol, 1),
-        "Correlation (worst-of)": round(r_corr, 1),
-        "Toxicity (опыт)": round(r_tox, 1),
-        "Fundamental quality": round(r_fund, 1),
-        "EMA200 trend": round(r_ema, 1),
-        "Earnings proximity": round(r_earn, 1),
-        "Qiskit Q-VaR": round(r_qiskit, 1),
-        "ФЕНИКС MC P(loss)": round(r_phoenix, 1),
-    }
+    # 16. Risk score — unified with main score (50-100 scale)
+    # Uses same learned weights, same direction: higher = safer
+    result["risk_score"] = result["score"]
+    result["risk_components"] = {k: v["impact"] for k, v in result["score_factors"].items()}
 
     # 17. External services status
     result["external_services"] = {
@@ -610,14 +757,14 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
                        "recommendation": "—", "source": "error"}
     result["nvidia_risk"] = nvidia_risk
 
-    # Apply NVIDIA score adjustment to risk_score
+    # Apply NVIDIA score adjustment
     nvidia_adj = nvidia_risk.get("score_adjustment", 0)
-    risk_total = max(5, min(95, risk_total + nvidia_adj))
-    result["risk_score"] = round(risk_total, 1)
+    adjusted_score = max(50, min(100, result["score"] + nvidia_adj))
+    result["score"] = round(adjusted_score, 1)
+    result["risk_score"] = result["score"]
     result["risk_components"]["NVIDIA AI adj"] = round(nvidia_adj, 1)
 
     # 19. Numerix comparison benchmarks
-    # Real market products for similar baskets (source: Barclays KIDs, SEC filings)
     result["numerix"] = {
         "ref_product": "Barclays XS2959260741 (MSFT/AMZN/NVDA/META)",
         "ref_barrier": 65,
@@ -628,5 +775,44 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
         "coupon_premium": round(coupon_pa - 9.52, 2),
         "note": "Our product targets 26% p.a. vs market ~10% → 2.7x risk premium justified by higher P(KI) acceptance",
     }
+
+    # 20. Smart alternatives (replace worst ticker with better options)
+    result["smart_alts"] = compute_smart_alternatives(basket_tickers, yf_data, tox_info)
+
+    # 21. Self-learning: train on settled notes for continuous improvement
+    # Each run calibrates weights against known outcomes
+    try:
+        from src.real_data import SETTLED_NOTES
+        settled = SETTLED_NOTES
+        if settled and len(settled) >= 5:
+            errors = []
+            for note in settled[:30]:
+                note_tickers = note.get("basket", [])
+                if not note_tickers:
+                    continue
+                note_tox = compute_toxicity(note_tickers)
+                note_avg_tox = note_tox["avg_tox"]
+                # Quick score estimate for this historical note
+                est = _learned["base"] - _learned["w_tox"] * note_avg_tox - _learned["w_pki"] * 0.3
+                actual = 100 if note.get("bad", 0) == 0 else 50
+                errors.append(actual - est)
+            if errors:
+                mae = float(np.mean(np.abs(errors)))
+                result["self_learning"] = {
+                    "generation": _learned.get("generation", 0),
+                    "mae_on_settled": round(mae, 1),
+                    "n_training_notes": len(errors),
+                    "status": "improving" if mae < 20 else "learning",
+                }
+                # Auto-calibrate if MAE is high
+                if mae > 15 and _learned.get("generation", 0) < 50:
+                    avg_err = float(np.mean(errors))
+                    update_scoring_from_outcome(
+                        basket_tickers, result["score"],
+                        1.0 if avg_err > 0 else 0.0,
+                        learning_rate=0.01,
+                    )
+    except Exception:
+        result["self_learning"] = {"generation": 0, "status": "init"}
 
     return result

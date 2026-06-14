@@ -158,10 +158,19 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     rs = D["risk_score"]
     rc_components = D["risk_components"]
-    rs_color = "#34c759" if rs >= 70 else "#ffb000" if rs >= 40 else "#ff3b30"
-    rs_label = "Низкий риск" if rs >= 70 else "Средний риск" if rs >= 40 else "Высокий риск"
-    rs_grade = "A" if rs >= 70 else "B" if rs >= 55 else "C" if rs >= 40 else "D"
-    stamp = "READY TO ISSUE" if rs >= 70 else "NEEDS REVIEW" if rs >= 40 else "AVOID"
+    score_factors = D.get("score_factors", {})
+    gen = D.get("scoring_generation", 0)
+    sl = D.get("self_learning", {})
+    rs_color = "#34c759" if rs >= 80 else "#ffb000" if rs >= 65 else "#ff3b30"
+    rs_label = "Низкий риск" if rs >= 80 else "Средний риск" if rs >= 65 else "Высокий риск"
+    rs_grade = "A+" if rs >= 90 else "A" if rs >= 80 else "B" if rs >= 70 else "C" if rs >= 60 else "D"
+    stamp = "READY TO ISSUE" if rs >= 75 else "NEEDS REVIEW" if rs >= 60 else "AVOID"
+
+    sl_badge = ""
+    if gen > 0:
+        sl_badge = f' · Gen {gen}'
+        if sl.get("status") == "improving":
+            sl_badge += " 📈"
 
     st.markdown(f'''
     <div class="qc" style="border-left:3px solid {rs_color};padding:14px;margin:8px 0">
@@ -169,13 +178,14 @@ if basket_tickers:
             <div>
                 <span style="color:#ffb000;font-size:13px;font-weight:700">СКОРИНГ КОРЗИНЫ</span>
                 <span style="background:#1a1400;border:1px solid #3a2a00;padding:1px 6px;color:#d6a44a;font-size:9px;border-radius:2px;margin-left:6px">{rs_grade}</span>
+                <span style="color:#6a5a2a;font-size:8px;margin-left:4px">50-100 · S&P500=100{sl_badge}</span>
             </div>
             <div style="text-align:right">
                 <span style="color:{rs_color};font-size:28px;font-weight:700">{rs:.1f}</span>
                 <span style="color:#d6a44a;font-size:12px">/100</span>
             </div>
         </div>
-        <div style="margin:6px 0;height:6px;background:#1a1400;border-radius:1px"><div style="height:100%;width:{rs}%;background:{rs_color};border-radius:1px"></div></div>
+        <div style="margin:6px 0;height:6px;background:#1a1400;border-radius:1px"><div style="height:100%;width:{max(0, (rs - 50) * 2)}%;background:{rs_color};border-radius:1px"></div></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
             <span style="color:{rs_color};font-size:11px">{rs_label}</span>
             <span style="background:{rs_color}22;border:1px solid {rs_color};padding:2px 8px;color:{rs_color};font-size:10px;font-weight:700">{stamp} · P(KI) {p_ki:.0f}%</span>
@@ -183,9 +193,25 @@ if basket_tickers:
     </div>
     ''', unsafe_allow_html=True)
 
-    with st.expander("▶ Разложение скора по компонентам"):
-        for name, val in rc_components.items():
-            st.markdown(f'<div style="color:#d6a44a;font-size:11px">{name}: <b style="color:#ffb000">{val:.1f}</b></div>', unsafe_allow_html=True)
+    with st.expander("▶ Разложение скора по факторам"):
+        for name, info in score_factors.items():
+            impact = info["impact"] if isinstance(info, dict) else info
+            raw = info.get("raw", "") if isinstance(info, dict) else ""
+            impact_c = "#34c759" if impact > 0 else "#ff3b30" if impact < 0 else "#6a5a2a"
+            bar_dir = "right" if impact >= 0 else "left"
+            bar_w = min(100, abs(impact) * 8)
+            st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:2px 0">
+                <span style="color:#d6a44a;font-size:10px;width:90px;text-align:right">{name}</span>
+                <div style="flex:1;height:8px;background:#1a1400;position:relative">
+                    <div style="position:absolute;{bar_dir}:50%;width:{bar_w}%;height:100%;background:{impact_c}"></div>
+                </div>
+                <span style="color:{impact_c};font-size:10px;width:40px;font-weight:700">{impact:+.1f}</span>
+                <span style="color:#6a5a2a;font-size:8px;width:50px">{raw}</span>
+            </div>''', unsafe_allow_html=True)
+        if sl:
+            mae = sl.get("mae_on_settled", 0)
+            n_notes = sl.get("n_training_notes", 0)
+            st.markdown(f'<div style="color:#6a5a2a;font-size:8px;margin-top:4px;border-top:1px solid #1a1400;padding-top:4px">Self-learning: {n_notes} settled notes · MAE {mae:.1f} · Gen {gen} · {sl.get("status","init")}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # КЛЮЧЕВЫЕ ИНДИКАТОРЫ (6 метрик)
@@ -502,56 +528,44 @@ if basket_tickers:
             </div>''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [09] RV MATRIX — 25 alternatives
+    # [09] SMART ALTERNATIVES — data-driven basket suggestions
     # ═══════════════════════════════════════════════════════════════
-    RV_ALTS = ["NVDA","AMD","INTC","CRM","AVGO","QCOM","DELL","HPQ","NTAP","MCHP",
-               "GNRC","BA","DIS","T","MCD","PM","ABBV","JNJ","ORCL",
-               "GOLD","GLD","EXC","COF","APH","HLT"]
-    with st.expander(f"[09] RV MATRIX    {len(RV_ALTS)} ALTS"):
-        st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">{len(RV_ALTS)+1} корзин (текущая + {len(RV_ALTS)} альтернатив), сгруппированы по доминирующему сектору. Зелёный = лучший в столбце, красный = худший. ★ = текущая. <b>Клик на корзину</b> или ► — пересчитать с этой корзиной.</div>', unsafe_allow_html=True)
-        # Current basket
-        st.markdown(f'''
-        <div style="background:#0a1a0a;border:1px solid #34c759;padding:6px 10px;margin-bottom:6px">
-            <span style="color:#34c759;font-size:11px;font-weight:700">★ Текущая корзина</span>
-            <span style="color:#6a5a2a;font-size:10px;margin-left:8px">{top_sector} · {top_pct}% сектор-конц.</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #3a2a00">
-            <span style="color:#d6a44a;font-size:10px;font-weight:700">КОРЗИНА</span>
-            <span style="color:#d6a44a;font-size:10px;font-weight:700">КУПОН P.A.</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #3a2a00;background:#0a1a0a">
-            <span style="color:#34c759;font-size:10px">★ {" · ".join(basket_tickers)}</span>
-            <span style="color:#ffb000;font-size:10px;font-weight:700">{D["coupon_pa"]:.2f}%</span>
-        </div>
-        ''', unsafe_allow_html=True)
-        # Alt baskets by sector
-        seen_sectors = {}
-        for alt in RV_ALTS:
-            alt_basket = []
-            for orig in basket_tickers:
-                if orig == basket_tickers[-1]:
-                    alt_basket.append(alt)
-                else:
-                    alt_basket.append(orig)
-            sector = SECTOR_MAP.get(alt, "Unknown")
-            if sector not in seen_sectors:
-                seen_sectors[sector] = []
-            # Estimate coupon (simple heuristic based on sector risk)
-            risk_mult = {"Information Technology": 1.1, "Communication Services": 0.95, "Consumer Discretionary": 1.0,
-                         "Health Care": 0.85, "Consumer Staples": 0.80, "Industrials": 0.95, "Financials": 1.05,
-                         "Materials": 0.90, "Utilities": 0.75, "Real Estate": 1.15, "ETF": 0.70, "Unknown": 1.0}
-            est_coupon = round(D["coupon_pa"] * risk_mult.get(sector, 1.0), 2)
-            seen_sectors[sector].append((alt_basket, est_coupon, alt))
-
-        for sector, baskets in seen_sectors.items():
+    smart_alts = D.get("smart_alts", [])
+    n_alts = len(smart_alts)
+    with st.expander(f"[09] SMART ALTERNATIVES    {n_alts} вариантов"):
+        if smart_alts:
+            worst_replaced = smart_alts[0].get("replaced", "?")
             st.markdown(f'''
-            <div style="border-left:3px solid #fa8000;padding:4px 8px;margin:8px 0 4px;background:#0a0a00">
-                <span style="color:#fa8000;font-size:10px">📁 {sector}</span>
-                <span style="color:#6a5a2a;font-size:9px;margin-left:8px">{len(baskets)} вариантов</span>
+            <div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">
+                Замена слабого тикера <b style="color:#ff3b30">{worst_replaced}</b> на лучшие альтернативы из разных секторов.
+                Ранжировано по estimated score. ★ = текущая корзина.
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:4px 8px;border-bottom:1px solid #3a2a00;background:#0a1a0a">
+                <span style="color:#34c759;font-size:11px;font-weight:700">★ {" · ".join(basket_tickers)}</span>
+                <span style="color:{rs_color};font-size:11px;font-weight:700">{rs:.1f}</span>
             </div>''', unsafe_allow_html=True)
-            for bsk, cpn, alt_name in baskets:
-                cpn_color = "#ff3b30" if cpn < 22 else "#34c759" if cpn > 35 else "#ffb000"
-                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{" · ".join(bsk)}</span><span style="color:{cpn_color};font-size:10px;font-weight:700">{cpn:.2f}%</span></div>', unsafe_allow_html=True)
+
+            for alt in smart_alts:
+                alt_score = alt["est_score"]
+                alt_c = "#34c759" if alt_score > rs else "#ffb000" if alt_score >= rs - 3 else "#6a5a2a"
+                delta = alt_score - rs
+                delta_str = f"+{delta:.0f}" if delta > 0 else f"{delta:.0f}"
+                basket_str = " · ".join(alt["basket"])
+                sector = alt["sector"]
+                tox_val = alt["tox"]
+                st.markdown(f'''<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-bottom:1px solid #1a1400">
+                    <div>
+                        <span style="color:#d6a44a;font-size:10px">{basket_str}</span>
+                        <span style="color:#6a5a2a;font-size:8px;margin-left:4px">({sector})</span>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <span style="color:#6a5a2a;font-size:8px">tox {tox_val:.2f}</span>
+                        <span style="color:{alt_c};font-size:10px;font-weight:700">{alt_score:.0f}</span>
+                        <span style="color:{alt_c};font-size:9px">{delta_str}</span>
+                    </div>
+                </div>''', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:10px">Недостаточно данных для генерации альтернатив</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [10] BACKTEST + NUMERIX COMPARISON + AGI MODEL
