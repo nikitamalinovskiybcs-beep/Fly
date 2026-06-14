@@ -772,7 +772,7 @@ if basket_tickers:
         if guard:
             st.markdown(f'''
             <div style="background:#3a0000;border:1px solid #ff3b30;padding:8px;margin-bottom:8px">
-                <span style="color:#ff3b30;font-size:11px;font-weight:700">GUARD: P(убыток) = {p_loss_data.get("p_loss",0):.0f}%</span>
+                <span style="color:#ff3b30;font-size:11px;font-weight:700">GUARD: P(убыток) = {p_loss_data.get("p_loss_pct",0):.0f}%</span>
                 <span style="color:#ff9999;font-size:9px;margin-left:8px">{p_loss_data.get("guard_msg","")}</span>
             </div>''', unsafe_allow_html=True)
 
@@ -807,7 +807,7 @@ if basket_tickers:
         band = cpn_pred.get("confidence_band", (0, 0))
         st.markdown(f'''
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0">
-            <div class="qc" style="flex:1;min-width:110px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">P(УБЫТОК)</div><div style="color:{"#ff3b30" if p_loss_data.get("p_loss",0)>25 else "#34c759"};font-size:14px;font-weight:700">{p_loss_data.get("p_loss",0):.0f}%</div></div>
+            <div class="qc" style="flex:1;min-width:110px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">P(УБЫТОК)</div><div style="color:{"#ff3b30" if p_loss_data.get("p_loss_pct",0)>25 else "#34c759"};font-size:14px;font-weight:700">{p_loss_data.get("p_loss_pct",0):.0f}%</div></div>
             <div class="qc" style="flex:1;min-width:110px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">КУПОН ДИЛЕР</div><div style="color:#6db6ff;font-size:14px;font-weight:700">{dealer_cpn:.1f}%</div></div>
             <div class="qc" style="flex:1;min-width:110px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">КУПОН НАШ</div><div style="color:#ffb000;font-size:14px;font-weight:700">{D["coupon_pa"]:.1f}%</div></div>
             <div class="qc" style="flex:1;min-width:110px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">Δ</div><div style="color:{"#34c759" if abs(delta_cpn)<3 else "#ff3b30"};font-size:14px;font-weight:700">{delta_cpn:+.1f}%</div></div>

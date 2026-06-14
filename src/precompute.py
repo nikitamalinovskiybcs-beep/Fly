@@ -178,22 +178,25 @@ def rank_best_phoenix(basket: List[str], yf_data: Dict, tox_info: Dict,
     Tests different barriers, tenors, and swap options."""
     from src.real_data import compute_p_loss, COUPON_BY_TERM, COUPON_COEFS
 
-    per_ticker = tox_info.get("per_ticker", {})
     avg_tox = tox_info["avg_tox"]
     n = len(basket)
+    base_p_loss = compute_p_loss(basket, term_months=24)
+    base_p = base_p_loss.get("p_loss", 0.2)  # decimal 0-1
+
+    # Avg vol from yf_data
+    vols = [yf_data[t].get("iv30", 30) for t in basket if t in yf_data]
+    avg_vol = float(np.mean(vols)) if vols else 30
 
     # Test barriers 55-75%
     barrier_results = []
     for bar in [0.55, 0.60, 0.65, 0.70, 0.75]:
-        p_loss = compute_p_loss(basket, term_months=24)
-        raw_p = p_loss.get("p_loss", 0.2)
-        # Lower barrier → lower P(KI)
-        bar_adj = (0.65 - bar) * 1.5
-        adj_pki = max(2, min(60, (raw_p * 100) + bar_adj * 20))
-        # Coupon scales with barrier risk
-        est_coupon = COUPON_COEFS[0] * avg_tox + COUPON_COEFS[1] * n + COUPON_COEFS[3] * bar + COUPON_COEFS[4]
-        est_coupon = max(8, min(45, est_coupon))
-        # Score = risk-adjusted return
+        # P(KI) varies with barrier: lower barrier = lower P(KI)
+        # Each 5% lower barrier reduces P(KI) by ~20-30%
+        bar_factor = 1.0 + (bar - 0.65) * 3.0  # 0.55→0.7, 0.65→1.0, 0.75→1.3
+        adj_pki = max(3, min(60, base_p * 100 * bar_factor))
+        # Coupon: lower barrier = lower coupon (less risk taken)
+        est_coupon = COUPON_COEFS[0] * avg_tox + COUPON_COEFS[1] * n + COUPON_COEFS[2] * 24 + COUPON_COEFS[3] * bar + COUPON_COEFS[4]
+        est_coupon = max(8, min(45, est_coupon * (0.8 + avg_vol / 100)))
         score = est_coupon * (1 - adj_pki / 100) - adj_pki * 0.3
         barrier_results.append({
             "barrier": int(bar * 100),
@@ -203,18 +206,18 @@ def rank_best_phoenix(basket: List[str], yf_data: Dict, tox_info: Dict,
         })
     barrier_results.sort(key=lambda x: x["score"], reverse=True)
 
-    # Test tenors 12-60 months
+    # Test tenors 12-36 months
     tenor_results = []
     for term_m in [12, 18, 24, 36]:
         lookup = COUPON_BY_TERM.get(term_m, COUPON_BY_TERM.get(24, {}))
         mean_cpn = lookup.get("mean", 20)
-        p_loss = compute_p_loss(basket, term_months=term_m)
-        raw_p = p_loss.get("p_loss", 0.15)
+        p_loss_t = compute_p_loss(basket, term_months=term_m)
+        raw_p = p_loss_t.get("p_loss", 0.15)  # decimal 0-1
         tenor_results.append({
             "tenor_months": term_m,
             "est_coupon": round(mean_cpn, 1),
             "p_loss": round(raw_p * 100, 1),
-            "score": round(mean_cpn * (1 - raw_p) - raw_p * 30, 1),
+            "score": round(mean_cpn * (1 - raw_p) - raw_p * 100 * 0.3, 1),
         })
     tenor_results.sort(key=lambda x: x["score"], reverse=True)
 
@@ -232,30 +235,65 @@ def rank_best_phoenix(basket: List[str], yf_data: Dict, tox_info: Dict,
 # ═══════════════════════════════════════════════════════════════
 
 def empirical_p_ki(basket: List[str], term_months: int = 24) -> Dict:
-    """P(KI) calibrated on real settled notes outcomes."""
+    """P(KI) calibrated on real settled notes outcomes.
+    Uses logistic-style model: high tox + long term → high P(KI)."""
     from src.real_data import SETTLED_NOTES, TOX_EXPERIENCE
     tox = compute_toxicity(basket)
     avg_tox = tox["avg_tox"]
 
-    # Count outcomes by toxicity bucket
-    loss_count = sum(1 for _, _, bad in SETTLED_NOTES if bad == 1)
-    total = len(SETTLED_NOTES)
-    base_rate = loss_count / max(1, total)
+    # Count outcomes by toxicity bucket from real data
+    high_tox_notes = [(b, t, bad) for b, t, bad in SETTLED_NOTES
+                      if _note_avg_tox(b) >= 0.5]
+    low_tox_notes = [(b, t, bad) for b, t, bad in SETTLED_NOTES
+                     if _note_avg_tox(b) < 0.5]
 
-    # Adjust by basket toxicity
-    tox_adj = (avg_tox - 0.35) * 0.8
-    term_adj = (term_months - 24) / 24 * 0.05
-    p_ki = max(3, min(65, (base_rate + tox_adj + term_adj) * 100))
+    high_tox_loss_rate = sum(1 for _, _, b in high_tox_notes if b) / max(1, len(high_tox_notes))
+    low_tox_loss_rate = sum(1 for _, _, b in low_tox_notes if b) / max(1, len(low_tox_notes))
+
+    total = len(SETTLED_NOTES)
+    loss_count = sum(1 for _, _, bad in SETTLED_NOTES if bad == 1)
+
+    # Interpolate P(KI) based on basket toxicity
+    if avg_tox >= 0.5:
+        p_ki_pct = low_tox_loss_rate * 100 + (high_tox_loss_rate - low_tox_loss_rate) * 100 * min(1, (avg_tox - 0.2) / 0.5)
+    else:
+        p_ki_pct = low_tox_loss_rate * 100 * (0.5 + avg_tox)
+
+    # Term adjustment: longer = riskier
+    term_adj = (term_months - 24) / 12 * 4
+    p_ki_pct += term_adj
+
+    # Diversification adjustment
+    n = len(basket)
+    if n <= 3:
+        p_ki_pct *= 0.85
+    elif n >= 5:
+        p_ki_pct *= 1.05
+
+    p_ki_pct = max(5, min(70, p_ki_pct))
 
     return {
-        "p_ki_empirical": round(p_ki, 1),
-        "base_rate": round(base_rate * 100, 1),
-        "tox_adjustment": round(tox_adj * 100, 1),
-        "term_adjustment": round(term_adj * 100, 1),
+        "p_ki_empirical": round(p_ki_pct, 1),
+        "base_rate": round(loss_count / max(1, total) * 100, 1),
+        "high_tox_rate": round(high_tox_loss_rate * 100, 1),
+        "low_tox_rate": round(low_tox_loss_rate * 100, 1),
+        "tox_adjustment": round(term_adj, 1),
         "n_settled": total,
         "n_losses": loss_count,
         "confidence": "high" if total > 30 else "medium",
     }
+
+
+def _note_avg_tox(basket_str: str) -> float:
+    """Helper: average toxicity for a basket string like 'AAPL/MSFT/NVDA'."""
+    from src.real_data import TOX_EXPERIENCE
+    tickers = basket_str.split("/")
+    scores = []
+    for t in tickers:
+        if t in TOX_EXPERIENCE:
+            l, w = TOX_EXPERIENCE[t]
+            scores.append(l / (l + w + 1))
+    return float(np.mean(scores)) if scores else 0.5
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -270,25 +308,29 @@ def calibrated_coupon(basket: List[str], term_months: int = 24,
     avg_tox = tox["avg_tox"]
     n = len(basket)
 
-    # Linear model: coupon ~ tox*C[0] + n*C[1] + term*C[2] + bar*C[3] + C[4]
+    # Linear model: coupon ~ tox*C[0] + n*C[1] + term_m*C[2] + prot_bar*C[3] + C[4]
     C = COUPON_COEFS
     predicted = C[0] * avg_tox + C[1] * n + C[2] * term_months + C[3] * barrier + C[4]
     predicted = max(6, min(50, predicted))
 
-    # Lookup table comparison
-    lookup = COUPON_BY_TERM.get(term_months, COUPON_BY_TERM.get(24, {}))
+    # Lookup table — find closest term
+    closest_term = min(COUPON_BY_TERM.keys(), key=lambda k: abs(k - term_months))
+    lookup = COUPON_BY_TERM.get(closest_term, {})
     lookup_mean = lookup.get("mean", 20)
     lookup_std = lookup.get("std", 8)
 
-    # Blend model + lookup
-    blended = predicted * 0.6 + lookup_mean * 0.4
+    # Blend: weight lookup more for terms with many data points
+    n_quotes = lookup.get("n", 10)
+    lookup_weight = min(0.7, 0.3 + n_quotes / 500)
+    blended = predicted * (1 - lookup_weight) + lookup_mean * lookup_weight
 
     return {
         "coupon_model": round(predicted, 2),
         "coupon_lookup": round(lookup_mean, 2),
         "coupon_blended": round(blended, 2),
         "lookup_std": round(lookup_std, 2),
-        "n_quotes": lookup.get("n", 0),
+        "n_quotes": n_quotes,
+        "closest_term": closest_term,
         "vs_market": "выше рынка" if blended > lookup_mean else "ниже рынка",
     }
 

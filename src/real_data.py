@@ -211,7 +211,8 @@ def compute_p_loss(tickers: List[str], term_months: int = 24) -> Dict[str, Any]:
                      and TOX_EXPERIENCE[t][0] > TOX_EXPERIENCE[t][1]]
 
     return {
-        "p_loss": round(p_loss * 100, 1),
+        "p_loss": round(p_loss, 4),
+        "p_loss_pct": round(p_loss * 100, 1),
         "guard_flag": guard_flag,
         "guard_msg": f"P(убыток)={p_loss*100:.0f}% > 25%. Toxic: {toxic_tickers}" if guard_flag else "Риск приемлемый",
         "toxic_tickers": toxic_tickers,
