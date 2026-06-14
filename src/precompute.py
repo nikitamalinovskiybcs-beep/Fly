@@ -19,7 +19,7 @@ from src.clickhouse_data import fetch_quantum_risk_stats
 from src.quantum_risk import quantum_var_estimation, get_quantum_status
 from src.real_data import compute_toxicity
 from src.colab_engine import get_colab_status, local_sobol_mc
-from src.supabase_store import get_status as supabase_status
+from src.gdrive_store import get_status as gdrive_status
 from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
 
 
@@ -588,7 +588,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # 17. External services status
     result["external_services"] = {
         "colab": get_colab_status(),
-        "supabase": supabase_status(),
+        "gdrive": gdrive_status(),
         "nvidia": nvidia_status(),
     }
 

@@ -3,7 +3,7 @@ Google Colab Engine — Interface for heavy MC computation (Karpathy method).
 
 Pattern:
 1. Colab notebook runs heavy MC simulations (500K+ paths) on free GPU
-2. Results saved to ClickHouse / Supabase
+2. Results saved to ClickHouse / Google Drive
 3. This module polls for cached results or triggers Colab via REST
 4. Graceful fallback to local compute if Colab unavailable
 
@@ -177,15 +177,21 @@ def local_sobol_mc(
         final_payoffs.append(payoff)
 
     payoffs = np.array(final_payoffs)
+    p_ki_val = round(ki_hits / n_sims * 100, 1)
+    p_loss_val = round(float((payoffs < 0).mean()) * 100, 1)
+    p_autocall_val = round(100 - p_ki_val * 1.2, 1)
     return {
         "avg_payoff": round(float(payoffs.mean()), 4),
         "std_payoff": round(float(payoffs.std()), 4),
-        "p_ki": round(ki_hits / n_sims * 100, 1),
+        "p_ki": p_ki_val,
+        "p_loss": p_loss_val,
+        "p_autocall": max(10, min(90, p_autocall_val)),
         "avg_coupons": round(float(np.mean(n_coupons)), 2),
         "win_rate": round(float((payoffs > 0).mean()) * 100, 1),
         "var_95": round(float(np.percentile(payoffs, 5)), 4),
         "cvar_95": round(float(payoffs[payoffs <= np.percentile(payoffs, 5)].mean()), 4) if len(payoffs) > 0 else 0,
         "n_sims": n_sims,
+        "method": "pseudo_random_mc",
         "source": "local_mc",
         "compute": "Streamlit Cloud (approx)",
     }

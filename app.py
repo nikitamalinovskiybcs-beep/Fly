@@ -918,8 +918,52 @@ if basket_tickers:
         # Setup instructions
         st.markdown('''
         <div style="color:#6a5a2a;font-size:7px;margin-top:8px;border-top:1px solid #1a1400;padding-top:4px">
-            Подключение: SUPABASE_URL + SUPABASE_KEY → Supabase | NVIDIA_API_KEY → build.nvidia.com | COLAB_WEBHOOK → Google Colab
+            Подключение: NVIDIA_API_KEY → build.nvidia.com | COLAB_WEBHOOK → Google Colab | Google Drive — автоматически
         </div>''', unsafe_allow_html=True)
+
+        # ── FEATURE IMPORTANCE ──
+        feat_imp = pl_fc.get("feature_importance", {})
+        if feat_imp:
+            st.markdown('<div style="color:#d6a44a;font-size:9px;margin:8px 0 4px;font-weight:700">FEATURE IMPORTANCE (Δscore при +10% входа)</div>', unsafe_allow_html=True)
+            # Input features
+            input_feats = [(k, v) for k, v in feat_imp.items() if not k.startswith("_")]
+            if input_feats:
+                max_imp = max(v for _, v in input_feats) if input_feats else 1
+                fi_html = '<div style="display:flex;flex-direction:column;gap:2px">'
+                for fname, fval in sorted(input_feats, key=lambda x: x[1], reverse=True):
+                    bar_w = max(3, fval / max(0.01, max_imp) * 100)
+                    fi_html += f'<div style="display:flex;align-items:center;gap:6px"><span style="color:#6a5a2a;font-size:8px;width:55px;text-align:right">{fname}</span><div style="flex:1;background:#1a1400;height:6px;border-radius:1px"><div style="width:{bar_w:.0f}%;height:100%;background:#fa8000;border-radius:1px"></div></div><span style="color:#ffb000;font-size:8px">{fval:.2f}</span></div>'
+                fi_html += '</div>'
+                st.markdown(fi_html, unsafe_allow_html=True)
+
+            # Top params
+            top5 = feat_imp.get("_param_top5", [])
+            if top5:
+                st.markdown('<div style="color:#6a5a2a;font-size:8px;margin:6px 0 2px">Top параметры модели:</div>', unsafe_allow_html=True)
+                tp_html = '<div style="display:flex;flex-wrap:wrap;gap:3px">'
+                for tp in top5:
+                    tp_html += f'<span style="background:#0a1a00;border:1px solid #34c759;padding:1px 5px;color:#34c759;font-size:7px">{tp["name"]}: {tp["impact"]:.2f}</span>'
+                tp_html += '</div>'
+                st.markdown(tp_html, unsafe_allow_html=True)
+
+        # ── LEARNING HISTORY (Google Drive) ──
+        history = PL.get("learning_history", [])
+        if history:
+            st.markdown('<div style="color:#d6a44a;font-size:9px;margin:10px 0 4px;font-weight:700">SELF-LEARNING HISTORY (Google Drive)</div>', unsafe_allow_html=True)
+            # Mini accuracy trend chart from history
+            accs_hist = [float(h.get("accuracy_after", 0)) for h in history[:15]]
+            if accs_hist:
+                max_h = max(accs_hist) if accs_hist else 1
+                hist_html = '<div style="display:flex;align-items:flex-end;gap:2px;height:30px;padding:2px">'
+                for i, a in enumerate(reversed(accs_hist)):
+                    h = max(3, a / max(1, max_h) * 26)
+                    c = "#34c759" if a >= 70 else "#ffb000" if a >= 50 else "#ff3b30"
+                    hist_html += f'<div style="flex:1;display:flex;flex-direction:column;align-items:center"><div style="width:100%;height:{h}px;background:{c};border-radius:1px"></div></div>'
+                hist_html += '</div>'
+                hist_html += f'<div style="display:flex;justify-content:space-between;color:#6a5a2a;font-size:7px"><span>← старые</span><span>{len(accs_hist)} runs</span><span>новые →</span></div>'
+                st.markdown(hist_html, unsafe_allow_html=True)
+        elif current_acc > 0:
+            st.markdown('<div style="color:#6a5a2a;font-size:8px;margin:6px 0;padding:4px 8px;background:#0a0800;border:1px solid #1a1400">📡 Запустите пайплайн несколько раз для накопления истории обучения</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # ФЕНИКС v32.0 — Sobol MC (interactive)

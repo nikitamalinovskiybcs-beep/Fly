@@ -669,9 +669,9 @@ def run_pipeline(
         param_bounds=PhoenixAGI.PARAM_BOUNDS,
     )
 
-    # Save to Supabase (if available)
+    # Save to Google Drive store
     try:
-        from src.supabase_store import save_calibrated_params, save_backtest_result, save_pipeline_run
+        from src.gdrive_store import save_calibrated_params, save_backtest_result, save_pipeline_run
         save_backtest_result(backtest_result, basket_tickers)
         save_calibrated_params(
             calibration_result["calibrated_params"],
@@ -693,14 +693,25 @@ def run_pipeline(
     }
     calibrated_agi.save_to_clickhouse()
 
+    # Fetch learning history from Google Drive store
+    learning_history = []
+    try:
+        from src.gdrive_store import get_pipeline_runs, get_backtest_history
+        learning_history = get_pipeline_runs(limit=20)
+    except Exception:
+        pass
+
     pipeline_result = {
         "backtest": backtest_result,
         "calibration": calibration_result,
         "forecast": forecast_result,
+        "learning_history": learning_history,
+        "target_accuracy": 74.0,
+        "current_accuracy": calibration_result["after"]["test_acc"],
         "pipeline_ts": datetime.now().isoformat(),
     }
 
-    # Save pipeline run to Supabase
+    # Save pipeline run to Google Drive store
     try:
         save_pipeline_run(pipeline_result, basket_tickers)
     except Exception:

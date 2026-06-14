@@ -8,5 +8,4 @@ schedule>=1.2.0
 clickhouse-connect>=0.7.0
 qiskit>=1.0.0
 qiskit-aer>=0.13.0
-supabase>=2.0.0
 requests>=2.31.0
