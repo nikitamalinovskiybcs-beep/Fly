@@ -232,15 +232,7 @@ if basket_tickers:
 
 
 
-    # ═══════════════════════════════════════════════════════════════
-    # POSITION SIZER
-    # ═══════════════════════════════════════════════════════════════
-    ps1,ps2,ps3 = st.columns(3)
-    with ps1: aum = st.number_input("AUM КЛИЕНТА, $", min_value=10000, value=1000000, step=10000)
-    with ps2: risk_budget = st.number_input("РИСК-БЮДЖЕТ, %", min_value=0.5, max_value=50.0, value=5.0, step=0.5)
-    with ps3: e_loss_pct = D.get("p_clean_loss", 15); st.number_input("E[LOSS] КОРЗИНЫ, %", value=e_loss_pct, disabled=True, key="e_loss_display")
-    notional = aum * (risk_budget / 100) / max(e_loss_pct / 100, 0.01)
-    st.markdown(f'<div class="qc" style="padding:10px"><div style="color:#d6a44a;font-size:10px">Notional ноты</div><div style="color:#ffb000;font-size:20px;font-weight:700">${notional:,.0f}</div><div style="color:#6a5a2a;font-size:9px">Риск-бюджет ${aum*(risk_budget/100):,.0f} ({risk_budget}% от AUM) ÷ E[loss] {e_loss_pct:.1f}% = notional ноты</div></div>', unsafe_allow_html=True)
+
 
     # ═══════════════════════════════════════════════════════════════
     # КУПОН КЛИЕНТУ
@@ -342,24 +334,12 @@ if basket_tickers:
                 </div>
                 ''', unsafe_allow_html=True)
 
-    # ═══════════════════════════════════════════════════════════════
-    # [03] SECTOR EXP
-    # ═══════════════════════════════════════════════════════════════
-    sectors = D.get("sectors", {})
-    top_sector = D.get("top_sector", "N/A")
-    top_pct = D.get("top_sector_pct", 0)
-    with st.expander(f"[03] SECTOR EXP.    {top_sector} {top_pct}%"):
-        # Sector table
-        for s, cnt in sorted(sectors.items(), key=lambda x: -x[1]):
-            pct = round(cnt / n_tickers * 100)
-            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#fa8000;font-size:11px">■ {s}</span><span style="color:#ffb000;font-size:11px">{pct}% ({cnt})</span></div>', unsafe_allow_html=True)
-        if top_pct > 50:
-            st.markdown(f'<div style="color:#ffb000;font-size:10px;margin-top:6px;border-left:3px solid #fa8000;padding-left:8px">⚠ Концентрация: {top_sector} {top_pct}% корзины. Рассмотри диверсификацию.</div>', unsafe_allow_html=True)
+
 
     # ═══════════════════════════════════════════════════════════════
-    # [04] WORST-OF
+    # [03] WORST-OF
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[04] WORST-OF"):
+    with st.expander("[03] WORST-OF"):
         st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Для каждой бумаги: P(она = worst-of при выходе) + P(она = worst-of при KI). Идеал — у всех ≈33% (равная нагрузка). Если один тикер >50% — он «culprit», его замена улучшит расчёт.</div>', unsafe_allow_html=True)
         if wo_analysis:
             culprit = wo_analysis[0]
@@ -380,43 +360,13 @@ if basket_tickers:
                     <span style="color:#ffb000;font-size:11px;min-width:40px;text-align:right">{wa["p_worst"]:.1f}%</span>
                 </div>''', unsafe_allow_html=True)
 
-    # ═══════════════════════════════════════════════════════════════
-    # [05] CORR MATRIX
-    # ═══════════════════════════════════════════════════════════════
-    avg_c = corr.get("avg_corr", 0)
-    with st.expander(f"[05] CORR MATRIX    AVG {avg_c:.2f}"):
-        st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Pearson корреляции дневных логдоходностей за 5y. Sweet spot для Phoenix: <b>0.45–0.65</b> — достаточно diversification benefit, но worst-of не «убегает» вниз.</div>', unsafe_allow_html=True)
-        if avg_c < 0.40:
-            st.markdown(f'<div style="background:#0a1a0a;border:1px solid #34c759;padding:6px 8px;color:#34c759;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — корзина хорошо диверсифицирована.</div>', unsafe_allow_html=True)
-        elif avg_c < 0.65:
-            st.markdown(f'<div style="background:#1a1a0a;border:1px solid #ffb000;padding:6px 8px;color:#ffb000;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — приемлемо.</div>', unsafe_allow_html=True)
-        else:
-            st.markdown(f'<div style="background:#1a0a0a;border:1px solid #ff3b30;padding:6px 8px;color:#ff3b30;font-size:11px;margin-bottom:8px">● Средняя корреляция = {avg_c:.2f} — высокая, все падают вместе.</div>', unsafe_allow_html=True)
-        # Legend
-        st.markdown('<div style="font-size:10px;color:#d6a44a;margin-bottom:4px">🟦 &lt;0.40 хорошо · 🟩 0.40–0.65 · 🟨 0.65–0.75 · 🟧 0.75–0.85 · 🟥 &gt;0.85 слиплись</div>', unsafe_allow_html=True)
-        # Matrix table
-        c_tickers = corr.get("tickers", [])
-        c_matrix = corr.get("matrix", [])
-        if c_tickers and c_matrix:
-            hdr = '<th style="padding:4px 8px;color:#d6a44a;font-size:10px"></th>' + "".join(f'<th style="padding:4px 8px;color:#ffb000;font-size:10px;font-weight:700">{t}</th>' for t in c_tickers)
-            rows = ""
-            for i, t in enumerate(c_tickers):
-                cells = f'<td style="padding:4px 8px;color:#ffb000;font-size:10px;font-weight:700">{t}</td>'
-                for j in range(len(c_tickers)):
-                    if i == j:
-                        cells += '<td style="padding:4px 8px;color:#6a5a2a;font-size:10px;text-align:center">—</td>'
-                    else:
-                        v = c_matrix[i][j]
-                        bg = "#0a2a2a" if v < 0.40 else "#0a2a0a" if v < 0.65 else "#2a2a0a" if v < 0.75 else "#2a1a0a" if v < 0.85 else "#2a0a0a"
-                        cells += f'<td style="padding:4px 8px;background:{bg};color:#ffb000;font-size:11px;text-align:center;font-weight:700">{v:.2f}</td>'
-                rows += f'<tr>{cells}</tr>'
-            st.markdown(f'<table style="width:100%;border-collapse:collapse;margin-top:8px"><tr>{hdr}</tr>{rows}</table>', unsafe_allow_html=True)
+
 
     # ═══════════════════════════════════════════════════════════════
-    # [06] EARNINGS CAL
+    # [04] EARNINGS CAL
     # ═══════════════════════════════════════════════════════════════
     total_events = earnings.get("total_events", 0)
-    with st.expander(f"[06] EARNINGS CAL    {total_events} EVENTS"):
+    with st.expander(f"[04] EARNINGS CAL    {total_events} EVENTS"):
         st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin-bottom:6px">БЛИЖАЙШИЕ 5 ОТЧЁТОВ</div>', unsafe_allow_html=True)
         for ev in earnings.get("events", [])[:5]:
             days = ev["days"]
@@ -431,12 +381,12 @@ if basket_tickers:
         st.markdown('<div style="color:#6a5a2a;font-size:9px;margin-top:6px">🔴 ≤ 7 дн (вол-спайк, риск KI) · 🟡 ≤ 30 дн · 🟢 далее. Источник: yfinance.</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [07] TAIL RISK
+    # [05] TAIL RISK
     # ═══════════════════════════════════════════════════════════════
     t_var95 = tail.get("var_95_cf", 0)
     t_es95 = tail.get("es_95", 0)
     t_regime = tail.get("regime", "?")
-    with st.expander(f"[07] TAIL RISK    VAR95 {t_var95:.2f}% · ES95 {t_es95:.2f}% · RE: {t_regime}"):
+    with st.expander(f"[05] TAIL RISK    VAR95 {t_var95:.2f}% · ES95 {t_es95:.2f}% · RE: {t_regime}"):
         st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:10px;line-height:1.5">Расширенный риск-анализ: фат-тейлы (skew/kurtosis), Expected Shortfall, tail-dependence (одновременные просадки), regime-switching VaR.</div>', unsafe_allow_html=True)
 
         # VaR section
@@ -502,9 +452,9 @@ if basket_tickers:
         ''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [08] STRESS
+    # [06] STRESS
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[08] STRESS"):
+    with st.expander("[06] STRESS"):
         st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Репликация исторических кризисов через β_SPY · {len(stress)} сценариев. Каждая корзина = бар, ✓ безопасно если max DD не пробил 40%.</div>', unsafe_allow_html=True)
         for sc in stress:
             safe = sc["safe"]
@@ -528,11 +478,11 @@ if basket_tickers:
             </div>''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [09] SMART ALTERNATIVES — data-driven basket suggestions
+    # [07] SMART ALTERNATIVES — data-driven basket suggestions
     # ═══════════════════════════════════════════════════════════════
     smart_alts = D.get("smart_alts", [])
     n_alts = len(smart_alts)
-    with st.expander(f"[09] SMART ALTERNATIVES    {n_alts} вариантов"):
+    with st.expander(f"[07] SMART ALTERNATIVES    {n_alts} вариантов"):
         if smart_alts:
             worst_replaced = smart_alts[0].get("replaced", "?")
             st.markdown(f'''
@@ -567,116 +517,42 @@ if basket_tickers:
         else:
             st.markdown('<div style="color:#6a5a2a;font-size:10px">Недостаточно данных для генерации альтернатив</div>', unsafe_allow_html=True)
 
-    # ═══════════════════════════════════════════════════════════════
-    # [10] ПОДБОР ЛУЧШЕГО ФЕНИКСА — automatic Phoenix optimizer
-    # ═══════════════════════════════════════════════════════════════
-    phoenix_r = D.get("phoenix_ranker", {})
-    best_bar = phoenix_r.get("best_barrier", {})
-    best_ten = phoenix_r.get("best_tenor", {})
-    opt_bar = D.get("optimal_barrier", {})
-    cal_cpn = D.get("calibrated_coupon", {})
-    emp_pki = D.get("empirical_pki", {})
-    disp = D.get("dispersion_signal", {})
-    sec_conc = D.get("sector_concentration", {})
-    earn_risk = D.get("earnings_risk", {})
-    top_bsk = D.get("top_baskets", [])
 
-    rec_text = phoenix_r.get("recommendation", "—")
-    opt_rec = opt_bar.get("recommendation", "—")
-    with st.expander(f"[10] ПОДБОР ЛУЧШЕГО ФЕНИКСА    {opt_bar.get('optimal_barrier', 65)}% барьер"):
-        # Main recommendation
-        st.markdown(f'''
-        <div style="background:#1a2600;border:1px solid #2a3600;border-radius:4px;padding:10px;margin-bottom:10px">
-            <div style="color:#34c759;font-size:11px;font-weight:700">🎯 РЕКОМЕНДАЦИЯ</div>
-            <div style="color:#ffb000;font-size:12px;margin-top:4px">{rec_text}</div>
-            <div style="color:#d6a44a;font-size:10px;margin-top:2px">{opt_rec}</div>
-        </div>''', unsafe_allow_html=True)
-
-        c1, c2 = st.columns(2)
-        with c1:
-            # Barrier comparison
-            st.markdown('<div style="color:#d6a44a;font-size:10px;font-weight:700;margin-bottom:6px">БАРЬЕР СРАВНЕНИЕ</div>', unsafe_allow_html=True)
-            for b in phoenix_r.get("all_barriers", []):
-                is_best = b["barrier"] == best_bar.get("barrier", 65)
-                marker = "★" if is_best else " "
-                bar_c = "#34c759" if is_best else "#6a5a2a"
-                st.markdown(f'<div style="display:flex;gap:10px;font-size:10px;color:{bar_c}"><span>{marker} {b["barrier"]}%</span><span>P(KI) {b["p_ki"]}%</span><span>купон {b["est_coupon"]}%</span><span>score {b["score"]}</span></div>', unsafe_allow_html=True)
-
-        with c2:
-            # Tenor comparison
-            st.markdown('<div style="color:#d6a44a;font-size:10px;font-weight:700;margin-bottom:6px">СРОК СРАВНЕНИЕ</div>', unsafe_allow_html=True)
-            for t in phoenix_r.get("all_tenors", []):
-                is_best = t["tenor_months"] == best_ten.get("tenor_months", 24)
-                marker = "★" if is_best else " "
-                ten_c = "#34c759" if is_best else "#6a5a2a"
-                st.markdown(f'<div style="display:flex;gap:10px;font-size:10px;color:{ten_c}"><span>{marker} {t["tenor_months"]}мес</span><span>P(loss) {t["p_loss"]}%</span><span>купон {t["est_coupon"]}%</span><span>score {t["score"]}</span></div>', unsafe_allow_html=True)
-
-        # Calibrated coupon + Empirical P(KI) + Dispersion
-        st.markdown(f'''
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
-            <div class="qc" style="flex:1;min-width:110px;padding:8px;text-align:center">
-                <div style="color:#d6a44a;font-size:9px">КУПОН (828 QUOTES)</div>
-                <div style="color:#ffb000;font-size:14px;font-weight:700">{cal_cpn.get("coupon_blended", 0):.1f}%</div>
-                <div style="color:#6a5a2a;font-size:8px">модель {cal_cpn.get("coupon_model", 0):.1f}% · lookup {cal_cpn.get("coupon_lookup", 0):.1f}%</div>
-            </div>
-            <div class="qc" style="flex:1;min-width:110px;padding:8px;text-align:center">
-                <div style="color:#d6a44a;font-size:9px">P(KI) ЭМПИРИЧ.</div>
-                <div style="color:{"#ff3b30" if emp_pki.get("p_ki_empirical", 0) > 35 else "#ffb000"};font-size:14px;font-weight:700">{emp_pki.get("p_ki_empirical", 0):.1f}%</div>
-                <div style="color:#6a5a2a;font-size:8px">{emp_pki.get("n_settled", 0)} settled notes · {emp_pki.get("confidence", "?")}</div>
-            </div>
-            <div class="qc" style="flex:1;min-width:110px;padding:8px;text-align:center">
-                <div style="color:#d6a44a;font-size:9px">DISPERSION</div>
-                <div style="color:#ffb000;font-size:14px;font-weight:700">{disp.get("spread", 0):.0f}%</div>
-                <div style="color:#6a5a2a;font-size:8px">сигнал: {disp.get("signal", "—")} · boost +{disp.get("coupon_boost_pct", 0):.1f}%</div>
-            </div>
-        </div>''', unsafe_allow_html=True)
-
-        # Sector concentration + Earnings risk
-        sec_c = "#ff3b30" if sec_conc.get("label") == "CONCENTRATED" else "#34c759"
-        earn_c = "#ff3b30" if earn_risk.get("risk_level") == "HIGH" else "#6a5a2a"
-        st.markdown(f'''
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
-            <div class="qc" style="flex:1;min-width:140px;padding:8px">
-                <div style="color:#d6a44a;font-size:9px">СЕКТОРЫ</div>
-                <div style="color:{sec_c};font-size:11px;font-weight:700">{sec_conc.get("label", "?")} · HHI {sec_conc.get("hhi", 0):.2f}</div>
-                <div style="color:#6a5a2a;font-size:8px">{sec_conc.get("recommendation", "")}</div>
-            </div>
-            <div class="qc" style="flex:1;min-width:140px;padding:8px">
-                <div style="color:#d6a44a;font-size:9px">EARNINGS RISK</div>
-                <div style="color:{earn_c};font-size:11px;font-weight:700">{earn_risk.get("risk_level", "?")} · {earn_risk.get("n_risk_zones", 0)} zones</div>
-                <div style="color:#6a5a2a;font-size:8px">{earn_risk.get("recommendation", "")}</div>
-            </div>
-        </div>''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [11] STRESS TEST v2 — historical drawdown scenarios
+    # [08] STRESS TEST v2 — historical drawdown scenarios
     # ═══════════════════════════════════════════════════════════════
     stress_v2 = D.get("stress_v2", [])
     n_critical = sum(1 for s in stress_v2 if s.get("risk_level") == "CRITICAL")
     stress_label = f"{n_critical} CRITICAL" if n_critical > 0 else "ALL OK"
     stress_c = "#ff3b30" if n_critical > 0 else "#34c759"
-    with st.expander(f"[11] STRESS TEST    {stress_label}"):
-        for sc in stress_v2:
-            rc = "#ff3b30" if sc["risk_level"] == "CRITICAL" else ("#fa8000" if sc["risk_level"] == "WARNING" else "#34c759")
-            ki_badge = f'<span style="background:#ff3b30;color:#fff;font-size:8px;padding:1px 4px;border-radius:2px">KI BREACH</span>' if sc["barrier_breach_65"] else ""
-            st.markdown(f'''
-            <div class="qc" style="padding:8px;margin-bottom:6px">
-                <div style="display:flex;align-items:center;gap:8px">
-                    <span style="color:{rc};font-size:11px;font-weight:700">{sc["name"]}</span>
-                    <span style="color:#6a5a2a;font-size:9px">SPX {sc["spx_drop"]:+d}% · {sc["duration_days"]}д</span>
-                    {ki_badge}
-                </div>
-                <div style="display:flex;gap:12px;margin-top:4px">
-                    <span style="color:#ffb000;font-size:10px">Корзина: {sc["basket_drop"]:+.1f}%</span>
-                    <span style="color:#ff3b30;font-size:10px">Worst: {sc["worst_ticker_drop"]:+.1f}%</span>
-                    <span style="color:#6a5a2a;font-size:9px">Recovery: {sc["recovery_days"]}д</span>
-                </div>
-            </div>''', unsafe_allow_html=True)
+    with st.expander(f"[08] STRESS TEST    {stress_label}"):
+        if stress_v2:
+            st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:8px">Исторические сценарии стресса при барьере <b>65%</b>. KI BREACH = worst-of тикер пробивает барьер.</div>', unsafe_allow_html=True)
+            for sc in stress_v2:
+                rc = "#ff3b30" if sc["risk_level"] == "CRITICAL" else ("#fa8000" if sc["risk_level"] == "WARNING" else "#34c759")
+                ki_badge = f'<span style="background:#ff3b30;color:#fff;font-size:8px;padding:1px 4px;border-radius:2px;margin-left:4px">KI BREACH</span>' if sc.get("barrier_breach_65") else ""
+                st.markdown(f'''
+                <div class="qc" style="padding:8px;margin-bottom:6px">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span style="color:{rc};font-size:11px;font-weight:700">{sc["name"]}</span>
+                        <span style="color:#6a5a2a;font-size:9px">SPX {sc["spx_drop"]:+d}% · {sc["duration_days"]}д</span>
+                        {ki_badge}
+                    </div>
+                    <div style="display:flex;gap:12px;margin-top:4px">
+                        <span style="color:#ffb000;font-size:10px">Корзина: {sc["basket_drop"]:+.1f}%</span>
+                        <span style="color:#ff3b30;font-size:10px">Worst: {sc["worst_ticker_drop"]:+.1f}%</span>
+                        <span style="color:#6a5a2a;font-size:9px">Recovery: {sc["recovery_days"]}д</span>
+                    </div>
+                </div>''', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:11px">Недостаточно данных для стресс-теста. Проверьте загрузку yfinance.</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [12] TOP-3 РЕКОМЕНДУЕМЫЕ КОРЗИНЫ
+    # [09] TOP-3 РЕКОМЕНДУЕМЫЕ КОРЗИНЫ
     # ═══════════════════════════════════════════════════════════════
-    with st.expander(f"[12] TOP-3 КОРЗИНЫ    рекомендации"):
+    top_bsk = D.get("top_baskets", [])
+    with st.expander(f"[09] TOP-3 КОРЗИНЫ    рекомендации"):
         if top_bsk:
             st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:8px">Лучшие корзины из universe (оптимизированы по тикеру токсичности + секторной диверсификации)</div>', unsafe_allow_html=True)
             for i, b in enumerate(top_bsk):
@@ -696,13 +572,13 @@ if basket_tickers:
             st.markdown('<div style="color:#6a5a2a;font-size:10px">Недостаточно данных</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [13] BACKTEST + NUMERIX COMPARISON + AGI MODEL
+    # [10] BACKTEST + NUMERIX COMPARISON + AGI MODEL
     # ═══════════════════════════════════════════════════════════════
     with st.spinner("⚡ Бэктест + AGI..."):
         BT = cached_backtest(",".join(basket_tickers), D["p_ki"], D["coupon_pa"], D["e_payout"])
 
     bt_stats = BT.get("bt_stats", {})
-    with st.expander(f"[13] BACKTEST    {BT['n_backtests']} WINDOWS · WIN {bt_stats.get('win_rate',0):.0f}%"):
+    with st.expander(f"[10] BACKTEST    {BT['n_backtests']} WINDOWS · WIN {bt_stats.get('win_rate',0):.0f}%"):
         if bt_stats:
             st.markdown(f'''
             <div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Скользящий бэктест Phoenix worst-of за 5 лет ({BT["n_backtests"]} окон по 2Y). Каждый window = реальный продукт с 65% барьером.</div>
@@ -767,7 +643,7 @@ if basket_tickers:
     if acc_str:
         summary_str += f" · {acc_str}"
 
-    with st.expander(f"[14] СРАВНЕНИЕ С РЫНКОМ    {summary_str}"):
+    with st.expander(f"[11] СРАВНЕНИЕ С РЫНКОМ    {summary_str}"):
         # GUARD flag
         if guard:
             st.markdown(f'''
@@ -843,7 +719,7 @@ if basket_tickers:
 
     acc_color = "#34c759" if cal_after.get("test_acc", 0) >= 70 else "#ffb000" if cal_after.get("test_acc", 0) >= 50 else "#ff3b30"
 
-    with st.expander(f"[15] AGI PIPELINE    ACC {cal_after.get('test_acc',0):.0f}% · CONF {fc_conf:.0f}%"):
+    with st.expander(f"[12] AGI PIPELINE    ACC {cal_after.get('test_acc',0):.0f}% · CONF {fc_conf:.0f}%"):
 
         # ── COMPONENT 1: БЭКТЕСТ v2 ──
         st.markdown('<div style="color:#6db6ff;font-size:12px;font-weight:700;margin-bottom:6px;border-bottom:1px solid #3a2a00;padding-bottom:4px">① БЭКТЕСТ — ТОЧНОСТЬ МОДЕЛИ</div>', unsafe_allow_html=True)
@@ -995,79 +871,10 @@ if basket_tickers:
             for metric, vals in ci.items():
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:9px">{metric}</span><span style="color:#d6a44a;font-size:9px">[{vals["p10"]:.1f} — {vals["p50"]:.1f} — {vals["p90"]:.1f}]</span></div>', unsafe_allow_html=True)
 
-    # ═══════════════════════════════════════════════════════════════
-    # [13] EXTERNAL COMPUTE — Google Colab + Supabase + NVIDIA AI
-    # ═══════════════════════════════════════════════════════════════
-    ext = D.get("external_services", {})
-    colab_s = ext.get("colab", {})
-    supa_s = ext.get("supabase", {})
-    nv_s = ext.get("nvidia", {})
-    nv_risk = D.get("nvidia_risk", {})
-
-    with st.expander("[13] EXTERNAL COMPUTE    Colab · Supabase · NVIDIA AI"):
-        st.markdown(f'''
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
-            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if colab_s.get("available") else "#6a5a2a"}">
-                <div style="color:#d6a44a;font-size:8px">GOOGLE COLAB</div>
-                <div style="color:{"#34c759" if colab_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if colab_s.get("available") else "○ OFF"}</div>
-                <div style="color:#6a5a2a;font-size:7px">{colab_s.get("description","T4 GPU MC")}</div>
-            </div>
-            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if supa_s.get("available") else "#6a5a2a"}">
-                <div style="color:#d6a44a;font-size:8px">SUPABASE</div>
-                <div style="color:{"#34c759" if supa_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if supa_s.get("available") else "○ OFF"}</div>
-                <div style="color:#6a5a2a;font-size:7px">{supa_s.get("description","PostgreSQL storage")}</div>
-            </div>
-            <div class="qc" style="flex:1;min-width:120px;padding:8px;border-left:3px solid {"#34c759" if nv_s.get("available") else "#6a5a2a"}">
-                <div style="color:#d6a44a;font-size:8px">NVIDIA AI</div>
-                <div style="color:{"#34c759" if nv_s.get("available") else "#ff3b30"};font-size:11px;font-weight:700">{"● ON" if nv_s.get("available") else "○ OFF"}</div>
-                <div style="color:#6a5a2a;font-size:7px">{nv_s.get("description","NIM Llama 3.1")}</div>
-            </div>
-        </div>''', unsafe_allow_html=True)
-
-        # NVIDIA risk analysis result
-        nv_level = nv_risk.get("risk_level", "N/A")
-        nv_adj = nv_risk.get("score_adjustment", 0)
-        nv_source = nv_risk.get("source", "N/A")
-        nv_level_c = {"low": "#34c759", "medium": "#ffb000", "high": "#ff3b30", "extreme": "#ff0000"}.get(nv_level, "#6a5a2a")
-
-        st.markdown(f'''
-        <div style="color:#6db6ff;font-size:10px;font-weight:700;margin:8px 0 4px;border-bottom:1px solid #3a2a00;padding-bottom:3px">AI RISK ANALYSIS ({nv_source})</div>
-        <div style="display:flex;gap:6px;margin-bottom:6px">
-            <div class="qc" style="flex:1;padding:6px;text-align:center">
-                <div style="color:#d6a44a;font-size:7px">RISK LEVEL</div>
-                <div style="color:{nv_level_c};font-size:14px;font-weight:700">{nv_level.upper()}</div>
-            </div>
-            <div class="qc" style="flex:1;padding:6px;text-align:center">
-                <div style="color:#d6a44a;font-size:7px">SCORE ADJ</div>
-                <div style="color:{"#34c759" if nv_adj > 0 else "#ff3b30" if nv_adj < 0 else "#6a5a2a"};font-size:14px;font-weight:700">{nv_adj:+.1f}</div>
-            </div>
-            <div class="qc" style="flex:1;padding:6px;text-align:center">
-                <div style="color:#d6a44a;font-size:7px">CONCENTRATION</div>
-                <div style="color:{"#ff3b30" if nv_risk.get("concentration_warning") else "#34c759"};font-size:14px;font-weight:700">{"⚠ YES" if nv_risk.get("concentration_warning") else "OK"}</div>
-            </div>
-        </div>''', unsafe_allow_html=True)
-
-        # Key risks
-        risks = nv_risk.get("key_risks", [])
-        if risks:
-            for r in risks[:3]:
-                st.markdown(f'<div style="padding:2px 8px;border-left:2px solid #ff3b30;margin-bottom:2px;color:#d6a44a;font-size:8px">⚠ {r}</div>', unsafe_allow_html=True)
-
-        rec = nv_risk.get("recommendation", "")
-        if rec:
-            st.markdown(f'<div style="padding:4px 8px;background:#0a0800;color:#6db6ff;font-size:8px;margin-top:4px">💡 {rec}</div>', unsafe_allow_html=True)
-
-        # Setup instructions
-        st.markdown('''
-        <div style="color:#6a5a2a;font-size:7px;margin-top:8px;border-top:1px solid #1a1400;padding-top:4px">
-            Подключение: NVIDIA_API_KEY → build.nvidia.com | COLAB_WEBHOOK → Google Colab | Google Drive — автоматически
-        </div>''', unsafe_allow_html=True)
-
         # ── FEATURE IMPORTANCE ──
         feat_imp = pl_fc.get("feature_importance", {})
         if feat_imp:
             st.markdown('<div style="color:#d6a44a;font-size:9px;margin:8px 0 4px;font-weight:700">FEATURE IMPORTANCE (Δscore при +10% входа)</div>', unsafe_allow_html=True)
-            # Input features
             input_feats = [(k, v) for k, v in feat_imp.items() if not k.startswith("_")]
             if input_feats:
                 max_imp = max(v for _, v in input_feats) if input_feats else 1
@@ -1078,21 +885,10 @@ if basket_tickers:
                 fi_html += '</div>'
                 st.markdown(fi_html, unsafe_allow_html=True)
 
-            # Top params
-            top5 = feat_imp.get("_param_top5", [])
-            if top5:
-                st.markdown('<div style="color:#6a5a2a;font-size:8px;margin:6px 0 2px">Top параметры модели:</div>', unsafe_allow_html=True)
-                tp_html = '<div style="display:flex;flex-wrap:wrap;gap:3px">'
-                for tp in top5:
-                    tp_html += f'<span style="background:#0a1a00;border:1px solid #34c759;padding:1px 5px;color:#34c759;font-size:7px">{tp["name"]}: {tp["impact"]:.2f}</span>'
-                tp_html += '</div>'
-                st.markdown(tp_html, unsafe_allow_html=True)
-
         # ── LEARNING HISTORY (Google Drive) ──
         history = PL.get("learning_history", [])
         if history:
-            st.markdown('<div style="color:#d6a44a;font-size:9px;margin:10px 0 4px;font-weight:700">SELF-LEARNING HISTORY (Google Drive)</div>', unsafe_allow_html=True)
-            # Mini accuracy trend chart from history
+            st.markdown('<div style="color:#d6a44a;font-size:9px;margin:10px 0 4px;font-weight:700">SELF-LEARNING HISTORY</div>', unsafe_allow_html=True)
             accs_hist = [float(h.get("accuracy_after", 0)) for h in history[:15]]
             if accs_hist:
                 max_h = max(accs_hist) if accs_hist else 1
@@ -1104,14 +900,13 @@ if basket_tickers:
                 hist_html += '</div>'
                 hist_html += f'<div style="display:flex;justify-content:space-between;color:#6a5a2a;font-size:7px"><span>← старые</span><span>{len(accs_hist)} runs</span><span>новые →</span></div>'
                 st.markdown(hist_html, unsafe_allow_html=True)
-        elif current_acc > 0:
-            st.markdown('<div style="color:#6a5a2a;font-size:8px;margin:6px 0;padding:4px 8px;background:#0a0800;border:1px solid #1a1400">📡 Запустите пайплайн несколько раз для накопления истории обучения</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # ФЕНИКС v32.0 — Sobol MC (interactive)
     # ═══════════════════════════════════════════════════════════════
     st.markdown('<div class="sec">🔥 ФЕНИКС v32.0 — SOBOL MC ENGINE</div>', unsafe_allow_html=True)
-    st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:6px">2Y · USD · Memory Coupon · Worst-of Phoenix Autocallable · Все комбинации C(N,K)</div>', unsafe_allow_html=True)
+    colab_url = "https://colab.research.google.com/github/nikitamalinovskiybcs-beep/Fly/blob/base-branch/phoenix_colab.ipynb"
+    st.markdown(f'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="color:#d6a44a;font-size:10px">2Y · USD · Memory Coupon · Worst-of Phoenix Autocallable · 65% барьер</span><a href="{colab_url}" target="_blank" style="background:#fa8000;color:#000;font-size:9px;padding:3px 8px;text-decoration:none;font-weight:700;border-radius:2px">▶ OPEN IN COLAB (GPU)</a></div>', unsafe_allow_html=True)
 
     pc1,pc2,pc3,pc4 = st.columns(4)
     with pc1: phoenix_n_sims = st.selectbox("Симуляций", [10_000,50_000,100_000,500_000], index=1, key="ph_sims", format_func=lambda x: f"{x:,}")
@@ -1174,33 +969,24 @@ if basket_tickers:
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{i+1}. {" · ".join(cr["combo"])}</span><span style="color:{color};font-size:10px">payoff {payoff:.1f}% · P(loss) {p_loss:.1f}%</span></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # FOOTER + STATUS BAR
+    # FOOTER
     # ═══════════════════════════════════════════════════════════════
     st.markdown(f'''
     <div style="margin-top:16px;padding:8px 14px;border-top:1px solid #3a2a00">
         <small style="color:#3a2a00;font-size:9px;line-height:1.4">
-            IV30 — yfinance. Корреляции — лог-доходности 5Y. DCF — FCF с CAPM-WACC.
-            MC — коррелированный GBM. Стресс — β_SPY через GFC, COVID, Tech, TradeWar.
-            ClickHouse Cloud: 40K sims · Qiskit AerSimulator · ФЕНИКС v32.0 Sobol QMC.
+            IV30 — yfinance. Корреляции — лог-доходности 5Y. MC — коррелированный GBM (Sobol QMC).
+            Стресс — β_SPY через GFC, COVID, Tech, TradeWar. Self-learning на 50+ settled notes.
         </small>
-    </div>
-    <div style="text-align:center;color:#3a2a00;font-size:9px;margin-top:8px;text-transform:uppercase;letter-spacing:1px">
-        PHOENIX TERMINAL &copy; {datetime.datetime.now().year} · MIT Quantum + IBM Qiskit + ClickHouse Cloud + ФЕНИКС v32.0
     </div>
     ''', unsafe_allow_html=True)
 
 now_utc = datetime.datetime.now(datetime.timezone.utc)
-gdrive_st = "G-DRIVE" if GDRIVE_AVAILABLE else "LOCAL-BKP"
+gdrive_st = "G-DRIVE" if GDRIVE_AVAILABLE else "LOCAL"
 st.markdown(f'''
 <div class="sbar">
     <span>NY {now_utc.strftime("%H:%M:%S")}</span>
-    <span>MKT <span class="lb">PRE-MKT</span></span>
-    <span>API <span class="ok">OK</span></span>
-    <span>CLICKHOUSE <span class="ok">CONNECTED</span></span>
-    <span>QISKIT <span class="ok">AER-SIM → SCORING</span></span>
     <span>ФЕНИКС <span class="ok">v32.0</span></span>
-    <span>HULK <span class="ok">v41 CONDUCTOR</span></span>
     <span>{gdrive_st} <span class="ok">OK</span></span>
-    <span style="margin-left:auto"><span class="lb">PHOENIX TERMINAL · v3.0</span></span>
+    <span style="margin-left:auto"><span class="lb">PHOENIX TERMINAL</span></span>
 </div>
 ''', unsafe_allow_html=True)

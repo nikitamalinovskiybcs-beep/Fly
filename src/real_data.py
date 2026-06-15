@@ -159,56 +159,138 @@ def compute_toxicity(tickers: List[str]) -> Dict[str, Any]:
     }
 
 
+def _sigmoid(x: float) -> float:
+    """Numerically stable sigmoid."""
+    if x >= 0:
+        return 1.0 / (1.0 + np.exp(-x))
+    ez = np.exp(x)
+    return ez / (1.0 + ez)
+
+
+def _extract_features(tickers: List[str], term_months: int) -> np.ndarray:
+    """Extract features for P(loss) model: [avg_tox, max_tox, term_y, n_tickers, tox×term]."""
+    tox_info = compute_toxicity(tickers)
+    avg_tox = tox_info["avg_tox"]
+    per_ticker = tox_info["per_ticker"]
+    max_tox = max((v["tox"] for v in per_ticker.values()), default=0.5)
+    term_y = term_months / 12
+    n = len(tickers)
+    return np.array([avg_tox, max_tox, term_y, n / 6.0, avg_tox * term_y])
+
+
+# Logistic regression weights — trained via gradient descent on 50 settled notes
+# Features: [avg_tox, max_tox, term_years, n_tickers/6, avg_tox × term_years]
+# Updated by _train_p_loss_model() at module load
+_P_LOSS_WEIGHTS = np.array([2.8, 1.5, 0.6, -0.3, 0.4])
+_P_LOSS_BIAS = -3.2
+
+
+def _train_p_loss_model() -> tuple:
+    """Train logistic regression on settled notes via gradient descent.
+    Returns (weights, bias, metrics)."""
+    global _P_LOSS_WEIGHTS, _P_LOSS_BIAS
+
+    X = []
+    y = []
+    for basket_str, term_y, bad in SETTLED_NOTES:
+        tks = basket_str.split("/")
+        feats = _extract_features(tks, int(term_y * 12))
+        X.append(feats)
+        y.append(float(bad))
+
+    X = np.array(X)
+    y = np.array(y)
+    n_samples = len(y)
+
+    # Initialize from current weights
+    w = _P_LOSS_WEIGHTS.copy()
+    b = float(_P_LOSS_BIAS)
+
+    lr = 0.1
+    best_loss = float("inf")
+    best_w, best_b = w.copy(), b
+
+    for epoch in range(200):
+        # Forward pass
+        logits = X @ w + b
+        probs = np.array([_sigmoid(z) for z in logits])
+        probs = np.clip(probs, 1e-7, 1 - 1e-7)
+
+        # Binary cross-entropy
+        loss = -np.mean(y * np.log(probs) + (1 - y) * np.log(1 - probs))
+
+        # L2 regularization
+        loss += 0.01 * np.sum(w ** 2)
+
+        if loss < best_loss:
+            best_loss = loss
+            best_w = w.copy()
+            best_b = b
+
+        # Gradients
+        errors = probs - y
+        grad_w = X.T @ errors / n_samples + 0.02 * w
+        grad_b = np.mean(errors)
+
+        w -= lr * grad_w
+        b -= lr * grad_b
+
+        # Decay LR
+        if epoch % 50 == 49:
+            lr *= 0.5
+
+    _P_LOSS_WEIGHTS = best_w
+    _P_LOSS_BIAS = best_b
+
+    # Compute accuracy
+    logits = X @ best_w + best_b
+    preds = np.array([_sigmoid(z) for z in logits])
+    correct = np.sum((preds > 0.5) == y)
+    acc = correct / n_samples
+
+    # Precision / Recall / F1
+    tp = np.sum((preds > 0.5) & (y == 1))
+    fp = np.sum((preds > 0.5) & (y == 0))
+    fn = np.sum((preds <= 0.5) & (y == 1))
+    tn = np.sum((preds <= 0.5) & (y == 0))
+    precision = tp / max(1, tp + fp)
+    recall = tp / max(1, tp + fn)
+    f1 = 2 * precision * recall / max(0.001, precision + recall)
+
+    return best_w, best_b, {
+        "accuracy": round(float(acc) * 100, 1),
+        "precision": round(float(precision) * 100, 1),
+        "recall": round(float(recall) * 100, 1),
+        "f1": round(float(f1) * 100, 1),
+        "loss": round(float(best_loss), 4),
+        "confusion": {"tp": int(tp), "fp": int(fp), "tn": int(tn), "fn": int(fn)},
+        "n_samples": n_samples,
+    }
+
+
+# Train at module load (zero cost — 50 samples × 200 iterations < 10ms)
+try:
+    _P_LOSS_W_TRAINED, _P_LOSS_B_TRAINED, _P_LOSS_TRAIN_METRICS = _train_p_loss_model()
+except Exception:
+    _P_LOSS_TRAIN_METRICS = {"accuracy": 0, "f1": 0}
+
+
 def compute_p_loss(tickers: List[str], term_months: int = 24) -> Dict[str, Any]:
     """
-    Predict P(loss) from real backtest experience.
-    Simple model: logistic on (avg_tox, n_tickers, is_long_term).
-    Pre-calibrated on 50 settled notes.
+    Predict P(loss) using logistic regression trained on 50 settled notes.
+    Features: avg_tox, max_tox, term_years, n_tickers, tox×term interaction.
+    Auto-calibrated via gradient descent at module load.
     """
-    tox = compute_toxicity(tickers)["avg_tox"]
-    n = len(tickers)
+    feats = _extract_features(tickers, term_months)
+    logit = float(feats @ _P_LOSS_WEIGHTS + _P_LOSS_BIAS)
+    p_loss = _sigmoid(logit)
+    p_loss = max(0.03, min(0.95, p_loss))
 
-    # Statistics from settled notes
-    all_tox = []
-    all_bad = []
-    for basket_str, term_y, bad in SETTLED_NOTES:
-        t_list = basket_str.split("/")
-        t_scores = []
-        for t in t_list:
-            if t in TOX_EXPERIENCE:
-                l, w = TOX_EXPERIENCE[t]
-                t_scores.append(l / (l + w + 1))
-        if t_scores:
-            all_tox.append(np.mean(t_scores))
-            all_bad.append(bad)
-
-    # Empirical P(loss) by toxicity bucket
-    if tox >= 0.55:
-        p_loss = 0.75  # very toxic baskets lost 75% of the time
-    elif tox >= 0.45:
-        p_loss = 0.55
-    elif tox >= 0.35:
-        p_loss = 0.35
-    elif tox >= 0.25:
-        p_loss = 0.20
-    else:
-        p_loss = 0.08
-
-    # Term adjustment: longer term = higher risk
-    if term_months >= 36:
-        p_loss *= 1.3
-    elif term_months <= 12:
-        p_loss *= 0.6
-
-    # Size adjustment: more tickers = slightly lower risk (diversification)
-    if n >= 5:
-        p_loss *= 0.9
-
-    p_loss = min(0.95, max(0.05, p_loss))
-
-    guard_flag = p_loss > 0.25
+    tox_info = compute_toxicity(tickers)
     toxic_tickers = [t for t in tickers if t in TOX_EXPERIENCE
                      and TOX_EXPERIENCE[t][0] > TOX_EXPERIENCE[t][1]]
+
+    guard_flag = p_loss > 0.25
 
     return {
         "p_loss": round(p_loss, 4),
@@ -216,8 +298,14 @@ def compute_p_loss(tickers: List[str], term_months: int = 24) -> Dict[str, Any]:
         "guard_flag": guard_flag,
         "guard_msg": f"P(убыток)={p_loss*100:.0f}% > 25%. Toxic: {toxic_tickers}" if guard_flag else "Риск приемлемый",
         "toxic_tickers": toxic_tickers,
-        "confidence": "HIGH" if tox != 0.5 else "LOW",
+        "confidence": "HIGH" if len(tox_info.get("per_ticker", {})) > 0 else "LOW",
+        "model_metrics": _P_LOSS_TRAIN_METRICS,
     }
+
+
+def get_p_loss_model_metrics() -> Dict:
+    """Return training metrics for the P(loss) model."""
+    return _P_LOSS_TRAIN_METRICS
 
 
 def predict_dealer_coupon(tickers: List[str], term_months: int = 24,

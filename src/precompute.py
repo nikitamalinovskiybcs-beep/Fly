@@ -82,6 +82,83 @@ def update_scoring_from_outcome(basket: List[str], predicted_score: float,
     return w
 
 
+def calibrate_scoring_on_settled() -> Dict:
+    """Full calibration of scoring weights on all settled notes.
+    Returns before/after metrics for display."""
+    from src.real_data import SETTLED_NOTES, compute_p_loss
+
+    w = _load_scoring_weights()
+    before_mae = 0
+    errors_before = []
+
+    # Measure BEFORE
+    for basket_str, term_y, bad in SETTLED_NOTES[:30]:
+        tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
+        if not tks:
+            continue
+        tox = compute_toxicity(tks)
+        avg_tox = tox["avg_tox"]
+        est = w["base"] - w["w_tox"] * avg_tox - w["w_pki"] * 0.3
+        actual = 90 if bad == 0 else 55
+        errors_before.append(actual - est)
+
+    before_mae = float(np.mean(np.abs(errors_before))) if errors_before else 20
+
+    # Gradient descent calibration (10 steps, gentle)
+    for step in range(10):
+        errors = []
+        for basket_str, term_y, bad in SETTLED_NOTES[:30]:
+            tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
+            if not tks:
+                continue
+            tox = compute_toxicity(tks)
+            avg_tox = tox["avg_tox"]
+            est = w["base"] - w["w_tox"] * avg_tox - w["w_pki"] * 0.3
+            actual = 90 if bad == 0 else 55
+            err = actual - est
+            errors.append(err)
+
+        if not errors:
+            break
+
+        avg_err = float(np.mean(errors))
+        # Update weights toward reducing error
+        lr = 0.05 / (1 + step * 0.2)
+        w["base"] = max(65, min(85, w["base"] + avg_err * lr))
+        w["w_tox"] = max(3, min(15, w["w_tox"] - avg_err * lr * 0.3))
+
+    w["generation"] = w.get("generation", 0) + 1
+
+    # Measure AFTER
+    errors_after = []
+    for basket_str, term_y, bad in SETTLED_NOTES[:30]:
+        tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
+        if not tks:
+            continue
+        tox = compute_toxicity(tks)
+        avg_tox = tox["avg_tox"]
+        est = w["base"] - w["w_tox"] * avg_tox - w["w_pki"] * 0.3
+        actual = 90 if bad == 0 else 55
+        errors_after.append(actual - est)
+
+    after_mae = float(np.mean(np.abs(errors_after))) if errors_after else 20
+
+    _save_scoring_weights(w, {
+        "before_mae": round(before_mae, 1),
+        "after_mae": round(after_mae, 1),
+        "improvement_pct": round((before_mae - after_mae) / max(1, before_mae) * 100, 1),
+    })
+
+    return {
+        "generation": w.get("generation", 0),
+        "before_mae": round(before_mae, 1),
+        "after_mae": round(after_mae, 1),
+        "improvement_pct": round((before_mae - after_mae) / max(1, before_mae) * 100, 1),
+        "n_notes": len(errors_after),
+        "weights": {k: round(v, 2) if isinstance(v, float) else v for k, v in w.items()},
+    }
+
+
 # ── Smart alternatives generator ──
 
 # Universe of tickers by sector for alternative basket generation
@@ -1190,37 +1267,27 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # 20. Smart alternatives (replace worst ticker with better options)
     result["smart_alts"] = compute_smart_alternatives(basket_tickers, yf_data, tox_info)
 
-    # 21. Self-learning: train on settled notes for continuous improvement
+    # 21. Self-learning: calibrate scoring + P(loss) model metrics
     try:
-        from src.real_data import SETTLED_NOTES
-        settled = SETTLED_NOTES
-        if settled and len(settled) >= 5:
-            errors = []
-            for note in settled[:30]:
-                note_tickers = note[0].split("/") if isinstance(note, tuple) else note.get("basket", [])
-                if not note_tickers:
-                    continue
-                note_tox = compute_toxicity(note_tickers)
-                note_avg_tox = note_tox["avg_tox"]
-                est = _learned["base"] - _learned["w_tox"] * note_avg_tox - _learned["w_pki"] * 0.3
-                bad = note[2] if isinstance(note, tuple) else note.get("bad", 0)
-                actual = 100 if bad == 0 else 50
-                errors.append(actual - est)
-            if errors:
-                mae = float(np.mean(np.abs(errors)))
-                result["self_learning"] = {
-                    "generation": _learned.get("generation", 0),
-                    "mae_on_settled": round(mae, 1),
-                    "n_training_notes": len(errors),
-                    "status": "improving" if mae < 20 else "learning",
-                }
-                if mae > 15 and _learned.get("generation", 0) < 50:
-                    avg_err = float(np.mean(errors))
-                    update_scoring_from_outcome(
-                        basket_tickers, result["score"],
-                        1.0 if avg_err > 0 else 0.0,
-                        learning_rate=0.01,
-                    )
+        from src.real_data import get_p_loss_model_metrics
+        p_loss_metrics = get_p_loss_model_metrics()
+
+        # Calibrate scoring weights on settled notes
+        cal_result = calibrate_scoring_on_settled()
+
+        result["self_learning"] = {
+            "generation": cal_result["generation"],
+            "scoring_mae_before": cal_result["before_mae"],
+            "scoring_mae_after": cal_result["after_mae"],
+            "scoring_improvement_pct": cal_result["improvement_pct"],
+            "p_loss_accuracy": p_loss_metrics.get("accuracy", 0),
+            "p_loss_f1": p_loss_metrics.get("f1", 0),
+            "p_loss_precision": p_loss_metrics.get("precision", 0),
+            "p_loss_recall": p_loss_metrics.get("recall", 0),
+            "p_loss_confusion": p_loss_metrics.get("confusion", {}),
+            "n_training_notes": p_loss_metrics.get("n_samples", 0),
+            "status": "calibrated",
+        }
     except Exception:
         result["self_learning"] = {"generation": 0, "status": "init"}
 
