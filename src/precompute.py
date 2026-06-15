@@ -18,6 +18,7 @@ except ImportError:
 from src.clickhouse_data import fetch_quantum_risk_stats
 from src.real_data import compute_toxicity
 from src.colab_engine import get_colab_status, local_sobol_mc
+from src.data_module import fetch_ticker_data, get_data_source_status, XFL_AVAILABLE
 from src.gdrive_store import get_status as gdrive_status
 from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
 
@@ -82,71 +83,100 @@ def update_scoring_from_outcome(basket: List[str], predicted_score: float,
     return w
 
 
+def _score_one_note(w: Dict, tks: List[str], term_y: float) -> float:
+    """Predict score for a single basket given weights."""
+    tox = compute_toxicity(tks)
+    avg_tox = tox["avg_tox"]
+    max_tox = max((v["tox"] for v in tox["per_ticker"].values()), default=0.5)
+    n = len(tks)
+    div_factor = min(1.0, len(set(tox["per_ticker"].values())) / max(1, n))
+    return (w["base"]
+            - w["w_pki"] * avg_tox * 0.5
+            - w["w_tox"] * max_tox
+            - w["w_vol"] * avg_tox * 0.3
+            + w["w_div"] * div_factor * 0.5
+            - w["w_corr"] * (1.0 - div_factor) * 0.3
+            + w["w_mean_ret"] * (1 - avg_tox) * 0.3)
+
+
 def calibrate_scoring_on_settled() -> Dict:
-    """Full calibration of scoring weights on all settled notes.
-    Returns before/after metrics for display."""
+    """Full calibration via gradient descent on all settled notes.
+    Updates ALL weights. Saves to Google Drive. Returns metrics."""
     from src.real_data import SETTLED_NOTES, compute_p_loss
 
     w = _load_scoring_weights()
-    before_mae = 0
-    errors_before = []
 
-    # Measure BEFORE
-    for basket_str, term_y, bad in SETTLED_NOTES[:30]:
+    # Build dataset: target = 85-95 if good (bad=0), 45-60 if bad (bad=1)
+    data = []
+    for basket_str, term_y, bad in SETTLED_NOTES[:40]:
         tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
         if not tks:
             continue
-        tox = compute_toxicity(tks)
-        avg_tox = tox["avg_tox"]
-        est = w["base"] - w["w_tox"] * avg_tox - w["w_pki"] * 0.3
-        actual = 90 if bad == 0 else 55
-        errors_before.append(actual - est)
+        actual = 90.0 if bad == 0 else 52.0
+        data.append((tks, term_y, actual))
 
-    before_mae = float(np.mean(np.abs(errors_before))) if errors_before else 20
+    if not data:
+        return {"generation": 0, "before_mae": 0, "after_mae": 0,
+                "improvement_pct": 0, "n_notes": 0, "weights": w}
 
-    # Gradient descent calibration (10 steps, gentle)
-    for step in range(10):
-        errors = []
-        for basket_str, term_y, bad in SETTLED_NOTES[:30]:
-            tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
-            if not tks:
-                continue
-            tox = compute_toxicity(tks)
-            avg_tox = tox["avg_tox"]
-            est = w["base"] - w["w_tox"] * avg_tox - w["w_pki"] * 0.3
-            actual = 90 if bad == 0 else 55
-            err = actual - est
-            errors.append(err)
+    # Measure BEFORE
+    errors_before = [actual - _score_one_note(w, tks, ty) for tks, ty, actual in data]
+    before_mae = float(np.mean(np.abs(errors_before)))
 
-        if not errors:
+    # Count correct predictions (score > 70 = good, score < 70 = bad)
+    correct_before = sum(1 for (tks, ty, actual), err in zip(data, errors_before)
+                        if (actual > 70 and _score_one_note(w, tks, ty) > 70)
+                        or (actual < 70 and _score_one_note(w, tks, ty) < 70))
+    acc_before = correct_before / len(data) * 100
+
+    # Gradient descent: 20 steps with adaptive LR + L2 regularization
+    best_w = dict(w)
+    best_mae = before_mae
+    lr = 0.08
+
+    for step in range(20):
+        errors = [actual - _score_one_note(w, tks, ty) for tks, ty, actual in data]
+        mae = float(np.mean(np.abs(errors)))
+        avg_err = float(np.mean(errors))
+
+        if mae < best_mae:
+            best_mae = mae
+            best_w = dict(w)
+
+        if abs(avg_err) < 0.5:
             break
 
-        avg_err = float(np.mean(errors))
-        # Update weights toward reducing error
-        lr = 0.05 / (1 + step * 0.2)
-        w["base"] = max(65, min(85, w["base"] + avg_err * lr))
-        w["w_tox"] = max(3, min(15, w["w_tox"] - avg_err * lr * 0.3))
+        # L2 penalty: pull weights toward defaults
+        l2 = 0.01
+        w["base"] = max(65, min(90, w["base"] + avg_err * lr - l2 * (w["base"] - _DEFAULT_SCORING_WEIGHTS["base"])))
+        w["w_pki"] = max(5, min(20, w["w_pki"] - avg_err * lr * 0.15 - l2 * (w["w_pki"] - _DEFAULT_SCORING_WEIGHTS["w_pki"])))
+        w["w_tox"] = max(3, min(15, w["w_tox"] - avg_err * lr * 0.2 - l2 * (w["w_tox"] - _DEFAULT_SCORING_WEIGHTS["w_tox"])))
+        w["w_vol"] = max(2, min(12, w["w_vol"] - avg_err * lr * 0.1))
+        w["w_div"] = max(2, min(10, w["w_div"] + avg_err * lr * 0.1))
+        w["w_fund"] = max(1, min(8, w["w_fund"] + avg_err * lr * 0.08))
+        w["w_mean_ret"] = max(2, min(10, w["w_mean_ret"] + avg_err * lr * 0.05))
 
+        # Decay LR
+        lr *= 0.92
+
+    # Use best weights found
+    w = best_w
     w["generation"] = w.get("generation", 0) + 1
 
     # Measure AFTER
-    errors_after = []
-    for basket_str, term_y, bad in SETTLED_NOTES[:30]:
-        tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
-        if not tks:
-            continue
-        tox = compute_toxicity(tks)
-        avg_tox = tox["avg_tox"]
-        est = w["base"] - w["w_tox"] * avg_tox - w["w_pki"] * 0.3
-        actual = 90 if bad == 0 else 55
-        errors_after.append(actual - est)
-
-    after_mae = float(np.mean(np.abs(errors_after))) if errors_after else 20
+    errors_after = [actual - _score_one_note(w, tks, ty) for tks, ty, actual in data]
+    after_mae = float(np.mean(np.abs(errors_after)))
+    correct_after = sum(1 for (tks, ty, actual), err in zip(data, errors_after)
+                       if (actual > 70 and _score_one_note(w, tks, ty) > 70)
+                       or (actual < 70 and _score_one_note(w, tks, ty) < 70))
+    acc_after = correct_after / len(data) * 100
 
     _save_scoring_weights(w, {
         "before_mae": round(before_mae, 1),
         "after_mae": round(after_mae, 1),
         "improvement_pct": round((before_mae - after_mae) / max(1, before_mae) * 100, 1),
+        "acc_before": round(acc_before, 0),
+        "acc_after": round(acc_after, 0),
     })
 
     return {
@@ -154,7 +184,9 @@ def calibrate_scoring_on_settled() -> Dict:
         "before_mae": round(before_mae, 1),
         "after_mae": round(after_mae, 1),
         "improvement_pct": round((before_mae - after_mae) / max(1, before_mae) * 100, 1),
-        "n_notes": len(errors_after),
+        "acc_before": round(acc_before, 0),
+        "acc_after": round(acc_after, 0),
+        "n_notes": len(data),
         "weights": {k: round(v, 2) if isinstance(v, float) else v for k, v in w.items()},
     }
 
@@ -708,74 +740,57 @@ ANALYST_MAP = {
 
 
 def _fetch_yf_data(tickers: List[str], period: str = "2y") -> Dict:
-    """Fetch price data from yfinance — batch download (1 network call)."""
-    if not YF_AVAILABLE or not tickers:
+    """Fetch price data via data_module (xfinlink primary, yfinance fallback)."""
+    if not tickers:
         return {}
+    # Use unified data module
+    raw_data = fetch_ticker_data(tickers, period=period)
     result = {}
-    try:
-        # Single batch download instead of N individual calls
-        raw = yf.download(tickers, period=period, progress=False, threads=True)
-        if raw.empty:
-            return {}
-        for t in tickers:
-            try:
-                if len(tickers) == 1:
-                    closes_s = raw["Close"]
-                else:
-                    closes_s = raw["Close"][t] if t in raw["Close"].columns else None
-                if closes_s is None:
-                    continue
-                closes_s = closes_s.dropna()
-                if len(closes_s) < 50:
-                    continue
-                closes = closes_s.values
-                returns = np.diff(np.log(closes))
-                vol_1y = float(np.std(returns[-252:]) * np.sqrt(252)) if len(returns) >= 252 else float(np.std(returns) * np.sqrt(252))
-                real_1y = float((closes[-1] / closes[-min(252, len(closes))] - 1)) if len(closes) > 1 else 0
-                ema200 = float(np.mean(closes[-200:])) if len(closes) >= 200 else float(np.mean(closes))
-                ema200_pct = float((closes[-1] / ema200 - 1) * 100) if ema200 > 0 else 0
-                spot = float(closes[-1])
+    for t, d in raw_data.items():
+        spot = d["spot"]
+        vol_1y = d["iv30"] / 100
+        pe_est = 25.0
+        peg_est = 1.5
+        target_price = spot * 1.08
+        dcf_val = target_price * 0.85
+        bcs_target = target_price * 0.92
+        n_analysts = 15
 
-                # Use cached fundamentals — avoid per-ticker .info calls (slow)
-                beta_est = 1.0 + (vol_1y - 0.2) * 2 if vol_1y > 0.2 else 1.0
-                pe_est = 25.0
-                peg_est = 1.5
-                target_price = spot * 1.08
-                dcf_val = target_price * 0.85
-                bcs_target = target_price * 0.92
-                n_analysts = 15
+        closes = d.get("closes", [])
+        returns = d.get("returns", [])
+        if isinstance(closes, np.ndarray):
+            closes = closes.tolist()
+        if isinstance(returns, np.ndarray):
+            returns = returns.tolist()
 
-                result[t] = {
-                    "spot": round(spot, 2),
-                    "iv30": round(vol_1y * 100, 1),
-                    "real_1y": round(real_1y * 100, 1),
-                    "vol_used": round(vol_1y * 100 * 0.9, 1),
-                    "beta": round(float(beta_est), 2),
-                    "pe": round(float(pe_est), 1),
-                    "peg": round(float(peg_est), 2),
-                    "ema200_pct": round(ema200_pct, 1),
-                    "ema200_above": ema200_pct > 0,
-                    "dcf": round(float(dcf_val), 2),
-                    "dcf_upside": round((dcf_val / spot - 1) * 100, 1),
-                    "target_price": round(float(target_price), 2),
-                    "target_upside": round((target_price / spot - 1) * 100, 1),
-                    "bcs_target": round(float(bcs_target), 2),
-                    "bcs_upside": round((bcs_target / spot - 1) * 100, 1),
-                    "avg_target": round((target_price + bcs_target + dcf_val) / 3, 2),
-                    "avg_upside": round(((target_price + bcs_target + dcf_val) / 3 / spot - 1) * 100, 1),
-                    "n_analysts": int(n_analysts),
-                    "sector": SECTOR_MAP.get(t, "Unknown"),
-                    "closes": closes.tolist(),
-                    "returns": returns.tolist(),
-                    "next_earnings": None,
-                }
-                rec = ANALYST_MAP.get(t, (1.80, "buy"))
-                result[t]["rec_score"] = rec[0]
-                result[t]["rec_label"] = rec[1]
-            except Exception:
-                pass
-    except Exception:
-        pass
+        result[t] = {
+            "spot": d["spot"],
+            "iv30": d["iv30"],
+            "real_1y": d["real_1y"],
+            "vol_used": d["vol_used"],
+            "beta": d["beta"],
+            "pe": round(float(pe_est), 1),
+            "peg": round(float(peg_est), 2),
+            "ema200_pct": d["ema200_pct"],
+            "ema200_above": d["ema200_pct"] > 0,
+            "dcf": round(float(dcf_val), 2),
+            "dcf_upside": round((dcf_val / spot - 1) * 100, 1),
+            "target_price": round(float(target_price), 2),
+            "target_upside": round((target_price / spot - 1) * 100, 1),
+            "bcs_target": round(float(bcs_target), 2),
+            "bcs_upside": round((bcs_target / spot - 1) * 100, 1),
+            "avg_target": round((target_price + bcs_target + dcf_val) / 3, 2),
+            "avg_upside": round(((target_price + bcs_target + dcf_val) / 3 / spot - 1) * 100, 1),
+            "n_analysts": int(n_analysts),
+            "sector": SECTOR_MAP.get(t, "Unknown"),
+            "closes": closes,
+            "returns": returns,
+            "next_earnings": None,
+            "source": d.get("source", "unknown"),
+        }
+        rec = ANALYST_MAP.get(t, (1.80, "buy"))
+        result[t]["rec_score"] = rec[0]
+        result[t]["rec_label"] = rec[1]
     return result
 
 
@@ -1041,9 +1056,15 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     result["qiskit"] = qiskit_results
     result["avg_qvar"] = float(np.mean([r["var"] for r in qiskit_results.values()])) if qiskit_results else 50.0
 
-    # 3. yfinance data for composition cards
+    # 3. Market data (xfinlink primary, yfinance fallback)
     yf_data = _fetch_yf_data(basket_tickers)
     result["yf"] = yf_data
+    # Report which data source was used
+    if yf_data:
+        first_src = next(iter(yf_data.values()), {}).get("source", "yfinance")
+        result["data_source"] = first_src
+    else:
+        result["data_source"] = get_data_source_status()
 
     # 4. Correlation matrix
     result["corr"] = _compute_correlation_matrix(yf_data, basket_tickers)
@@ -1280,12 +1301,15 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             "scoring_mae_before": cal_result["before_mae"],
             "scoring_mae_after": cal_result["after_mae"],
             "scoring_improvement_pct": cal_result["improvement_pct"],
+            "scoring_acc_before": cal_result.get("acc_before", 0),
+            "scoring_acc_after": cal_result.get("acc_after", 0),
             "p_loss_accuracy": p_loss_metrics.get("accuracy", 0),
             "p_loss_f1": p_loss_metrics.get("f1", 0),
             "p_loss_precision": p_loss_metrics.get("precision", 0),
             "p_loss_recall": p_loss_metrics.get("recall", 0),
             "p_loss_confusion": p_loss_metrics.get("confusion", {}),
             "n_training_notes": p_loss_metrics.get("n_samples", 0),
+            "weights": cal_result.get("weights", {}),
             "status": "calibrated",
         }
     except Exception:

@@ -135,7 +135,6 @@ if basket_tickers:
     corr = D.get("corr", {})
     aladdin = D.get("aladdin", {})
     tail = D.get("tail", {})
-    stress = D.get("stress", [])
     earnings = D.get("earnings", {})
     ind = D.get("ind", {})
     wo_analysis = D.get("worst_of_analysis", [])
@@ -146,12 +145,8 @@ if basket_tickers:
 
     # Show last update time
     with rc1:
-        st.markdown(f'<div style="color:#6a5a2a;font-size:9px;padding-top:8px">Данные обновлены: {D.get("ts", "N/A")[:19]} · yfinance live prices · Cache TTL 5 min</div>', unsafe_allow_html=True)
-
-    # Data sources list
-    data_sources = ["ClickHouse (40K sims)"]
-    if D["qiskit"]:
-        data_sources.append(f"Qiskit ({list(D['qiskit'].values())[0].get('method','aer') if D['qiskit'] else 'aer'})")
+        data_src = D.get("data_source", "yfinance")
+        st.markdown(f'<div style="color:#6a5a2a;font-size:9px;padding-top:8px">Данные: {D.get("ts", "N/A")[:19]} · {data_src} · Gen {D.get("scoring_generation", 0)} · Cache 5m</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # СКОРИНГ КОРЗИНЫ (единый)
@@ -452,37 +447,11 @@ if basket_tickers:
         ''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [06] STRESS
-    # ═══════════════════════════════════════════════════════════════
-    with st.expander("[06] STRESS"):
-        st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Репликация исторических кризисов через β_SPY · {len(stress)} сценариев. Каждая корзина = бар, ✓ безопасно если max DD не пробил 40%.</div>', unsafe_allow_html=True)
-        for sc in stress:
-            safe = sc["safe"]
-            badge = f'<span style="background:#0a1a0a;border:1px solid #34c759;padding:2px 8px;color:#34c759;font-size:10px">✓ безопасно</span>' if safe else f'<span style="background:#1a0a0a;border:1px solid #ff3b30;padding:2px 8px;color:#ff3b30;font-size:10px">▲ KI {sc.get("ki_pct",40)}%</span>'
-            spy_w = min(80, abs(sc["spy_total"]) * 1.5)
-            basket_w = min(80, abs(sc["basket_total"]) * 1.5)
-            dd_w = min(80, abs(sc["max_dd"]) * 1.5)
-            spy_c = "#6db6ff" if sc["spy_total"] > 0 else "#6db6ff"
-            basket_c = "#34c759" if sc["basket_total"] > 0 else "#ff3b30"
-            dd_c = "#fa8000" if abs(sc["max_dd"]) < 40 else "#ff3b30"
-            st.markdown(f'''
-            <div class="qc" style="border-left:3px solid {"#34c759" if safe else "#ff3b30"};padding:10px 14px;margin:4px 0">
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
-                    <span style="color:#fa8000;font-size:13px;font-weight:700">{sc["name"]}</span>
-                    <span style="color:#6a5a2a;font-size:10px">{sc["days"]}д · β={sc["beta"]}</span>
-                    {badge}
-                </div>
-                <div style="margin:2px 0"><span style="color:#d6a44a;font-size:10px">SPY TOTAL</span><div style="display:flex;align-items:center;gap:8px"><div style="width:200px;height:12px;background:#1a1400"><div class="bar" style="width:{spy_w}%;background:{spy_c}"></div></div><span style="color:#ffb000;font-size:10px">{sc["spy_total"]:+.1f}%</span></div></div>
-                <div style="margin:2px 0"><span style="color:#d6a44a;font-size:10px">КОРЗИНА TOTAL</span><div style="display:flex;align-items:center;gap:8px"><div style="width:200px;height:12px;background:#1a1400"><div class="bar" style="width:{basket_w}%;background:{basket_c}"></div></div><span style="color:#ffb000;font-size:10px">{sc["basket_total"]:+.1f}%</span></div></div>
-                <div style="margin:2px 0"><span style="color:#d6a44a;font-size:10px">MAX DRAWDOWN</span><div style="display:flex;align-items:center;gap:8px"><div style="width:200px;height:12px;background:#1a1400"><div class="bar" style="width:{dd_w}%;background:{dd_c}"></div></div><span style="color:#ffb000;font-size:10px">{sc["max_dd"]:+.1f}%</span></div></div>
-            </div>''', unsafe_allow_html=True)
-
-    # ═══════════════════════════════════════════════════════════════
-    # [07] SMART ALTERNATIVES — data-driven basket suggestions
+    # [06] SMART ALTERNATIVES — data-driven basket suggestions
     # ═══════════════════════════════════════════════════════════════
     smart_alts = D.get("smart_alts", [])
     n_alts = len(smart_alts)
-    with st.expander(f"[07] SMART ALTERNATIVES    {n_alts} вариантов"):
+    with st.expander(f"[06] SMART ALTERNATIVES    {n_alts} вариантов"):
         if smart_alts:
             worst_replaced = smart_alts[0].get("replaced", "?")
             st.markdown(f'''
@@ -520,13 +489,13 @@ if basket_tickers:
 
 
     # ═══════════════════════════════════════════════════════════════
-    # [08] STRESS TEST v2 — historical drawdown scenarios
+    # [07] STRESS TEST v2 — historical drawdown scenarios
     # ═══════════════════════════════════════════════════════════════
     stress_v2 = D.get("stress_v2", [])
     n_critical = sum(1 for s in stress_v2 if s.get("risk_level") == "CRITICAL")
     stress_label = f"{n_critical} CRITICAL" if n_critical > 0 else "ALL OK"
     stress_c = "#ff3b30" if n_critical > 0 else "#34c759"
-    with st.expander(f"[08] STRESS TEST    {stress_label}"):
+    with st.expander(f"[07] STRESS TEST    {stress_label}"):
         if stress_v2:
             st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:8px">Исторические сценарии стресса при барьере <b>65%</b>. KI BREACH = worst-of тикер пробивает барьер.</div>', unsafe_allow_html=True)
             for sc in stress_v2:
@@ -549,10 +518,10 @@ if basket_tickers:
             st.markdown('<div style="color:#6a5a2a;font-size:11px">Недостаточно данных для стресс-теста. Проверьте загрузку yfinance.</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [09] TOP-3 РЕКОМЕНДУЕМЫЕ КОРЗИНЫ
+    # [08] TOP-3 РЕКОМЕНДУЕМЫЕ КОРЗИНЫ
     # ═══════════════════════════════════════════════════════════════
     top_bsk = D.get("top_baskets", [])
-    with st.expander(f"[09] TOP-3 КОРЗИНЫ    рекомендации"):
+    with st.expander(f"[08] TOP-3 КОРЗИНЫ    рекомендации"):
         if top_bsk:
             st.markdown('<div style="color:#d6a44a;font-size:10px;margin-bottom:8px">Лучшие корзины из universe (оптимизированы по тикеру токсичности + секторной диверсификации)</div>', unsafe_allow_html=True)
             for i, b in enumerate(top_bsk):
@@ -572,13 +541,13 @@ if basket_tickers:
             st.markdown('<div style="color:#6a5a2a;font-size:10px">Недостаточно данных</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [10] BACKTEST + NUMERIX COMPARISON + AGI MODEL
+    # [09] BACKTEST + NUMERIX COMPARISON + AGI MODEL
     # ═══════════════════════════════════════════════════════════════
     with st.spinner("⚡ Бэктест + AGI..."):
         BT = cached_backtest(",".join(basket_tickers), D["p_ki"], D["coupon_pa"], D["e_payout"])
 
     bt_stats = BT.get("bt_stats", {})
-    with st.expander(f"[10] BACKTEST    {BT['n_backtests']} WINDOWS · WIN {bt_stats.get('win_rate',0):.0f}%"):
+    with st.expander(f"[09] BACKTEST    {BT['n_backtests']} WINDOWS · WIN {bt_stats.get('win_rate',0):.0f}%"):
         if bt_stats:
             st.markdown(f'''
             <div style="color:#d6a44a;font-size:10px;margin-bottom:8px;line-height:1.5">Скользящий бэктест Phoenix worst-of за 5 лет ({BT["n_backtests"]} окон по 2Y). Каждый window = реальный продукт с 65% барьером.</div>
@@ -628,7 +597,7 @@ if basket_tickers:
             st.markdown('<div style="color:#6a5a2a;font-size:11px">Недостаточно исторических данных для бэктеста.</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [11] СРАВНЕНИЕ С РЫНКОМ (NUMERIX + DEALER merged)
+    # [10] СРАВНЕНИЕ С РЫНКОМ (NUMERIX + DEALER merged)
     # ═══════════════════════════════════════════════════════════════
     nmx_comp = BT.get("numerix_comparison", {})
     nmx_acc = nmx_comp.get("avg_accuracy", 0)
@@ -643,7 +612,7 @@ if basket_tickers:
     if acc_str:
         summary_str += f" · {acc_str}"
 
-    with st.expander(f"[11] СРАВНЕНИЕ С РЫНКОМ    {summary_str}"):
+    with st.expander(f"[10] СРАВНЕНИЕ С РЫНКОМ    {summary_str}"):
         # GUARD flag
         if guard:
             st.markdown(f'''
@@ -701,7 +670,7 @@ if basket_tickers:
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:9px">{q["basket"]}</span><span style="color:{color};font-size:9px;font-weight:700">{q["coupon"]:.1f}%</span></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [12] AGI PIPELINE: БЭКТЕСТ → КАЛИБРОВКА → ПРОГНОЗ
+    # [11] AGI PIPELINE: БЭКТЕСТ → КАЛИБРОВКА → ПРОГНОЗ
     # ═══════════════════════════════════════════════════════════════
     avg_vol_val = ind.get("iv30_avg", 35) if ind else 35
     avg_corr_val = corr.get("avg_corr", 0.5)
@@ -719,7 +688,10 @@ if basket_tickers:
 
     acc_color = "#34c759" if cal_after.get("test_acc", 0) >= 70 else "#ffb000" if cal_after.get("test_acc", 0) >= 50 else "#ff3b30"
 
-    with st.expander(f"[12] AGI PIPELINE    ACC {cal_after.get('test_acc',0):.0f}% · CONF {fc_conf:.0f}%"):
+    sl = D.get("self_learning", {})
+    sl_gen = sl.get("generation", 0)
+    sl_acc = sl.get("scoring_acc_after", 0)
+    with st.expander(f"[11] AGI PIPELINE    ACC {cal_after.get('test_acc',0):.0f}% · CONF {fc_conf:.0f}% · GEN {sl_gen}"):
 
         # ── COMPONENT 1: БЭКТЕСТ v2 ──
         st.markdown('<div style="color:#6db6ff;font-size:12px;font-weight:700;margin-bottom:6px;border-bottom:1px solid #3a2a00;padding-bottom:4px">① БЭКТЕСТ — ТОЧНОСТЬ МОДЕЛИ</div>', unsafe_allow_html=True)
@@ -982,10 +954,13 @@ if basket_tickers:
 
 now_utc = datetime.datetime.now(datetime.timezone.utc)
 gdrive_st = "G-DRIVE" if GDRIVE_AVAILABLE else "LOCAL"
+from src.data_module import get_data_source_status
+data_src_lbl = get_data_source_status().upper()
 st.markdown(f'''
 <div class="sbar">
     <span>NY {now_utc.strftime("%H:%M:%S")}</span>
-    <span>ФЕНИКС <span class="ok">v32.0</span></span>
+    <span>ФЕНИКС <span class="ok">v33.0</span></span>
+    <span>{data_src_lbl} <span class="ok">OK</span></span>
     <span>{gdrive_st} <span class="ok">OK</span></span>
     <span style="margin-left:auto"><span class="lb">PHOENIX TERMINAL</span></span>
 </div>
