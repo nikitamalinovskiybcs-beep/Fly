@@ -17,7 +17,15 @@ import pandas as pd
 # ── xfinlink setup ──
 try:
     import xfinlink as xfl
-    _XFL_KEY = os.environ.get("XFINLINK_API_KEY", "")
+    # Try st.secrets first (Streamlit Cloud), then env var
+    _XFL_KEY = ""
+    try:
+        import streamlit as _st
+        _XFL_KEY = _st.secrets.get("XFINLINK_API_KEY", "")
+    except Exception:
+        pass
+    if not _XFL_KEY:
+        _XFL_KEY = os.environ.get("XFINLINK_API_KEY", "")
     if _XFL_KEY:
         xfl.set_api_key(_XFL_KEY)
         XFL_AVAILABLE = True
