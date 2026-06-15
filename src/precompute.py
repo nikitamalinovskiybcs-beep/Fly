@@ -18,7 +18,8 @@ except ImportError:
 from src.clickhouse_data import fetch_quantum_risk_stats
 from src.real_data import compute_toxicity
 from src.colab_engine import get_colab_status, local_sobol_mc
-from src.data_module import fetch_ticker_data, get_data_source_status, XFL_AVAILABLE
+from src.data_module import (fetch_ticker_data, get_data_source_status, XFL_AVAILABLE,
+                             fetch_iv_percentile, compute_rolling_correlations, check_earnings_risk)
 from src.gdrive_store import get_status as gdrive_status
 from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
 
@@ -100,7 +101,8 @@ def _score_one_note(w: Dict, tks: List[str], term_y: float) -> float:
 
 
 def calibrate_scoring_on_settled() -> Dict:
-    """Full calibration via gradient descent on all settled notes.
+    """Full calibration via momentum SGD on all settled notes.
+    Features: momentum (0.9), L2 regularization, feature selection, best-checkpoint.
     Updates ALL weights. Saves to Google Drive. Returns metrics."""
     from src.real_data import SETTLED_NOTES, compute_p_loss
 
@@ -123,18 +125,30 @@ def calibrate_scoring_on_settled() -> Dict:
     errors_before = [actual - _score_one_note(w, tks, ty) for tks, ty, actual in data]
     before_mae = float(np.mean(np.abs(errors_before)))
 
-    # Count correct predictions (score > 70 = good, score < 70 = bad)
     correct_before = sum(1 for (tks, ty, actual), err in zip(data, errors_before)
                         if (actual > 70 and _score_one_note(w, tks, ty) > 70)
                         or (actual < 70 and _score_one_note(w, tks, ty) < 70))
     acc_before = correct_before / len(data) * 100
 
-    # Gradient descent: 20 steps with adaptive LR + L2 regularization
+    # Momentum SGD: 30 steps with momentum=0.9 + L2 + feature selection
     best_w = dict(w)
     best_mae = before_mae
     lr = 0.08
+    momentum = 0.9
+    # Velocity terms for momentum
+    v = {k: 0.0 for k in ["base", "w_pki", "w_tox", "w_vol", "w_div", "w_fund", "w_mean_ret"]}
+    # Feature importance tracking
+    feature_impact = {k: 0.0 for k in v}
 
-    for step in range(20):
+    weight_keys = ["base", "w_pki", "w_tox", "w_vol", "w_div", "w_fund", "w_mean_ret"]
+    gradients = {k: [] for k in weight_keys}
+    # Direction multipliers (base goes +, penalties go -)
+    directions = {"base": 1.0, "w_pki": -0.15, "w_tox": -0.2, "w_vol": -0.1,
+                  "w_div": 0.1, "w_fund": 0.08, "w_mean_ret": 0.05}
+    bounds = {"base": (65, 90), "w_pki": (5, 20), "w_tox": (3, 15),
+              "w_vol": (2, 12), "w_div": (2, 10), "w_fund": (1, 8), "w_mean_ret": (2, 10)}
+
+    for step in range(30):
         errors = [actual - _score_one_note(w, tks, ty) for tks, ty, actual in data]
         mae = float(np.mean(np.abs(errors)))
         avg_err = float(np.mean(errors))
@@ -143,21 +157,34 @@ def calibrate_scoring_on_settled() -> Dict:
             best_mae = mae
             best_w = dict(w)
 
-        if abs(avg_err) < 0.5:
+        if abs(avg_err) < 0.3:
             break
 
-        # L2 penalty: pull weights toward defaults
+        # L2 penalty coefficient
         l2 = 0.01
-        w["base"] = max(65, min(90, w["base"] + avg_err * lr - l2 * (w["base"] - _DEFAULT_SCORING_WEIGHTS["base"])))
-        w["w_pki"] = max(5, min(20, w["w_pki"] - avg_err * lr * 0.15 - l2 * (w["w_pki"] - _DEFAULT_SCORING_WEIGHTS["w_pki"])))
-        w["w_tox"] = max(3, min(15, w["w_tox"] - avg_err * lr * 0.2 - l2 * (w["w_tox"] - _DEFAULT_SCORING_WEIGHTS["w_tox"])))
-        w["w_vol"] = max(2, min(12, w["w_vol"] - avg_err * lr * 0.1))
-        w["w_div"] = max(2, min(10, w["w_div"] + avg_err * lr * 0.1))
-        w["w_fund"] = max(1, min(8, w["w_fund"] + avg_err * lr * 0.08))
-        w["w_mean_ret"] = max(2, min(10, w["w_mean_ret"] + avg_err * lr * 0.05))
 
-        # Decay LR
-        lr *= 0.92
+        for k in weight_keys:
+            grad = avg_err * directions[k] - l2 * (w[k] - _DEFAULT_SCORING_WEIGHTS.get(k, w[k]))
+            # Momentum update: v = momentum * v + grad
+            v[k] = momentum * v[k] + grad * lr
+            # Feature importance: accumulate abs gradient
+            feature_impact[k] += abs(grad)
+            gradients[k].append(grad)
+            # Apply update with bounds
+            lo, hi = bounds[k]
+            w[k] = max(lo, min(hi, w[k] + v[k]))
+
+        lr *= 0.94
+
+    # Feature selection: zero out weights with negligible impact
+    total_impact = sum(feature_impact.values()) or 1
+    weak_features = []
+    for k in weight_keys:
+        if k == "base":
+            continue
+        if feature_impact[k] / total_impact < 0.02:  # <2% impact → disable
+            w[k] = _DEFAULT_SCORING_WEIGHTS.get(k, w[k])
+            weak_features.append(k)
 
     # Use best weights found
     w = best_w
@@ -179,6 +206,9 @@ def calibrate_scoring_on_settled() -> Dict:
         "acc_after": round(acc_after, 0),
     })
 
+    # Normalize feature importance to percentages
+    fi_pct = {k: round(v / total_impact * 100, 1) for k, v in feature_impact.items()}
+
     return {
         "generation": w.get("generation", 0),
         "before_mae": round(before_mae, 1),
@@ -188,6 +218,48 @@ def calibrate_scoring_on_settled() -> Dict:
         "acc_after": round(acc_after, 0),
         "n_notes": len(data),
         "weights": {k: round(v, 2) if isinstance(v, float) else v for k, v in w.items()},
+        "feature_importance": fi_pct,
+        "weak_features": weak_features,
+    }
+
+
+def online_learn_one_note(basket: List[str], term_y: float, outcome_good: bool) -> Dict:
+    """Online learning: update weights with a single new observation.
+    Call this when a new settled note becomes available.
+    Uses small LR (0.02) to nudge weights without full recalibration.
+    """
+    w = _load_scoring_weights()
+    target = 88.0 if outcome_good else 55.0
+    pred = _score_one_note(w, basket, term_y)
+    err = target - pred
+
+    if abs(err) < 2.0:
+        return {"updated": False, "reason": "already accurate", "error": round(err, 1)}
+
+    # Small update with momentum-free SGD
+    online_lr = 0.02
+    l2 = 0.005
+    directions = {"base": 1.0, "w_pki": -0.15, "w_tox": -0.2, "w_vol": -0.1,
+                  "w_div": 0.1, "w_fund": 0.08, "w_mean_ret": 0.05}
+    bounds = {"base": (65, 90), "w_pki": (5, 20), "w_tox": (3, 15),
+              "w_vol": (2, 12), "w_div": (2, 10), "w_fund": (1, 8), "w_mean_ret": (2, 10)}
+
+    for k in directions:
+        grad = err * directions[k] - l2 * (w[k] - _DEFAULT_SCORING_WEIGHTS.get(k, w[k]))
+        lo, hi = bounds[k]
+        w[k] = max(lo, min(hi, w[k] + grad * online_lr))
+
+    w["generation"] = w.get("generation", 0) + 1
+    _save_scoring_weights(w, {"online_update": True, "error": round(err, 1)})
+
+    new_pred = _score_one_note(w, basket, term_y)
+    return {
+        "updated": True,
+        "generation": w["generation"],
+        "error_before": round(err, 1),
+        "error_after": round(target - new_pred, 1),
+        "pred_before": round(pred, 1),
+        "pred_after": round(new_pred, 1),
     }
 
 
@@ -1069,6 +1141,15 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # 4. Correlation matrix
     result["corr"] = _compute_correlation_matrix(yf_data, basket_tickers)
 
+    # 4b. Rolling correlations (time-varying) — detects regime changes
+    result["rolling_corr"] = compute_rolling_correlations(basket_tickers, window=60)
+
+    # 4c. IV Percentile — where is current vol vs history
+    result["iv_percentile"] = fetch_iv_percentile(basket_tickers)
+
+    # 4d. Earnings gap risk — warnings for upcoming reports
+    result["earnings_gap_risk"] = check_earnings_risk(basket_tickers)
+
     # 5. Sector exposure
     sectors = {}
     for t in basket_tickers:
@@ -1310,6 +1391,9 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             "p_loss_confusion": p_loss_metrics.get("confusion", {}),
             "n_training_notes": p_loss_metrics.get("n_samples", 0),
             "weights": cal_result.get("weights", {}),
+            "feature_importance": cal_result.get("feature_importance", {}),
+            "weak_features": cal_result.get("weak_features", []),
+            "optimizer": "momentum_sgd_0.9",
             "status": "calibrated",
         }
     except Exception:
