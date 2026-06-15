@@ -89,7 +89,7 @@ def _score_one_note(w: Dict, tks: List[str], term_y: float) -> float:
     avg_tox = tox["avg_tox"]
     max_tox = max((v["tox"] for v in tox["per_ticker"].values()), default=0.5)
     n = len(tks)
-    div_factor = min(1.0, len(set(tox["per_ticker"].values())) / max(1, n))
+    div_factor = min(1.0, len(tox["per_ticker"]) / max(1, n))
     return (w["base"]
             - w["w_pki"] * avg_tox * 0.5
             - w["w_tox"] * max_tox
