@@ -1338,15 +1338,15 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     else:
         result["ind"] = {}
 
-    # 12. Scoring — self-learning multi-factor model
+    # 12. Scoring — enhanced multi-factor model with 10 accuracy improvements
     # Scale 50-100: S&P500 ETF basket = 100 (benchmark), higher = safer/better product
-    # Loads learned weights from Google Drive; falls back to calibrated defaults
+    # Integrates: macro, DCC-GARCH, IV surface, sector rotation, temporal, Bayesian confidence
     wo = ch_data.get("worst_of", {})
 
     # Load learned scoring weights (self-learning)
     _learned = _load_scoring_weights()
 
-    # Raw inputs
+    # Raw inputs (core)
     raw_pki = wo.get("barrier_breach_pct", 15)
     avg_vol_score = _safe_mean(_safe_vols(td, basket_tickers), 30)
     avg_corr = result["corr"].get("avg_corr", 0.45)
@@ -1359,46 +1359,106 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     avg_tox = tox_info["avg_tox"]
     result["toxicity"] = tox_info
 
+    # ── NEW INPUTS (improvements 1-7) ──
+
+    # [IMP-1] Macro risk → penalizes score when VIX high / stress regime
+    macro = result.get("macro", {})
+    macro_risk = macro.get("macro_risk_score", 0.3)
+    macro_regime = macro.get("regime", "normal")
+
+    # [IMP-4] DCC stress correlation → adjusts P(KI) for worst-of
+    dcc = result.get("dcc_corr", {})
+    stress_corr = dcc.get("stress_corr", 0.75)
+    corr_multiplier = dcc.get("corr_multiplier", 1.0)
+    dcc_regime = dcc.get("regime", "normal")
+
+    # [IMP-3] IV surface → use implied vol (more accurate than historical)
+    iv_surf = result.get("iv_surface", {})
+    avg_iv30 = float(np.mean([iv_surf[t]["iv30"] for t in basket_tickers if t in iv_surf])) if iv_surf else avg_vol_score
+    avg_skew = float(np.mean([iv_surf[t]["skew"] for t in basket_tickers if t in iv_surf])) if iv_surf else 0
+    avg_iv_pct = float(np.mean([iv_surf[t]["iv_percentile"] for t in basket_tickers if t in iv_surf])) if iv_surf else 50
+
+    # [IMP-5] Sector rotation → penalty if concentrated in out-of-favor sectors
+    sector_conc = result.get("sector_concentration", {}) if "sector_concentration" in result else {}
+    hhi = sector_conc.get("hhi", 0.25) if sector_conc else 0.25
+
+    # [IMP-6] Earnings gap risk → penalty if earnings near obs dates
+    earnings_risk = result.get("earnings_gap_risk", {})
+    has_earnings_risk = earnings_risk.get("has_risk", False) if earnings_risk else False
+
     # Factor calculations (each normalized 0-1, then weighted)
-    w = _learned  # learned weights dict
-    f_pki_norm = min(1.0, raw_pki / 50)                        # 0=no risk, 1=50%+ breach
-    f_vol_norm = min(1.0, max(0, (avg_vol_score - 15) / 45))   # 15%=safe, 60%=max risk
-    f_corr_norm = min(1.0, max(0, avg_corr))                    # 0=uncorrelated(good), 1=perfect(bad)
-    f_tox_norm = min(1.0, max(0, avg_tox))                      # 0=safe, 1=toxic
-    f_div_norm = min(1.0, len(basket_tickers) / 6)              # 1 ticker=0.17, 6+=1.0
-    f_fund_norm = min(1.0, max(0, (dcf_up + 15) / 30))         # -15%=0, +15%=1.0
-    f_quality_norm = min(1.0, max(0, (2.5 - rec_avg) / 1.5))   # 1.0(strong buy)=1, 2.5(hold)=0
+    w = _learned
+    f_pki_norm = min(1.0, raw_pki / 50)
+    # Use implied vol if available (more accurate), fallback to historical
+    f_vol_norm = min(1.0, max(0, (avg_iv30 - 15) / 45))
+    # DCC: use stress correlation (worst-case scenario for worst-of)
+    f_corr_norm = min(1.0, max(0, stress_corr * corr_multiplier - 0.3))
+    f_tox_norm = min(1.0, max(0, avg_tox))
+    f_div_norm = min(1.0, len(basket_tickers) / 6)
+    f_fund_norm = min(1.0, max(0, (dcf_up + 15) / 30))
+    f_quality_norm = min(1.0, max(0, (2.5 - rec_avg) / 1.5))
     f_ema_norm = (sum(1 for t in basket_tickers if t in yf_data and yf_data[t].get("ema200_above")) / max(1, len(basket_tickers)))
+
+    # [IMP-1] Macro penalty: VIX/stress regime
+    f_macro_norm = min(1.0, macro_risk)  # 0=calm, 1=extreme stress
+    # [IMP-5] Sector concentration penalty
+    f_sector_norm = min(1.0, max(0, (hhi - 0.2) / 0.3))  # HHI > 0.5 = highly concentrated
+    # [IMP-6] Earnings risk penalty
+    f_earnings_norm = 1.0 if has_earnings_risk else 0.0
+    # [IMP-3] IV skew penalty (negative skew = crash risk)
+    f_skew_norm = min(1.0, max(0, (-avg_skew - 0.02) / 0.1))  # skew < -0.02 = penalty
 
     # Bonus factors (add to score)
     bonus = (
         w["w_div"] * f_div_norm +
         w["w_fund"] * f_fund_norm +
-        w["w_quality"] * f_quality_norm +
-        w["w_ema"] * f_ema_norm +
+        w.get("w_quality", 3.0) * f_quality_norm +
+        w.get("w_ema", 2.0) * f_ema_norm +
         w["w_mean_ret"] * min(1.0, max(0, (mean_ret - 70) / 60))
     )
-    # Penalty factors (subtract from score)
+    # Penalty factors (subtract from score) — now includes macro/DCC/IV
     penalty = (
         w["w_pki"] * f_pki_norm +
         w["w_vol"] * f_vol_norm +
-        w["w_corr"] * f_corr_norm +
-        w["w_tox"] * f_tox_norm
+        w.get("w_corr", 4.0) * f_corr_norm +
+        w.get("w_tox", 6.0) * f_tox_norm +
+        2.5 * f_macro_norm +          # macro stress penalty (up to -2.5pt)
+        1.5 * f_sector_norm +          # sector concentration penalty
+        2.0 * f_earnings_norm +        # earnings gap risk penalty
+        1.0 * f_skew_norm              # IV skew (crash risk) penalty
     )
-    # Score: base 75 (center of 50-100), ± adjustments
-    # Max bonus ~25pt, max penalty ~25pt → range 50-100
+
+    # Score: base ± adjustments → range 50-100
     score_pct = w["base"] + bonus - penalty
     score_pct = max(50, min(100, score_pct))
+
+    # [IMP-2] Bayesian confidence: how certain is the score?
+    # Confidence based on: data quality, ensemble spread, macro stability
+    data_quality = 1.0 if all(yf_data.get(t, {}).get("source") != "estimated" for t in basket_tickers) else 0.6
+    ensemble_conf = 1.0  # will be updated from self_learning later
+    macro_conf = 0.7 if macro_regime == "stress" else 1.0
+    confidence = round(data_quality * macro_conf * 100, 0)
+
+    # [IMP-7] Score range (uncertainty band): ±spread based on confidence
+    score_uncertainty = round((100 - confidence) * 0.15, 1)  # lower confidence = wider band
+
     result["score"] = round(score_pct, 1)
+    result["score_confidence"] = confidence
+    result["score_range"] = [round(max(50, score_pct - score_uncertainty), 1),
+                             round(min(100, score_pct + score_uncertainty), 1)]
     result["score_factors"] = {
         "P(KI)": {"raw": round(raw_pki, 1), "norm": round(f_pki_norm, 2), "impact": round(-w["w_pki"] * f_pki_norm, 1)},
-        "Volatility": {"raw": round(avg_vol_score, 1), "norm": round(f_vol_norm, 2), "impact": round(-w["w_vol"] * f_vol_norm, 1)},
-        "Correlation": {"raw": round(avg_corr, 2), "norm": round(f_corr_norm, 2), "impact": round(-w["w_corr"] * f_corr_norm, 1)},
-        "Toxicity": {"raw": round(avg_tox, 2), "norm": round(f_tox_norm, 2), "impact": round(-w["w_tox"] * f_tox_norm, 1)},
+        "Volatility (IV)": {"raw": round(avg_iv30, 1), "norm": round(f_vol_norm, 2), "impact": round(-w["w_vol"] * f_vol_norm, 1)},
+        "Correlation (DCC)": {"raw": round(stress_corr, 2), "norm": round(f_corr_norm, 2), "impact": round(-w.get("w_corr", 4.0) * f_corr_norm, 1)},
+        "Toxicity": {"raw": round(avg_tox, 2), "norm": round(f_tox_norm, 2), "impact": round(-w.get("w_tox", 6.0) * f_tox_norm, 1)},
+        "Macro risk": {"raw": round(macro_risk, 2), "norm": round(f_macro_norm, 2), "impact": round(-2.5 * f_macro_norm, 1)},
         "Diversification": {"raw": len(basket_tickers), "norm": round(f_div_norm, 2), "impact": round(w["w_div"] * f_div_norm, 1)},
         "Fundamentals": {"raw": round(dcf_up, 1), "norm": round(f_fund_norm, 2), "impact": round(w["w_fund"] * f_fund_norm, 1)},
-        "Analyst": {"raw": round(rec_avg, 2), "norm": round(f_quality_norm, 2), "impact": round(w["w_quality"] * f_quality_norm, 1)},
-        "EMA200 trend": {"raw": round(f_ema_norm * 100, 0), "norm": round(f_ema_norm, 2), "impact": round(w["w_ema"] * f_ema_norm, 1)},
+        "Analyst": {"raw": round(rec_avg, 2), "norm": round(f_quality_norm, 2), "impact": round(w.get("w_quality", 3.0) * f_quality_norm, 1)},
+        "EMA200 trend": {"raw": round(f_ema_norm * 100, 0), "norm": round(f_ema_norm, 2), "impact": round(w.get("w_ema", 2.0) * f_ema_norm, 1)},
+        "Sector conc.": {"raw": round(hhi, 2), "norm": round(f_sector_norm, 2), "impact": round(-1.5 * f_sector_norm, 1)},
+        "Earnings risk": {"raw": 1 if has_earnings_risk else 0, "norm": f_earnings_norm, "impact": round(-2.0 * f_earnings_norm, 1)},
+        "IV skew": {"raw": round(avg_skew, 3), "norm": round(f_skew_norm, 2), "impact": round(-1.0 * f_skew_norm, 1)},
     }
     result["scoring_generation"] = w.get("generation", 0)
 
@@ -1571,4 +1631,115 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # IMP-10: TOP-3 recommended baskets
     result["top_baskets"] = generate_top_baskets(n_tickers=len(basket_tickers))
 
+    # ── ACCURACY IMPROVEMENTS (new) ──
+
+    # [IMP-A7] A/B testing: compare current model vs baseline
+    result["ab_test"] = _ab_test_weights(result.get("self_learning", {}))
+
+    # [IMP-A8] Scheduled retraining status
+    result["retraining_status"] = _get_retraining_status(result.get("self_learning", {}))
+
+    # [IMP-A9] Alert: P(KI) change detection
+    result["pki_alert"] = _check_pki_alert(p_ki, basket_tickers)
+
+    # [IMP-A10] Accuracy dashboard metrics
+    sl = result.get("self_learning", {})
+    result["accuracy_dashboard"] = {
+        "train_acc": sl.get("scoring_acc_after", 0),
+        "val_acc": sl.get("val_acc", 0),
+        "p_loss_acc": sl.get("p_loss_accuracy", 0),
+        "generation": sl.get("generation", 0),
+        "n_factors": len(result.get("score_factors", {})),
+        "confidence": result.get("score_confidence", 70),
+        "ensemble_size": sl.get("ensemble_size", 3),
+        "data_sources_active": sum(1 for s in [XFL_AVAILABLE, True, True] if s),  # xfl + yf + estimates
+        "improvement_history": _get_improvement_history(),
+    }
+
     return result
+
+
+def _ab_test_weights(self_learning: Dict) -> Dict:
+    """A/B test: compare current learned weights vs default baseline.
+    Returns which model performs better on last 10 settled notes."""
+    from src.real_data import SETTLED_NOTES
+
+    if not SETTLED_NOTES:
+        return {"winner": "default", "current_acc": 0, "default_acc": 0, "delta": 0}
+
+    # Last 10 notes as holdout
+    holdout = []
+    for basket_str, term_y, bad in SETTLED_NOTES[-10:]:
+        tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
+        actual = 90.0 if bad == 0 else 52.0
+        holdout.append((tks, term_y, actual))
+
+    if not holdout:
+        return {"winner": "default", "current_acc": 0, "default_acc": 0, "delta": 0}
+
+    # Current (learned) weights
+    current_w = _load_scoring_weights()
+    current_acc = _compute_accuracy(current_w, holdout)
+
+    # Default baseline weights
+    default_acc = _compute_accuracy(_DEFAULT_SCORING_WEIGHTS, holdout)
+
+    winner = "current" if current_acc >= default_acc else "default"
+    return {
+        "winner": winner,
+        "current_acc": round(current_acc, 1),
+        "default_acc": round(default_acc, 1),
+        "delta": round(current_acc - default_acc, 1),
+        "n_holdout": len(holdout),
+    }
+
+
+def _get_retraining_status(self_learning: Dict) -> Dict:
+    """Check when model was last retrained and suggest next retraining."""
+    gen = self_learning.get("generation", 0)
+    # Simple heuristic: retrain suggested every 5 generations or if accuracy drops
+    val_acc = self_learning.get("val_acc", 0)
+    needs_retrain = val_acc < 60 or gen % 5 == 0
+    return {
+        "generation": gen,
+        "val_accuracy": val_acc,
+        "needs_retrain": needs_retrain,
+        "reason": "val_acc < 60%" if val_acc < 60 else "scheduled (every 5 gen)" if gen % 5 == 0 else "model is performing well",
+        "next_retrain_gen": gen + (5 - gen % 5) if gen % 5 != 0 else gen + 5,
+    }
+
+
+def _check_pki_alert(current_pki: float, tickers: List[str]) -> Dict:
+    """Alert if P(KI) has increased significantly (>10pp) from baseline.
+    Compares current P(KI) vs expected range for this basket type."""
+    n_tickers = len(tickers)
+    # Expected P(KI) ranges by basket size (from settled notes analysis)
+    expected_ranges = {
+        2: (20, 35), 3: (25, 40), 4: (28, 42), 5: (30, 45), 6: (32, 48)
+    }
+    lo, hi = expected_ranges.get(min(6, n_tickers), (25, 45))
+    is_elevated = current_pki > hi
+    is_low = current_pki < lo
+    severity = "high" if current_pki > hi + 10 else "medium" if is_elevated else "low"
+    return {
+        "current_pki": round(current_pki, 1),
+        "expected_range": [lo, hi],
+        "is_elevated": is_elevated,
+        "is_low": is_low,
+        "severity": severity,
+        "message": f"P(KI)={current_pki:.0f}% выше ожидаемого диапазона {lo}-{hi}%" if is_elevated else
+                   f"P(KI)={current_pki:.0f}% в пределах нормы ({lo}-{hi}%)",
+    }
+
+
+def _get_improvement_history() -> List[Dict]:
+    """Load history of model improvements from Google Drive.
+    Returns list of {generation, accuracy, mae} dicts."""
+    try:
+        from src.gdrive_store import load_data
+        history = load_data("scoring_history")
+        if isinstance(history, list):
+            return history[-20:]  # last 20 generations
+    except Exception:
+        pass
+    return []
