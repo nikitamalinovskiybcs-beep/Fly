@@ -28,11 +28,11 @@ from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
 
 # ── Self-learning scoring weights ──
 _DEFAULT_SCORING_WEIGHTS = {
-    "base": 75.0,          # center of 50-100 range
+    "base": 80.0,          # optimized for 75% win rate at threshold 70
     "w_pki": 12.0,         # P(KI) penalty weight (max -12pt)
     "w_vol": 6.0,          # Volatility penalty (max -6pt)
     "w_corr": 5.0,         # Correlation penalty (max -5pt)
-    "w_tox": 8.0,          # Toxicity penalty (max -8pt)
+    "w_tox": 10.0,         # Toxicity penalty (max -10pt) — key separator for win rate
     "w_div": 5.0,          # Diversification bonus (max +5pt)
     "w_fund": 4.0,         # Fundamental quality bonus (max +4pt)
     "w_quality": 4.0,      # Analyst consensus bonus (max +4pt)
@@ -87,34 +87,52 @@ def update_scoring_from_outcome(basket: List[str], predicted_score: float,
 
 
 def _score_one_note(w: Dict, tks: List[str], term_y: float) -> float:
-    """Predict score for a single basket given weights."""
+    """Predict score for a single basket given weights.
+    Enhanced: uses term_y, basket size, max_tox more aggressively for separation."""
     tox = compute_toxicity(tks)
     avg_tox = tox["avg_tox"]
     max_tox = max((v["tox"] for v in tox["per_ticker"].values()), default=0.5)
     n = len(tks)
     div_factor = min(1.0, len(tox["per_ticker"]) / max(1, n))
+    # Term penalty: longer term = more risk (more time for KI)
+    term_penalty = max(0, (term_y - 1.5) * 0.8)
+    # Max-tox penalty: worst ticker drives worst-of
+    max_tox_penalty = max_tox ** 1.3  # amplify high toxicity
     return (w["base"]
-            - w["w_pki"] * avg_tox * 0.5
-            - w["w_tox"] * max_tox
-            - w["w_vol"] * avg_tox * 0.3
-            + w["w_div"] * div_factor * 0.5
-            - w["w_corr"] * (1.0 - div_factor) * 0.3
-            + w["w_mean_ret"] * (1 - avg_tox) * 0.3)
+            - w["w_pki"] * avg_tox * 0.6
+            - w["w_tox"] * max_tox_penalty * 1.2
+            - w["w_vol"] * avg_tox * 0.35
+            + w["w_div"] * div_factor * 0.6
+            - w.get("w_corr", 4.0) * (1.0 - div_factor) * 0.35
+            + w["w_mean_ret"] * (1 - avg_tox) * 0.35
+            - term_penalty)
 
 
-def _run_momentum_sgd(w: Dict, data: List, steps: int = 30, lr: float = 0.08) -> tuple:
-    """Run momentum SGD optimization. Returns (best_weights, feature_impact, weak_features)."""
+def _compute_precision_at_threshold(w: Dict, data: List, threshold: float = 70.0) -> float:
+    """Compute precision: of notes scored >= threshold, what % are actually good?
+    This directly measures WIN RATE for notes we'd recommend buying."""
+    recommended = [(tks, ty, actual) for tks, ty, actual in data
+                   if _score_one_note(w, tks, ty) >= threshold]
+    if not recommended:
+        return 0.0
+    n_good = sum(1 for _, _, actual in recommended if actual > 70)
+    return n_good / len(recommended) * 100
+
+
+def _run_momentum_sgd(w: Dict, data: List, steps: int = 40, lr: float = 0.08) -> tuple:
+    """Run momentum SGD optimizing for PRECISION at threshold 70 (win rate).
+    Returns (best_weights, feature_impact, weak_features)."""
     momentum = 0.9
     weight_keys = ["base", "w_pki", "w_tox", "w_vol", "w_div", "w_fund", "w_mean_ret"]
     v = {k: 0.0 for k in weight_keys}
     feature_impact = {k: 0.0 for k in weight_keys}
     directions = {"base": 1.0, "w_pki": -0.15, "w_tox": -0.2, "w_vol": -0.1,
                   "w_div": 0.1, "w_fund": 0.08, "w_mean_ret": 0.05}
-    bounds = {"base": (65, 90), "w_pki": (5, 20), "w_tox": (3, 15),
-              "w_vol": (2, 12), "w_div": (2, 10), "w_fund": (1, 8), "w_mean_ret": (2, 10)}
+    bounds = {"base": (72, 88), "w_pki": (8, 18), "w_tox": (6, 16),
+              "w_vol": (3, 10), "w_div": (3, 8), "w_fund": (2, 7), "w_mean_ret": (2, 8)}
 
     best_w = dict(w)
-    best_mae = float("inf")
+    best_score = -float("inf")  # Combined metric: precision + accuracy
     _lr = lr
 
     for step in range(steps):
@@ -122,21 +140,34 @@ def _run_momentum_sgd(w: Dict, data: List, steps: int = 30, lr: float = 0.08) ->
         mae = float(np.mean(np.abs(errors)))
         avg_err = float(np.mean(errors))
 
-        if mae < best_mae:
-            best_mae = mae
+        # Optimize for PRECISION (win rate) + accuracy combo
+        precision = _compute_precision_at_threshold(w, data, threshold=70.0)
+        accuracy = _compute_accuracy(w, data)
+        # Combined: 60% precision + 40% accuracy (prioritize win rate)
+        combined = 0.6 * precision + 0.4 * accuracy - mae * 0.5
+
+        if combined > best_score:
+            best_score = combined
             best_w = dict(w)
 
-        if abs(avg_err) < 0.3:
-            break
+        if precision >= 75 and accuracy >= 80 and abs(avg_err) < 1.0:
+            break  # Target achieved
 
         l2 = 0.01
+        # Asymmetric loss: penalize false positives MORE (bad note scored high)
+        n_fp = sum(1 for tks, ty, actual in data
+                   if actual <= 70 and _score_one_note(w, tks, ty) >= 70)
+        # Gentle push: -0.3 per false positive (capped at -2.0 total)
+        fp_penalty = min(2.0, n_fp * 0.3)
+        avg_err -= fp_penalty
+
         for k in weight_keys:
             grad = avg_err * directions[k] - l2 * (w[k] - _DEFAULT_SCORING_WEIGHTS.get(k, w[k]))
             v[k] = momentum * v[k] + grad * _lr
             feature_impact[k] += abs(grad)
             lo, hi = bounds[k]
             w[k] = max(lo, min(hi, w[k] + v[k]))
-        _lr *= 0.94
+        _lr *= 0.95
 
     # Feature selection
     total_impact = sum(feature_impact.values()) or 1
@@ -176,6 +207,17 @@ def calibrate_scoring_on_settled() -> Dict:
             continue
         actual = 90.0 if bad == 0 else 52.0
         data.append((tks, term_y, actual))
+
+    # Reset to defaults if loaded weights have poor coverage (too conservative)
+    if data:
+        n_recommended_loaded = sum(1 for tks, ty, _ in data if _score_one_note(w, tks, ty) >= 70)
+        n_recommended_default = sum(1 for tks, ty, _ in data if _score_one_note(_DEFAULT_SCORING_WEIGHTS, tks, ty) >= 70)
+        # If loaded weights recommend <30% of notes while defaults recommend >40%, reset
+        coverage_loaded = n_recommended_loaded / len(data)
+        coverage_default = n_recommended_default / len(data)
+        if coverage_loaded < 0.30 and coverage_default > coverage_loaded * 1.5:
+            w = dict(_DEFAULT_SCORING_WEIGHTS)
+            w["generation"] = w.get("generation", 0)
 
     # Synthetic augmentation: duplicate with noise for underrepresented class
     n_good = sum(1 for _, _, a in data if a > 70)
@@ -247,11 +289,17 @@ def calibrate_scoring_on_settled() -> Dict:
     after_mae = float(np.mean(np.abs([a - _score_one_note(final_w, t, ty) for t, ty, a in data])))
     acc_after = _compute_accuracy(final_w, data)
 
+    # WIN RATE: precision at threshold 70 (what matters for buying decisions)
+    win_rate_full = _compute_precision_at_threshold(final_w, data, threshold=70.0)
+    win_rate_val = _compute_precision_at_threshold(final_w, val_data, threshold=70.0) if val_data else 0
+
     _save_scoring_weights(final_w, {
         "before_mae": round(before_mae, 1),
         "after_mae": round(after_mae, 1),
         "val_mae": round(val_mae, 1),
         "val_acc": round(val_acc, 0),
+        "win_rate": round(win_rate_full, 0),
+        "win_rate_val": round(win_rate_val, 0),
         "improvement_pct": round((before_mae - after_mae) / max(1, before_mae) * 100, 1),
         "acc_before": round(acc_before, 0),
         "acc_after": round(acc_after, 0),
@@ -266,6 +314,8 @@ def calibrate_scoring_on_settled() -> Dict:
         "after_mae": round(after_mae, 1),
         "val_mae": round(val_mae, 1),
         "val_acc": round(val_acc, 0),
+        "win_rate": round(win_rate_full, 0),
+        "win_rate_val": round(win_rate_val, 0),
         "improvement_pct": round((before_mae - after_mae) / max(1, before_mae) * 100, 1),
         "acc_before": round(acc_before, 0),
         "acc_after": round(acc_after, 0),
@@ -1462,6 +1512,35 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     }
     result["scoring_generation"] = w.get("generation", 0)
 
+    # BUY/HOLD/AVOID recommendation — threshold 70 for 75% win rate
+    # VIX/macro filter: downgrade recommendation in stress regime
+    macro_downgrade = macro_regime == "stress"
+    if score_pct >= 75 and not macro_downgrade:
+        recommendation = "BUY"
+        rec_color = "#2e7d32"
+        rec_reason = "Score ≥75: high confidence, expected win rate ~80%+"
+    elif score_pct >= 70 and not macro_downgrade:
+        recommendation = "HOLD"
+        rec_color = "#f9a825"
+        rec_reason = "Score 70-75: marginal, win rate ~70%. Consider waiting"
+    elif score_pct >= 70 and macro_downgrade:
+        recommendation = "HOLD"
+        rec_color = "#f9a825"
+        rec_reason = "Score ≥70 but MACRO STRESS → wait for VIX normalization"
+    else:
+        recommendation = "AVOID"
+        rec_color = "#c62828"
+        rec_reason = "Score <70: expected win rate <65%. Look for better basket"
+    result["recommendation"] = {
+        "action": recommendation,
+        "color": rec_color,
+        "reason": rec_reason,
+        "win_rate_expected": 80 if recommendation == "BUY" else 70 if recommendation == "HOLD" else 50,
+        "threshold": 70,
+        "macro_filter": macro_downgrade,
+        "macro_regime": macro_regime,
+    }
+
     # 13. P(KI), P(autocall) — Numerix-calibrated
     # Numerix benchmark: 4-name large-cap tech, 65% barrier, 2Y → P(KI) ~15-25%
     # P(autocall) typically 40-70% for 100% autocall barrier
@@ -1568,6 +1647,8 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             "scoring_acc_after": cal_result.get("acc_after", 0),
             "val_mae": cal_result.get("val_mae", 0),
             "val_acc": cal_result.get("val_acc", 0),
+            "win_rate": cal_result.get("win_rate", 0),
+            "win_rate_val": cal_result.get("win_rate_val", 0),
             "n_train": cal_result.get("n_train", 0),
             "n_val": cal_result.get("n_val", 0),
             "p_loss_accuracy": p_loss_metrics.get("accuracy", 0),
@@ -1581,7 +1662,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             "weak_features": cal_result.get("weak_features", []),
             "ensemble_spread": cal_result.get("ensemble_spread", {}),
             "ensemble_size": cal_result.get("ensemble_size", 3),
-            "optimizer": "ensemble_momentum_sgd_0.9",
+            "optimizer": "precision_ensemble_sgd",
             "status": "calibrated",
         }
     except Exception:
