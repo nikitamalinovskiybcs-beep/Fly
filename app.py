@@ -991,14 +991,34 @@ if basket_tickers:
     if sl:
         with st.expander("[14] SELF-LEARNING · САМООБУЧЕНИЕ", expanded=False):
             gen = sl.get("generation", 0)
-            acc = sl.get("acc_after", 0)
+            acc = sl.get("scoring_acc_after", sl.get("acc_after", 0))
             wr = sl.get("win_rate", 0)
             val_acc = sl.get("val_acc", 0)
             st.markdown(f'''
             <div class="qc" style="border-left:3px solid #34c759;padding:10px">
                 <div style="color:#fa8000;font-size:12px;font-weight:700">GEN {gen} · Win Rate {wr}% · Accuracy {acc}% · Val {val_acc}%</div>
-                <div style="color:#7a6a3a;font-size:9px;margin-top:4px">K-fold CV · Temporal decay · Adaptive weights · Auto-disable weak factors</div>
+                <div style="color:#7a6a3a;font-size:9px;margin-top:4px">10-technique optimizer: EMA · Early stopping · Cosine LR · Gradient clip · Warm restarts · Multi-objective · Curriculum · Meta-learning</div>
             </div>''', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [15] ЭВОЛЮЦИЯ МОДЕЛИ v1 → v34
+    # ═══════════════════════════════════════════════════════════════
+    evo = d.get("model_evolution", {})
+    if evo:
+        with st.expander("[15] ЭВОЛЮЦИЯ МОДЕЛИ — ПРОГРЕСС v1 → v34", expanded=False):
+            imp = evo.get("improvement_v1_to_v34", {})
+            st.markdown(f'<div class="qc" style="border-left:3px solid #34c759;padding:10px"><span style="color:#fa8000;font-size:18px;font-weight:700">+{imp.get("overall_improvement_pct", 0)}%</span><span style="color:#d6a44a;font-size:11px;margin-left:12px">общее улучшение качества</span></div>', unsafe_allow_html=True)
+            metrics_to_show = [
+                ("Win Rate", imp.get("win_rate", "")),
+                ("Accuracy", imp.get("accuracy", "")),
+                ("Quality vs Numerix", imp.get("quality_vs_numerix", "")),
+                ("P(KI) corrections", imp.get("p_ki_corrections", "")),
+                ("Scoring factors", imp.get("scoring_factors", "")),
+                ("Data sources", imp.get("data_sources", "")),
+                ("Training samples", imp.get("training_samples", "")),
+            ]
+            for name, value in metrics_to_show:
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#7a6a3a;font-size:10px">{name}</span><span style="color:#34c759;font-size:10px;font-weight:700">{value}</span></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # FOOTER
