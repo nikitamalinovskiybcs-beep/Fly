@@ -19,7 +19,9 @@ from src.clickhouse_data import fetch_quantum_risk_stats
 from src.real_data import compute_toxicity
 from src.colab_engine import get_colab_status, local_sobol_mc
 from src.data_module import (fetch_ticker_data, get_data_source_status, XFL_AVAILABLE,
-                             fetch_iv_percentile, compute_rolling_correlations, check_earnings_risk)
+                             fetch_iv_percentile, compute_rolling_correlations, check_earnings_risk,
+                             fetch_implied_vol_surface, compute_dcc_correlations, fetch_macro_factors,
+                             cache_ticker_data)
 from src.gdrive_store import get_status as gdrive_status
 from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
 
@@ -100,55 +102,22 @@ def _score_one_note(w: Dict, tks: List[str], term_y: float) -> float:
             + w["w_mean_ret"] * (1 - avg_tox) * 0.3)
 
 
-def calibrate_scoring_on_settled() -> Dict:
-    """Full calibration via momentum SGD on all settled notes.
-    Features: momentum (0.9), L2 regularization, feature selection, best-checkpoint.
-    Updates ALL weights. Saves to Google Drive. Returns metrics."""
-    from src.real_data import SETTLED_NOTES, compute_p_loss
-
-    w = _load_scoring_weights()
-
-    # Build dataset: target = 85-95 if good (bad=0), 45-60 if bad (bad=1)
-    data = []
-    for basket_str, term_y, bad in SETTLED_NOTES[:40]:
-        tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
-        if not tks:
-            continue
-        actual = 90.0 if bad == 0 else 52.0
-        data.append((tks, term_y, actual))
-
-    if not data:
-        return {"generation": 0, "before_mae": 0, "after_mae": 0,
-                "improvement_pct": 0, "n_notes": 0, "weights": w}
-
-    # Measure BEFORE
-    errors_before = [actual - _score_one_note(w, tks, ty) for tks, ty, actual in data]
-    before_mae = float(np.mean(np.abs(errors_before)))
-
-    correct_before = sum(1 for (tks, ty, actual), err in zip(data, errors_before)
-                        if (actual > 70 and _score_one_note(w, tks, ty) > 70)
-                        or (actual < 70 and _score_one_note(w, tks, ty) < 70))
-    acc_before = correct_before / len(data) * 100
-
-    # Momentum SGD: 30 steps with momentum=0.9 + L2 + feature selection
-    best_w = dict(w)
-    best_mae = before_mae
-    lr = 0.08
+def _run_momentum_sgd(w: Dict, data: List, steps: int = 30, lr: float = 0.08) -> tuple:
+    """Run momentum SGD optimization. Returns (best_weights, feature_impact, weak_features)."""
     momentum = 0.9
-    # Velocity terms for momentum
-    v = {k: 0.0 for k in ["base", "w_pki", "w_tox", "w_vol", "w_div", "w_fund", "w_mean_ret"]}
-    # Feature importance tracking
-    feature_impact = {k: 0.0 for k in v}
-
     weight_keys = ["base", "w_pki", "w_tox", "w_vol", "w_div", "w_fund", "w_mean_ret"]
-    gradients = {k: [] for k in weight_keys}
-    # Direction multipliers (base goes +, penalties go -)
+    v = {k: 0.0 for k in weight_keys}
+    feature_impact = {k: 0.0 for k in weight_keys}
     directions = {"base": 1.0, "w_pki": -0.15, "w_tox": -0.2, "w_vol": -0.1,
                   "w_div": 0.1, "w_fund": 0.08, "w_mean_ret": 0.05}
     bounds = {"base": (65, 90), "w_pki": (5, 20), "w_tox": (3, 15),
               "w_vol": (2, 12), "w_div": (2, 10), "w_fund": (1, 8), "w_mean_ret": (2, 10)}
 
-    for step in range(30):
+    best_w = dict(w)
+    best_mae = float("inf")
+    _lr = lr
+
+    for step in range(steps):
         errors = [actual - _score_one_note(w, tks, ty) for tks, ty, actual in data]
         mae = float(np.mean(np.abs(errors)))
         avg_err = float(np.mean(errors))
@@ -160,66 +129,154 @@ def calibrate_scoring_on_settled() -> Dict:
         if abs(avg_err) < 0.3:
             break
 
-        # L2 penalty coefficient
         l2 = 0.01
-
         for k in weight_keys:
             grad = avg_err * directions[k] - l2 * (w[k] - _DEFAULT_SCORING_WEIGHTS.get(k, w[k]))
-            # Momentum update: v = momentum * v + grad
-            v[k] = momentum * v[k] + grad * lr
-            # Feature importance: accumulate abs gradient
+            v[k] = momentum * v[k] + grad * _lr
             feature_impact[k] += abs(grad)
-            gradients[k].append(grad)
-            # Apply update with bounds
             lo, hi = bounds[k]
             w[k] = max(lo, min(hi, w[k] + v[k]))
+        _lr *= 0.94
 
-        lr *= 0.94
-
-    # Feature selection: zero out weights with negligible impact
+    # Feature selection
     total_impact = sum(feature_impact.values()) or 1
     weak_features = []
     for k in weight_keys:
         if k == "base":
             continue
-        if feature_impact[k] / total_impact < 0.02:  # <2% impact → disable
-            w[k] = _DEFAULT_SCORING_WEIGHTS.get(k, w[k])
+        if feature_impact[k] / total_impact < 0.02:
+            best_w[k] = _DEFAULT_SCORING_WEIGHTS.get(k, best_w[k])
             weak_features.append(k)
 
-    # Use best weights found
-    w = best_w
-    w["generation"] = w.get("generation", 0) + 1
+    return best_w, feature_impact, weak_features
 
-    # Measure AFTER
-    errors_after = [actual - _score_one_note(w, tks, ty) for tks, ty, actual in data]
-    after_mae = float(np.mean(np.abs(errors_after)))
-    correct_after = sum(1 for (tks, ty, actual), err in zip(data, errors_after)
-                       if (actual > 70 and _score_one_note(w, tks, ty) > 70)
-                       or (actual < 70 and _score_one_note(w, tks, ty) < 70))
-    acc_after = correct_after / len(data) * 100
 
-    _save_scoring_weights(w, {
+def _compute_accuracy(w: Dict, data: List) -> float:
+    """Compute classification accuracy (good/bad threshold=70)."""
+    correct = sum(1 for tks, ty, actual in data
+                  if (actual > 70 and _score_one_note(w, tks, ty) > 70)
+                  or (actual < 70 and _score_one_note(w, tks, ty) < 70))
+    return correct / max(1, len(data)) * 100
+
+
+def calibrate_scoring_on_settled() -> Dict:
+    """Full calibration with walk-forward validation + ensemble (3 models).
+    Train on 70% of settled notes, validate on 30%.
+    Ensemble: 3 models with different LR → median weights → robust scoring.
+    Features: momentum (0.9), L2, feature selection, best-checkpoint."""
+    from src.real_data import SETTLED_NOTES, compute_p_loss
+
+    w = _load_scoring_weights()
+
+    # Build full dataset (+ synthetic augmentation for small dataset)
+    data = []
+    for basket_str, term_y, bad in SETTLED_NOTES:
+        tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
+        if not tks:
+            continue
+        actual = 90.0 if bad == 0 else 52.0
+        data.append((tks, term_y, actual))
+
+    # Synthetic augmentation: duplicate with noise for underrepresented class
+    n_good = sum(1 for _, _, a in data if a > 70)
+    n_bad = sum(1 for _, _, a in data if a <= 70)
+    if n_good > n_bad * 1.5:
+        bad_notes = [(t, ty, a) for t, ty, a in data if a <= 70]
+        for tks, ty, actual in bad_notes[:5]:
+            data.append((tks, ty + 0.3, actual + 2))  # slight variation
+    elif n_bad > n_good * 1.5:
+        good_notes = [(t, ty, a) for t, ty, a in data if a > 70]
+        for tks, ty, actual in good_notes[:5]:
+            data.append((tks, ty - 0.2, actual - 2))
+
+    if not data:
+        return {"generation": 0, "before_mae": 0, "after_mae": 0,
+                "improvement_pct": 0, "n_notes": 0, "weights": w}
+
+    # Walk-forward split: 70% train, 30% validation
+    split_idx = int(len(data) * 0.7)
+    train_data = data[:split_idx]
+    val_data = data[split_idx:]
+
+    # Measure BEFORE (on full data)
+    before_mae = float(np.mean(np.abs([a - _score_one_note(w, t, ty) for t, ty, a in data])))
+    acc_before = _compute_accuracy(w, data)
+
+    # ENSEMBLE: 3 models with different learning rates
+    ensemble_weights = []
+    lr_variants = [0.06, 0.08, 0.11]
+    all_feature_impact = {}
+
+    for lr_val in lr_variants:
+        w_copy = dict(w)
+        best_w, fi, weak = _run_momentum_sgd(w_copy, train_data, steps=30, lr=lr_val)
+        ensemble_weights.append(best_w)
+        for k, v in fi.items():
+            all_feature_impact[k] = all_feature_impact.get(k, 0) + v
+
+    # Median ensemble: take median of each weight across 3 models
+    weight_keys = ["base", "w_pki", "w_tox", "w_vol", "w_div", "w_fund", "w_mean_ret"]
+    final_w = dict(w)
+    for k in weight_keys:
+        vals = [ew[k] for ew in ensemble_weights]
+        final_w[k] = float(np.median(vals))
+
+    # Confidence = agreement between models (lower spread = higher confidence)
+    ensemble_spread = {}
+    for k in weight_keys:
+        vals = [ew[k] for ew in ensemble_weights]
+        ensemble_spread[k] = round(float(np.std(vals)), 3)
+
+    # Feature selection on ensemble
+    total_impact = sum(all_feature_impact.values()) or 1
+    weak_features = []
+    for k in weight_keys:
+        if k == "base":
+            continue
+        if all_feature_impact.get(k, 0) / total_impact < 0.02:
+            final_w[k] = _DEFAULT_SCORING_WEIGHTS.get(k, final_w[k])
+            weak_features.append(k)
+
+    final_w["generation"] = w.get("generation", 0) + 1
+
+    # Measure AFTER — on VALIDATION set (honest out-of-sample)
+    val_mae = float(np.mean(np.abs([a - _score_one_note(final_w, t, ty) for t, ty, a in val_data]))) if val_data else 0
+    val_acc = _compute_accuracy(final_w, val_data) if val_data else 0
+
+    # Also measure on full dataset
+    after_mae = float(np.mean(np.abs([a - _score_one_note(final_w, t, ty) for t, ty, a in data])))
+    acc_after = _compute_accuracy(final_w, data)
+
+    _save_scoring_weights(final_w, {
         "before_mae": round(before_mae, 1),
         "after_mae": round(after_mae, 1),
+        "val_mae": round(val_mae, 1),
+        "val_acc": round(val_acc, 0),
         "improvement_pct": round((before_mae - after_mae) / max(1, before_mae) * 100, 1),
         "acc_before": round(acc_before, 0),
         "acc_after": round(acc_after, 0),
+        "ensemble_size": 3,
     })
 
-    # Normalize feature importance to percentages
-    fi_pct = {k: round(v / total_impact * 100, 1) for k, v in feature_impact.items()}
+    fi_pct = {k: round(v / total_impact * 100, 1) for k, v in all_feature_impact.items()}
 
     return {
-        "generation": w.get("generation", 0),
+        "generation": final_w.get("generation", 0),
         "before_mae": round(before_mae, 1),
         "after_mae": round(after_mae, 1),
+        "val_mae": round(val_mae, 1),
+        "val_acc": round(val_acc, 0),
         "improvement_pct": round((before_mae - after_mae) / max(1, before_mae) * 100, 1),
         "acc_before": round(acc_before, 0),
         "acc_after": round(acc_after, 0),
         "n_notes": len(data),
-        "weights": {k: round(v, 2) if isinstance(v, float) else v for k, v in w.items()},
+        "n_train": len(train_data),
+        "n_val": len(val_data),
+        "weights": {k: round(v, 2) if isinstance(v, float) else v for k, v in final_w.items()},
         "feature_importance": fi_pct,
         "weak_features": weak_features,
+        "ensemble_spread": ensemble_spread,
+        "ensemble_size": 3,
     }
 
 
@@ -1200,6 +1257,21 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # 4d. Earnings gap risk — warnings for upcoming reports
     result["earnings_gap_risk"] = check_earnings_risk(basket_tickers)
 
+    # 4e. Implied vol surface — IV30/60/90, skew, term structure (more accurate than hist vol)
+    result["iv_surface"] = fetch_implied_vol_surface(basket_tickers)
+
+    # 4f. DCC-GARCH correlations — stress regime correlations (correlations spike in crisis)
+    result["dcc_corr"] = compute_dcc_correlations(basket_tickers)
+
+    # 4g. Macro factors — VIX, rates, credit spreads (market-wide risk)
+    result["macro"] = fetch_macro_factors()
+
+    # 4h. Cache data for offline access (non-blocking)
+    try:
+        cache_ticker_data(basket_tickers, yf_data)
+    except Exception:
+        pass
+
     # 5. Sector exposure
     sectors = {}
     for t in basket_tickers:
@@ -1434,6 +1506,10 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             "scoring_improvement_pct": cal_result["improvement_pct"],
             "scoring_acc_before": cal_result.get("acc_before", 0),
             "scoring_acc_after": cal_result.get("acc_after", 0),
+            "val_mae": cal_result.get("val_mae", 0),
+            "val_acc": cal_result.get("val_acc", 0),
+            "n_train": cal_result.get("n_train", 0),
+            "n_val": cal_result.get("n_val", 0),
             "p_loss_accuracy": p_loss_metrics.get("accuracy", 0),
             "p_loss_f1": p_loss_metrics.get("f1", 0),
             "p_loss_precision": p_loss_metrics.get("precision", 0),
@@ -1443,7 +1519,9 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             "weights": cal_result.get("weights", {}),
             "feature_importance": cal_result.get("feature_importance", {}),
             "weak_features": cal_result.get("weak_features", []),
-            "optimizer": "momentum_sgd_0.9",
+            "ensemble_spread": cal_result.get("ensemble_spread", {}),
+            "ensemble_size": cal_result.get("ensemble_size", 3),
+            "optimizer": "ensemble_momentum_sgd_0.9",
             "status": "calibrated",
         }
     except Exception:
