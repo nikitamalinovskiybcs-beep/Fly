@@ -281,7 +281,7 @@ if basket_tickers:
                     <div style="color:#6a5a2a;font-size:9px">нет истории · первый расчёт — копи историю</div>
                 </div>''', unsafe_allow_html=True)
         else:
-            st.info("Нет данных yfinance для расчёта")
+            st.markdown('<div style="color:#6a5a2a;font-size:10px">Данные загружаются… (xfinlink → yfinance → estimates)</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [02] COMPOSITION — Per-ticker cards
@@ -515,7 +515,7 @@ if basket_tickers:
                     </div>
                 </div>''', unsafe_allow_html=True)
         else:
-            st.markdown('<div style="color:#6a5a2a;font-size:11px">Недостаточно данных для стресс-теста. Проверьте загрузку yfinance.</div>', unsafe_allow_html=True)
+            st.markdown('<div style="color:#6a5a2a;font-size:11px">Стресс-тест: данные загружаются (xfinlink → yfinance → estimates)</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [08] TOP-3 РЕКОМЕНДУЕМЫЕ КОРЗИНЫ

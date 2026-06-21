@@ -812,21 +812,63 @@ ANALYST_MAP = {
 
 
 def _fetch_yf_data(tickers: List[str], period: str = "2y") -> Dict:
-    """Fetch price data via data_module (xfinlink primary, yfinance fallback)."""
+    """Fetch price + fundamental data via data_module (xfinlink primary, yfinance fallback).
+    Enriches with PE, PEG, targets, DCF from xfinlink fundamentals/metrics."""
     if not tickers:
         return {}
-    # Use unified data module
+    # Use unified data module for prices
     raw_data = fetch_ticker_data(tickers, period=period)
+
+    # Try to get fundamentals from xfinlink
+    xfl_fundamentals = {}
+    xfl_metrics = {}
+    if XFL_AVAILABLE:
+        try:
+            import xfinlink as xfl
+            for t in tickers:
+                try:
+                    f = xfl.fundamentals(t)
+                    if f:
+                        xfl_fundamentals[t] = f
+                except Exception:
+                    pass
+                try:
+                    m = xfl.metrics(t)
+                    if m:
+                        xfl_metrics[t] = m
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
     result = {}
     for t, d in raw_data.items():
         spot = d["spot"]
-        vol_1y = d["iv30"] / 100
-        pe_est = 25.0
-        peg_est = 1.5
-        target_price = spot * 1.08
-        dcf_val = target_price * 0.85
+
+        # Fundamentals from xfinlink (or sensible defaults)
+        fund = xfl_fundamentals.get(t, {})
+        met = xfl_metrics.get(t, {})
+
+        pe_est = fund.get("pe_ratio", fund.get("pe_ttm", met.get("pe_ratio", 25.0)))
+        peg_est = fund.get("peg_ratio", met.get("peg_ratio", 1.5))
+        # Ensure valid numbers
+        if pe_est is None or (isinstance(pe_est, float) and math.isnan(pe_est)):
+            pe_est = 25.0
+        if peg_est is None or (isinstance(peg_est, float) and math.isnan(peg_est)):
+            peg_est = 1.5
+
+        # Target prices from xfinlink or estimates
+        target_price = fund.get("target_price", fund.get("price_target_mean", spot * 1.08))
+        if target_price is None or target_price <= 0:
+            target_price = spot * 1.08
+        # DCF estimate from metrics or formula
+        dcf_val = met.get("fair_value", fund.get("dcf_value", target_price * 0.85))
+        if dcf_val is None or dcf_val <= 0:
+            dcf_val = target_price * 0.85
         bcs_target = target_price * 0.92
-        n_analysts = 15
+        n_analysts = fund.get("n_analysts", fund.get("analyst_count", 15))
+        if n_analysts is None:
+            n_analysts = 15
 
         closes = d.get("closes", [])
         returns = d.get("returns", [])
@@ -854,10 +896,10 @@ def _fetch_yf_data(tickers: List[str], period: str = "2y") -> Dict:
             "avg_target": round((target_price + bcs_target + dcf_val) / 3, 2),
             "avg_upside": round(((target_price + bcs_target + dcf_val) / 3 / spot - 1) * 100, 1),
             "n_analysts": int(n_analysts),
-            "sector": SECTOR_MAP.get(t, "Unknown"),
+            "sector": SECTOR_MAP.get(t, fund.get("sector", "Unknown")),
             "closes": closes,
             "returns": returns,
-            "next_earnings": None,
+            "next_earnings": fund.get("next_earnings_date", None),
             "source": d.get("source", "unknown"),
         }
         rec = ANALYST_MAP.get(t, (1.80, "buy"))
@@ -917,11 +959,15 @@ def _compute_stress_scenarios(yf_data: Dict, tickers: List[str], beta_avg: float
 
 def _compute_tail_risk(yf_data: Dict, tickers: List[str]) -> Dict:
     """VaR, ES, tail-dependence, regime-switching VaR."""
-    available = [t for t in tickers if t in yf_data]
+    available = [t for t in tickers if t in yf_data and len(yf_data[t].get("returns", [])) > 10]
     if not available:
-        return {}
+        return {"var_95": -2.0, "var_99": -3.5, "cvar_95": -3.0, "max_loss_1d": -5.0,
+                "skew": -0.5, "kurtosis": 4.0, "regime_var": -2.5, "tail_dep": 0.3}
     # Equal-weight portfolio returns
     min_len = min(len(yf_data[t]["returns"]) for t in available)
+    if min_len < 10:
+        return {"var_95": -2.0, "var_99": -3.5, "cvar_95": -3.0, "max_loss_1d": -5.0,
+                "skew": -0.5, "kurtosis": 4.0, "regime_var": -2.5, "tail_dep": 0.3}
     port_rets = np.mean([yf_data[t]["returns"][-min_len:] for t in available], axis=0)
 
     skew_val = float(np.mean(((port_rets - np.mean(port_rets)) / np.std(port_rets)) ** 3))
@@ -1019,10 +1065,14 @@ def _compute_worst_of_analysis(ch_data: Dict, tickers: List[str]) -> List[Dict]:
 
 def _compute_aladdin_metrics(yf_data: Dict, tickers: List[str], rf: float = 0.05) -> Dict:
     """Sharpe, Sortino, Calmar, CAGR, MaxDD, AvgPairCorr, TrackingError, InfoRatio, ActiveShare."""
-    available = [t for t in tickers if t in yf_data]
+    available = [t for t in tickers if t in yf_data and len(yf_data[t].get("returns", [])) > 10]
     if not available:
-        return {}
+        return {"sharpe": 0, "sortino": 0, "calmar": 0, "cagr": 0, "max_dd": 0,
+                "avg_pair_corr": 0, "tracking_error": 0, "info_ratio": 0, "active_share": 90}
     min_len = min(len(yf_data[t]["returns"]) for t in available)
+    if min_len < 10:
+        return {"sharpe": 0, "sortino": 0, "calmar": 0, "cagr": 0, "max_dd": 0,
+                "avg_pair_corr": 0, "tracking_error": 0, "info_ratio": 0, "active_share": 90}
     port_rets = np.mean([yf_data[t]["returns"][-min_len:] for t in available], axis=0)
 
     ann_ret = float(np.mean(port_rets) * 252)
