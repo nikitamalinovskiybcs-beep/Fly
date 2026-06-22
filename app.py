@@ -242,6 +242,34 @@ if basket_tickers:
     cp[5].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[СРОК]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_life"]:.2f} лет</div></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
+    # КАЛИБРОВКА — ввод реальной ставки от брокера
+    # ═══════════════════════════════════════════════════════════════
+    cal_col1, cal_col2, cal_col3 = st.columns([2, 2, 4])
+    with cal_col1:
+        broker_rate = st.number_input("СТАВКА БРОКЕРА, % P.A.", min_value=0.0, max_value=100.0, value=0.0, step=0.5, key="broker_rate")
+    with cal_col2:
+        broker_name = st.text_input("БРОКЕР", value="", placeholder="БКС, Тинькофф...", key="broker_name")
+    with cal_col3:
+        if broker_rate > 0:
+            our_rate = D["coupon_pa"]
+            delta = broker_rate - our_rate
+            delta_color = "#34c759" if abs(delta) < 2 else "#ff3b30" if delta > 2 else "#ffb000"
+            accuracy_pct = max(0, 100 - abs(delta) / max(our_rate, 1) * 100)
+            broker_label = f" ({broker_name})" if broker_name else ""
+            st.markdown(f'''<div style="padding:8px;border:1px solid #333;border-radius:6px;margin-top:18px">
+                <div style="color:#d6a44a;font-size:9px;text-transform:uppercase">КАЛИБРОВКА{broker_label}</div>
+                <div style="display:flex;gap:20px;align-items:center">
+                    <div><span style="color:#aaa;font-size:11px">Наша модель:</span> <span style="color:#ffb000;font-size:14px;font-weight:700">{our_rate:.2f}%</span></div>
+                    <div><span style="color:#aaa;font-size:11px">Брокер:</span> <span style="color:#34c759;font-size:14px;font-weight:700">{broker_rate:.2f}%</span></div>
+                    <div><span style="color:#aaa;font-size:11px">Δ:</span> <span style="color:{delta_color};font-size:14px;font-weight:700">{delta:+.2f}pp</span></div>
+                    <div><span style="color:#aaa;font-size:11px">Точность:</span> <span style="color:{delta_color};font-size:14px;font-weight:700">{accuracy_pct:.0f}%</span></div>
+                </div>
+                <div style="color:#6a5a2a;font-size:9px;margin-top:4px">{"✅ Модель калибрована (Δ<2pp)" if abs(delta) < 2 else "⚠️ Требуется калибровка — модель " + ("занижает" if delta > 0 else "завышает") + f" на {abs(delta):.1f}pp"}</div>
+            </div>''', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:9px;margin-top:24px">Введи ставку от брокера для калибровки модели</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
     # Добавить тикер
     # ═══════════════════════════════════════════════════════════════
     ac1, ac2 = st.columns([5,1])
