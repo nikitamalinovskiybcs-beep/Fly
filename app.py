@@ -977,10 +977,10 @@ if basket_tickers:
         # Add current basket to leaderboard
         current_entry = {
             "basket": " / ".join(basket_tickers),
-            "score": d.get("score", 0),
-            "p_ki": d.get("p_ki", 0),
-            "recommendation": d.get("recommendation", {}).get("action", "?"),
-            "win_rate_exp": d.get("recommendation", {}).get("win_rate_expected", 0),
+            "score": D.get("score", 0),
+            "p_ki": D.get("p_ki", 0),
+            "recommendation": D.get("recommendation", {}).get("action", "?"),
+            "win_rate_exp": D.get("recommendation", {}).get("win_rate_expected", 0),
         }
         # Avoid duplicates
         existing = [e["basket"] for e in st.session_state["leaderboard"]]
@@ -998,7 +998,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [13] MODEL COMPARISON — vs Numerix/Bloomberg
     # ═══════════════════════════════════════════════════════════════
-    model_comp = d.get("model_comparison", {})
+    model_comp = D.get("model_comparison", {})
     if model_comp:
         with st.expander("[13] МОДЕЛЬ vs NUMERIX / BLOOMBERG", expanded=False):
             qs = model_comp.get("quality_score", 0)
@@ -1015,7 +1015,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [14] SELF-LEARNING STATUS
     # ═══════════════════════════════════════════════════════════════
-    sl = d.get("self_learning", {})
+    sl = D.get("self_learning", {})
     if sl:
         with st.expander("[14] SELF-LEARNING · САМООБУЧЕНИЕ", expanded=False):
             gen = sl.get("generation", 0)
@@ -1031,7 +1031,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [15] ЭВОЛЮЦИЯ МОДЕЛИ v1 → v34
     # ═══════════════════════════════════════════════════════════════
-    evo = d.get("model_evolution", {})
+    evo = D.get("model_evolution", {})
     if evo:
         with st.expander("[15] ЭВОЛЮЦИЯ МОДЕЛИ — ПРОГРЕСС v1 → v34", expanded=False):
             imp = evo.get("improvement_v1_to_v34", {})
