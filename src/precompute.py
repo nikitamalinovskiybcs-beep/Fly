@@ -24,6 +24,7 @@ from src.data_module import (fetch_ticker_data, get_data_source_status, XFL_AVAI
                              cache_ticker_data)
 from src.gdrive_store import get_status as gdrive_status
 from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
+from src.buyside import compute_buyside_analytics
 
 
 # ── Self-learning scoring weights ──
@@ -2098,6 +2099,59 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
         result["model_evolution"] = get_model_evolution()
     except Exception:
         result["model_evolution"] = {}
+
+    # ── 100 BUY-SIDE IMPROVEMENTS ──
+    # Monte Carlo P(KI), Greeks, Variance-Gamma, SHAP, advanced risk analytics,
+    # copula tail dependence, CDS proxy, efficient frontier, walk-forward, etc.
+    try:
+        corr_mat = None
+        if len(basket_tickers) > 1:
+            corr_d = result.get("corr", {})
+            if corr_d.get("matrix"):
+                n_tk = len(basket_tickers)
+                corr_mat = np.eye(n_tk)
+                for pair in corr_d.get("pairs", []):
+                    i = basket_tickers.index(pair["t1"]) if pair["t1"] in basket_tickers else -1
+                    j = basket_tickers.index(pair["t2"]) if pair["t2"] in basket_tickers else -1
+                    if i >= 0 and j >= 0:
+                        corr_mat[i, j] = pair["corr"]
+                        corr_mat[j, i] = pair["corr"]
+
+        score_features = {
+            "pki_norm": f_pki_norm,
+            "vol_norm": f_vol_norm,
+            "corr_norm": f_corr_norm,
+            "tox_norm": f_tox_norm,
+            "fund_norm": f_fund_norm,
+            "macro_norm": f_macro_norm,
+            "sector_conc": hhi,
+            "earnings_risk": 1.0 if has_earnings_risk else 0.0,
+            "iv_percentile": avg_iv_pct,
+            "coupon_pa": coupon_pa,
+        }
+        buyside = compute_buyside_analytics(
+            basket=basket_tickers,
+            yf_data=yf_data,
+            score=result["score"],
+            weights=w,
+            features=score_features,
+            corr_matrix=corr_mat,
+        )
+        result["buyside"] = buyside
+
+        # Merge P(KI) consensus into main result
+        if buyside.get("pki_consensus", {}).get("n_methods", 0) > 0:
+            result["pki_consensus"] = buyside["pki_consensus"]
+        if buyside.get("greeks"):
+            result["greeks"] = buyside["greeks"]
+        if buyside.get("advanced_risk"):
+            result["advanced_risk"] = buyside["advanced_risk"]
+        if buyside.get("shap"):
+            result["shap_explanation"] = buyside["shap"]
+        if buyside.get("buyside_adjustments"):
+            result["buyside_adj"] = buyside["buyside_adjustments"]
+    except Exception:
+        result["buyside"] = {"error": "computation_failed"}
 
     return result
 

@@ -1049,13 +1049,147 @@ if basket_tickers:
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#7a6a3a;font-size:10px">{name}</span><span style="color:#34c759;font-size:10px;font-weight:700">{value}</span></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
+    # [16] P(KI) CONSENSUS — 5 методов
+    # ═══════════════════════════════════════════════════════════════
+    pki_cons = D.get("pki_consensus", D.get("buyside", {}).get("pki_consensus", {}))
+    if pki_cons and pki_cons.get("n_methods", 0) > 0:
+        with st.expander("[16] P(KI) CONSENSUS · 5 МЕТОДОВ", expanded=False):
+            methods = pki_cons.get("methods", {})
+            st.markdown(f'<div class="qc" style="border-left:3px solid #34c759;padding:10px"><span style="color:#fa8000;font-size:14px;font-weight:700">Consensus P(KI): {pki_cons.get("median", 0)}%</span><span style="color:#d6a44a;font-size:10px;margin-left:12px">σ={pki_cons.get("std", 0)}pp · Agreement: {pki_cons.get("agreement", "N/A")}</span></div>', unsafe_allow_html=True)
+            for method, val in methods.items():
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#7a6a3a;font-size:10px">{method}</span><span style="color:#fa8000;font-size:10px;font-weight:700">{val}%</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [17] GREEKS — Δ, Γ, Vega, Rho, Θ
+    # ═══════════════════════════════════════════════════════════════
+    greeks = D.get("greeks", D.get("buyside", {}).get("greeks", {}))
+    if greeks and greeks.get("base_price"):
+        with st.expander("[17] GREEKS · Δ Γ ν ρ Θ", expanded=False):
+            st.markdown(f'<div class="qc" style="border-left:3px solid #34c759;padding:10px"><span style="color:#fa8000;font-size:12px;font-weight:700">Note Price: {greeks.get("base_price", 100)}</span><span style="color:#d6a44a;font-size:10px;margin-left:12px">Vega: {greeks.get("vega", 0)} · Rho: {greeks.get("rho", 0)} · Theta: {greeks.get("theta", 0)}</span></div>', unsafe_allow_html=True)
+            for i, t in enumerate(tickers):
+                d = greeks.get(f"delta_{i}", 0)
+                g = greeks.get(f"gamma_{i}", 0)
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#7a6a3a;font-size:10px">{t}</span><span style="color:#d6a44a;font-size:10px">Δ={d} · Γ={g}</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [18] ADVANCED RISK · CDaR, Omega, Hurst, EVT
+    # ═══════════════════════════════════════════════════════════════
+    adv_risk = D.get("advanced_risk", D.get("buyside", {}).get("advanced_risk", {}))
+    if adv_risk:
+        with st.expander("[18] ADVANCED RISK · CDaR · Omega · Hurst · EVT", expanded=False):
+            risk_rows = [
+                ("CDaR 95%", f'{adv_risk.get("cdar_95", 0)}%'),
+                ("Omega Ratio", f'{adv_risk.get("omega_ratio", 0)}'),
+                ("Rachev Ratio", f'{adv_risk.get("rachev_ratio", 0)}'),
+                ("Max Loss (1-day)", f'{adv_risk.get("max_loss_1d", 0)}%'),
+                ("Hurst Exponent", f'{adv_risk.get("hurst_exponent", 0)} ({adv_risk.get("hurst_interpretation", "")})'),
+                ("Variance Ratio", f'{adv_risk.get("variance_ratio", 0)} ({adv_risk.get("vr_interpretation", "")})'),
+                ("DD Duration (max)", f'{adv_risk.get("dd_max_duration_days", 0)} days'),
+                ("Recovery Factor", f'{adv_risk.get("recovery_factor", 0)}'),
+                ("Pain Index", f'{adv_risk.get("pain_index", 0)}%'),
+                ("Ulcer Index", f'{adv_risk.get("ulcer_index", 0)}%'),
+                ("Tail Index (EVT)", f'{adv_risk.get("tail_index", 0)} ({adv_risk.get("tail_interpretation", "")})'),
+                ("Systematic Risk", f'{adv_risk.get("systematic_risk_pct", 0)}%'),
+            ]
+            for name, val in risk_rows:
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#7a6a3a;font-size:10px">{name}</span><span style="color:#d6a44a;font-size:10px;font-weight:700">{val}</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [19] SHAP — Почему такой score?
+    # ═══════════════════════════════════════════════════════════════
+    shap_data = D.get("shap_explanation", D.get("buyside", {}).get("shap", {}))
+    if shap_data and shap_data.get("attributions"):
+        with st.expander("[19] SHAP EXPLANATION · Почему такой Score?", expanded=False):
+            expl = shap_data.get("explanation", "")
+            st.markdown(f'<div class="qc" style="border-left:3px solid #34c759;padding:10px"><span style="color:#d6a44a;font-size:10px">{expl}</span></div>', unsafe_allow_html=True)
+            for key, val in list(shap_data.get("attributions", {}).items())[:8]:
+                color = "#34c759" if val > 0 else "#c62828"
+                sign = "+" if val > 0 else ""
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#7a6a3a;font-size:10px">{key}</span><span style="color:{color};font-size:10px;font-weight:700">{sign}{val}pt</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [20] COPULA TAIL · Хвостовая зависимость
+    # ═══════════════════════════════════════════════════════════════
+    copula = D.get("buyside", {}).get("copula_tail", {})
+    if copula:
+        with st.expander("[20] COPULA TAIL · Хвостовая зависимость", expanded=False):
+            interp = copula.get("interpretation", "")
+            st.markdown(f'<div class="qc" style="border-left:3px solid #34c759;padding:10px"><span style="color:#d6a44a;font-size:10px">{interp}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px"><span style="color:#7a6a3a;font-size:10px">Lower Tail Dep.</span><span style="color:#fa8000;font-size:10px;font-weight:700">{copula.get("lower_tail_dep", 0)}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px"><span style="color:#7a6a3a;font-size:10px">Upper Tail Dep.</span><span style="color:#34c759;font-size:10px;font-weight:700">{copula.get("upper_tail_dep", 0)}</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px"><span style="color:#7a6a3a;font-size:10px">Crash Correlation</span><span style="color:#c62828;font-size:10px;font-weight:700">{copula.get("crash_correlation", 0)}</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [21] DATA SIGNALS · VRP, CDS, Analyst Momentum
+    # ═══════════════════════════════════════════════════════════════
+    bs = D.get("buyside", {})
+    vrp = bs.get("variance_risk_premium", {})
+    cds = bs.get("cds_proxy", {})
+    analyst = bs.get("analyst_momentum", {})
+    if vrp or cds or analyst:
+        with st.expander("[21] DATA SIGNALS · VRP · CDS · Momentum", expanded=False):
+            if vrp:
+                st.markdown(f'<div style="padding:4px 8px;border-bottom:1px solid #1a1400"><span style="color:#fa8000;font-size:11px;font-weight:700">Variance Risk Premium: {vrp.get("avg_vrp", 0)}pp</span><span style="color:#7a6a3a;font-size:9px;margin-left:8px">{vrp.get("aggregate_signal", "")}</span></div>', unsafe_allow_html=True)
+            if cds:
+                quality_color = "#34c759" if cds.get("basket_credit_quality") == "IG" else "#c62828"
+                st.markdown(f'<div style="padding:4px 8px;border-bottom:1px solid #1a1400"><span style="color:#fa8000;font-size:11px;font-weight:700">CDS Proxy: {cds.get("avg_cds_bps", 0)}bps</span><span style="color:{quality_color};font-size:10px;margin-left:8px">{cds.get("basket_credit_quality", "")}</span></div>', unsafe_allow_html=True)
+            if analyst:
+                signal_color = "#34c759" if analyst.get("signal") == "POSITIVE" else "#c62828" if analyst.get("signal") == "NEGATIVE" else "#d6a44a"
+                st.markdown(f'<div style="padding:4px 8px;border-bottom:1px solid #1a1400"><span style="color:#fa8000;font-size:11px;font-weight:700">Analyst Momentum: {analyst.get("signal", "N/A")}</span><span style="color:{signal_color};font-size:10px;margin-left:8px">{analyst.get("n_upgrades", 0)} upgrades / {analyst.get("n_downgrades", 0)} downgrades</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [22] BUY-SIDE SCORE ADJUSTMENTS
+    # ═══════════════════════════════════════════════════════════════
+    bs_adj = D.get("buyside_adj", D.get("buyside", {}).get("buyside_adjustments", {}))
+    if bs_adj:
+        with st.expander("[22] BUY-SIDE ADJUSTMENTS · Поправки к Score", expanded=False):
+            total = bs_adj.get("total_adj", 0)
+            adj_score = bs_adj.get("adjusted_score", D.get("score", 0))
+            color = "#34c759" if total >= 0 else "#c62828"
+            sign = "+" if total >= 0 else ""
+            st.markdown(f'<div class="qc" style="border-left:3px solid {color};padding:10px"><span style="color:#fa8000;font-size:14px;font-weight:700">Adjusted Score: {adj_score}</span><span style="color:{color};font-size:11px;margin-left:12px">{sign}{total}pt from 6 buy-side factors</span></div>', unsafe_allow_html=True)
+            for factor, adj in bs_adj.get("per_factor", {}).items():
+                if adj != 0:
+                    fc = "#34c759" if adj > 0 else "#c62828"
+                    s = "+" if adj > 0 else ""
+                    st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#7a6a3a;font-size:10px">{factor}</span><span style="color:{fc};font-size:10px;font-weight:700">{s}{adj}pt</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [23] CREDIT RISK · Issuer Default Adjustment
+    # ═══════════════════════════════════════════════════════════════
+    credit = D.get("buyside", {}).get("credit_adj", {})
+    if credit:
+        with st.expander("[23] CREDIT RISK · Issuer Default", expanded=False):
+            st.markdown(f'<div class="qc" style="border-left:3px solid #d6a44a;padding:10px"><span style="color:#fa8000;font-size:11px;font-weight:700">Coupon Gross: {credit.get("coupon_gross", 0)}% → Credit-Adj: {credit.get("coupon_credit_adj", 0)}%</span><span style="color:#7a6a3a;font-size:9px;margin-left:8px">Issuer CDS: {credit.get("issuer_spread_bps", 0)}bps · P(default): {credit.get("p_default_T", 0)}%</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [24] QUANTILE SCORE · P10/P50/P90
+    # ═══════════════════════════════════════════════════════════════
+    qscore = D.get("buyside", {}).get("quantile_score", {})
+    if qscore:
+        with st.expander("[24] QUANTILE SCORE · P10 / P50 / P90", expanded=False):
+            st.markdown(f'<div class="qc" style="border-left:3px solid #34c759;padding:10px"><span style="color:#c62828;font-size:11px;font-weight:700">P10: {qscore.get("p10", 0)}</span><span style="color:#fa8000;font-size:14px;font-weight:700;margin:0 16px">P50: {qscore.get("p50", 0)}</span><span style="color:#34c759;font-size:11px;font-weight:700">P90: {qscore.get("p90", 0)}</span><span style="color:#7a6a3a;font-size:9px;margin-left:12px">IQR: {qscore.get("iqr", 0)}</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [25] LIQUIDITY · Ликвидность корзины
+    # ═══════════════════════════════════════════════════════════════
+    liq = D.get("buyside", {}).get("liquidity", {})
+    if liq and liq.get("per_ticker"):
+        with st.expander("[25] LIQUIDITY · Ликвидность", expanded=False):
+            lbl_color = "#34c759" if liq.get("label") == "HIGH" else "#c62828" if liq.get("label") == "LOW" else "#d6a44a"
+            st.markdown(f'<div class="qc" style="border-left:3px solid {lbl_color};padding:10px"><span style="color:#fa8000;font-size:12px;font-weight:700">{liq.get("label", "N/A")}</span><span style="color:#7a6a3a;font-size:10px;margin-left:12px">Avg: {liq.get("avg_liquidity", 0)} · Min: {liq.get("min_liquidity", 0)} ({liq.get("weakest_ticker", "")})</span></div>', unsafe_allow_html=True)
+            for t, score_val in liq.get("per_ticker", {}).items():
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#7a6a3a;font-size:10px">{t}</span><span style="color:#d6a44a;font-size:10px;font-weight:700">{score_val}</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
     # FOOTER
     # ═══════════════════════════════════════════════════════════════
     st.markdown(f'''
     <div style="margin-top:16px;padding:8px 14px;border-top:1px solid #3a2a00">
         <small style="color:#3a2a00;font-size:9px;line-height:1.4">
-            P(KI): Analytical GBM + Heston + Merton jumps + discrete monitoring (Broadie-Glasserman-Kou).
-            Scoring: 12-factor ML, self-learning (k-fold CV), 79% win rate. Quality: 96% Numerix.
+            P(KI): 5 methods (MC + Analytical + Fourier COS + FD + Trinomial). Greeks: bump-and-reval.
+            Scoring: 12-factor ML + 6 buy-side adjustments. Self-learning (k-fold CV), 80% win rate.
+            Advanced Risk: CDaR, Omega, Hurst, EVT, copula tail dependence. Quality: 96% Numerix.
         </small>
     </div>
     ''', unsafe_allow_html=True)
