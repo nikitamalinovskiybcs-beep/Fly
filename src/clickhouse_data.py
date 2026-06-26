@@ -17,11 +17,14 @@ CH_PASS = os.environ.get("CH_PASS", "nSnvOjKP~2s53")
 def _get_client():
     if not CH_AVAILABLE:
         return None
-    return clickhouse_connect.get_client(
-        host=CH_HOST, port=CH_PORT,
-        username=CH_USER, password=CH_PASS,
-        secure=True,
-    )
+    try:
+        return clickhouse_connect.get_client(
+            host=CH_HOST, port=CH_PORT,
+            username=CH_USER, password=CH_PASS,
+            secure=True,
+        )
+    except Exception:
+        return None
 
 
 def fetch_quantum_risk_stats() -> dict:
