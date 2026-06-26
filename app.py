@@ -1066,7 +1066,7 @@ if basket_tickers:
     if greeks and greeks.get("base_price"):
         with st.expander("[17] GREEKS · Δ Γ ν ρ Θ", expanded=False):
             st.markdown(f'<div class="qc" style="border-left:3px solid #34c759;padding:10px"><span style="color:#fa8000;font-size:12px;font-weight:700">Note Price: {greeks.get("base_price", 100)}</span><span style="color:#d6a44a;font-size:10px;margin-left:12px">Vega: {greeks.get("vega", 0)} · Rho: {greeks.get("rho", 0)} · Theta: {greeks.get("theta", 0)}</span></div>', unsafe_allow_html=True)
-            for i, t in enumerate(tickers):
+            for i, t in enumerate(basket_tickers):
                 d = greeks.get(f"delta_{i}", 0)
                 g = greeks.get(f"gamma_{i}", 0)
                 st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#7a6a3a;font-size:10px">{t}</span><span style="color:#d6a44a;font-size:10px">Δ={d} · Γ={g}</span></div>', unsafe_allow_html=True)
