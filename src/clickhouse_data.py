@@ -1,148 +1,60 @@
-"""ClickHouse Cloud data connector for MIT Quantum returns."""
+"""Google Drive / local JSON data store for quantum risk statistics.
 
+Replaces ClickHouse Cloud — data stored as JSON in ~/phoenix_data/.
+When running in Google Colab, files sync to Google Drive automatically.
+Zero external dependencies. Graceful fallback on any error.
+"""
+
+import json
 import os
+from typing import Dict, Optional
 
+# ── Storage path (shared with gdrive_store.py) ──
 try:
-    import clickhouse_connect
-    CH_AVAILABLE = True
-except ImportError:
-    CH_AVAILABLE = False
+    from google.colab import drive  # type: ignore
+    drive.mount('/content/drive', force_remount=False)
+    STORE_PATH = '/content/drive/MyDrive/phoenix_data/'
+except Exception:
+    STORE_PATH = os.path.join(os.path.expanduser("~"), "phoenix_data")
 
-CH_HOST = os.environ.get("CH_HOST", "mz5xp6056a.us-east1.gcp.clickhouse.cloud")
-CH_PORT = int(os.environ.get("CH_PORT", "8443"))
-CH_USER = os.environ.get("CH_USER", "default")
-CH_PASS = os.environ.get("CH_PASS", "nSnvOjKP~2s53")
+os.makedirs(STORE_PATH, exist_ok=True)
+
+_QUANTUM_FILE = os.path.join(STORE_PATH, "quantum_risk_stats.json")
 
 
 def _get_client():
-    if not CH_AVAILABLE:
-        return None
-    try:
-        return clickhouse_connect.get_client(
-            host=CH_HOST, port=CH_PORT,
-            username=CH_USER, password=CH_PASS,
-            secure=True,
-        )
-    except Exception:
-        return None
+    """Compatibility stub — returns None (no external DB)."""
+    return None
 
 
 def fetch_quantum_risk_stats() -> dict:
-    """Fetch pre-calculated quantum risk statistics from ClickHouse."""
-    client = _get_client()
-    if client is None:
-        return _fallback_data()
-
+    """Fetch quantum risk statistics from local JSON / Google Drive."""
     try:
-        var_q = """
-        SELECT
-            ticker,
-            quantile(0.05)(final_return) AS var_95,
-            quantile(0.01)(final_return) AS var_99,
-            avg(final_return) AS mean_return,
-            min(final_return) AS min_return,
-            max(final_return) AS max_return,
-            stddevPop(final_return) AS volatility,
-            count() AS num_simulations
-        FROM mit_quantum_returns
-        GROUP BY ticker
-        ORDER BY ticker
-        """
-        var_result = client.query(var_q)
-        ticker_stats = {}
-        for row in var_result.result_rows:
-            ticker_stats[row[0]] = {
-                "var_95": round(float(row[1]), 2),
-                "var_99": round(float(row[2]), 2),
-                "mean_return": round(float(row[3]), 2),
-                "min_return": round(float(row[4]), 2),
-                "max_return": round(float(row[5]), 2),
-                "volatility": round(float(row[6]), 2),
-                "num_simulations": int(row[7]),
-            }
+        if os.path.exists(_QUANTUM_FILE):
+            with open(_QUANTUM_FILE, "r") as f:
+                data = json.load(f)
+            data["source"] = "google_drive"
+            return data
+    except Exception:
+        pass
+    return _fallback_data()
 
-        barrier_q = """
-        SELECT
-            ticker,
-            countIf(final_return < 65.0) AS breach_count,
-            count() AS total,
-            round(countIf(final_return < 65.0) / count() * 100, 2) AS breach_pct
-        FROM mit_quantum_returns
-        GROUP BY ticker
-        ORDER BY ticker
-        """
-        barrier_result = client.query(barrier_q)
-        for row in barrier_result.result_rows:
-            t = row[0]
-            if t in ticker_stats:
-                ticker_stats[t]["barrier_breach_count"] = int(row[1])
-                ticker_stats[t]["barrier_breach_pct"] = float(row[3])
 
-        worst_q = """
-        SELECT
-            quantile(0.05)(min_return) AS worst_of_var_95,
-            quantile(0.01)(min_return) AS worst_of_var_99,
-            avg(min_return) AS avg_worst_of,
-            countIf(min_return < 65.0) / count() * 100 AS barrier_breach_pct
-        FROM (
-            SELECT simulation_id, min(final_return) AS min_return
-            FROM mit_quantum_returns
-            GROUP BY simulation_id
-        )
-        """
-        worst_result = client.query(worst_q)
-        wr = worst_result.result_rows[0]
-        worst_of = {
-            "var_95": round(float(wr[0]), 2),
-            "var_99": round(float(wr[1]), 2),
-            "mean": round(float(wr[2]), 2),
-            "barrier_breach_pct": round(float(wr[3]), 2),
-        }
-
-        dist_q = """
-        SELECT
-            ticker,
-            quantile(0.05)(final_return) AS p5,
-            quantile(0.25)(final_return) AS p25,
-            quantile(0.50)(final_return) AS p50,
-            quantile(0.75)(final_return) AS p75,
-            quantile(0.95)(final_return) AS p95
-        FROM mit_quantum_returns
-        GROUP BY ticker
-        ORDER BY ticker
-        """
-        dist_result = client.query(dist_q)
-        for row in dist_result.result_rows:
-            t = row[0]
-            if t in ticker_stats:
-                ticker_stats[t]["percentiles"] = {
-                    "p5": round(float(row[1]), 2),
-                    "p25": round(float(row[2]), 2),
-                    "p50": round(float(row[3]), 2),
-                    "p75": round(float(row[4]), 2),
-                    "p95": round(float(row[5]), 2),
-                }
-
-        return {
-            "source": "clickhouse_cloud",
-            "table": "mit_quantum_returns",
-            "tickers": ticker_stats,
-            "worst_of": worst_of,
-            "total_simulations": sum(s["num_simulations"] for s in ticker_stats.values()),
-            "barrier_level": 65.0,
-        }
-
-    except Exception as e:
-        data = _fallback_data()
-        data["error"] = str(e)
-        return data
+def save_quantum_risk_stats(data: dict) -> bool:
+    """Save quantum risk statistics to local JSON / Google Drive."""
+    try:
+        with open(_QUANTUM_FILE, "w") as f:
+            json.dump(data, f, indent=2)
+        return True
+    except Exception:
+        return False
 
 
 def _fallback_data() -> dict:
     """Hardcoded fallback from last successful query."""
-    return {
+    data = {
         "source": "fallback_cache",
-        "table": "mit_quantum_returns",
+        "table": "quantum_risk_stats",
         "tickers": {
             "AAPL": {"var_95": 86.27, "var_99": 80.06, "mean_return": 168.88,
                      "min_return": 77.83, "max_return": 316.40, "volatility": 64.28,
@@ -169,3 +81,5 @@ def _fallback_data() -> dict:
         "total_simulations": 40000,
         "barrier_level": 65.0,
     }
+    save_quantum_risk_stats(data)
+    return data

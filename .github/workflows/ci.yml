@@ -38,7 +38,7 @@ jobs:
           print('All imports OK')
           "
 
-      - name: Smoke test — precompute with ClickHouse fallback
+      - name: Smoke test — precompute with Google Drive fallback
         run: |
           python -c "
           from src.precompute import precompute_all

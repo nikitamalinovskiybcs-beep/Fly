@@ -18,12 +18,6 @@ try:
 except ImportError:
     SCIPY_QMC = False
 
-try:
-    import clickhouse_connect
-    CH_AVAILABLE = True
-except ImportError:
-    CH_AVAILABLE = False
-
 # ── Google Drive (Colab / local fallback) ──
 try:
     from google.colab import drive  # type: ignore
@@ -47,68 +41,30 @@ DEFAULT_CONFIG = {
     "lookback_years": 2,
 }
 
-CH_HOST = os.environ.get("CH_HOST", "mz5xp6056a.us-east1.gcp.clickhouse.cloud")
-CH_PORT = int(os.environ.get("CH_PORT", "8443"))
-CH_USER = os.environ.get("CH_USER", "default")
-CH_PASS = os.environ.get("CH_PASS", "nSnvOjKP~2s53")
-
-
-def _ch_client():
-    """Get ClickHouse client (or None)."""
-    if not CH_AVAILABLE:
-        return None
-    try:
-        return clickhouse_connect.get_client(
-            host=CH_HOST, port=CH_PORT,
-            username=CH_USER, password=CH_PASS,
-            secure=True,
-        )
-    except Exception:
-        return None
-
-
 def _cache_key(basket: list[str]) -> str:
     return hashlib.md5(",".join(sorted(basket)).encode()).hexdigest()
 
 
 def _cache_get(key: str) -> dict | None:
-    """Try ClickHouse cache first, then local file."""
-    client = _ch_client()
-    if client is not None:
-        try:
-            result = client.query(
-                f"SELECT result FROM phoenix_cache WHERE key = '{key}'"
-            )
-            if result.result_rows:
-                return json.loads(result.result_rows[0][0])
-        except Exception:
-            pass
+    """Read cache from local JSON / Google Drive."""
     fpath = os.path.join(GDRIVE_PATH, f"cache_{key}.json")
     if os.path.exists(fpath):
-        with open(fpath, "r") as f:
-            return json.load(f)
+        try:
+            with open(fpath, "r") as f:
+                return json.load(f)
+        except Exception:
+            pass
     return None
 
 
 def _cache_set(key: str, value: dict):
-    """Save to local file (always) and ClickHouse (if available)."""
+    """Save cache to local JSON / Google Drive."""
     fpath = os.path.join(GDRIVE_PATH, f"cache_{key}.json")
-    with open(fpath, "w") as f:
-        json.dump(value, f, indent=2)
-    client = _ch_client()
-    if client is not None:
-        try:
-            client.command(
-                "CREATE TABLE IF NOT EXISTS phoenix_cache "
-                "(key String, result String, ts DateTime DEFAULT now()) "
-                "ENGINE = MergeTree() ORDER BY key"
-            )
-            client.command(
-                f"INSERT INTO phoenix_cache (key, result) "
-                f"VALUES ('{key}', '{json.dumps(value)}')"
-            )
-        except Exception:
-            pass
+    try:
+        with open(fpath, "w") as f:
+            json.dump(value, f, indent=2)
+    except Exception:
+        pass
 
 
 def load_prices_yfinance(tickers: list[str], days_back: int = 730) -> dict:

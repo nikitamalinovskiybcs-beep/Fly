@@ -93,7 +93,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">ClickHouse Cloud · IBM Qiskit · ФЕНИКС v32.0 · Real Data</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">Google Drive · IBM Qiskit · ФЕНИКС v34.0 · Real Data</span></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
