@@ -645,55 +645,41 @@ class PhoenixAGI:
         }
 
     def save_to_clickhouse(self) -> bool:
-        """Persist learned parameters to ClickHouse for cross-session memory."""
+        """Persist learned parameters to local JSON / Google Drive."""
         try:
-            from src.clickhouse_data import _get_client
             import json
-            client = _get_client()
-            if not client:
-                return False
-            client.command("""
-                CREATE TABLE IF NOT EXISTS phoenix_agi_params (
-                    version UInt32,
-                    params String,
-                    train_metrics String,
-                    test_metrics String,
-                    generation UInt32,
-                    created_at DateTime DEFAULT now()
-                ) ENGINE = MergeTree ORDER BY (version, created_at)
-            """)
-            gen = int(self.params.get("generation", 0))
-            client.command(
-                f"INSERT INTO phoenix_agi_params (version, params, train_metrics, "
-                f"test_metrics, generation) VALUES "
-                f"(1, '{json.dumps(self.get_params())}', "
-                f"'{json.dumps(self.train_metrics)}', "
-                f"'{json.dumps(self.test_metrics)}', {gen})"
-            )
+            store_path = os.path.join(os.path.expanduser("~"), "phoenix_data")
+            os.makedirs(store_path, exist_ok=True)
+            fpath = os.path.join(store_path, "agi_params.json")
+            data = {
+                "params": self.get_params(),
+                "train_metrics": self.train_metrics,
+                "test_metrics": self.test_metrics,
+                "generation": int(self.params.get("generation", 0)),
+                "saved_at": datetime.now().isoformat(),
+            }
+            with open(fpath, "w") as f:
+                json.dump(data, f, indent=2, default=str)
             return True
         except Exception:
             return False
 
     @classmethod
     def load_from_clickhouse(cls) -> Optional["PhoenixAGI"]:
-        """Load last learned parameters from ClickHouse."""
+        """Load last learned parameters from local JSON / Google Drive."""
         try:
-            from src.clickhouse_data import _get_client
             import json
-            client = _get_client()
-            if not client:
+            store_path = os.path.join(os.path.expanduser("~"), "phoenix_data")
+            fpath = os.path.join(store_path, "agi_params.json")
+            if not os.path.exists(fpath):
                 return None
-            result = client.query(
-                "SELECT params, train_metrics, test_metrics FROM "
-                "phoenix_agi_params ORDER BY created_at DESC LIMIT 1"
-            )
-            if result.result_rows:
-                row = result.result_rows[0]
-                params = json.loads(row[0])
-                agi = cls(params=params)
-                agi.train_metrics = json.loads(row[1]) if row[1] else {}
-                agi.test_metrics = json.loads(row[2]) if row[2] else {}
-                return agi
+            with open(fpath, "r") as f:
+                data = json.load(f)
+            params = data.get("params", {})
+            agi = cls(params=params)
+            agi.train_metrics = data.get("train_metrics", {})
+            agi.test_metrics = data.get("test_metrics", {})
+            return agi
         except Exception:
             pass
         return None

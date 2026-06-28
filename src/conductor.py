@@ -2,7 +2,7 @@
 PHOENIX HULK v41 — Conductor (Orchestration Layer).
 
 Role: orchestration only. Heavy computations on external free tiers.
-Chain: ClickHouse cache → Railway API → GitHub Actions → local fallback.
+Chain: Local JSON cache → Railway API → GitHub Actions → local fallback.
 """
 
 import hashlib
@@ -18,51 +18,19 @@ try:
 except ImportError:
     REQUESTS_AVAILABLE = False
 
+# ── Local / Google Drive cache ──
 try:
-    import clickhouse_connect
-    CH_AVAILABLE = True
-except ImportError:
-    CH_AVAILABLE = False
+    from google.colab import drive  # type: ignore
+    drive.mount('/content/drive', force_remount=False)
+    CACHE_PATH = '/content/drive/MyDrive/phoenix_data/conductor_cache/'
+except Exception:
+    CACHE_PATH = os.path.join(os.path.expanduser("~"), "phoenix_data", "conductor_cache")
 
-# ── Config from env ──
-CH_HOST = os.environ.get("CH_HOST", "mz5xp6056a.us-east1.gcp.clickhouse.cloud")
-CH_PORT = int(os.environ.get("CH_PORT", "8443"))
-CH_USER = os.environ.get("CH_USER", "default")
-CH_PASS = os.environ.get("CH_PASS", "nSnvOjKP~2s53")
+os.makedirs(CACHE_PATH, exist_ok=True)
 
 RAILWAY_API = os.environ.get("RAILWAY_API", "")
 GITHUB_API = os.environ.get("GITHUB_API", "")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
-
-
-def _get_ch_client():
-    if not CH_AVAILABLE:
-        return None
-    try:
-        return clickhouse_connect.get_client(
-            host=CH_HOST, port=CH_PORT,
-            username=CH_USER, password=CH_PASS,
-            secure=True,
-        )
-    except Exception:
-        return None
-
-
-def _init_cache_table():
-    client = _get_ch_client()
-    if client is None:
-        return
-    try:
-        client.command("""
-            CREATE TABLE IF NOT EXISTS phoenix_cache (
-                basket_hash String,
-                basket Array(String),
-                result String,
-                created_at DateTime DEFAULT now()
-            ) ENGINE = MergeTree ORDER BY (basket_hash, created_at)
-        """)
-    except Exception:
-        pass
 
 
 def get_cache_key(basket: List[str]) -> str:
@@ -70,33 +38,25 @@ def get_cache_key(basket: List[str]) -> str:
 
 
 def cache_get(basket: List[str]) -> Optional[Dict]:
-    client = _get_ch_client()
-    if client is None:
-        return None
+    """Read from local JSON cache."""
     key = get_cache_key(basket)
+    fpath = os.path.join(CACHE_PATH, f"{key}.json")
     try:
-        result = client.query(
-            f"SELECT result FROM phoenix_cache WHERE basket_hash = '{key}' "
-            f"ORDER BY created_at DESC LIMIT 1"
-        )
-        if result.result_rows:
-            return json.loads(result.result_rows[0][0])
+        if os.path.exists(fpath):
+            with open(fpath, "r") as f:
+                return json.load(f)
     except Exception:
         pass
     return None
 
 
 def cache_set(basket: List[str], result: Dict):
-    client = _get_ch_client()
-    if client is None:
-        return
+    """Save to local JSON cache."""
     key = get_cache_key(basket)
+    fpath = os.path.join(CACHE_PATH, f"{key}.json")
     try:
-        basket_arr = "[" + ",".join(f"'{t}'" for t in basket) + "]"
-        client.command(
-            f"INSERT INTO phoenix_cache (basket_hash, basket, result) VALUES "
-            f"('{key}', {basket_arr}, '{json.dumps(result)}')"
-        )
+        with open(fpath, "w") as f:
+            json.dump(result, f, indent=2, default=str)
     except Exception:
         pass
 
@@ -139,20 +99,17 @@ def call_github_actions(basket: List[str]) -> Optional[Dict]:
 def analyze(basket: List[str], n_sims: int = 50000) -> Dict:
     """
     Main conductor method:
-    1. Check ClickHouse cache
+    1. Check local JSON cache
     2. If miss → Railway API
     3. If Railway down → GitHub Actions
     4. If all down → return error (caller can use local fallback)
     """
-    # 1. Cache
-    _init_cache_table()
     cached = cache_get(basket)
     if cached:
-        cached["source"] = "clickhouse_cache"
+        cached["source"] = "local_cache"
         cached["from_cache"] = True
         return cached
 
-    # 2. Railway
     result = call_railway(basket, n_sims=n_sims)
     if result:
         result["source"] = "railway_api"
@@ -160,7 +117,6 @@ def analyze(basket: List[str], n_sims: int = 50000) -> Dict:
         cache_set(basket, result)
         return result
 
-    # 3. GitHub Actions
     result = call_github_actions(basket)
     if result:
         result["source"] = "github_actions"
@@ -168,9 +124,8 @@ def analyze(basket: List[str], n_sims: int = 50000) -> Dict:
         cache_set(basket, result)
         return result
 
-    # 4. All external compute unavailable
     return {
-        "error": "All external compute unavailable — use local ФЕНИКС MC fallback",
+        "error": "All external compute unavailable — use local MC fallback",
         "basket": basket,
         "source": "none",
         "timestamp": datetime.now().isoformat(),
