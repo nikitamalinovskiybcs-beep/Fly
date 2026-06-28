@@ -2077,6 +2077,23 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
         result["fred_data"] = {"available": False}
         result["vix_term_structure"] = {"available": False}
 
+    # ── 7 external data sources (Alpha Vantage, Finnhub, SEC, CBOE, etc.) ──
+    try:
+        from src.external_data import fetch_all_external_data
+        ext_data = fetch_all_external_data(basket_tickers)
+        result["external_data"] = ext_data
+        # Apply basket-level scoring adjustment from external signals
+        ext_signals = ext_data.get("basket_signals", {})
+        ext_adj = ext_signals.get("total_adjustment", 0)
+        if ext_adj != 0:
+            result["score"] = round(max(50, min(100, result["score"] + ext_adj)), 1)
+            result["risk_score"] = result["score"]
+            result["external_adj"] = ext_adj
+        result["external_sources_available"] = ext_data.get("sources_available", 0)
+    except Exception:
+        result["external_data"] = {"sources_available": 0}
+        result["external_sources_available"] = 0
+
     # ── [IMP 6] Bayesian confidence on final score ──
     try:
         bayes = bayesian_score(basket_tickers, 2.0)
