@@ -2139,17 +2139,20 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
         )
         result["buyside"] = buyside
 
-        # Merge P(KI) consensus into main result
+        # Merge key results into main dict
         if buyside.get("pki_consensus", {}).get("n_methods", 0) > 0:
             result["pki_consensus"] = buyside["pki_consensus"]
-        if buyside.get("greeks"):
-            result["greeks"] = buyside["greeks"]
-        if buyside.get("advanced_risk"):
-            result["advanced_risk"] = buyside["advanced_risk"]
         if buyside.get("shap"):
             result["shap_explanation"] = buyside["shap"]
         if buyside.get("buyside_adjustments"):
             result["buyside_adj"] = buyside["buyside_adjustments"]
+            # Apply buyside scoring adjustments to main score
+            bs_adj = buyside["buyside_adjustments"].get("total_adj", 0)
+            if bs_adj != 0:
+                result["score"] = round(max(50, min(100, result["score"] + bs_adj)), 1)
+                result["risk_score"] = result["score"]
+        if buyside.get("executive_summary"):
+            result["executive_summary"] = buyside["executive_summary"]
     except Exception:
         result["buyside"] = {"error": "computation_failed"}
 
