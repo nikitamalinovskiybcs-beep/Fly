@@ -275,17 +275,27 @@ def calibrate_scoring_on_settled() -> Dict:
             w = dict(_DEFAULT_SCORING_WEIGHTS)
             w["generation"] = w.get("generation", 0)
 
-    # Synthetic augmentation: duplicate with noise for underrepresented class
-    n_good = sum(1 for _, _, a in data if a > 70)
-    n_bad = sum(1 for _, _, a in data if a <= 70)
-    if n_good > n_bad * 1.5:
-        bad_notes = [(t, ty, a) for t, ty, a in data if a <= 70]
-        for tks, ty, actual in bad_notes[:5]:
-            data.append((tks, ty + 0.3, actual + 2))  # slight variation
-    elif n_bad > n_good * 1.5:
-        good_notes = [(t, ty, a) for t, ty, a in data if a > 70]
-        for tks, ty, actual in good_notes[:5]:
-            data.append((tks, ty - 0.2, actual - 2))
+    # [IMP #1-3] Enhanced synthetic augmentation using accuracy_boost
+    try:
+        from src.accuracy_boost import generate_synthetic_baskets
+        synthetic = generate_synthetic_baskets(SETTLED_NOTES, n_synthetic=80)
+        for basket_str, term_y, bad in synthetic:
+            tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
+            if tks:
+                actual = 90.0 if bad == 0 else 52.0
+                data.append((tks, term_y, actual))
+    except Exception:
+        # Fallback: original simple augmentation
+        n_good = sum(1 for _, _, a in data if a > 70)
+        n_bad = sum(1 for _, _, a in data if a <= 70)
+        if n_good > n_bad * 1.5:
+            bad_notes = [(t, ty, a) for t, ty, a in data if a <= 70]
+            for tks, ty, actual in bad_notes[:5]:
+                data.append((tks, ty + 0.3, actual + 2))
+        elif n_bad > n_good * 1.5:
+            good_notes = [(t, ty, a) for t, ty, a in data if a > 70]
+            for tks, ty, actual in good_notes[:5]:
+                data.append((tks, ty - 0.2, actual - 2))
 
     if not data:
         return {"generation": 0, "before_mae": 0, "after_mae": 0,
@@ -2172,6 +2182,60 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             result["executive_summary"] = buyside["executive_summary"]
     except Exception:
         result["buyside"] = {"error": "computation_failed"}
+
+    # ── 14 ACCURACY IMPROVEMENTS ──
+    try:
+        from src.accuracy_boost import (
+            apply_all_improvements, k_fold_cross_validation,
+            generate_synthetic_baskets, adversarial_validation,
+            backtest_model, platt_scaling, calibrate_score_to_probability,
+        )
+        from src.real_data import SETTLED_NOTES
+
+        acc_boost = apply_all_improvements(
+            score=result["score"],
+            basket_tickers=basket_tickers,
+            yf_data=yf_data,
+            corr_matrix=corr_mat,
+            term_y=2.0,
+        )
+        result["accuracy_boost"] = acc_boost
+
+        # K-fold CV on settled notes
+        settled_data = []
+        for bs, ty, bad in SETTLED_NOTES:
+            tks = bs.split("/") if isinstance(bs, str) else bs
+            settled_data.append((tks, ty, 90.0 if bad == 0 else 52.0))
+
+        def score_fn_for_cv(tks, ty):
+            return _score_one_note(w, tks, ty)
+        cv = k_fold_cross_validation(score_fn_for_cv, settled_data, k=5)
+        result["cross_validation"] = cv
+
+        # Adversarial validation (train vs val)
+        split = int(len(settled_data) * 0.7)
+        adv = adversarial_validation(
+            [(SETTLED_NOTES[i][0], SETTLED_NOTES[i][1], SETTLED_NOTES[i][2]) for i in range(split)],
+            [(SETTLED_NOTES[i][0], SETTLED_NOTES[i][1], SETTLED_NOTES[i][2]) for i in range(split, len(SETTLED_NOTES))],
+        )
+        result["adversarial_validation"] = adv
+
+        # Platt calibration
+        scores_list = [_score_one_note(w, d[0], d[1]) for d in settled_data]
+        labels_list = [1 if d[2] > 70 else 0 for d in settled_data]
+        platt_params = platt_scaling(scores_list, labels_list)
+        p_good = calibrate_score_to_probability(result["score"], platt_params)
+        result["platt_p_good"] = p_good
+        result["platt_params"] = platt_params
+
+        # Backtest
+        def score_fn_for_bt(tks, ty):
+            return _score_one_note(w, tks, ty)
+        bt = backtest_model(score_fn_for_bt, SETTLED_NOTES)
+        result["backtest_walkforward"] = bt
+
+    except Exception:
+        result["accuracy_boost"] = {"n_improvements": 0}
 
     return result
 
