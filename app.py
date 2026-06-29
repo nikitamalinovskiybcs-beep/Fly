@@ -1,6 +1,6 @@
 """Worst-of Phoenix Terminal — Bloomberg-style dashboard (LEAN version).
 Karpathy method: ALL computation in precompute.py/buyside.py, this file is pure rendering.
-25 sections → 8 essential sections that affect prediction accuracy."""
+25 sections → 9 essential sections (8 original + agents) that affect prediction accuracy."""
 
 import datetime
 import math
@@ -81,7 +81,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">LEAN · 8 секций · ФЕНИКС v35.0</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">LEAN · 9 секций · ФЕНИКС v36.0 · 8 Agents</span></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
@@ -443,12 +443,80 @@ if basket_tickers:
         </div>''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
+    # [9] АГЕНТЫ — 8 Self-Learning Agents
+    # ═══════════════════════════════════════════════════════════════
+    sla = D.get("sl_agents", {})
+    sla_ok = sla.get("agents_ok", 0)
+    sla_total = sla.get("agents_run", 0)
+    sla_decision = sla.get("decision", "N/A")
+    sla_confidence = sla.get("confidence", 0)
+    sla_regime = sla.get("regime", "N/A")
+    sla_sentiment = sla.get("sentiment", "N/A")
+    sla_adj = D.get("sl_agents_adj", 0)
+    sla_dec_c = "#34c759" if sla_decision == "BUY" else "#ff3b30" if sla_decision == "AVOID" else "#ffb000"
+
+    with st.expander(f"[9] АГЕНТЫ    {sla_ok}/{sla_total} OK · {sla_decision} · Conf {sla_confidence:.0%}"):
+        # Summary metrics
+        st.markdown(f'''
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">РЕШЕНИЕ</div><div style="color:{sla_dec_c};font-size:14px;font-weight:700">{sla_decision}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">УВЕРЕННОСТЬ</div><div style="color:#ffb000;font-size:14px;font-weight:700">{sla_confidence:.0%}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">РЕЖИМ</div><div style="color:{"#34c759" if sla_regime == "BULL" else "#ff3b30" if sla_regime == "BEAR" else "#ffb000"};font-size:14px;font-weight:700">{sla_regime}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">SENTIMENT</div><div style="color:{"#34c759" if sla_sentiment == "BULLISH" else "#ff3b30" if sla_sentiment == "BEARISH" else "#ffb000"};font-size:14px;font-weight:700">{sla_sentiment}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">СКОР ADJ</div><div style="color:{"#34c759" if sla_adj > 0 else "#ff3b30" if sla_adj < 0 else "#ffb000"};font-size:14px;font-weight:700">{sla_adj:+.1f}</div></div>
+        </div>''', unsafe_allow_html=True)
+
+        # Per-agent details
+        agent_results = sla.get("results", {})
+        agent_labels = {
+            "sentiment": "Sentiment",
+            "regime": "Regime (HMM)",
+            "alpha": "Alpha Discovery",
+            "risk": "Risk/VaR",
+            "timing": "Timing",
+            "correlation": "Correlation",
+            "overfit_guardian": "Overfit Guard",
+            "meta": "Meta Ensemble",
+        }
+        for agent_key, label in agent_labels.items():
+            ar = agent_results.get(agent_key, {})
+            if "error" in ar:
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#ff3b30;font-size:9px">{label}</span><span style="color:#ff3b30;font-size:9px">ERROR</span></div>', unsafe_allow_html=True)
+                continue
+            adj = ar.get("scoring_adj", 0)
+            adj_c = "#34c759" if adj > 0 else "#ff3b30" if adj < 0 else "#6a5a2a"
+            # Extra info per agent
+            extra = ""
+            if agent_key == "sentiment":
+                extra = ar.get("label", "")
+            elif agent_key == "regime":
+                extra = f"{ar.get('regime', '')} ({ar.get('confidence', 0):.0%})"
+            elif agent_key == "alpha":
+                extra = f"{ar.get('signals_found', 0)} signals"
+            elif agent_key == "risk":
+                extra = f"alloc {ar.get('final_allocation', 0):.0%}"
+            elif agent_key == "timing":
+                extra = ar.get("basket_signal", "")
+            elif agent_key == "correlation":
+                extra = f"avg {ar.get('avg_correlation', 0):.2f}"
+            elif agent_key == "overfit_guardian":
+                extra = ar.get("recommendation", "OK")
+            elif agent_key == "meta":
+                extra = f"score {ar.get('final_score', 0):.0f}"
+            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:9px">{label}</span><span style="color:#6a5a2a;font-size:9px">{extra}</span><span style="color:{adj_c};font-size:9px;font-weight:700">{adj:+.1f}</span></div>', unsafe_allow_html=True)
+
+        # Guardian status
+        guardian = agent_results.get("overfit_guardian", {})
+        if guardian.get("safety_ok") is False:
+            st.markdown(f'<div style="background:#3a0000;border:1px solid #ff3b30;padding:6px;margin-top:6px;color:#ff3b30;font-size:10px;font-weight:700">GUARDIAN ALERT: {", ".join(guardian.get("safety_issues", []))}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
     # FOOTER
     # ═══════════════════════════════════════════════════════════════
     st.markdown(f'''
     <div style="margin-top:16px;padding:8px 14px;border-top:1px solid #3a2a00">
         <small style="color:#3a2a00;font-size:9px;line-height:1.4">
-            P(KI): 4 methods (VG + Fourier COS + FD + Trinomial). Scoring: 12-factor ML.
+            P(KI): 4 methods (VG + Fourier COS + FD + Trinomial). Scoring: 12-factor ML + 8 agents.
             Self-learning: k-fold CV, 80% win rate. Quality: 96% vs Numerix. Cost: $0.
         </small>
     </div>
@@ -461,7 +529,7 @@ data_src_lbl = get_data_source_status().upper()
 st.markdown(f'''
 <div class="sbar">
     <span>NY {now_utc.strftime("%H:%M:%S")}</span>
-    <span>ФЕНИКС <span class="ok">v35.0</span></span>
+    <span>ФЕНИКС <span class="ok">v36.0</span></span>
     <span>{data_src_lbl} <span class="ok">OK</span></span>
     <span>{gdrive_st} <span class="ok">OK</span></span>
     <span style="margin-left:auto"><span class="lb">PHOENIX TERMINAL</span></span>

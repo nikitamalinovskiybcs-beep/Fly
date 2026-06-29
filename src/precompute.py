@@ -2183,6 +2183,32 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     except Exception:
         result["buyside"] = {"error": "computation_failed"}
 
+    # ── 8 SELF-LEARNING AGENTS ──
+    try:
+        from src.self_learning_agents import run_all_self_learning_agents
+
+        sl_agents = run_all_self_learning_agents(
+            tickers=basket_tickers,
+            yf_data=yf_data,
+            features=score_features,
+            base_score=result["score"],
+            corr_matrix=corr_mat,
+            external_data=result.get("external_data"),
+            current_accuracy=self_learning.get("scoring_acc_after", 80.0),
+            current_win_rate=self_learning.get("win_rate", 78.0),
+        )
+        result["sl_agents"] = sl_agents
+
+        # Apply Meta Agent adjustment to score (capped +-5pt for safety)
+        meta_adj = sl_agents.get("total_adjustment", 0)
+        meta_adj = max(-5, min(5, meta_adj))
+        if sl_agents.get("guardian_ok", True) and abs(meta_adj) > 0.1:
+            result["score"] = round(max(50, min(100, result["score"] + meta_adj)), 1)
+            result["risk_score"] = result["score"]
+            result["sl_agents_adj"] = round(meta_adj, 1)
+    except Exception:
+        result["sl_agents"] = {"agents_run": 0, "agents_ok": 0, "error": "failed"}
+
     # ── 14 ACCURACY IMPROVEMENTS ──
     try:
         from src.accuracy_boost import (
