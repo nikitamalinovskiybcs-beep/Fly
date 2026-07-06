@@ -9,7 +9,6 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-import numpy as np
 import pandas as pd
 
 logger = logging.getLogger(__name__)
@@ -167,8 +166,13 @@ class AnalyticsDB:
         if not self.available:
             return
         try:
-            df = pd.DataFrame([result])
-            self._conn.execute("INSERT INTO backtest_results SELECT * FROM df")
+            self._conn.execute(
+                "INSERT INTO backtest_results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [result.get(k, "") for k in (
+                    "id", "timestamp", "strategy", "tickers", "start_date", "end_date",
+                    "sharpe", "total_return", "max_drawdown", "win_rate", "total_trades", "parameters",
+                )],
+            )
         except Exception as exc:
             logger.warning("Insert backtest failed: %s", exc)
 

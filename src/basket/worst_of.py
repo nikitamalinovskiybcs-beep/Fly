@@ -1,10 +1,7 @@
 """Worst-of prediction — identify most likely underperformer."""
 
 import logging
-from typing import Optional
 
-import numpy as np
-import pandas as pd
 
 from src.basket.models import AssetProfile
 

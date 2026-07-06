@@ -84,8 +84,6 @@ class PhoenixPricingEngine:
                 current_levels[:, j] *= np.exp(drift + diffusion)
 
             performance = current_levels / spots[np.newaxis, :]
-            worst_perf = performance.min(axis=1)
-
             all_above_autocall = np.all(performance >= autocall_level_pct, axis=1)
             new_autocalls = all_above_autocall & ~autocalled
             n_new = new_autocalls.sum()
@@ -107,7 +105,6 @@ class PhoenixPricingEngine:
             for j, t in enumerate(tickers):
                 worst_of_count[t] += int((worst_idx == j).sum())
 
-        final_not_called = ~autocalled
         final_discount = np.exp(-r * obs_times[-1]) if obs_times else 1.0
 
         final_worst = (current_levels / spots[np.newaxis, :]).min(axis=1)

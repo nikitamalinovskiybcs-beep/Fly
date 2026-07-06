@@ -8,7 +8,6 @@ Uses PhoenixPricingEngine for repricing.
 import logging
 from typing import Optional
 
-import numpy as np
 
 from src.phoenix.models import GreeksReport
 

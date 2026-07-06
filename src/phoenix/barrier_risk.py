@@ -105,7 +105,6 @@ class BarrierRiskAnalyzer:
             return 0.0
         try:
             n_sims = 5000
-            dt = days / 365.25
             daily_vol = iv / np.sqrt(252)
             n_days = max(1, days)
 

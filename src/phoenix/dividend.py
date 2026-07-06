@@ -5,7 +5,6 @@ If spot is close to barrier, dividends can push through.
 """
 
 import logging
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -83,7 +82,7 @@ class DividendAnalyzer:
         if divs.empty:
             return []
         try:
-            from datetime import datetime, timedelta
+            from datetime import timedelta
             recent = divs.index[-4:] if len(divs) >= 4 else divs.index
             if len(recent) < 2:
                 return []

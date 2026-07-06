@@ -1,8 +1,7 @@
 """Event calendar — earnings dates and event risk."""
 
 import logging
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 

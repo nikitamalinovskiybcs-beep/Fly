@@ -11,7 +11,6 @@ Environment variables:
 
 import logging
 from datetime import datetime
-from typing import Optional
 
 import pandas as pd
 

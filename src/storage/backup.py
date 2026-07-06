@@ -7,7 +7,6 @@ Triggers:
     - Manual → from Streamlit UI or CLI
 """
 
-import json
 import logging
 import shutil
 from datetime import datetime
