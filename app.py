@@ -81,7 +81,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">LEAN · 9 секций · ФЕНИКС v36.0 · 8 Agents</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">LEAN · 13 секций · ФЕНИКС v36.0 · 8 Agents · Basket · Paper Trading</span></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
@@ -509,6 +509,208 @@ if basket_tickers:
         guardian = agent_results.get("overfit_guardian", {})
         if guardian.get("safety_ok") is False:
             st.markdown(f'<div style="background:#3a0000;border:1px solid #ff3b30;padding:6px;margin-top:6px;color:#ff3b30;font-size:10px;font-weight:700">GUARDIAN ALERT: {", ".join(guardian.get("safety_issues", []))}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [10] BASKET SCORING — Bank-grade 8-criterion analysis
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[10] BASKET SCORING    Bank-grade analysis"):
+        try:
+            from src.basket.scorer import BasketScorer
+            from src.basket.worst_of import WorstOfPredictor
+            bs = BasketScorer()
+            report = bs.score_basket(basket_tickers)
+
+            grade_c = "#34c759" if report.total_score >= 70 else "#ffb000" if report.total_score >= 50 else "#ff3b30"
+            st.markdown(f'''
+            <div class="qc" style="border-left:3px solid {grade_c};padding:10px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div><span style="color:{grade_c};font-size:22px;font-weight:700">{report.grade.value}</span>
+                    <span style="color:#d6a44a;font-size:11px;margin-left:8px">{report.recommendation}</span></div>
+                    <span style="color:{grade_c};font-size:20px;font-weight:700">{report.total_score:.1f}/100</span>
+                </div>
+            </div>''', unsafe_allow_html=True)
+
+            for criterion in report.criteria:
+                raw_c = "#34c759" if criterion.raw_score >= 70 else "#ffb000" if criterion.raw_score >= 50 else "#ff3b30"
+                bar_w = min(100, criterion.raw_score)
+                st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:2px 0">
+                    <span style="color:#d6a44a;font-size:10px;width:130px;text-align:right">{criterion.name}</span>
+                    <div style="flex:1;height:8px;background:#1a1400"><div style="width:{bar_w}%;height:100%;background:{raw_c}"></div></div>
+                    <span style="color:{raw_c};font-size:10px;width:30px;font-weight:700">{criterion.raw_score:.0f}</span>
+                    <span style="color:#6a5a2a;font-size:8px;width:40px">w={criterion.weight:.2f}</span>
+                </div>''', unsafe_allow_html=True)
+
+            if report.red_flags:
+                st.markdown(f'<div style="color:#ff3b30;font-size:10px;font-weight:700;margin-top:8px">RED FLAGS ({len(report.red_flags)})</div>', unsafe_allow_html=True)
+                for flag in report.red_flags:
+                    fc = "#ff3b30" if flag.severity == "critical" else "#fa8000"
+                    st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:{fc};font-size:9px">{flag.asset} — {flag.flag_type}</span><span style="color:#6a5a2a;font-size:9px">{flag.description}</span></div>', unsafe_allow_html=True)
+
+            if report.worst_of_asset:
+                st.markdown(f'<div style="color:#fa8000;font-size:10px;margin-top:6px">Worst-of: <b style="color:#ff3b30">{report.worst_of_asset}</b> — {report.worst_of_reason}</div>', unsafe_allow_html=True)
+
+            wo_pred = WorstOfPredictor().predict(report.assets)
+            if wo_pred:
+                st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin-top:8px">WORST-OF PROBABILITY</div>', unsafe_allow_html=True)
+                for t, prob in sorted(wo_pred.items(), key=lambda x: -x[1]):
+                    bar_w2 = prob * 100
+                    st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:1px 0">
+                        <span style="color:#d6a44a;font-size:10px;width:50px">{t}</span>
+                        <div style="flex:1;height:10px;background:#1a1400"><div style="width:{bar_w2:.0f}%;height:100%;background:#fa8000"></div></div>
+                        <span style="color:#ffb000;font-size:10px;width:40px">{prob:.1%}</span>
+                    </div>''', unsafe_allow_html=True)
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Basket scoring error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [11] PHOENIX ANALYTICS — Greeks, IV, Barrier Risk
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[11] PHOENIX ANALYTICS    Greeks · IV · Barrier Risk"):
+        try:
+            from src.phoenix.implied_vol import ImpliedVolEngine
+            from src.phoenix.barrier_risk import BarrierRiskAnalyzer
+            from src.phoenix.implied_corr import ImpliedCorrelationEngine
+
+            iv_engine = ImpliedVolEngine()
+            barrier_analyzer = BarrierRiskAnalyzer()
+
+            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin-bottom:4px">IMPLIED VOLATILITY</div>', unsafe_allow_html=True)
+            iv_data = []
+            for t in basket_tickers:
+                atm_iv = iv_engine.get_atm_iv(t)
+                skew = iv_engine.get_skew(t)
+                iv_pct = iv_engine.get_iv_percentile(t)
+                iv_data.append({"ticker": t, "atm_iv": atm_iv, "skew": skew, "iv_pct": iv_pct})
+                iv_c = "#ff3b30" if atm_iv > 0.40 else "#ffb000" if atm_iv > 0.25 else "#34c759"
+                st.markdown(f'''<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400">
+                    <span style="color:#d6a44a;font-size:10px">{t}</span>
+                    <span style="color:{iv_c};font-size:10px">IV: {atm_iv:.1%}</span>
+                    <span style="color:#6a5a2a;font-size:10px">Skew: {skew:.2f}</span>
+                    <span style="color:#6a5a2a;font-size:10px">Pctl: {iv_pct:.0%}</span>
+                </div>''', unsafe_allow_html=True)
+
+            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">BARRIER RISK</div>', unsafe_allow_html=True)
+            for t in basket_tickers:
+                spot_val = yf.get(t, {}).get("spot", 100)
+                barrier_val = spot_val * 0.60
+                br = barrier_analyzer.analyze(t, spot=spot_val, barrier=barrier_val, iv=iv_engine.get_atm_iv(t))
+                dist_c = "#ff3b30" if br.distance_pct < 0.10 else "#ffb000" if br.distance_pct < 0.25 else "#34c759"
+                st.markdown(f'''<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400">
+                    <span style="color:#d6a44a;font-size:10px">{t}</span>
+                    <span style="color:{dist_c};font-size:10px">Dist: {br.distance_pct:.1%}</span>
+                    <span style="color:#6a5a2a;font-size:10px">Gap: {br.gap_risk_overnight:.3f}</span>
+                    <span style="color:#6a5a2a;font-size:10px">Digital: {br.digital_risk_pct:.1%}</span>
+                </div>''', unsafe_allow_html=True)
+
+            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">IMPLIED CORRELATION</div>', unsafe_allow_html=True)
+            corr_engine = ImpliedCorrelationEngine()
+            corr_result = corr_engine.calculate(basket_tickers)
+            rc = "#ff3b30" if corr_result.implied_correlation > 0.80 else "#34c759"
+            st.markdown(f'''<div class="qc" style="padding:8px">
+                <div style="display:flex;gap:20px">
+                    <div><span style="color:#d6a44a;font-size:9px">REALIZED</span> <span style="color:#ffb000;font-size:14px;font-weight:700">{corr_result.realized_correlation:.3f}</span></div>
+                    <div><span style="color:#d6a44a;font-size:9px">IMPLIED</span> <span style="color:{rc};font-size:14px;font-weight:700">{corr_result.implied_correlation:.3f}</span></div>
+                    <div><span style="color:#d6a44a;font-size:9px">PREMIUM</span> <span style="color:#ffb000;font-size:14px;font-weight:700">{corr_result.correlation_risk_premium:.3f}</span></div>
+                </div>
+            </div>''', unsafe_allow_html=True)
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Phoenix analytics error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [12] PAPER TRADING — Agent signals + portfolio
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[12] PAPER TRADING    Agent · Portfolio · Signals"):
+        try:
+            from src.agents.paper_trader import PaperTradingAgent
+            from src.agents.models import TradeAction
+
+            agent = PaperTradingAgent(tickers=basket_tickers)
+            portfolio = agent.get_portfolio()
+            stats = agent.get_stats()
+
+            st.markdown(f'''
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">CASH</div><div style="color:#34c759;font-size:14px;font-weight:700">${portfolio.cash:,.0f}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">TOTAL VALUE</div><div style="color:#ffb000;font-size:14px;font-weight:700">${portfolio.total_value:,.0f}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">TRADES</div><div style="color:#ffb000;font-size:14px;font-weight:700">{stats.total_trades}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">WIN RATE</div><div style="color:{"#34c759" if stats.win_rate > 0.5 else "#ff3b30"};font-size:14px;font-weight:700">{stats.win_rate:.0%}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">SHARPE</div><div style="color:#ffb000;font-size:14px;font-weight:700">{stats.sharpe_ratio:.2f}</div></div>
+            </div>''', unsafe_allow_html=True)
+
+            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:6px 0 4px">SIGNAL WEIGHTS</div>', unsafe_allow_html=True)
+            for sig_name, sig_weight in sorted(agent._signal_weights.items(), key=lambda x: -x[1]):
+                bar_w3 = sig_weight * 300
+                st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:1px 0">
+                    <span style="color:#d6a44a;font-size:9px;width:100px;text-align:right">{sig_name}</span>
+                    <div style="flex:1;height:8px;background:#1a1400"><div style="width:{bar_w3:.0f}%;height:100%;background:#fa8000"></div></div>
+                    <span style="color:#ffb000;font-size:9px;width:30px">{sig_weight:.0%}</span>
+                </div>''', unsafe_allow_html=True)
+
+            if portfolio.positions:
+                st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">OPEN POSITIONS</div>', unsafe_allow_html=True)
+                for pos in portfolio.positions:
+                    pnl_c = "#34c759" if pos.unrealized_pnl >= 0 else "#ff3b30"
+                    st.markdown(f'''<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400">
+                        <span style="color:#ffb000;font-size:10px;font-weight:700">{pos.ticker}</span>
+                        <span style="color:#d6a44a;font-size:10px">Qty: {pos.quantity:.0f}</span>
+                        <span style="color:#d6a44a;font-size:10px">Avg: ${pos.avg_entry_price:.2f}</span>
+                        <span style="color:{pnl_c};font-size:10px;font-weight:700">P&L: ${pos.unrealized_pnl:+,.2f}</span>
+                    </div>''', unsafe_allow_html=True)
+            else:
+                st.markdown('<div style="color:#6a5a2a;font-size:10px">No open positions. Click "Generate Signal" to start.</div>', unsafe_allow_html=True)
+
+            sig_col1, sig_col2 = st.columns(2)
+            with sig_col1:
+                if st.button("GENERATE SIGNAL", key="gen_signal", use_container_width=True):
+                    for t in basket_tickers[:3]:
+                        try:
+                            import yfinance as _yf
+                            hist = _yf.Ticker(t).history(period="3mo")
+                            if not hist.empty:
+                                prices = hist["Close"]
+                                signals = agent._collect_signals(t, prices)
+                                action, confidence = agent._make_decision(signals)
+                                ac = "#34c759" if action == TradeAction.BUY else "#ff3b30" if action == TradeAction.SELL else "#ffb000"
+                                st.markdown(f'<div style="padding:4px 8px;border:1px solid {ac}"><span style="color:{ac};font-size:12px;font-weight:700">{t}: {action.value.upper()}</span> <span style="color:#d6a44a;font-size:10px">conf={confidence:.2f}</span></div>', unsafe_allow_html=True)
+                        except Exception:
+                            st.markdown(f'<div style="color:#6a5a2a;font-size:10px">{t}: no data</div>', unsafe_allow_html=True)
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Paper trading error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [13] DATA & STORAGE — Database status + backup
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[13] DATA & STORAGE    Database · Cloud · Backup"):
+        try:
+            from src.storage import Storage
+            storage = Storage()
+            status = storage.status()
+
+            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin-bottom:4px">BACKEND STATUS</div>', unsafe_allow_html=True)
+            backends = [
+                ("SQLite", status.get("sqlite", False)),
+                ("DuckDB", status.get("duckdb", False)),
+                ("Supabase", status.get("supabase", False)),
+                ("Firebase", status.get("firebase", False)),
+                ("ClickHouse", status.get("clickhouse", False)),
+                ("R2", status.get("r2", False)),
+                ("Redis", status.get("redis", False)),
+            ]
+            for name, enabled in backends:
+                dot = '<span style="color:#34c759">●</span>' if enabled else '<span style="color:#ff3b30">○</span>'
+                st.markdown(f'<div style="display:flex;gap:8px;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="font-size:10px">{dot}</span><span style="color:#d6a44a;font-size:10px">{name}</span><span style="color:#6a5a2a;font-size:10px">{"connected" if enabled else "disabled"}</span></div>', unsafe_allow_html=True)
+
+            trade_count = len(storage.get_trades(limit=10000))
+            st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-top:8px">Trades in DB: <b style="color:#ffb000">{trade_count}</b></div>', unsafe_allow_html=True)
+
+            if st.button("BACKUP NOW", key="backup_now"):
+                result = storage.backup()
+                if result:
+                    st.markdown('<div style="color:#34c759;font-size:10px">Backup created successfully</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown('<div style="color:#ff3b30;font-size:10px">Backup failed</div>', unsafe_allow_html=True)
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Storage error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # FOOTER
