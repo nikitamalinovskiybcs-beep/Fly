@@ -81,7 +81,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">LEAN · 14 секций · ФЕНИКС v36.0 · 8 Agents · Basket · Paper Trading · Self-Learning</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">LEAN · 15 секций · ФЕНИКС v36.0 · 8 Agents · Basket · Paper Trading · Self-Learning · API</span></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
@@ -780,6 +780,95 @@ if basket_tickers:
 
         except Exception as exc:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Self-learning error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [15] API & CONNECTIONS — Setup · Keys · Health Check
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[15] API & CONNECTIONS    Setup · Keys · Health Check"):
+        try:
+            from src.api_manager import APIManager, SERVICES, mask_key
+            api_mgr = APIManager()
+            api_status = api_mgr.get_status()
+
+            connected_count = api_status["connected"]
+            total_count = api_status["total"]
+            st.markdown(f'''
+            <div style="display:flex;gap:4px;margin-bottom:8px">
+                <div class="qc" style="flex:1;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">LOCAL (always on)</div><div style="color:#34c759;font-size:12px;font-weight:700">SQLite + DuckDB</div></div>
+                <div class="qc" style="flex:1;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">CLOUD CONNECTED</div><div style="color:#ffb000;font-size:14px;font-weight:700">{connected_count}/{total_count}</div></div>
+            </div>''', unsafe_allow_html=True)
+
+            for svc_id, svc_info in SERVICES.items():
+                svc_status = api_status["services"][svc_id]
+                has_keys = svc_status["has_keys"]
+                dot = '<span style="color:#34c759">●</span>' if has_keys else '<span style="color:#ff3b30">○</span>'
+                status_text = "keys saved" if has_keys else "not configured"
+
+                st.markdown(f'''<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-bottom:1px solid #1a1400">
+                    <span style="font-size:10px">{dot}</span>
+                    <span style="color:#ffb000;font-size:10px;font-weight:700;width:100px">{svc_info["name"]}</span>
+                    <span style="color:#6a5a2a;font-size:9px;flex:1">{svc_info["description"]}</span>
+                    <span style="color:#d6a44a;font-size:9px">{status_text}</span>
+                </div>''', unsafe_allow_html=True)
+
+            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:12px 0 6px">CONFIGURE SERVICE</div>', unsafe_allow_html=True)
+            selected_svc = st.selectbox(
+                "Select service to configure:",
+                options=list(SERVICES.keys()),
+                format_func=lambda x: f"{SERVICES[x]['name']} — {SERVICES[x]['description']}",
+                key="api_service_select",
+                label_visibility="collapsed",
+            )
+
+            if selected_svc:
+                svc = SERVICES[selected_svc]
+                st.markdown(f'<div style="color:#d6a44a;font-size:9px;margin-bottom:4px"><b>Setup:</b> <a href="{svc["signup_url"]}" target="_blank" style="color:#fa8000">{svc["signup_url"]}</a></div>', unsafe_allow_html=True)
+                for step in svc["setup_steps"]:
+                    st.markdown(f'<div style="color:#6a5a2a;font-size:9px;padding-left:8px">{step}</div>', unsafe_allow_html=True)
+
+                current_keys = api_mgr.get_saved_keys(selected_svc)
+                key_inputs = {}
+                for key_name in svc["keys"]:
+                    label = svc["key_labels"][key_name]
+                    current_val = current_keys.get(key_name, "")
+                    masked = mask_key(current_val) if current_val else ""
+                    key_inputs[key_name] = st.text_input(
+                        label,
+                        value="",
+                        placeholder=masked or f"Enter {key_name}",
+                        key=f"api_key_{key_name}",
+                        type="password",
+                    )
+
+                save_col, test_col = st.columns(2)
+                with save_col:
+                    if st.button("SAVE KEYS", key=f"save_{selected_svc}", use_container_width=True):
+                        non_empty = {k: v for k, v in key_inputs.items() if v.strip()}
+                        if non_empty:
+                            if api_mgr.save_keys(selected_svc, non_empty):
+                                st.markdown('<div style="color:#34c759;font-size:10px">Keys saved to .env</div>', unsafe_allow_html=True)
+                            else:
+                                st.markdown('<div style="color:#ff3b30;font-size:10px">Save failed</div>', unsafe_allow_html=True)
+                        else:
+                            st.markdown('<div style="color:#6a5a2a;font-size:10px">Enter at least one key</div>', unsafe_allow_html=True)
+
+                with test_col:
+                    if st.button("TEST CONNECTION", key=f"test_{selected_svc}", use_container_width=True):
+                        test_result = api_mgr.test_connection(selected_svc)
+                        if test_result["connected"]:
+                            st.markdown(f'<div style="color:#34c759;font-size:10px">{test_result["message"]}</div>', unsafe_allow_html=True)
+                        else:
+                            st.markdown(f'<div style="color:#ff3b30;font-size:10px">{test_result["message"]}</div>', unsafe_allow_html=True)
+
+            if st.button("TEST ALL CONNECTIONS", key="test_all_api", use_container_width=True):
+                all_results = api_mgr.test_all()
+                for svc_id_r, result in all_results.items():
+                    c = "#34c759" if result["connected"] else "#ff3b30"
+                    icon = "●" if result["connected"] else "○"
+                    st.markdown(f'<div style="color:{c};font-size:10px">{icon} {SERVICES[svc_id_r]["name"]}: {result["message"]}</div>', unsafe_allow_html=True)
+
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">API Manager error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # FOOTER

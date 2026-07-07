@@ -1,1 +1,8 @@
 __pycache__/
+.env
+data/backups/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.duckdb
+data/*.duckdb.wal
