@@ -341,11 +341,36 @@ class BasketScorer:
                               f"Avg IV: {np.mean(iv_vals):.4f}" if iv_vals else "No IV data")
 
     def _score_greeks_exposure(self, assets: list[AssetProfile]) -> CriterionScore:
-        """Low vega + low barrier delta = high score."""
-        raw = 60
+        """Score based on realized vol and IV: lower combined risk = higher score."""
+        iv_vals = [a.implied_vol for a in assets if a.implied_vol is not None and a.implied_vol > 0]
+        atr_vals = [a.atr_pct for a in assets if a.atr_pct > 0]
+
+        if not iv_vals and not atr_vals:
+            raw = 60
+            detail = "No vol data"
+        else:
+            avg_iv = float(np.mean(iv_vals)) if iv_vals else 0.3
+            max_atr = max(atr_vals) if atr_vals else 0.05
+            vega_proxy = avg_iv * 100
+            barrier_delta_proxy = max_atr * 100
+
+            combined = vega_proxy * 0.6 + barrier_delta_proxy * 0.4
+
+            if combined < 15:
+                raw = 90
+            elif combined < 25:
+                raw = 75
+            elif combined < 40:
+                raw = 60
+            elif combined < 60:
+                raw = 40
+            else:
+                raw = 20
+
+            detail = f"Vega proxy: {vega_proxy:.1f}, barrier delta: {barrier_delta_proxy:.1f}"
+
         w = self.WEIGHTS["greeks_exposure"]
-        return CriterionScore("greeks_exposure", w, raw, round(raw * w, 2),
-                              "Greeks exposure estimate")
+        return CriterionScore("greeks_exposure", w, raw, round(raw * w, 2), detail)
 
     def _detect_red_flags(self, assets: list[AssetProfile]) -> list[RedFlag]:
         """Apply all red flag rules to each asset."""

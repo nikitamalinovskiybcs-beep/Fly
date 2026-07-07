@@ -67,6 +67,8 @@ class PaperTradingAgent:
         self._signal_weights: dict[str, float] = dict(self.DEFAULT_SIGNAL_WEIGHTS)
         self._insights: list[LearningInsight] = []
 
+        self._volume_cache: dict[str, pd.Series] = {}
+
         self.DATA_DIR.mkdir(parents=True, exist_ok=True)
         self._load_state()
 
@@ -136,7 +138,7 @@ class PaperTradingAgent:
         signals["evt_var_safe"] = self._evt_var_signal(returns)
         signals["momentum_30d"] = self._momentum_signal(prices, period=30)
         signals["mean_reversion"] = self._mean_reversion_signal(prices)
-        signals["volume_confirmation"] = 0.0
+        signals["volume_confirmation"] = self._volume_signal(ticker)
 
         return signals
 
@@ -434,6 +436,7 @@ class PaperTradingAgent:
                 hist = yf.Ticker(ticker).history(period="6mo")
                 if not hist.empty:
                     result[ticker] = hist["Close"]
+                    self._volume_cache[ticker] = hist["Volume"]
                 else:
                     result[ticker] = None
         except Exception as exc:
@@ -586,6 +589,158 @@ class PaperTradingAgent:
         if deviation > 0.10:
             return -1.0
         return float(-deviation * 10)
+
+    def _volume_signal(self, ticker: str) -> float:
+        """Volume confirmation: +1 if volume above 20d avg, -1 if below."""
+        vol_series = self._volume_cache.get(ticker)
+        if vol_series is None or len(vol_series) < 21:
+            return 0.0
+        avg_vol = float(vol_series.iloc[-21:-1].mean())
+        if avg_vol <= 0:
+            return 0.0
+        current_vol = float(vol_series.iloc[-1])
+        ratio = current_vol / avg_vol
+        if ratio > 1.5:
+            return 1.0
+        if ratio > 1.2:
+            return 0.5
+        if ratio < 0.5:
+            return -1.0
+        if ratio < 0.8:
+            return -0.5
+        return 0.0
+
+    def bootstrap_historical(self, days: int = 120) -> dict:
+        """Run paper trading on historical data to bootstrap learning.
+
+        Simulates daily trading decisions using rolling windows of
+        historical prices, building up a trade history that enables
+        weekly_learning() and monthly_evolution() to function.
+
+        Args:
+            days: Number of historical days to simulate.
+
+        Returns:
+            Dict with total trades, buys, sells, and learning results.
+        """
+        import yfinance as yf
+
+        logger.info("Bootstrap: fetching 1y history for %s", self.tickers)
+        hist_data: dict[str, pd.DataFrame] = {}
+        for ticker in self.tickers:
+            hist = yf.Ticker(ticker).history(period="1y")
+            if not hist.empty:
+                hist_data[ticker] = hist
+
+        if not hist_data:
+            return {"error": "no_data"}
+
+        min_len = min(len(df) for df in hist_data.values())
+        if min_len < days + 50:
+            days = max(20, min_len - 50)
+
+        total_buys = 0
+        total_sells = 0
+        simulated_dates: list[str] = []
+
+        for day_offset in range(days):
+            window_end = min_len - days + day_offset
+            if window_end < 50:
+                continue
+
+            day_trades: list[PaperTrade] = []
+            for ticker in self.tickers:
+                if ticker not in hist_data:
+                    continue
+                df = hist_data[ticker]
+                price_window = df["Close"].iloc[:window_end]
+                vol_window = df["Volume"].iloc[:window_end]
+                self._volume_cache[ticker] = vol_window
+
+                if len(price_window) < 2:
+                    continue
+                current_price = float(price_window.iloc[-1])
+                if current_price <= 0:
+                    continue
+
+                signals = self._collect_signals(ticker, price_window)
+                action, confidence = self._make_decision(signals)
+
+                if action == TradeAction.HOLD:
+                    continue
+
+                trade = self._execute_paper_trade(
+                    ticker, action, current_price, confidence, signals,
+                )
+                if trade:
+                    day_trades.append(trade)
+                    if action == TradeAction.BUY:
+                        total_buys += 1
+                    else:
+                        total_sells += 1
+
+            prices_snapshot = {}
+            for ticker in self.tickers:
+                if ticker in hist_data:
+                    df = hist_data[ticker]
+                    window_end_idx = min_len - days + day_offset
+                    prices_snapshot[ticker] = df["Close"].iloc[:window_end_idx]
+
+            self._update_positions(prices_snapshot)
+            self._record_snapshot(prices_snapshot)
+
+            trade_date = list(hist_data.values())[0].index[window_end - 1]
+            simulated_dates.append(str(trade_date.date()))
+
+            if day_offset % 5 == 4:
+                for ticker, pos in list(self._positions.items()):
+                    if ticker in hist_data:
+                        df = hist_data[ticker]
+                        current = float(df["Close"].iloc[min_len - days + day_offset])
+                        ret = (current - pos.avg_entry_price) / pos.avg_entry_price
+                        if ret > 0.08 or ret < -0.05:
+                            price = current
+                            eff_price = price * (1 - self.COMMISSION_PCT - self.SLIPPAGE_PCT)
+                            proceeds = pos.quantity * eff_price
+                            pnl = (eff_price - pos.avg_entry_price) * pos.quantity
+                            pnl_pct = (eff_price / pos.avg_entry_price - 1) * 100
+                            self._cash += proceeds
+                            close_trade = PaperTrade(
+                                id=str(uuid.uuid4())[:8],
+                                timestamp=str(trade_date),
+                                ticker=ticker,
+                                action=TradeAction.SELL,
+                                price=price,
+                                quantity=pos.quantity,
+                                reason=f"auto_close_ret={ret:.2%}",
+                                signals={},
+                                confidence=0.5,
+                                pnl=round(pnl, 2),
+                                pnl_pct=round(pnl_pct, 2),
+                                status="closed",
+                                closed_at=str(trade_date),
+                            )
+                            self._trades.append(close_trade)
+                            del self._positions[ticker]
+                            total_sells += 1
+
+        self._save_state()
+
+        learning_results = self.weekly_learning()
+        evolution_results = self.monthly_evolution()
+
+        return {
+            "days_simulated": days,
+            "total_trades": len(self._trades),
+            "buys": total_buys,
+            "sells": total_sells,
+            "closed_trades": sum(1 for t in self._trades if t.status == "closed"),
+            "final_value": round(self._portfolio_value(), 2),
+            "pnl": round(self._portfolio_value() - self.INITIAL_CASH, 2),
+            "learning_insights": len(learning_results),
+            "evolution": evolution_results,
+            "dates": f"{simulated_dates[0]} → {simulated_dates[-1]}" if simulated_dates else "",
+        }
 
     # ── Persistence ──
 

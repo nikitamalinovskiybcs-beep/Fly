@@ -81,7 +81,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">LEAN · 13 секций · ФЕНИКС v36.0 · 8 Agents · Basket · Paper Trading</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">LEAN · 14 секций · ФЕНИКС v36.0 · 8 Agents · Basket · Paper Trading · Self-Learning</span></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
@@ -711,6 +711,75 @@ if basket_tickers:
                     st.markdown('<div style="color:#ff3b30;font-size:10px">Backup failed</div>', unsafe_allow_html=True)
         except Exception as exc:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Storage error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [14] SELF-LEARNING ENGINE — Bootstrap · Scheduler · Evolution
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[14] SELF-LEARNING ENGINE    Bootstrap · Scheduler · Evolution"):
+        try:
+            from src.agents.paper_trader import PaperTradingAgent as _PTAgent
+            _pt = _PTAgent(tickers=basket_tickers)
+            closed_trades = [t for t in _pt._trades if t.status == "closed"]
+            total_trades = len(_pt._trades)
+
+            learning_ready = len(closed_trades) >= 3
+            evolution_ready = len(closed_trades) >= 20
+
+            lr_c = "#34c759" if learning_ready else "#ff3b30"
+            ev_c = "#34c759" if evolution_ready else "#ff3b30"
+
+            st.markdown(f'''
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">TOTAL TRADES</div><div style="color:#ffb000;font-size:14px;font-weight:700">{total_trades}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">CLOSED</div><div style="color:#ffb000;font-size:14px;font-weight:700">{len(closed_trades)}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">LEARNING</div><div style="color:{lr_c};font-size:14px;font-weight:700">{"READY" if learning_ready else f"NEED {3 - len(closed_trades)}"}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">EVOLUTION</div><div style="color:{ev_c};font-size:14px;font-weight:700">{"READY" if evolution_ready else f"NEED {20 - len(closed_trades)}"}</div></div>
+            </div>''', unsafe_allow_html=True)
+
+            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:6px 0 4px">CURRENT SIGNAL WEIGHTS</div>', unsafe_allow_html=True)
+            for sig_name, sig_weight in sorted(_pt._signal_weights.items(), key=lambda x: -x[1]):
+                is_default = abs(sig_weight - _PTAgent.DEFAULT_SIGNAL_WEIGHTS.get(sig_name, 0)) < 0.001
+                changed_c = "#6a5a2a" if is_default else "#34c759"
+                label = "" if is_default else " (learned)"
+                st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:1px 0">
+                    <span style="color:#d6a44a;font-size:9px;width:110px;text-align:right">{sig_name}</span>
+                    <div style="flex:1;height:8px;background:#1a1400"><div style="width:{sig_weight * 300:.0f}%;height:100%;background:#fa8000"></div></div>
+                    <span style="color:{changed_c};font-size:9px;width:60px">{sig_weight:.0%}{label}</span>
+                </div>''', unsafe_allow_html=True)
+
+            b_col1, b_col2, b_col3 = st.columns(3)
+            with b_col1:
+                if st.button("BOOTSTRAP 120 DAYS", key="bootstrap_btn", use_container_width=True):
+                    with st.spinner("Bootstrapping historical trades..."):
+                        boot_result = _pt.bootstrap_historical(days=120)
+                        st.markdown(f'''<div style="color:#34c759;font-size:10px;padding:4px">
+                            Trades: {boot_result.get("total_trades", 0)} | Closed: {boot_result.get("closed_trades", 0)} |
+                            P&L: ${boot_result.get("pnl", 0):+,.0f} | Learning insights: {boot_result.get("learning_insights", 0)}
+                        </div>''', unsafe_allow_html=True)
+            with b_col2:
+                if st.button("RUN LEARNING", key="learn_btn", use_container_width=True):
+                    insights = _pt.weekly_learning()
+                    if insights:
+                        for ins in insights:
+                            st.markdown(f'<div style="color:#34c759;font-size:10px">{ins.description}</div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown('<div style="color:#6a5a2a;font-size:10px">No changes (need more closed trades)</div>', unsafe_allow_html=True)
+            with b_col3:
+                if st.button("RUN EVOLUTION", key="evolve_btn", use_container_width=True):
+                    evo = _pt.monthly_evolution()
+                    status_txt = evo.get("status", "")
+                    if "improvement" in str(evo):
+                        st.markdown(f'<div style="color:#34c759;font-size:10px">Weights optimized! Sharpe +{evo.get("sharpe_improvement", 0):.4f}</div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown(f'<div style="color:#6a5a2a;font-size:10px">{status_txt or "No improvement found"}</div>', unsafe_allow_html=True)
+
+            if _pt._insights:
+                st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">LEARNING HISTORY</div>', unsafe_allow_html=True)
+                for ins in _pt._insights[-5:]:
+                    st.markdown(f'<div style="color:#d6a44a;font-size:9px;border-bottom:1px solid #1a1400;padding:2px 0">{ins.description}</div>', unsafe_allow_html=True)
+
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Self-learning error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # FOOTER
