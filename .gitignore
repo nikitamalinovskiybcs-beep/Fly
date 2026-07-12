@@ -6,3 +6,6 @@ data/*.db-shm
 data/*.db-wal
 data/*.duckdb
 data/*.duckdb.wal
+data/numerai/
+data/*.parquet
+data/feature_cache.duckdb
