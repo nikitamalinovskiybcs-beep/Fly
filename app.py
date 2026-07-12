@@ -871,6 +871,98 @@ if basket_tickers:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">API Manager error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
+    # [16] BACKTESTER — Strategy simulation on historical data
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[16] BACKTESTER    Strategy · Sharpe · Drawdown"):
+        try:
+            from src.backtester import BacktestConfig, BacktestEngine, BacktestReporter
+            from src.strategies import (
+                EnsembleStrategy,
+                MeanReversionStrategy,
+                MomentumStrategy,
+                TrendFollowingStrategy,
+            )
+
+            _strats = {
+                "Momentum": MomentumStrategy,
+                "Mean Reversion": MeanReversionStrategy,
+                "Trend Following": TrendFollowingStrategy,
+                "Ensemble": EnsembleStrategy,
+            }
+            bt_col1, bt_col2 = st.columns(2)
+            with bt_col1:
+                bt_strat = st.selectbox("Strategy", list(_strats.keys()), key="bt_strat")
+            with bt_col2:
+                bt_years = st.selectbox("History", ["1y", "2y", "3y"], index=1, key="bt_years")
+
+            if st.button("RUN BACKTEST", key="bt_run"):
+                yrs = int(bt_years[0])
+                end = datetime.date.today()
+                start = end - datetime.timedelta(days=365 * yrs)
+                cfg = BacktestConfig(
+                    tickers=basket_tickers[:5],
+                    start_date=start.isoformat(),
+                    end_date=end.isoformat(),
+                    rebalance_freq="weekly",
+                )
+                with st.spinner("Simulating..."):
+                    res = BacktestEngine(_strats[bt_strat](), cfg).run()
+                if res.equity_curve:
+                    m1, m2, m3, m4 = st.columns(4)
+                    m1.metric("Return", f"{res.total_return:+.1f}%")
+                    m2.metric("Sharpe", f"{res.sharpe:.2f}")
+                    m3.metric("Max DD", f"{res.max_drawdown:.1f}%")
+                    m4.metric("Win rate", f"{res.win_rate:.0f}%")
+                    st.text(BacktestReporter().summary(res))
+                    eq_df = BacktestReporter().to_dataframe(res)
+                    if not eq_df.empty:
+                        st.line_chart(eq_df["value"])
+                else:
+                    st.markdown('<div style="color:#ff3b30;font-size:10px">No data returned for backtest</div>', unsafe_allow_html=True)
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Backtester error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [17] PORTFOLIO OPTIMIZER — Risk parity · Max Sharpe · HRP
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[17] PORTFOLIO OPTIMIZER    Risk Parity · Max Sharpe · HRP"):
+        try:
+            import pandas as pd
+
+            from src.data_module import fetch_ticker_data
+            from src.portfolio_optimizer.optimizer import PortfolioOptimizer
+
+            opt_method = st.selectbox(
+                "Method",
+                ["hrp", "risk_parity", "max_sharpe", "min_variance"],
+                key="opt_method",
+            )
+            if st.button("OPTIMIZE ALLOCATION", key="opt_run"):
+                universe = basket_tickers[:6]
+                fetched = fetch_ticker_data(universe, period="1y")
+                series = {}
+                for tk, info in fetched.items():
+                    rets_arr = info.get("returns")
+                    if rets_arr is not None and len(rets_arr) > 60:
+                        series[tk] = pd.Series(rets_arr)
+                if len(series) >= 2:
+                    n = min(len(s) for s in series.values())
+                    rets = pd.DataFrame({tk: s.iloc[-n:].to_numpy() for tk, s in series.items()})
+                    alloc = PortfolioOptimizer().optimize(rets, method=opt_method)
+                    o1, o2, o3 = st.columns(3)
+                    o1.metric("Exp. return", f"{alloc.expected_return:.1f}%")
+                    o2.metric("Exp. vol", f"{alloc.expected_volatility:.1f}%")
+                    o3.metric("Sharpe", f"{alloc.expected_sharpe:.2f}")
+                    weights_df = pd.DataFrame(
+                        {"weight": {k: round(v, 4) for k, v in alloc.weights.items()}}
+                    )
+                    st.bar_chart(weights_df["weight"])
+                else:
+                    st.markdown('<div style="color:#ff3b30;font-size:10px">Need price data for at least 2 tickers</div>', unsafe_allow_html=True)
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Optimizer error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
     # FOOTER
     # ═══════════════════════════════════════════════════════════════
     st.markdown(f'''

@@ -18,3 +18,4 @@ redis>=5.0.0
 python-dotenv>=1.0.0
 numerapi>=2.16.0
 lightgbm>=4.3.0
+websocket-client>=1.7.0
