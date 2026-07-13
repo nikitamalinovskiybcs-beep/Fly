@@ -5,11 +5,19 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import logging
+from datetime import datetime
 
 from src.assessor import StrategyRiskAssessor
 from src.core_metrics import returns_from_prices
 from src.risk_metrics import drawdown_series
 from src.data_module import DEFAULT_TICKERS
+
+# Логирование
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 st.set_page_config(
     page_title="Quant Risk Hub",
@@ -72,11 +80,11 @@ with st.sidebar:
         value="\n".join(DEFAULT_TICKERS),
         height=200,
     )
-    tickers = [t.strip() for t in tickers_input.strip().split("\n") if t.strip()]
+    tickers = [t.strip().upper() for t in tickers_input.strip().split("\n") if t.strip()]
 
-    benchmark = st.selectbox("Бенчмарк", options=tickers, index=0)
+    benchmark = st.selectbox("Бенчмарк", options=tickers if tickers else ["SPY"], index=0)
     rf_rate = st.slider("Risk-free rate", 0.0, 0.10, 0.05, 0.005, format="%.3f")
-    n_perms = st.slider("Monte Carlo перестановок", 100, 2000, 2000, 100)
+    n_perms = st.slider("Monte Carlo перестановок", 100, 2000, 500, 100)
     slippage = st.slider("Slippage (bps)", 0, 50, 5)
     commission = st.slider("Комиссия (bps)", 0, 20, 2)
     trades_day = st.slider("Сделок в день", 0.1, 10.0, 1.0, 0.1)
@@ -97,26 +105,51 @@ def color_for_level(level: str) -> str:
     return {"LOW": "#22c55e", "MEDIUM": "#eab308", "HIGH": "#ef4444"}.get(level, "#64748b")
 
 
+# ── Streamlit кэширование ──
+@st.cache_data(ttl=3600)
+def load_and_analyze(tickers_tuple, benchmark, rf_rate, n_perms, slippage, commission, trades_day, period):
+    """Кэшируем данные и анализ на 1 час."""
+    try:
+        assessor = StrategyRiskAssessor(
+            tickers=list(tickers_tuple),
+            benchmark=benchmark,
+            rf_rate=rf_rate,
+            n_permutations=n_perms,
+            slippage_bps=slippage,
+            commission_bps=commission,
+            trades_per_day=trades_day,
+        )
+        prices = assessor.update_market_data(period=period)
+        return assessor, prices
+    except Exception as e:
+        st.error(f"❌ Ошибка загрузки данных: {str(e)}")
+        return None, None
+
+
 if run_btn:
-    assessor = StrategyRiskAssessor(
-        tickers=tickers,
-        benchmark=benchmark,
-        rf_rate=rf_rate,
-        n_permutations=n_perms,
-        slippage_bps=slippage,
-        commission_bps=commission,
-        trades_per_day=trades_day,
-    )
+    if not tickers:
+        st.error("❌ Введите хотя бы один тикер")
+        st.stop()
+    
+    if benchmark not in tickers:
+        st.error(f"❌ Бенчмарк '{benchmark}' должен быть в списке тикеров")
+        st.stop()
 
     with st.spinner("📡 Загрузка рыночных данных..."):
-        prices = assessor.update_market_data(period=period)
+        assessor, prices = load_and_analyze(
+            tuple(tickers), benchmark, rf_rate, n_perms, slippage, commission, trades_day, period
+        )
 
-    if prices.empty:
-        st.error("Не удалось загрузить данные. Проверьте тикеры.")
+    if assessor is None or prices is None or prices.empty:
+        st.error("❌ Не удалось загрузить данные. Проверьте тикеры и подключение.")
         st.stop()
 
     # ── Top Stats ──
     all_perf = assessor.get_all_performance()
+    if all_perf.empty:
+        st.error("❌ Недостаточно данных для анализа")
+        st.stop()
+    
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("📈 Тикеров", len(all_perf))
     avg_sharpe = all_perf["sharpe"].mean()
@@ -144,192 +177,179 @@ if run_btn:
     selected = st.selectbox("🔍 Детальный анализ тикера", tickers)
 
     if selected and selected in assessor.returns.columns:
-        report = assessor.generate_report(selected)
+        try:
+            report = assessor.generate_report(selected)
 
-        # Risk Score
-        rs = report["risk_score"]
-        score_color = color_for_level(rs["level"])
-        st.markdown(f"""
-        <div style="text-align:center; margin: 1rem 0;">
-            <div style="font-size:3rem; font-weight:700; color:{score_color};">{rs['score']}</div>
-            <div style="font-size:1rem; color:{score_color};">Risk Score — {rs['level']}</div>
-        </div>
-        """, unsafe_allow_html=True)
+            # Risk Score
+            rs = report["risk_score"]
+            score_color = color_for_level(rs["level"])
+            st.markdown(f"""
+            <div style="text-align:center; margin: 1rem 0;">
+                <div style="font-size:3rem; font-weight:700; color:{score_color};">{rs['score']}</div>
+                <div style="font-size:1rem; color:{score_color};">Risk Score — {rs['level']}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        # Alerts
-        if report["warnings"]:
-            for w in report["warnings"]:
-                alert_class = "alert-high" if "overfitting" in w.lower() or "убыточна" in w.lower() else "alert-medium"
-                st.markdown(f'<div class="{alert_class}">⚠️ {w}</div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div class="alert-low">✅ Критических предупреждений нет</div>', unsafe_allow_html=True)
-
-        # Key Metrics row
-        perf = report["performance"]
-        c1, c2, c3, c4, c5 = st.columns(5)
-        c1.metric("Sharpe", f"{perf['sharpe']:.2f}")
-        c2.metric("Sortino", f"{perf['sortino']:.2f}")
-        c3.metric("CAGR", f"{perf['cagr']:.2%}")
-        c4.metric("Max DD", f"{perf['max_drawdown']:.2%}")
-        c5.metric("Profit Factor", f"{perf['profit_factor']:.2f}")
-
-        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-            "📈 Equity Curve", "📊 Risk Metrics", "🧪 Monte Carlo",
-            "🔄 Walk-Forward", "💥 Stress Tests", "🔗 Correlations"
-        ])
-
-        rets = assessor.returns[selected].dropna()
-
-        # Tab 1: Equity Curve
-        with tab1:
-            cum = (1 + rets).cumprod()
-            dd = drawdown_series(rets)
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(
-                x=cum.index, y=cum.values,
-                name="Equity", line=dict(color="#06b6d4", width=2),
-                fill="tozeroy", fillcolor="rgba(6,182,212,0.1)",
-            ))
-            fig.update_layout(title=f"Equity Curve — {selected}", yaxis_title="Кумулятивная доходность", **PLOT_LAYOUT)
-            st.plotly_chart(fig, use_container_width=True)
-
-            fig_dd = go.Figure()
-            fig_dd.add_trace(go.Scatter(
-                x=dd.index, y=dd.values,
-                name="Drawdown", line=dict(color="#ef4444", width=1.5),
-                fill="tozeroy", fillcolor="rgba(239,68,68,0.15)",
-            ))
-            fig_dd.update_layout(title="Drawdown", yaxis_title="Drawdown", yaxis_tickformat=".0%", **PLOT_LAYOUT)
-            st.plotly_chart(fig_dd, use_container_width=True)
-
-        # Tab 2: Risk Metrics
-        with tab2:
-            risk = report["risk"]
-            rc1, rc2 = st.columns(2)
-            with rc1:
-                st.markdown("##### VaR / CVaR")
-                risk_df = pd.DataFrame([
-                    {"Метрика": "VaR 95%", "Значение": f"{risk['VaR_95']:.4f}"},
-                    {"Метрика": "CVaR 95%", "Значение": f"{risk['CVaR_95']:.4f}"},
-                    {"Метрика": "VaR 99%", "Значение": f"{risk['VaR_99']:.4f}"},
-                    {"Метрика": "CVaR 99%", "Значение": f"{risk['CVaR_99']:.4f}"},
-                    {"Метрика": "Param VaR 95%", "Значение": f"{risk['Parametric_VaR_95']:.4f}"},
-                    {"Метрика": "Param VaR 99%", "Значение": f"{risk['Parametric_VaR_99']:.4f}"},
-                ])
-                st.dataframe(risk_df, use_container_width=True, hide_index=True)
-
-            with rc2:
-                st.markdown("##### Drawdown Distribution")
-                dd_dist = report["drawdown_dist"]
-                dd_df = pd.DataFrame([
-                    {"Метрика": "Mean DD", "Значение": f"{dd_dist['mean']:.4f}"},
-                    {"Метрика": "Median DD", "Значение": f"{dd_dist['median']:.4f}"},
-                    {"Метрика": "Worst DD", "Значение": f"{dd_dist['worst']:.4f}"},
-                    {"Метрика": "DD Std", "Значение": f"{dd_dist['std']:.4f}"},
-                    {"Метрика": "5th percentile", "Значение": f"{dd_dist['percentile_5']:.4f}"},
-                ])
-                st.dataframe(dd_df, use_container_width=True, hide_index=True)
-
-            # Returns distribution
-            fig_hist = go.Figure()
-            fig_hist.add_trace(go.Histogram(
-                x=rets.values, nbinsx=80,
-                marker_color="#06b6d4", opacity=0.7,
-                name="Daily Returns",
-            ))
-            fig_hist.update_layout(title="Распределение дневных доходностей", xaxis_title="Return", **PLOT_LAYOUT)
-            st.plotly_chart(fig_hist, use_container_width=True)
-
-            # Stability
-            st.markdown("##### Стабильность Sharpe по периодам")
-            stab = report["stability"]
-            stab_df = pd.DataFrame([{"Период": k, "Sharpe": f"{v:.2f}" if not pd.isna(v) else "N/A"} for k, v in stab.items()])
-            st.dataframe(stab_df, use_container_width=True, hide_index=True)
-
-        # Tab 3: Monte Carlo
-        with tab3:
-            with st.spinner("🎲 Monte Carlo Permutation Test..."):
-                mc = assessor.run_monte_carlo_test(selected)
-
-            ovf = report["overfitting"]
-            perm = ovf["permutation_test"]
-
-            st.markdown(f"**Observed Sharpe:** {perm['observed_sharpe']:.4f}")
-            st.markdown(f"**Mean Permuted Sharpe:** {perm['mean_permuted_sharpe']:.4f}")
-            st.markdown(f"**p-value:** {perm['p_value']:.4f}")
-            st.markdown(f"**Вердикт:** {perm['verdict']}")
-
-            fig_mc = go.Figure()
-            fig_mc.add_trace(go.Histogram(
-                x=mc["permuted_distribution"], nbinsx=50,
-                marker_color="#8b5cf6", opacity=0.7, name="Permuted Sharpe",
-            ))
-            fig_mc.add_vline(x=mc["observed"], line_dash="dash", line_color="#ef4444",
-                             annotation_text=f"Observed: {mc['observed']:.3f}")
-            fig_mc.update_layout(title="Monte Carlo Permutation Test", xaxis_title="Sharpe Ratio", **PLOT_LAYOUT)
-            st.plotly_chart(fig_mc, use_container_width=True)
-
-            # OOS degradation
-            st.markdown("##### Out-of-Sample Degradation")
-            oos = ovf["oos_degradation"]
-            oc1, oc2, oc3 = st.columns(3)
-            oc1.metric("Train Sharpe", f"{oos['train_sharpe']:.2f}")
-            oc2.metric("Test Sharpe", f"{oos['test_sharpe']:.2f}")
-            oc3.metric("Деградация", f"{oos['sharpe_degradation']:.2f}")
-            st.markdown(f"**Вердикт:** {oos['verdict']}")
-
-        # Tab 4: Walk-Forward
-        with tab4:
-            with st.spinner("🔄 Walk-Forward Analysis..."):
-                wf = assessor.run_walk_forward(selected)
-
-            if wf:
-                wf_df = pd.DataFrame(wf)
-                st.dataframe(wf_df, use_container_width=True, hide_index=True)
-
-                fig_wf = go.Figure()
-                fig_wf.add_trace(go.Bar(
-                    x=[f"Fold {r['fold']}" for r in wf],
-                    y=[r["train_metric"] for r in wf],
-                    name="Train Sharpe", marker_color="#10b981",
-                ))
-                fig_wf.add_trace(go.Bar(
-                    x=[f"Fold {r['fold']}" for r in wf],
-                    y=[r["test_metric"] for r in wf],
-                    name="Test Sharpe", marker_color="#06b6d4",
-                ))
-                fig_wf.update_layout(title="Walk-Forward: Train vs Test Sharpe", barmode="group", **PLOT_LAYOUT)
-                st.plotly_chart(fig_wf, use_container_width=True)
+            # Alerts
+            if report["warnings"]:
+                for w in report["warnings"]:
+                    alert_class = "alert-high" if "overfitting" in w.lower() or "убыточна" in w.lower() else "alert-medium"
+                    st.markdown(f'<div class="{alert_class}">⚠️ {w}</div>', unsafe_allow_html=True)
             else:
-                st.info("Недостаточно данных для Walk-Forward анализа.")
+                st.markdown('<div class="alert-low">✅ Критических предупреждений нет</div>', unsafe_allow_html=True)
 
-        # Tab 5: Stress Tests
-        with tab5:
-            stress = report["stress_tests"]
-            stress_df = pd.DataFrame(stress)
-            for c in ["cum_return", "max_dd"]:
-                if c in stress_df.columns:
-                    stress_df[c] = stress_df[c].map(lambda x: f"{x:.2%}" if not pd.isna(x) else "N/A")
-            st.dataframe(stress_df[["scenario", "period", "cum_return", "max_dd", "n_days", "warning"]],
-                         use_container_width=True, hide_index=True)
+            # Key Metrics row
+            perf = report["performance"]
+            c1, c2, c3, c4, c5 = st.columns(5)
+            c1.metric("Sharpe", f"{perf['sharpe']:.2f}")
+            c2.metric("Sortino", f"{perf['sortino']:.2f}")
+            c3.metric("CAGR", f"{perf['cagr']:.2%}")
+            c4.metric("Max DD", f"{perf['max_drawdown']:.2%}")
+            c5.metric("Profit Factor", f"{perf['profit_factor']:.2f}")
 
-            # Slippage impact
-            st.markdown("##### Влияние Slippage на результат")
-            slip_df = assessor.get_slippage_impact(selected)
-            for c in ["total_return", "cagr"]:
-                slip_df[c] = slip_df[c].map(lambda x: f"{x:.2%}")
-            slip_df["sharpe"] = slip_df["sharpe"].map(lambda x: f"{x:.2f}")
-            st.dataframe(slip_df, use_container_width=True, hide_index=True)
+            tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+                "📈 Equity Curve", "📊 Risk Metrics", "🧪 Monte Carlo",
+                "🔄 Walk-Forward", "💥 Stress Tests", "🔗 Correlations"
+            ])
 
-        # Tab 6: Correlations
-        with tab6:
-            corr = assessor.get_correlations()
-            fig_corr = px.imshow(
-                corr, text_auto=".2f", color_continuous_scale="RdBu_r",
-                zmin=-1, zmax=1, aspect="auto",
-            )
-            fig_corr.update_layout(title="Матрица корреляций", **PLOT_LAYOUT)
-            st.plotly_chart(fig_corr, use_container_width=True)
+            rets = assessor.returns[selected].dropna()
+
+            # Tab 1: Equity Curve
+            with tab1:
+                cum = (1 + rets).cumprod()
+                dd = drawdown_series(rets)
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(
+                    x=cum.index, y=cum.values,
+                    name="Equity", line=dict(color="#06b6d4", width=2),
+                    fill="tozeroy", fillcolor="rgba(6,182,212,0.1)",
+                ))
+                fig.update_layout(title=f"Equity Curve — {selected}", yaxis_title="Кумулятивная доходность", **PLOT_LAYOUT)
+                st.plotly_chart(fig, use_container_width=True)
+
+                fig_dd = go.Figure()
+                fig_dd.add_trace(go.Scatter(
+                    x=dd.index, y=dd.values,
+                    name="Drawdown", line=dict(color="#ef4444", width=1.5),
+                    fill="tozeroy", fillcolor="rgba(239,68,68,0.15)",
+                ))
+                fig_dd.update_layout(title="Drawdown", yaxis_title="Drawdown", yaxis_tickformat=".0%", **PLOT_LAYOUT)
+                st.plotly_chart(fig_dd, use_container_width=True)
+
+            # Tab 2: Risk Metrics
+            with tab2:
+                risk = report["risk"]
+                rc1, rc2 = st.columns(2)
+                with rc1:
+                    st.markdown("##### VaR / CVaR")
+                    risk_df = pd.DataFrame([
+                        {"Метрика": "VaR 95%", "Значение": f"{risk['VaR_95']:.4f}"},
+                        {"Метрика": "CVaR 95%", "Значение": f"{risk['CVaR_95']:.4f}"},
+                        {"Метрика": "VaR 99%", "Значение": f"{risk['VaR_99']:.4f}"},
+                        {"Метрика": "CVaR 99%", "Значение": f"{risk['CVaR_99']:.4f}"},
+                    ])
+                    st.dataframe(risk_df, use_container_width=True, hide_index=True)
+
+                with rc2:
+                    st.markdown("##### Drawdown Distribution")
+                    dd_dist = report["drawdown_dist"]
+                    dd_df = pd.DataFrame([
+                        {"Метрика": "Mean DD", "Значение": f"{dd_dist['mean']:.4f}"},
+                        {"Метрика": "Median DD", "Значение": f"{dd_dist['median']:.4f}"},
+                        {"Метрика": "Worst DD", "Значение": f"{dd_dist['worst']:.4f}"},
+                    ])
+                    st.dataframe(dd_df, use_container_width=True, hide_index=True)
+
+                # Returns distribution
+                fig_hist = go.Figure()
+                fig_hist.add_trace(go.Histogram(
+                    x=rets.values, nbinsx=50,
+                    marker_color="#06b6d4", opacity=0.7,
+                    name="Daily Returns",
+                ))
+                fig_hist.update_layout(title="Распределение дневных доходностей", xaxis_title="Return", **PLOT_LAYOUT)
+                st.plotly_chart(fig_hist, use_container_width=True)
+
+            # Tab 3: Monte Carlo
+            with tab3:
+                with st.spinner("🎲 Monte Carlo Permutation Test..."):
+                    try:
+                        mc = assessor.run_monte_carlo_test(selected)
+                        ovf = report["overfitting"]
+                        perm = ovf["permutation_test"]
+
+                        st.markdown(f"**Observed Sharpe:** {perm['observed_sharpe']:.4f}")
+                        st.markdown(f"**p-value:** {perm['p_value']:.4f}")
+                        st.markdown(f"**Вердикт:** {perm['verdict']}")
+
+                        fig_mc = go.Figure()
+                        fig_mc.add_trace(go.Histogram(
+                            x=mc["permuted_distribution"], nbinsx=40,
+                            marker_color="#8b5cf6", opacity=0.7, name="Permuted Sharpe",
+                        ))
+                        fig_mc.add_vline(x=mc["observed"], line_dash="dash", line_color="#ef4444",
+                                        annotation_text=f"Observed: {mc['observed']:.3f}")
+                        fig_mc.update_layout(title="Monte Carlo Permutation Test", xaxis_title="Sharpe Ratio", **PLOT_LAYOUT)
+                        st.plotly_chart(fig_mc, use_container_width=True)
+                    except Exception as e:
+                        st.warning(f"⚠️ Ошибка Monte Carlo: {str(e)}")
+
+            # Tab 4: Walk-Forward
+            with tab4:
+                with st.spinner("🔄 Walk-Forward Analysis..."):
+                    try:
+                        wf = assessor.run_walk_forward(selected)
+                        if wf:
+                            wf_df = pd.DataFrame(wf)
+                            st.dataframe(wf_df, use_container_width=True, hide_index=True)
+
+                            fig_wf = go.Figure()
+                            fig_wf.add_trace(go.Bar(
+                                x=[f"Fold {r['fold']}" for r in wf],
+                                y=[r["train_metric"] for r in wf],
+                                name="Train Sharpe", marker_color="#10b981",
+                            ))
+                            fig_wf.add_trace(go.Bar(
+                                x=[f"Fold {r['fold']}" for r in wf],
+                                y=[r["test_metric"] for r in wf],
+                                name="Test Sharpe", marker_color="#06b6d4",
+                            ))
+                            fig_wf.update_layout(title="Walk-Forward: Train vs Test Sharpe", barmode="group", **PLOT_LAYOUT)
+                            st.plotly_chart(fig_wf, use_container_width=True)
+                        else:
+                            st.info("Недостаточно данных для Walk-Forward анализа.")
+                    except Exception as e:
+                        st.warning(f"⚠️ Ошибка Walk-Forward: {str(e)}")
+
+            # Tab 5: Stress Tests
+            with tab5:
+                try:
+                    stress = report["stress_tests"]
+                    if stress:
+                        stress_df = pd.DataFrame(stress)
+                        for c in ["cum_return", "max_dd"]:
+                            if c in stress_df.columns:
+                                stress_df[c] = stress_df[c].map(lambda x: f"{x:.2%}" if not pd.isna(x) else "N/A")
+                        st.dataframe(stress_df[["scenario", "period", "cum_return", "max_dd", "n_days"]],
+                                    use_container_width=True, hide_index=True)
+                except Exception as e:
+                    st.warning(f"⚠️ Ошибка Stress Tests: {str(e)}")
+
+            # Tab 6: Correlations
+            with tab6:
+                try:
+                    corr = assessor.get_correlations()
+                    fig_corr = px.imshow(
+                        corr, text_auto=".2f", color_continuous_scale="RdBu_r",
+                        zmin=-1, zmax=1, aspect="auto",
+                    )
+                    fig_corr.update_layout(title="Матрица корреляций", **PLOT_LAYOUT)
+                    st.plotly_chart(fig_corr, use_container_width=True)
+                except Exception as e:
+                    st.warning(f"⚠️ Ошибка корреляций: {str(e)}")
+        
+        except Exception as e:
+            st.error(f"❌ Ошибка анализа: {str(e)}")
 
 else:
     # Landing page
@@ -365,31 +385,3 @@ else:
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-    # GitHub repos section (из оригинального дизайна)
-    st.divider()
-    st.markdown('<div class="section-header">💻 GitHub Новинки — Quantum Trading</div>', unsafe_allow_html=True)
-    try:
-        import requests
-        resp = requests.get(
-            "https://api.github.com/search/repositories",
-            params={"q": "quantum trading OR risk management", "sort": "stars", "per_page": 5},
-            timeout=5,
-        )
-        if resp.status_code == 200:
-            repos = resp.json().get("items", [])
-            for repo in repos:
-                st.markdown(f"""
-                <div style="background: rgba(15,23,42,0.5); border: 1px solid #334155; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.5rem;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <a href="{repo['html_url']}" target="_blank" style="color: #10b981; font-weight: 600; text-decoration: none;">{repo['name']}</a>
-                        <span style="color: #eab308;">⭐ {repo['stargazers_count']}</span>
-                    </div>
-                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem;">{repo.get('description', '') or ''}</div>
-                    <div style="color: #475569; font-size: 0.75rem; margin-top: 0.25rem;">📝 {repo.get('language', 'N/A')} · 👤 {repo['owner']['login']}</div>
-                </div>
-                """, unsafe_allow_html=True)
-        else:
-            st.info("GitHub API недоступен.")
-    except Exception:
-        st.info("Не удалось загрузить данные GitHub.")

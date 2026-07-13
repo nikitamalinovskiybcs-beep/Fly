@@ -2,6 +2,7 @@
 
 import json
 import datetime as dt
+import logging
 from dataclasses import asdict
 from typing import Optional
 
@@ -24,6 +25,8 @@ from src.portfolio import (
     slippage_impact_analysis,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class StrategyRiskAssessor:
     """Trading Strategy Risk Assessment Framework v2.3.
@@ -45,6 +48,18 @@ class StrategyRiskAssessor:
         commission_bps: float = 2.0,
         trades_per_day: float = 1.0,
     ):
+        # Валидация
+        if tickers and not all(isinstance(t, str) for t in tickers):
+            raise ValueError("tickers должны быть списком строк")
+        if not 0 <= rf_rate <= 0.2:
+            raise ValueError("rf_rate должен быть в [0, 0.2]")
+        if not 0 <= slippage_bps <= 100:
+            raise ValueError("slippage_bps должен быть в [0, 100]")
+        if not 0 <= commission_bps <= 50:
+            raise ValueError("commission_bps должен быть в [0, 50]")
+        if not 0.1 <= trades_per_day <= 100:
+            raise ValueError("trades_per_day должен быть в [0.1, 100]")
+        
         self.tickers = tickers or DEFAULT_TICKERS
         self.benchmark = benchmark
         self.rf_rate = rf_rate
@@ -56,13 +71,20 @@ class StrategyRiskAssessor:
         self.prices: Optional[pd.DataFrame] = None
         self.returns: Optional[pd.DataFrame] = None
         self._last_update: Optional[dt.datetime] = None
+        
+        logger.info(f"Инициализирован StrategyRiskAssessor для {len(self.tickers)} тикеров")
 
     def update_market_data(self, period: str = "5y") -> pd.DataFrame:
         """Загружает свежие рыночные данные."""
-        self.prices = fetch_prices(self.tickers, period=period)
-        self.returns = self.prices.pct_change().dropna()
-        self._last_update = dt.datetime.now(dt.timezone.utc)
-        return self.prices
+        try:
+            self.prices = fetch_prices(self.tickers, period=period)
+            self.returns = self.prices.pct_change().dropna()
+            self._last_update = dt.datetime.now(dt.timezone.utc)
+            logger.info(f"Данные обновлены: {self.returns.shape[0]} дней")
+            return self.prices
+        except Exception as e:
+            logger.error(f"Ошибка обновления данных: {str(e)}")
+            raise
 
     def _ensure_data(self) -> None:
         if self.returns is None:
