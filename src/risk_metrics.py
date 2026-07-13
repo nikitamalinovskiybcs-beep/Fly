@@ -3,6 +3,11 @@
 import numpy as np
 import pandas as pd
 from scipy import stats
+import logging
+
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def value_at_risk(returns: pd.Series, confidence: float = 0.95) -> float:
@@ -47,9 +52,9 @@ def drawdown_distribution(returns: pd.Series, n_bins: int = 50) -> dict:
     }
 
 
-# --------------- Stress Tests ---------------
+# --------------- Stress Tests (Flexible) ---------------
 
-STRESS_SCENARIOS = {
+DEFAULT_STRESS_SCENARIOS = {
     "GFC 2008": ("2008-09-01", "2009-03-31"),
     "COVID 2020": ("2020-02-15", "2020-04-15"),
     "Rate Hike 2022": ("2022-01-01", "2022-10-31"),
@@ -61,15 +66,22 @@ def stress_test(
     returns: pd.Series,
     scenarios: dict[str, tuple[str, str]] | None = None,
 ) -> list[dict]:
-    """Рассчитывает кумулятивную доходность за каждый кризисный период."""
+    """Рассчитывает кумулятивную доходность за каждый кризисный период.
+    
+    Поддерживает custom сценарии через параметр scenarios.
+    """
     if scenarios is None:
-        scenarios = STRESS_SCENARIOS
+        scenarios = DEFAULT_STRESS_SCENARIOS
 
+    logger.info(f"Запуск stress-тестов: {len(scenarios)} сценариев")
     results = []
+    
     for name, (start, end) in scenarios.items():
         mask = (returns.index >= start) & (returns.index <= end)
         subset = returns.loc[mask]
+        
         if len(subset) < 2:
+            logger.warning(f"Сценарий '{name}': нет данных за {start}—{end}")
             results.append({
                 "scenario": name,
                 "period": f"{start} → {end}",
@@ -82,17 +94,32 @@ def stress_test(
 
         cum_ret = float((1 + subset).prod() - 1)
         dd = drawdown_series(subset)
+        max_dd_val = float(dd.min())
+        
+        logger.debug(f"Сценарий '{name}': cum_ret={cum_ret:.2%}, max_dd={max_dd_val:.2%}")
 
         results.append({
             "scenario": name,
             "period": f"{start} → {end}",
             "cum_return": cum_ret,
-            "max_dd": float(dd.min()),
+            "max_dd": max_dd_val,
             "n_days": len(subset),
             "warning": None,
         })
 
+    logger.info(f"Stress-тесты завершены: {len(results)} сценариев обработано")
     return results
+
+
+def add_custom_stress_scenario(
+    name: str,
+    start_date: str,
+    end_date: str,
+) -> dict[str, tuple[str, str]]:
+    """Помощник для добавления custom сценария stress-теста."""
+    scenario = {**DEFAULT_STRESS_SCENARIOS, name: (start_date, end_date)}
+    logger.info(f"Добавлен custom сценарий '{name}': {start_date}—{end_date}")
+    return scenario
 
 
 def risk_summary(returns: pd.Series) -> dict:

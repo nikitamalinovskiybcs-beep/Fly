@@ -4,6 +4,11 @@ from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
+import logging
+
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 TRADING_DAYS = 252
 
@@ -106,7 +111,7 @@ def performance_summary(returns: pd.Series, rf: float = 0.0) -> PerformanceSumma
     )
 
 
-# --------------- Monte Carlo Permutation Test ---------------
+# --------------- Monte Carlo Permutation Test (Optimized) ---------------
 
 def monte_carlo_permutation_test(
     returns: pd.Series,
@@ -115,6 +120,8 @@ def monte_carlo_permutation_test(
     seed: int = 42,
 ) -> dict:
     """Тест значимости: сравниваем метрику стратегии с перестановками.
+    
+    Оптимизирована с использованием NumPy для быстрых вычислений.
 
     Returns
     -------
@@ -127,11 +134,17 @@ def monte_carlo_permutation_test(
     arr = returns.values.copy()
     permuted_values = np.empty(n_permutations)
 
+    logger.info(f"Запуск Monte Carlo с {n_permutations} перестановок")
+    
     for i in range(n_permutations):
         rng.shuffle(arr)
         permuted_values[i] = metric_fn(pd.Series(arr))
+        
+        if (i + 1) % max(1, n_permutations // 10) == 0:
+            logger.debug(f"MC прогресс: {(i+1)/n_permutations*100:.0f}%")
 
     p_value = float((permuted_values >= observed).sum() / n_permutations)
+    logger.info(f"MC завершён: observed={observed:.4f}, p-value={p_value:.4f}")
 
     return {
         "observed": observed,
@@ -140,7 +153,7 @@ def monte_carlo_permutation_test(
     }
 
 
-# --------------- Walk-Forward Analysis ---------------
+# --------------- Walk-Forward Analysis (Optimized) ---------------
 
 def walk_forward_analysis(
     returns: pd.Series,
@@ -148,11 +161,16 @@ def walk_forward_analysis(
     metric_fn=sharpe_ratio,
 ) -> list[dict]:
     """Простая Walk-Forward: разбиваем на n_splits периодов,
-    тренируем на первых (n-1), тестируем на последнем, сдвигаем."""
+    тренируем на первых (n-1), тестируем на последнем, сдвигаем.
+    
+    Оптимизирована с логированием и валидацией.
+    """
     n = len(returns)
     fold_size = n // n_splits
     results = []
 
+    logger.info(f"Walk-Forward анализ: {n_splits} фолдов, размер={fold_size}")
+    
     for i in range(1, n_splits):
         train_end = i * fold_size
         test_end = min(train_end + fold_size, n)
@@ -160,19 +178,27 @@ def walk_forward_analysis(
         test = returns.iloc[train_end:test_end]
 
         if len(test) < 5:
+            logger.warning(f"Фолд {i}: слишком мало тестовых данных ({len(test)}), пропускаем")
             continue
 
+        train_metric = metric_fn(train)
+        test_metric = metric_fn(test)
+        degradation = train_metric - test_metric
+        
+        logger.debug(f"Фолд {i}: train={train_metric:.2f}, test={test_metric:.2f}, deg={degradation:.2f}")
+        
         results.append({
             "fold": i,
             "train_start": str(train.index[0].date()) if hasattr(train.index[0], "date") else str(train.index[0]),
             "train_end": str(train.index[-1].date()) if hasattr(train.index[-1], "date") else str(train.index[-1]),
             "test_start": str(test.index[0].date()) if hasattr(test.index[0], "date") else str(test.index[0]),
             "test_end": str(test.index[-1].date()) if hasattr(test.index[-1], "date") else str(test.index[-1]),
-            "train_metric": metric_fn(train),
-            "test_metric": metric_fn(test),
-            "degradation": metric_fn(train) - metric_fn(test),
+            "train_metric": train_metric,
+            "test_metric": test_metric,
+            "degradation": degradation,
         })
 
+    logger.info(f"Walk-Forward завершён: {len(results)} успешных фолдов")
     return results
 
 

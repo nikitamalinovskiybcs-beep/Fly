@@ -2,8 +2,12 @@
 
 import numpy as np
 import pandas as pd
+import logging
 
 from src.core_metrics import sharpe_ratio, performance_summary
+from src.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def permutation_test_vs_random(
