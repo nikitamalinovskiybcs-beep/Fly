@@ -42,14 +42,15 @@ class PaperTradingAgent:
     MAX_POSITION_PCT = 0.20
 
     DEFAULT_SIGNAL_WEIGHTS = {
-        "regime": 0.20,
+        "regime": 0.15,
         "rsi_oversold": 0.10,
         "rsi_overbought": 0.10,
-        "sma_crossover": 0.15,
+        "sma_crossover": 0.13,
         "evt_var_safe": 0.10,
-        "momentum_30d": 0.15,
-        "mean_reversion": 0.10,
+        "momentum_30d": 0.12,
+        "mean_reversion": 0.08,
         "volume_confirmation": 0.10,
+        "numerai_alpha": 0.12,
     }
 
     def __init__(
@@ -68,6 +69,8 @@ class PaperTradingAgent:
         self._insights: list[LearningInsight] = []
 
         self._volume_cache: dict[str, pd.Series] = {}
+        self._alpha_cache: dict[str, float] = {}
+        self._generation: int = 0
 
         self.DATA_DIR.mkdir(parents=True, exist_ok=True)
         self._load_state()
@@ -80,6 +83,7 @@ class PaperTradingAgent:
         """
         today_trades: list[PaperTrade] = []
         prices = self._fetch_prices()
+        self._alpha_cache = self._compute_alpha(prices)
 
         for ticker in self.tickers:
             if ticker not in prices or prices[ticker] is None:
@@ -139,8 +143,29 @@ class PaperTradingAgent:
         signals["momentum_30d"] = self._momentum_signal(prices, period=30)
         signals["mean_reversion"] = self._mean_reversion_signal(prices)
         signals["volume_confirmation"] = self._volume_signal(ticker)
+        signals["numerai_alpha"] = self._alpha_cache.get(ticker, 0.0)
 
         return signals
+
+    def _compute_alpha(
+        self, prices: dict[str, Optional[pd.Series]],
+    ) -> dict[str, float]:
+        """Cross-sectional Numerai-style alpha over the current basket.
+
+        Delegates to NumeraiIntegration.extract_alpha_signals with the price
+        history we already fetched (no extra network I/O).
+        """
+        history = {t: s for t, s in prices.items() if s is not None}
+        if len(history) < 2:
+            return {}
+        try:
+            from src.integrations.numerai import NumeraiIntegration
+            return NumeraiIntegration().extract_alpha_signals(
+                list(history.keys()), price_history=history,
+            )
+        except Exception as exc:
+            logger.info("Alpha computation skipped: %s", exc)
+            return {}
 
     def _make_decision(self, signals: dict[str, float]) -> tuple[TradeAction, float]:
         """Weighted vote: composite = Σ(signal × weight).
@@ -370,6 +395,9 @@ class PaperTradingAgent:
         if total_w > 0:
             self._signal_weights = {k: v / total_w for k, v in self._signal_weights.items()}
 
+        if insights:
+            self._generation += 1
+
         self._insights.extend(insights)
         self._save_state()
         return insights
@@ -416,11 +444,13 @@ class PaperTradingAgent:
                     self._signal_weights = dict(zip(
                         self._signal_weights.keys(), result.x.tolist(),
                     ))
+                    self._generation += 1
                     self._save_state()
                     return {
                         "old_weights": old_weights,
                         "new_weights": dict(self._signal_weights),
                         "sharpe_improvement": round(new_sharpe - old_sharpe, 4),
+                        "generation": self._generation,
                     }
 
             return {"status": "no_improvement"}
@@ -648,6 +678,12 @@ class PaperTradingAgent:
             if window_end < 50:
                 continue
 
+            windows: dict[str, pd.Series] = {}
+            for ticker in self.tickers:
+                if ticker in hist_data:
+                    windows[ticker] = hist_data[ticker]["Close"].iloc[:window_end]
+            self._alpha_cache = self._compute_alpha(windows)
+
             day_trades: list[PaperTrade] = []
             for ticker in self.tickers:
                 if ticker not in hist_data:
@@ -772,7 +808,10 @@ class PaperTradingAgent:
             (self.DATA_DIR / "portfolio.json").write_text(json.dumps(portfolio, indent=2))
 
             (self.DATA_DIR / "config.json").write_text(
-                json.dumps(self._signal_weights, indent=2),
+                json.dumps(
+                    {"weights": self._signal_weights, "generation": self._generation},
+                    indent=2,
+                ),
             )
         except Exception as exc:
             logger.warning("Save state failed: %s", exc)
@@ -811,7 +850,13 @@ class PaperTradingAgent:
 
             config_path = self.DATA_DIR / "config.json"
             if config_path.exists():
-                self._signal_weights = json.loads(config_path.read_text())
+                cfg = json.loads(config_path.read_text())
+                if isinstance(cfg, dict) and "weights" in cfg:
+                    self._signal_weights = cfg["weights"]
+                    self._generation = cfg.get("generation", 0)
+                else:
+                    # backward-compat: old format stored weights at top level
+                    self._signal_weights = cfg
 
         except Exception as exc:
             logger.warning("Load state failed: %s", exc)

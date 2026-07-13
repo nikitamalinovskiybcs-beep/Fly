@@ -24,6 +24,53 @@ class TestNumeraiIntegration:
         assert isinstance(signals, dict)
         assert "AAPL" in signals
 
+    def _series(self, values: list[float]) -> pd.Series:
+        idx = pd.date_range("2023-01-01", periods=len(values), freq="D")
+        return pd.Series(values, index=idx)
+
+    def test_alpha_nonzero_with_history(self) -> None:
+        """With real price history the alpha is non-zero and cross-sectional."""
+        from src.integrations.numerai import NumeraiIntegration
+        import numpy as np
+
+        n = 130
+        up = self._series(list(100 + np.arange(n) * 0.8))       # strong uptrend
+        down = self._series(list(100 - np.arange(n) * 0.5))     # downtrend
+        flat = self._series(list(100 + np.sin(np.arange(n)) * 2))  # sideways
+
+        nai = NumeraiIntegration()
+        sig = nai.extract_alpha_signals(
+            ["UP", "DOWN", "FLAT"],
+            price_history={"UP": up, "DOWN": down, "FLAT": flat},
+        )
+        assert set(sig) == {"UP", "DOWN", "FLAT"}
+        assert all(-1.0 <= v <= 1.0 for v in sig.values())
+        assert any(abs(v) > 0 for v in sig.values())
+        # The uptrend should rank strictly above the downtrend.
+        assert sig["UP"] > sig["DOWN"]
+
+    def test_alpha_bounds_and_missing(self) -> None:
+        """Tickers without enough history fall back to 0.0, others stay bounded."""
+        from src.integrations.numerai import NumeraiIntegration
+        import numpy as np
+
+        good = self._series(list(100 + np.arange(80) * 0.3))
+        short = self._series([100, 101, 102])
+        nai = NumeraiIntegration()
+        sig = nai.extract_alpha_signals(
+            ["GOOD", "GOODB", "SHORT"],
+            price_history={"GOOD": good, "GOODB": good * 1.01, "SHORT": short},
+        )
+        assert sig["SHORT"] == 0.0
+        assert all(-1.0 <= v <= 1.0 for v in sig.values())
+
+    def test_alpha_no_history_returns_zeros(self) -> None:
+        """No usable history → honest all-zero fallback, never fabricated."""
+        from src.integrations.numerai import NumeraiIntegration
+        nai = NumeraiIntegration()
+        sig = nai.extract_alpha_signals(["A", "B"], price_history={})
+        assert sig == {"A": 0.0, "B": 0.0}
+
 
 class TestNumeraiSignals:
     """Tests for Numerai Signals integration."""

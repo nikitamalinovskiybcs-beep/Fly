@@ -22,6 +22,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 SCHEDULE_LOG = Path("data/scheduler_log.json")
+NUMERAI_STATE = Path("data/numerai_submissions.json")
 
 
 class FlyScheduler:
@@ -61,6 +62,13 @@ class FlyScheduler:
             basket_evo = self._run_basket_evolution()
             results["basket_evolution"] = basket_evo
             results["tasks_run"].append("basket_evolution")
+
+        # Numerai submits are round-gated (idempotent), so it is safe to
+        # attempt on every scheduled run — it no-ops within an open round.
+        numerai = self._run_numerai_submission()
+        if numerai.get("status") != "no_credentials":
+            results["numerai"] = numerai
+            results["tasks_run"].append("numerai")
 
         if now.hour == 0:
             agents = self._run_improvement_agents()
@@ -174,6 +182,77 @@ class FlyScheduler:
             logger.error("Monthly evolution failed: %s", exc)
             return {"error": str(exc)}
 
+    def _run_numerai_submission(
+        self, feature_set: str = "small", era_stride: int = 4, force: bool = False,
+    ) -> dict:
+        """Train + submit to the current Numerai round (idempotent per round).
+
+        Skips gracefully when credentials are absent. Guards against duplicate
+        submissions by recording the last round submitted in NUMERAI_STATE.
+        Never logs secret values.
+
+        Args:
+            feature_set: "small" | "medium" | "all".
+            era_stride: Era subsampling stride for training.
+            force: Re-submit even if this round was already submitted.
+
+        Returns:
+            Dict describing the outcome.
+        """
+        import os
+
+        if not (os.getenv("NUMERAI_PUBLIC_ID") and os.getenv("NUMERAI_SECRET_KEY")):
+            return {"status": "no_credentials"}
+
+        try:
+            from src.integrations.numerai_pipeline import _napi, run
+        except Exception as exc:
+            return {"status": "error", "error": str(exc)}
+
+        try:
+            current_round = int(_napi().get_current_round())
+        except Exception as exc:
+            logger.warning("Numerai round lookup failed: %s", exc)
+            return {"status": "error", "error": str(exc)}
+
+        last_round = self._load_numerai_round()
+        if not force and last_round == current_round:
+            return {"status": "already_submitted", "round": current_round}
+
+        try:
+            result = run(feature_set=feature_set, era_stride=era_stride, do_submit=True)
+            self._save_numerai_round(current_round)
+            submission = result.get("submission", {})
+            return {
+                "status": "submitted",
+                "round": current_round,
+                "validation_corr": result.get("validation_corr"),
+                "submission_id": submission.get("submission_id"),
+            }
+        except Exception as exc:
+            logger.error("Numerai submission failed: %s", exc)
+            return {"status": "error", "round": current_round, "error": str(exc)}
+
+    def _load_numerai_round(self) -> Optional[int]:
+        """Read the last successfully submitted Numerai round."""
+        try:
+            if NUMERAI_STATE.exists():
+                return json.loads(NUMERAI_STATE.read_text()).get("last_round")
+        except Exception:
+            pass
+        return None
+
+    def _save_numerai_round(self, round_num: int) -> None:
+        """Persist the last submitted Numerai round."""
+        try:
+            NUMERAI_STATE.parent.mkdir(parents=True, exist_ok=True)
+            NUMERAI_STATE.write_text(json.dumps(
+                {"last_round": round_num, "submitted_at": datetime.now().isoformat()},
+                indent=2,
+            ))
+        except Exception as exc:
+            logger.warning("Numerai state save failed: %s", exc)
+
     def _run_basket_evolution(self) -> dict:
         """Run basket scoring weight evolution."""
         try:
@@ -253,6 +332,13 @@ if __name__ == "__main__":
     parser.add_argument("--bootstrap", type=int, default=0,
                         help="Bootstrap with N days of historical data")
     parser.add_argument("--all", action="store_true", help="Force-run all tasks now")
+    parser.add_argument("--numerai", action="store_true",
+                        help="Train + submit to current Numerai round (idempotent)")
+    parser.add_argument("--numerai-force", action="store_true",
+                        help="Re-submit Numerai even if round already submitted")
+    parser.add_argument("--feature-set", type=str, default="small",
+                        choices=["small", "medium", "all"],
+                        help="Numerai feature set size")
     parser.add_argument("--tickers", type=str, default="AAPL,MSFT,GOOGL,AMZN,NVDA",
                         help="Comma-separated tickers")
     parser.add_argument("--interval", type=int, default=60,
@@ -262,7 +348,19 @@ if __name__ == "__main__":
     tickers = [t.strip() for t in args.tickers.split(",")]
     scheduler = FlyScheduler(tickers=tickers)
 
-    if args.bootstrap > 0:
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+    except Exception:
+        pass
+
+    if args.numerai or args.numerai_force:
+        print("Running Numerai submission...")
+        result = scheduler._run_numerai_submission(
+            feature_set=args.feature_set, force=args.numerai_force,
+        )
+        print(json.dumps(result, indent=2, default=str))
+    elif args.bootstrap > 0:
         print(f"Bootstrapping with {args.bootstrap} days...")
         result = scheduler.bootstrap(days=args.bootstrap)
         print(json.dumps(result, indent=2, default=str))

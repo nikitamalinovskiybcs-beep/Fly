@@ -204,16 +204,110 @@ class NumeraiIntegration:
         except Exception as exc:
             return {"error": str(exc)}
 
-    def extract_alpha_signals(self, tickers: list[str]) -> dict[str, float]:
-        """Extract alpha signals from Numerai meta-model.
+    def extract_alpha_signals(
+        self,
+        tickers: list[str],
+        price_history: Optional[dict[str, pd.Series]] = None,
+    ) -> dict[str, float]:
+        """Cross-sectional, rank-normalized alpha in the Numerai style.
+
+        The Numerai *tournament* model is trained on obfuscated stock IDs that
+        cannot be mapped back to real tickers (AAPL, MSFT, …), so it cannot
+        score an arbitrary basket directly. This method instead builds a
+        genuine cross-sectional alpha from price history using the same
+        principles Numerai rewards — rank-normalized, market-neutral factors
+        (momentum, short-term reversal, low-volatility) blended and ranked to
+        [-1, +1]. Missing tickers get 0.0.
 
         Args:
-            tickers: Tickers to look up.
+            tickers: Tickers to score.
+            price_history: Optional dict ticker -> close-price Series (for
+                offline/testing). Fetched from yfinance when omitted.
 
         Returns:
-            Dict of ticker → signal (-1 to +1).
+            Dict of ticker -> signal in [-1, +1].
         """
-        return {t: 0.0 for t in tickers}
+        if price_history is None:
+            price_history = self._fetch_close_history(tickers)
+
+        feats: dict[str, dict[str, float]] = {}
+        for t in tickers:
+            s = price_history.get(t)
+            if s is None or len(s) < 63:
+                continue
+            s = s.dropna()
+            if len(s) < 63:
+                continue
+            rets = s.pct_change().dropna()
+            momentum = float(s.iloc[-1] / s.iloc[-63] - 1.0)
+            reversal = -float(s.iloc[-1] / s.iloc[-5] - 1.0)
+            vol = float(rets.tail(63).std() * np.sqrt(252))
+            feats[t] = {"momentum": momentum, "reversal": reversal, "low_vol": -vol}
+
+        if not feats:
+            return {t: 0.0 for t in tickers}
+
+        blend = {"momentum": 0.5, "reversal": 0.3, "low_vol": 0.2}
+        composite: dict[str, float] = {}
+        for name, weight in blend.items():
+            vals = {t: feats[t][name] for t in feats}
+            z = self._zscore(vals)
+            for t, zv in z.items():
+                composite[t] = composite.get(t, 0.0) + weight * zv
+
+        ranked = self._rank_to_unit(composite)
+        return {t: round(ranked.get(t, 0.0), 4) for t in tickers}
+
+    @staticmethod
+    def _zscore(values: dict[str, float]) -> dict[str, float]:
+        """Cross-sectional z-score (market-neutralization)."""
+        arr = np.array(list(values.values()), dtype=float)
+        mean = float(arr.mean())
+        std = float(arr.std())
+        if std == 0:
+            return {k: 0.0 for k in values}
+        return {k: (v - mean) / std for k, v in values.items()}
+
+    @staticmethod
+    def _rank_to_unit(values: dict[str, float]) -> dict[str, float]:
+        """Rank values cross-sectionally and map to [-1, +1]."""
+        n = len(values)
+        if n == 0:
+            return {}
+        if n == 1:
+            return {k: 0.0 for k in values}
+        order = sorted(values, key=lambda k: values[k])
+        out: dict[str, float] = {}
+        for i, k in enumerate(order):
+            out[k] = 2.0 * (i / (n - 1)) - 1.0
+        return out
+
+    def _fetch_close_history(
+        self, tickers: list[str], period: str = "6mo",
+    ) -> dict[str, pd.Series]:
+        """Batched close-price download for alpha computation."""
+        try:
+            import yfinance as yf
+            raw = yf.download(
+                tickers, period=period, interval="1d", progress=False,
+                group_by="ticker", auto_adjust=True, threads=True,
+            )
+            out: dict[str, pd.Series] = {}
+            if raw is None or raw.empty:
+                return {}
+            for t in tickers:
+                try:
+                    df = raw[t] if len(tickers) > 1 else raw
+                    if df is not None and "Close" in df:
+                        series = df["Close"].dropna()
+                        if not series.empty:
+                            out[t] = series
+                except (KeyError, TypeError):
+                    continue
+            return out
+        except Exception as exc:
+            logger.warning("Alpha history fetch failed: %s", exc)
+            return {}
 
 
 class NumeraiSignalsIntegration:

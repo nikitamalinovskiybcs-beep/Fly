@@ -98,7 +98,7 @@ class TestGreeksExposure:
 class TestCollectSignals:
     """Test that _collect_signals uses volume."""
 
-    def test_all_8_signals_computed(self):
+    def test_all_signals_computed(self):
         agent = PaperTradingAgent(tickers=["TEST"])
         prices = pd.Series(np.random.lognormal(0, 0.02, 200).cumprod() * 100)
         agent._volume_cache["TEST"] = pd.Series(np.random.uniform(500_000, 1_500_000, 200))
@@ -108,7 +108,8 @@ class TestCollectSignals:
         assert "regime" in signals
         assert "rsi_oversold" in signals
         assert "sma_crossover" in signals
-        assert len(signals) == 8
+        assert "numerai_alpha" in signals
+        assert len(signals) == len(agent._signal_weights)
 
     def test_volume_not_zero(self):
         agent = PaperTradingAgent(tickers=["TEST"])

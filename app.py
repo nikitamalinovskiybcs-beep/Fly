@@ -744,6 +744,7 @@ if basket_tickers:
                 <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">CLOSED</div><div style="color:#ffb000;font-size:14px;font-weight:700">{len(closed_trades)}</div></div>
                 <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">LEARNING</div><div style="color:{lr_c};font-size:14px;font-weight:700">{"READY" if learning_ready else f"NEED {3 - len(closed_trades)}"}</div></div>
                 <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">EVOLUTION</div><div style="color:{ev_c};font-size:14px;font-weight:700">{"READY" if evolution_ready else f"NEED {20 - len(closed_trades)}"}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">GENERATION</div><div style="color:#fa8000;font-size:14px;font-weight:700">{_pt._generation}</div></div>
             </div>''', unsafe_allow_html=True)
 
             st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:6px 0 4px">CURRENT SIGNAL WEIGHTS</div>', unsafe_allow_html=True)

@@ -9,3 +9,6 @@ data/*.duckdb.wal
 data/numerai/
 data/*.parquet
 data/feature_cache.duckdb
+data/scheduler_log.json
+data/numerai_submissions.json
+data/paper_trading/

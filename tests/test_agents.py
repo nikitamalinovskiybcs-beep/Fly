@@ -199,6 +199,65 @@ class TestPaperTradingAgent:
         insights = agent.weekly_learning()
         assert len(insights) == 0
 
+    def _closed_trade(self, sig_val: float, pnl: float):
+        from datetime import datetime
+        from src.agents.models import PaperTrade, TradeAction
+        return PaperTrade(
+            id="x", timestamp=datetime.now().isoformat(), ticker="AAPL",
+            action=TradeAction.BUY, price=100.0, quantity=1.0,
+            signals={"regime": sig_val}, confidence=0.5, pnl=pnl, pnl_pct=pnl,
+            status="closed", closed_at=datetime.now().isoformat(),
+        )
+
+    def test_generation_increments_on_learning(self) -> None:
+        """Generation grows only when learning actually produces insights."""
+        from src.agents.paper_trader import PaperTradingAgent
+        agent = PaperTradingAgent(tickers=["AAPL"])
+        agent.DATA_DIR = Path(self.tmp)
+        # Four winning trades where the 'regime' signal was correct → accuracy
+        # 100% → weight increase insight → generation increments.
+        agent._trades = [self._closed_trade(0.8, 50.0) for _ in range(4)]
+        assert agent._generation == 0
+        insights = agent.weekly_learning()
+        assert len(insights) >= 1
+        assert agent._generation == 1
+
+    def test_generation_persists(self) -> None:
+        """Generation survives save/load round-trips."""
+        from src.agents.paper_trader import PaperTradingAgent
+        agent = PaperTradingAgent(tickers=["AAPL"])
+        agent.DATA_DIR = Path(self.tmp)
+        agent._generation = 7
+        agent._save_state()
+
+        reloaded = PaperTradingAgent(tickers=["AAPL"])
+        reloaded.DATA_DIR = Path(self.tmp)
+        reloaded._load_state()
+        assert reloaded._generation == 7
+
+    def test_alpha_signal_in_collected_signals(self) -> None:
+        """The Numerai alpha is wired into the signal set used for decisions."""
+        from src.agents.paper_trader import PaperTradingAgent
+        agent = PaperTradingAgent(tickers=["AAPL"])
+        agent.DATA_DIR = Path(self.tmp)
+        agent._alpha_cache = {"AAPL": 0.5}
+        prices = pd.Series([100 + i * 0.2 for i in range(60)])
+        signals = agent._collect_signals("AAPL", prices)
+        assert "numerai_alpha" in signals
+        assert signals["numerai_alpha"] == 0.5
+
+    def test_compute_alpha_offline(self) -> None:
+        """_compute_alpha returns bounded, non-fabricated values from prices."""
+        from src.agents.paper_trader import PaperTradingAgent
+        agent = PaperTradingAgent(tickers=["UP", "DOWN"])
+        agent.DATA_DIR = Path(self.tmp)
+        up = pd.Series([100 + i * 0.8 for i in range(130)])
+        down = pd.Series([100 - i * 0.4 for i in range(130)])
+        alpha = agent._compute_alpha({"UP": up, "DOWN": down})
+        assert set(alpha) == {"UP", "DOWN"}
+        assert all(-1.0 <= v <= 1.0 for v in alpha.values())
+        assert alpha["UP"] > alpha["DOWN"]
+
 
 class TestBaseAgent:
     """Tests for base agent abstract class."""

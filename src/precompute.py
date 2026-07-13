@@ -345,7 +345,15 @@ def calibrate_scoring_on_settled() -> Dict:
             final_w[k] = _DEFAULT_SCORING_WEIGHTS.get(k, final_w[k])
             weak_features.append(k)
 
-    final_w["generation"] = w.get("generation", 0) + 1
+    # Generation is monotonic across ALL persisted calibrations, so it keeps
+    # growing even when the loaded weights get reset by the coverage guard
+    # above (previously this made generation stick at 1 forever).
+    try:
+        from src.gdrive_store import get_params_history
+        prior_runs = len(get_params_history(limit=10_000))
+    except Exception:
+        prior_runs = int(w.get("generation", 0))
+    final_w["generation"] = max(int(w.get("generation", 0)), prior_runs) + 1
 
     # Measure AFTER — on VALIDATION set (honest out-of-sample)
     val_mae = float(np.mean(np.abs([a - _score_one_note(final_w, t, ty) for t, ty, a in val_data]))) if val_data else 0
