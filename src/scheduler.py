@@ -28,8 +28,18 @@ NUMERAI_STATE = Path("data/numerai_submissions.json")
 class FlyScheduler:
     """Central scheduler for all Fly agents."""
 
-    def __init__(self, tickers: Optional[list[str]] = None) -> None:
+    DEFAULT_UNIVERSE = [
+        "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "JPM", "XOM",
+        "JNJ", "TSLA", "AMD", "BAC",
+    ]
+
+    def __init__(
+        self,
+        tickers: Optional[list[str]] = None,
+        universe: Optional[list[str]] = None,
+    ) -> None:
         self.tickers = tickers or ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA"]
+        self.universe = universe or self.DEFAULT_UNIVERSE
         self._log: list[dict] = []
         self._load_log()
 
@@ -75,6 +85,17 @@ class FlyScheduler:
             results["improvement_agents"] = agents
             results["tasks_run"].append("improvement_agents")
 
+        # Autopilot health/analysis/optimization cycle — runs every scheduled
+        # tick so it is genuinely live rather than dormant.
+        autopilot = self._run_autopilot()
+        results["autopilot"] = autopilot
+        results["tasks_run"].append("autopilot")
+
+        # Core goal: keep the best structured product up to date.
+        product = self._run_product_search()
+        results["best_product"] = product
+        results["tasks_run"].append("best_product")
+
         backup = self._run_backup()
         results["backup"] = backup
         results["tasks_run"].append("backup")
@@ -113,6 +134,14 @@ class FlyScheduler:
         agents = self._run_improvement_agents()
         results["improvement_agents"] = agents
         results["tasks_run"].append("improvement_agents")
+
+        autopilot = self._run_autopilot()
+        results["autopilot"] = autopilot
+        results["tasks_run"].append("autopilot")
+
+        product = self._run_product_search()
+        results["best_product"] = product
+        results["tasks_run"].append("best_product")
 
         backup = self._run_backup()
         results["backup"] = backup
@@ -253,6 +282,43 @@ class FlyScheduler:
         except Exception as exc:
             logger.warning("Numerai state save failed: %s", exc)
 
+    def _run_autopilot(self) -> dict:
+        """Run one Autopilot cycle (health → analysis → optimize → report).
+
+        Respects the kill switch so it never fights a manual stop.
+        """
+        try:
+            from src.autopilot.safety import SafetySystem
+            if SafetySystem().check_kill_switch():
+                return {"status": "kill_switch_engaged"}
+            from src.autopilot.scheduler import AutopilotScheduler
+            cycle = AutopilotScheduler().run_once()
+            return {
+                "status": "ran",
+                "health": cycle.get("health", {}),
+                "insights": len(cycle.get("analysis", [])),
+                "optimizations": len(cycle.get("optimization", [])),
+            }
+        except Exception as exc:
+            logger.error("Autopilot cycle failed: %s", exc)
+            return {"status": "error", "error": str(exc)}
+
+    def _run_product_search(self) -> dict:
+        """Search the universe for the best structured product (core goal)."""
+        try:
+            from src.structured_product import find_best_structured_product
+            result = find_best_structured_product(self.universe, basket_size=3)
+            best = result.get("best", {})
+            return {
+                "status": "ok",
+                "best": best,
+                "n_evaluated": result.get("n_evaluated", 0),
+                "recommendation": result.get("recommendation", ""),
+            }
+        except Exception as exc:
+            logger.error("Product search failed: %s", exc)
+            return {"status": "error", "error": str(exc)}
+
     def _run_basket_evolution(self) -> dict:
         """Run basket scoring weight evolution."""
         try:
@@ -339,6 +405,10 @@ if __name__ == "__main__":
     parser.add_argument("--feature-set", type=str, default="small",
                         choices=["small", "medium", "all"],
                         help="Numerai feature set size")
+    parser.add_argument("--autopilot", action="store_true",
+                        help="Run one Autopilot cycle now")
+    parser.add_argument("--best-product", action="store_true",
+                        help="Search the universe for the best structured product")
     parser.add_argument("--tickers", type=str, default="AAPL,MSFT,GOOGL,AMZN,NVDA",
                         help="Comma-separated tickers")
     parser.add_argument("--interval", type=int, default=60,
@@ -359,6 +429,14 @@ if __name__ == "__main__":
         result = scheduler._run_numerai_submission(
             feature_set=args.feature_set, force=args.numerai_force,
         )
+        print(json.dumps(result, indent=2, default=str))
+    elif args.autopilot:
+        print("Running Autopilot cycle...")
+        result = scheduler._run_autopilot()
+        print(json.dumps(result, indent=2, default=str))
+    elif args.best_product:
+        print("Searching for best structured product...")
+        result = scheduler._run_product_search()
         print(json.dumps(result, indent=2, default=str))
     elif args.bootstrap > 0:
         print(f"Bootstrapping with {args.bootstrap} days...")

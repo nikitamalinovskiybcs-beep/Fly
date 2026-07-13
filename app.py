@@ -793,6 +793,46 @@ if basket_tickers:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Self-learning error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
+    # [18] BEST STRUCTURED PRODUCT — agent-driven product search
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[18] BEST STRUCTURED PRODUCT    Universe search · Barrier/Tenor grid"):
+        try:
+            from src.structured_product import find_best_structured_product
+            _universe = list(dict.fromkeys(
+                list(basket_tickers) + ["AAPL", "MSFT", "GOOGL", "AMZN",
+                                        "NVDA", "META", "JPM", "XOM"]
+            ))
+            st.markdown(
+                f'<div style="color:#d6a44a;font-size:9px;margin-bottom:4px">'
+                f'Universe: {len(_universe)} tickers · basket size 3 · '
+                f'barrier×tenor grid</div>', unsafe_allow_html=True)
+            if st.button("FIND BEST PRODUCT", key="best_prod_btn", use_container_width=True):
+                with st.spinner("Searching universe for the best structured product..."):
+                    _res = find_best_structured_product(_universe, basket_size=3)
+                if "best" in _res:
+                    _b = _res["best"]
+                    st.markdown(f'''<div style="color:#34c759;font-size:11px;padding:4px;border:1px solid #1a3a1a;border-radius:4px">
+                        <b>{' / '.join(_b["basket"])}</b><br>
+                        Barrier {_b["barrier"]}% · Tenor {_b["tenor_months"]}mo ·
+                        Coupon ~{_b["coupon"]:.0f}% · P(loss) {_b["p_loss_pct"]:.0f}% ·
+                        Tox {_b["avg_tox"]:.2f}<br>
+                        Objective {_b["final_objective"]:.1f}
+                        (agent adj {_b["agent_adjustment"]:+.1f}) ·
+                        evaluated {_res["n_evaluated"]} baskets</div>''',
+                        unsafe_allow_html=True)
+                    st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">LEADERBOARD</div>', unsafe_allow_html=True)
+                    for _c in _res["leaderboard"]:
+                        st.markdown(
+                            f'<div style="color:#d6a44a;font-size:9px;border-bottom:1px solid #1a1400;padding:2px 0">'
+                            f'{" / ".join(_c["basket"])} — obj {_c["final_objective"]:.1f} · '
+                            f'{_c["barrier"]}%/{_c["tenor_months"]}mo · cpn {_c["coupon"]:.0f}%</div>',
+                            unsafe_allow_html=True)
+                else:
+                    st.markdown(f'<div style="color:#ff9500;font-size:10px">No product: {_res.get("error", "unknown")}</div>', unsafe_allow_html=True)
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Product search error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
     # [15] API & CONNECTIONS — Setup · Keys · Health Check
     # ═══════════════════════════════════════════════════════════════
     with st.expander("[15] API & CONNECTIONS    Setup · Keys · Health Check"):

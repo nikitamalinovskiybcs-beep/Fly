@@ -1,0 +1,65 @@
+"""Tests for src.structured_product — best-product optimizer."""
+
+
+class TestStructuredProduct:
+    """The optimizer must produce a deterministic, ranked best product."""
+
+    def test_score_product_keys(self) -> None:
+        from src.structured_product import score_product
+        cfg = score_product(["AAPL", "MSFT", "GOOGL"], 0.65, 24)
+        assert set(cfg) >= {"barrier", "tenor_months", "coupon",
+                            "p_loss_pct", "avg_tox", "objective"}
+        assert cfg["barrier"] == 65
+        assert cfg["tenor_months"] == 24
+
+    def test_best_config_grid(self) -> None:
+        from src.structured_product import best_config_for_basket, score_product
+        basket = ["AAPL", "MSFT", "GOOGL"]
+        best = best_config_for_basket(basket)
+        # No other grid point may beat the chosen configuration.
+        for barrier in (0.55, 0.65, 0.75):
+            for tenor in (12, 24, 36):
+                assert score_product(basket, barrier, tenor)["objective"] <= best["objective"] + 1e-9
+
+    def test_find_best_product(self) -> None:
+        from src.structured_product import find_best_structured_product
+        universe = ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "JPM"]
+        result = find_best_structured_product(universe, basket_size=3)
+        assert "best" in result
+        assert len(result["best"]["basket"]) == 3
+        assert result["n_evaluated"] > 0
+        # Leaderboard is sorted by final objective, descending.
+        objs = [c["final_objective"] for c in result["leaderboard"]]
+        assert objs == sorted(objs, reverse=True)
+
+    def test_deterministic(self) -> None:
+        from src.structured_product import find_best_structured_product
+        universe = ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "JPM"]
+        a = find_best_structured_product(universe, basket_size=3)
+        b = find_best_structured_product(universe, basket_size=3)
+        assert a["best"]["basket"] == b["best"]["basket"]
+
+    def test_universe_too_small(self) -> None:
+        from src.structured_product import find_best_structured_product
+        result = find_best_structured_product(["AAPL"], basket_size=3)
+        assert result["error"] == "universe_too_small"
+
+
+class TestSchedulerWiring:
+    """Autopilot and product search must be live tasks in the scheduler."""
+
+    def test_product_search_task(self, tmp_path, monkeypatch) -> None:
+        import src.scheduler as sched_mod
+        sched_mod.SCHEDULE_LOG = tmp_path / "scheduler_log.json"
+        scheduler = sched_mod.FlyScheduler(universe=["AAPL", "MSFT", "GOOGL", "JPM"])
+        result = scheduler._run_product_search()
+        assert result["status"] == "ok"
+        assert result["n_evaluated"] > 0
+        assert result["best"]["basket"]
+
+    def test_autopilot_task_runs(self, tmp_path) -> None:
+        import src.scheduler as sched_mod
+        sched_mod.SCHEDULE_LOG = tmp_path / "scheduler_log.json"
+        scheduler = sched_mod.FlyScheduler()
+        result = scheduler._run_autopilot()
+        assert result["status"] in {"ran", "kill_switch_engaged", "error"}
