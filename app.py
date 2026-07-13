@@ -515,10 +515,20 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     with st.expander("[10] BASKET SCORING    Bank-grade analysis"):
         try:
-            from src.basket.scorer import BasketScorer
+            from src.basket.scorer import SAMPLE_BASKETS, BasketScorer
             from src.basket.worst_of import WorstOfPredictor
             bs = BasketScorer()
-            report = bs.score_basket(basket_tickers)
+
+            preset = st.selectbox(
+                "Test basket", ["(current basket)"] + list(SAMPLE_BASKETS),
+                key="basket_preset",
+            )
+            scored_tickers = (
+                basket_tickers if preset == "(current basket)"
+                else SAMPLE_BASKETS[preset]
+            )
+            st.caption("Underlyings: " + ", ".join(scored_tickers))
+            report = bs.score_basket(scored_tickers)
 
             grade_c = "#34c759" if report.total_score >= 70 else "#ffb000" if report.total_score >= 50 else "#ff3b30"
             st.markdown(f'''

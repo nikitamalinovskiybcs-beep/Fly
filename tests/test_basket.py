@@ -122,6 +122,90 @@ class TestBasketScorer:
         assert "STRONG BUY" in rec
 
 
+class TestContinuousScoring:
+    """Continuous (interpolated) scoring should give a wide, smooth spread."""
+
+    def test_interp_bounds_and_clamping(self) -> None:
+        from src.basket.scorer import BasketScorer
+        pts = [(0.0, 90.0), (0.5, 50.0), (1.0, 10.0)]
+        assert BasketScorer._interp(-1.0, pts) == 90.0  # clamp low
+        assert BasketScorer._interp(2.0, pts) == 10.0  # clamp high
+        assert BasketScorer._interp(0.5, pts) == 50.0  # exact anchor
+
+    def test_interp_is_monotonic_and_continuous(self) -> None:
+        from src.basket.scorer import BasketScorer
+        pts = [(0.0, 90.0), (0.5, 50.0), (1.0, 10.0)]
+        xs = [i / 100 for i in range(101)]
+        ys = [BasketScorer._interp(x, pts) for x in xs]
+        # strictly decreasing (no flat step buckets)
+        assert all(ys[i] > ys[i + 1] for i in range(len(ys) - 1))
+        # midpoint of a segment is the linear midpoint of its endpoints
+        assert abs(BasketScorer._interp(0.25, pts) - 70.0) < 1e-9
+
+    def test_interp_empty(self) -> None:
+        from src.basket.scorer import BasketScorer
+        assert BasketScorer._interp(0.5, []) == 0.0
+
+    def _profile(self, ticker, **kw):
+        from src.basket.models import AssetProfile
+        defaults = dict(
+            price=100, market_cap=50e9, daily_volume_usd=150e6, atr_pct=0.02,
+            evt_var_95=-0.02, max_drawdown_60d=-0.08, sector="Technology",
+            implied_vol=0.2, iv_skew=1.0, net_margin=0.2, pe_ratio=20,
+            is_profitable=True,
+        )
+        defaults.update(kw)
+        return AssetProfile(ticker=ticker, **defaults)
+
+    def test_quality_beats_speculative_by_wide_margin(self) -> None:
+        from src.basket.scorer import BasketScorer
+        scorer = BasketScorer()
+        quality = [
+            self._profile("AAPL", daily_volume_usd=300e6, evt_var_95=-0.015,
+                          max_drawdown_60d=-0.05, implied_vol=0.16, atr_pct=0.013,
+                          sector="Technology"),
+            self._profile("JNJ", daily_volume_usd=130e6, evt_var_95=-0.012,
+                          max_drawdown_60d=-0.04, implied_vol=0.14, atr_pct=0.010,
+                          sector="Healthcare"),
+        ]
+        spec = [
+            self._profile("PLUG", daily_volume_usd=8e6, evt_var_95=-0.09,
+                          max_drawdown_60d=-0.55, implied_vol=0.85, atr_pct=0.07,
+                          sector="Industrials", net_margin=-0.2, is_profitable=False),
+            self._profile("RIOT", daily_volume_usd=12e6, evt_var_95=-0.10,
+                          max_drawdown_60d=-0.60, implied_vol=0.90, atr_pct=0.08,
+                          sector="Technology", net_margin=-0.15, is_profitable=False),
+        ]
+        q = scorer.score_profiles(quality, basket_name="Quality").total_score
+        s = scorer.score_profiles(spec, basket_name="Spec").total_score
+        assert q - s > 25  # wide, meaningful spread
+
+    def test_small_input_change_moves_score(self) -> None:
+        """A modest change in one input should change the score (no flat buckets)."""
+        from src.basket.scorer import BasketScorer
+        scorer = BasketScorer()
+        base = [self._profile("A", evt_var_95=-0.030)]
+        worse = [self._profile("A", evt_var_95=-0.045)]
+        s1 = scorer._score_worst_of_tail_risk(base, pd.DataFrame()).raw_score
+        s2 = scorer._score_worst_of_tail_risk(worse, pd.DataFrame()).raw_score
+        assert s1 != s2
+
+    def test_sample_baskets_defined(self) -> None:
+        from src.basket.scorer import SAMPLE_BASKETS
+        assert len(SAMPLE_BASKETS) >= 3
+        assert all(isinstance(v, list) and v for v in SAMPLE_BASKETS.values())
+
+    def test_score_profiles_no_network(self) -> None:
+        from src.basket.scorer import BasketScorer
+        scorer = BasketScorer()
+        report = scorer.score_profiles(
+            [self._profile("X"), self._profile("Y", sector="Healthcare")],
+            basket_name="Test",
+        )
+        assert 0 <= report.total_score <= 100
+        assert len(report.criteria) == 8
+
+
 class TestCopulaAnalyzer:
     """Tests for copula analysis."""
 

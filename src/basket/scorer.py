@@ -16,6 +16,15 @@ from src.basket.models import (
 
 logger = logging.getLogger(__name__)
 
+# Preset baskets for quick testing / demos, ordered from low to high risk.
+SAMPLE_BASKETS: dict[str, list[str]] = {
+    "Mega-Cap Quality": ["AAPL", "MSFT", "JNJ"],
+    "US Banks": ["JPM", "BAC", "WFC"],
+    "Big Energy": ["XOM", "CVX", "COP"],
+    "High-Beta Tech": ["NVDA", "TSLA", "AMD"],
+    "Speculative": ["PLUG", "RIOT", "AMC"],
+}
+
 
 class BasketScorer:
     """Score baskets using 8 bank-grade criteria."""
@@ -45,6 +54,28 @@ class BasketScorer:
         if weights:
             self.WEIGHTS = weights
 
+    @staticmethod
+    def _interp(x: float, points: list[tuple[float, float]]) -> float:
+        """Piecewise-linear interpolation over (input, score) anchor points.
+
+        ``points`` must be sorted ascending by input. Values outside the range
+        are clamped to the nearest anchor. This replaces coarse step buckets so
+        small input differences map to smoothly varying scores (wider spread).
+        """
+        if not points:
+            return 0.0
+        if x <= points[0][0]:
+            return points[0][1]
+        if x >= points[-1][0]:
+            return points[-1][1]
+        for (x0, y0), (x1, y1) in zip(points, points[1:]):
+            if x0 <= x <= x1:
+                if x1 == x0:
+                    return y1
+                frac = (x - x0) / (x1 - x0)
+                return y0 + frac * (y1 - y0)
+        return points[-1][1]
+
     def score_basket(
         self,
         tickers: list[str],
@@ -63,8 +94,25 @@ class BasketScorer:
         Returns:
             BasketReport with all scores, grade, and red flags.
         """
-        assets = self._build_profiles(tickers, strikes, barrier_pct)
-        returns_df = self._get_returns(tickers)
+        history = self._fetch_history_batch(tickers)
+        assets = self._build_profiles(tickers, history, strikes, barrier_pct)
+        returns_df = self._get_returns(tickers, history)
+        return self.score_profiles(assets, returns_df, basket_name="-".join(tickers))
+
+    def score_profiles(
+        self,
+        assets: list[AssetProfile],
+        returns_df: pd.DataFrame = None,
+        basket_name: str = "",
+    ) -> BasketReport:
+        """Score pre-built asset profiles (no network I/O).
+
+        Splitting scoring from fetching makes the scorer deterministic and
+        testable, and lets callers score custom/injected profiles.
+        """
+        if returns_df is None:
+            returns_df = pd.DataFrame()
+        tickers = [a.ticker for a in assets]
 
         criteria: list[CriterionScore] = []
         criteria.append(self._score_liquidity(assets))
@@ -85,7 +133,7 @@ class BasketScorer:
         recommendation = self._make_recommendation(total_score, grade, all_flags)
 
         return BasketReport(
-            basket_name="-".join(tickers),
+            basket_name=basket_name or "-".join(tickers),
             tickers=tickers,
             date=datetime.now().strftime("%Y-%m-%d"),
             assets=assets,
@@ -118,16 +166,59 @@ class BasketScorer:
             for name, tickers in baskets.items()
         }
 
+    def _fetch_history_batch(
+        self, tickers: list[str], retries: int = 3,
+    ) -> dict[str, pd.DataFrame]:
+        """Download 6mo OHLCV for all tickers in one batched call, with retry.
+
+        Batching (one request for the whole basket) plus exponential backoff
+        greatly reduces yfinance rate-limiting versus per-ticker requests.
+        Returns a dict ticker -> OHLCV DataFrame (may be empty on failure).
+        """
+        if not tickers:
+            return {}
+        try:
+            import time
+
+            import yfinance as yf
+        except ImportError:
+            return {}
+
+        for attempt in range(retries):
+            try:
+                raw = yf.download(
+                    tickers, period="6mo", interval="1d",
+                    progress=False, group_by="ticker", auto_adjust=True,
+                    threads=True,
+                )
+                out: dict[str, pd.DataFrame] = {}
+                if raw is None or raw.empty:
+                    raise ValueError("empty download")
+                for t in tickers:
+                    try:
+                        df = raw[t] if len(tickers) > 1 else raw
+                        if df is not None and not df.dropna(how="all").empty:
+                            out[t] = df.dropna(how="all")
+                    except (KeyError, TypeError):
+                        continue
+                if out:
+                    return out
+            except Exception as exc:
+                logger.info("Batch history attempt %d failed: %s", attempt + 1, exc)
+            time.sleep(1.5 * (attempt + 1))
+        return {}
+
     def _build_profiles(
         self,
         tickers: list[str],
+        history: dict[str, pd.DataFrame],
         strikes: dict[str, float] = None,
         barrier_pct: float = 0.60,
     ) -> list[AssetProfile]:
         """Build AssetProfile for each ticker."""
         profiles = []
         for ticker in tickers:
-            profile = self._fetch_profile(ticker)
+            profile = self._fetch_profile(ticker, history.get(ticker))
             if strikes and ticker in strikes:
                 strike = strikes[ticker]
                 if profile.price > 0:
@@ -137,110 +228,142 @@ class BasketScorer:
             profiles.append(profile)
         return profiles
 
-    def _fetch_profile(self, ticker: str) -> AssetProfile:
-        """Fetch asset data from yfinance."""
-        try:
-            import yfinance as yf
-            tk = yf.Ticker(ticker)
-            info = tk.info
-            hist = tk.history(period="3mo")
+    def _fetch_profile(
+        self, ticker: str, hist: pd.DataFrame = None,
+    ) -> AssetProfile:
+        """Build a profile from batched price history + best-effort fundamentals.
 
-            price = float(info.get("regularMarketPrice", info.get("previousClose", 0)))
-            market_cap = float(info.get("marketCap", 0))
-            pe = info.get("trailingPE")
-            net_margin = info.get("profitMargins")
-            sector = info.get("sector", "Unknown")
-            volume = float(info.get("averageVolume", 0)) * price
+        Price-derived metrics (price, volume, ATR, drawdown, tail VaR, RSI) come
+        from the batched history so they populate even when the rate-limited
+        ``.info`` endpoint is unavailable. Fundamentals are best-effort.
+        """
+        price = 0.0
+        volume = 0.0
+        atr_pct = 0.0
+        max_dd = 0.0
+        evt_var = 0.0
+        rsi_val = 50.0
 
-            if not hist.empty:
-                returns = hist["Close"].pct_change().dropna()
-                atr_pct = float(returns.std() * np.sqrt(252)) if len(returns) > 5 else 0.0
-                cumulative = (1 + returns).cumprod()
-                peak = cumulative.expanding().max()
-                dd = (cumulative - peak) / peak
-                max_dd = float(dd.min()) if len(dd) > 0 else 0.0
-                evt_var = float(np.percentile(returns, 5)) if len(returns) > 20 else 0.0
+        if hist is not None and not hist.empty and "Close" in hist:
+            close = hist["Close"].dropna()
+            if len(close) > 0:
+                price = float(close.iloc[-1])
+                if "Volume" in hist:
+                    dollar_vol = (hist["Close"] * hist["Volume"]).dropna()
+                    if len(dollar_vol) > 0:
+                        volume = float(dollar_vol.tail(20).mean())
+                returns = close.pct_change().dropna()
+                if len(returns) > 5:
+                    atr_pct = float(returns.std() * np.sqrt(252))
+                if len(returns) > 0:
+                    cumulative = (1 + returns).cumprod()
+                    peak = cumulative.expanding().max()
+                    dd = (cumulative - peak) / peak
+                    max_dd = float(dd.min()) if len(dd) > 0 else 0.0
+                if len(returns) > 20:
+                    evt_var = float(np.percentile(returns, 5))
 
-                delta = hist["Close"].diff()
+                delta = close.diff()
                 gain = delta.where(delta > 0, 0).rolling(14).mean()
                 loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
                 rs = gain / loss.replace(0, np.nan)
                 rsi_series = 100 - 100 / (1 + rs)
-                rsi_val = float(rsi_series.iloc[-1]) if not rsi_series.empty and not np.isnan(rsi_series.iloc[-1]) else 50.0
-            else:
-                atr_pct = 0.0
-                max_dd = 0.0
-                evt_var = 0.0
-                rsi_val = 50.0
+                if not rsi_series.empty and not np.isnan(rsi_series.iloc[-1]):
+                    rsi_val = float(rsi_series.iloc[-1])
 
-            iv = None
-            skew = None
-            try:
-                from src.phoenix.implied_vol import ImpliedVolEngine
-                vol_engine = ImpliedVolEngine()
-                iv = vol_engine.get_atm_iv(ticker)
-                skew = vol_engine.get_skew(ticker)
-            except Exception:
-                pass
-
-            return AssetProfile(
-                ticker=ticker, price=price, market_cap=market_cap,
-                pe_ratio=pe, net_margin=net_margin,
-                is_profitable=(net_margin or 0) > 0,
-                daily_volume_usd=volume, atr_pct=atr_pct,
-                evt_var_95=evt_var, max_drawdown_60d=max_dd,
-                sector=sector, implied_vol=iv, iv_skew=skew, rsi=rsi_val,
-            )
-        except Exception as exc:
-            logger.warning("Profile fetch failed for %s: %s", ticker, exc)
-            return AssetProfile(ticker=ticker)
-
-    def _get_returns(self, tickers: list[str]) -> pd.DataFrame:
-        """Get returns DataFrame for correlation analysis."""
+        market_cap = 0.0
+        pe = None
+        net_margin = None
+        sector = "Unknown"
+        is_profitable = True
         try:
             import yfinance as yf
-            data = {}
-            for t in tickers:
-                hist = yf.Ticker(t).history(period="6mo")
-                if not hist.empty:
-                    data[t] = hist["Close"].pct_change().dropna()
-            if data:
-                return pd.DataFrame(data).dropna()
+            info = yf.Ticker(ticker).info
+            if info:
+                market_cap = float(info.get("marketCap", 0) or 0)
+                pe = info.get("trailingPE")
+                net_margin = info.get("profitMargins")
+                sector = info.get("sector", "Unknown") or "Unknown"
+                if net_margin is not None:
+                    is_profitable = net_margin > 0
+                if price == 0:
+                    price = float(info.get("regularMarketPrice",
+                                           info.get("previousClose", 0)) or 0)
+                if volume == 0:
+                    volume = float(info.get("averageVolume", 0) or 0) * price
+        except Exception as exc:
+            logger.info("Fundamentals unavailable for %s: %s", ticker, exc)
+
+        iv = None
+        skew = None
+        try:
+            from src.phoenix.implied_vol import ImpliedVolEngine
+            vol_engine = ImpliedVolEngine()
+            iv = vol_engine.get_atm_iv(ticker)
+            skew = vol_engine.get_skew(ticker)
         except Exception:
             pass
+
+        return AssetProfile(
+            ticker=ticker, price=price, market_cap=market_cap,
+            pe_ratio=pe, net_margin=net_margin, is_profitable=is_profitable,
+            daily_volume_usd=volume, atr_pct=atr_pct,
+            evt_var_95=evt_var, max_drawdown_60d=max_dd,
+            sector=sector, implied_vol=iv, iv_skew=skew, rsi=rsi_val,
+        )
+
+    def _get_returns(
+        self, tickers: list[str], history: dict[str, pd.DataFrame] = None,
+    ) -> pd.DataFrame:
+        """Get returns DataFrame for correlation analysis from batched history."""
+        if history is None:
+            history = self._fetch_history_batch(tickers)
+        data = {}
+        for t in tickers:
+            df = history.get(t)
+            if df is not None and not df.empty and "Close" in df:
+                data[t] = df["Close"].pct_change().dropna()
+        if data:
+            return pd.DataFrame(data).dropna()
         return pd.DataFrame()
 
     def _score_liquidity(self, assets: list[AssetProfile]) -> CriterionScore:
         """Min daily volume across basket. Higher volume = better score."""
         min_vol = min((a.daily_volume_usd for a in assets), default=0)
-        if min_vol > 100_000_000:
-            raw = 95
-        elif min_vol > 50_000_000:
-            raw = 80
-        elif min_vol > 20_000_000:
-            raw = 65
-        elif min_vol > 10_000_000:
-            raw = 50
-        else:
-            raw = 20
+        log_vol = np.log10(max(min_vol, 1.0))
+        raw = self._interp(log_vol, [
+            (6.0, 15),    # $1M
+            (7.0, 50),    # $10M
+            (7.3, 65),    # $20M
+            (7.7, 80),    # $50M
+            (8.0, 90),    # $100M
+            (8.7, 98),    # $500M
+        ])
         w = self.WEIGHTS["liquidity"]
         return CriterionScore("liquidity", w, raw, round(raw * w, 2),
                               f"Min vol: ${min_vol:,.0f}")
 
     def _score_fundamental(self, assets: list[AssetProfile]) -> CriterionScore:
         """Profitability + P/E + margins. Penalty per unprofitable."""
+        n = max(len(assets), 1)
         unprofitable = sum(1 for a in assets if not a.is_profitable)
-        base = 80 - unprofitable * 20
+        base = 82 - (unprofitable / n) * 55
+
+        margins = [a.net_margin for a in assets if a.net_margin is not None]
+        if margins:
+            avg_margin = float(np.mean(margins))
+            base += self._interp(avg_margin, [
+                (-0.10, -12), (0.0, -4), (0.10, 3), (0.20, 8), (0.35, 14),
+            ])
 
         pe_vals = [a.pe_ratio for a in assets if a.pe_ratio and 0 < a.pe_ratio < 100]
         if pe_vals:
-            avg_pe = np.mean(pe_vals)
-            if avg_pe < 20:
-                base += 10
-            elif avg_pe > 40:
-                base -= 10
+            avg_pe = float(np.mean(pe_vals))
+            base += self._interp(avg_pe, [
+                (8, 10), (15, 6), (20, 2), (30, -3), (40, -8), (70, -14),
+            ])
 
-        raw = max(0, min(100, base))
+        raw = max(0.0, min(100.0, base))
         w = self.WEIGHTS["fundamental"]
         return CriterionScore("fundamental", w, raw, round(raw * w, 2),
                               f"Unprofitable: {unprofitable}")
@@ -251,14 +374,9 @@ class BasketScorer:
         """EVT VaR of worst asset. Lower tail risk = higher score."""
         worst_var = min((a.evt_var_95 for a in assets), default=0)
         abs_var = abs(worst_var)
-        if abs_var < 0.02:
-            raw = 90
-        elif abs_var < 0.04:
-            raw = 70
-        elif abs_var < 0.06:
-            raw = 50
-        else:
-            raw = 25
+        raw = self._interp(abs_var, [
+            (0.00, 96), (0.02, 84), (0.04, 66), (0.06, 48), (0.10, 22), (0.15, 8),
+        ])
         w = self.WEIGHTS["worst_of_tail_risk"]
         return CriterionScore("worst_of_tail_risk", w, raw, round(raw * w, 2),
                               f"Worst VaR(95%): {worst_var:.4f}")
@@ -272,14 +390,9 @@ class BasketScorer:
             from src.basket.copula import CopulaAnalyzer
             result = CopulaAnalyzer().fit(returns_df)
             crisis_corr = result.get("crisis_corr", 0.5)
-            if crisis_corr < 0.3:
-                raw = 90
-            elif crisis_corr < 0.5:
-                raw = 70
-            elif crisis_corr < 0.7:
-                raw = 50
-            else:
-                raw = 25
+            raw = self._interp(crisis_corr, [
+                (0.0, 96), (0.3, 80), (0.5, 62), (0.7, 42), (0.9, 20), (1.0, 12),
+            ])
 
         w = self.WEIGHTS["crisis_correlation"]
         return CriterionScore("crisis_correlation", w, raw, round(raw * w, 2),
@@ -289,14 +402,9 @@ class BasketScorer:
         """Worst 60d drawdown of worst asset."""
         worst_dd = min((a.max_drawdown_60d for a in assets), default=0)
         abs_dd = abs(worst_dd)
-        if abs_dd < 0.10:
-            raw = 90
-        elif abs_dd < 0.20:
-            raw = 70
-        elif abs_dd < 0.30:
-            raw = 45
-        else:
-            raw = 20
+        raw = self._interp(abs_dd, [
+            (0.0, 95), (0.10, 82), (0.20, 64), (0.30, 42), (0.50, 18), (0.70, 6),
+        ])
         w = self.WEIGHTS["max_drawdown_worst_of"]
         return CriterionScore("max_drawdown_worst_of", w, raw, round(raw * w, 2),
                               f"Worst DD: {worst_dd:.2%}")
@@ -308,9 +416,13 @@ class BasketScorer:
         unique = sec.unique_sector_count(sectors)
         mainstream = sum(1 for s in sectors if sec.is_mainstream(s))
 
-        base = min(unique * 15, 60)
-        base += min(mainstream * 5, 30)
-        raw = min(100, base)
+        n = max(len(assets), 1)
+        concentration = unique / n  # 1.0 = fully diversified
+        base = self._interp(concentration, [
+            (0.34, 25), (0.5, 45), (0.67, 62), (0.8, 75), (1.0, 88),
+        ])
+        base += min(mainstream * 3.5, 12)
+        raw = min(100.0, base)
 
         w = self.WEIGHTS["sector_diversification"]
         return CriterionScore("sector_diversification", w, raw, round(raw * w, 2),
@@ -322,19 +434,15 @@ class BasketScorer:
         if not iv_vals:
             raw = 60
         else:
-            avg_iv = np.mean(iv_vals)
-            if avg_iv < 0.20:
-                raw = 90
-            elif avg_iv < 0.30:
-                raw = 70
-            elif avg_iv < 0.40:
-                raw = 50
-            else:
-                raw = 25
+            avg_iv = float(np.mean(iv_vals))
+            raw = self._interp(avg_iv, [
+                (0.10, 95), (0.20, 82), (0.30, 64), (0.40, 46), (0.60, 22), (0.90, 8),
+            ])
 
             skew_vals = [a.iv_skew for a in assets if a.iv_skew is not None]
-            if skew_vals and max(skew_vals) > 1.3:
-                raw = max(0, raw - 10)
+            if skew_vals:
+                raw -= self._interp(max(skew_vals), [(1.0, 0), (1.3, 6), (1.8, 16)])
+                raw = max(0.0, raw)
 
         w = self.WEIGHTS["implied_vol_risk"]
         return CriterionScore("implied_vol_risk", w, raw, round(raw * w, 2),
@@ -356,16 +464,10 @@ class BasketScorer:
 
             combined = vega_proxy * 0.6 + barrier_delta_proxy * 0.4
 
-            if combined < 15:
-                raw = 90
-            elif combined < 25:
-                raw = 75
-            elif combined < 40:
-                raw = 60
-            elif combined < 60:
-                raw = 40
-            else:
-                raw = 20
+            raw = self._interp(combined, [
+                (10, 92), (15, 85), (25, 70), (35, 55), (45, 40), (60, 25),
+                (80, 12), (100, 5),
+            ])
 
             detail = f"Vega proxy: {vega_proxy:.1f}, barrier delta: {barrier_delta_proxy:.1f}"
 
