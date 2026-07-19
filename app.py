@@ -885,6 +885,24 @@ def render_hedge_lab() -> None:
     efficiency_cards[0].metric("Компенсация падения", f"{protection:.1%}", "шорт / убыток лонга")
     efficiency_cards[1].metric("Снижение tracking error", money(abs(portfolio * tracking_error) - abs(long_pnl + futures_pnl)), "приближённо")
     efficiency_cards[2].metric("Нужный cash buffer", money(stress_cash if "stress_cash" in locals() else hedge_nominal * 0.20), "стресс +20%")
+    beta_adjusted_pnl = long_pnl - portfolio * beta * index_move
+    beta_improvement = 1 - abs(beta_adjusted_pnl) / abs(long_pnl) if long_pnl else 0.0
+    st.markdown("### Оценка модели: сильные и слабые стороны")
+    assessment = pd.DataFrame([
+        {"Сторона": "Сильная", "Метрика": "Компенсация падения", "Процент": protection, "Комментарий": "Доля убытка лонга, покрытая шортом IMOEXF"},
+        {"Сторона": "Сильная", "Метрика": "Beta-adjusted улучшение", "Процент": beta_improvement, "Комментарий": "Снижение остаточного P&L против неподогнанного лонга"},
+        {"Сторона": "Слабая", "Метрика": "Остаток без компенсации", "Процент": max(0.0, 1 - protection), "Комментарий": "Tracking error, состав корзины и несовпадение beta"},
+        {"Сторона": "Слабая", "Метрика": "ГО / cash buffer", "Процент": margin_rate, "Комментарий": "Ориентир живой ликвидности под стрессовый отскок"},
+    ])
+    st.dataframe(
+        assessment.assign(Процент=assessment["Процент"].map(lambda value: f"{value:.1%}")),
+        use_container_width=True,
+        hide_index=True,
+    )
+    st.caption(
+        "Проценты — диагностические метрики текущего сценария, а не универсальный рейтинг. "
+        "Для оценки устойчивости используйте backtest по выбранному фрейму и пунктирный прогноз."
+    )
 
     left, right = st.columns([1.45, 1])
     with left:
