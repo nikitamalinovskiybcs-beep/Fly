@@ -65,15 +65,29 @@ st.markdown("""
     .alert-medium { background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; border-radius: 8px; padding: 0.75rem; color: #fde047; margin-bottom: 0.5rem; }
     .alert-low { background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; border-radius: 8px; padding: 0.75rem; color: #86efac; margin-bottom: 0.5rem; }
     div[data-testid="stMetric"] { background: rgba(15, 23, 42, 0.5); border: 1px solid #334155; border-radius: 12px; padding: 1rem; }
+    .hero-panel { background: radial-gradient(circle at 80% 10%, rgba(6,182,212,.2), transparent 34%), rgba(15,23,42,.72); border: 1px solid #334155; border-radius: 20px; padding: 2rem; margin: 1rem 0 1.5rem; }
+    .hero-panel h1 { color: #f8fafc; font-size: 2.4rem; margin: .25rem 0 .5rem; }
+    .hero-panel p { color: #94a3b8; max-width: 760px; font-size: 1rem; line-height: 1.6; }
+    .eyebrow { color: #22d3ee; font-size: .7rem; font-weight: 700; letter-spacing: .14em; }
+    .insight-card, .warning-card { border-radius: 14px; padding: 1rem 1.1rem; margin-top: .75rem; }
+    .insight-card { background: rgba(14,116,144,.14); border: 1px solid rgba(34,211,238,.4); }
+    .warning-card { background: rgba(127,29,29,.22); border: 1px solid rgba(251,113,133,.65); }
+    .insight-card strong, .warning-card strong { color: #f8fafc; }
+    .insight-card p, .warning-card p { color: #cbd5e1; margin: .5rem 0 0; line-height: 1.5; }
 </style>
 """, unsafe_allow_html=True)
 
 # ── Header ──
-st.markdown('<div class="gradient-title">📊 Quant Risk Hub</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Trading Strategy Risk Assessment Framework v2.3 | Аналитика квантовой торговли и риск-менеджмента</div>', unsafe_allow_html=True)
+st.markdown('<div class="gradient-title">IMOEXF Hedge Lab</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Хедж портфеля акций через фьючерс IMOEXF · сценарный анализ, tracking error и запас ликвидности</div>', unsafe_allow_html=True)
 
 # ── Sidebar ──
 with st.sidebar:
+    page_mode = st.radio(
+        "Раздел",
+        ["IMOEXF Hedge Lab", "Quant Risk Hub"],
+        index=0,
+    )
     st.markdown("### ⚙️ Настройки")
     tickers_input = st.text_area(
         "Тикеры (по одному на строку)",
@@ -103,6 +117,155 @@ PLOT_LAYOUT = dict(
 
 def color_for_level(level: str) -> str:
     return {"LOW": "#22c55e", "MEDIUM": "#eab308", "HIGH": "#ef4444"}.get(level, "#64748b")
+
+
+def money(value: float) -> str:
+    sign = "−" if value < 0 else "+"
+    return f"{sign}{abs(value) / 1_000_000:.2f} млн ₽"
+
+
+def render_hedge_lab() -> None:
+    """Scenario dashboard for an equity portfolio hedged with IMOEXF."""
+    st.markdown(
+        """
+        <div class="hero-panel">
+            <div class="eyebrow">PORTFOLIO HEDGE CONSOLE</div>
+            <h1>Лонг акций + шорт IMOEXF</h1>
+            <p>Проверьте, что именно компенсирует фьючерс, сколько съедает tracking error
+            и какой запас живых денег нужен при резком отскоке рынка.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    with st.expander("Параметры позиции", expanded=True):
+        inputs = st.columns(4)
+        with inputs[0]:
+            portfolio = st.number_input("Лонг портфеля, ₽", min_value=0.0, value=33_630_000.0, step=100_000.0)
+            stock_move = st.number_input("Изменение лонга", value=-16.35, step=0.5, format="%.2f") / 100
+        with inputs[1]:
+            hedge_nominal = st.number_input("Номинал шорта IMOEXF, ₽", min_value=0.0, value=33_630_000.0, step=100_000.0)
+            index_move = st.number_input("Изменение IMOEX", value=-13.0, step=0.5, format="%.2f") / 100
+        with inputs[2]:
+            margin_rate = st.number_input("Ориентир ГО", min_value=0.01, max_value=1.0, value=0.20, step=0.01, format="%.2f")
+            carry_rate = st.number_input("Сценарий carry / базиса годовых", value=14.0, step=0.5, format="%.1f") / 100
+        with inputs[3]:
+            holding_months = st.number_input("Период, месяцев", min_value=0.0, value=6.0, step=1.0)
+            beta = st.number_input("Beta портфеля", min_value=0.0, value=1.01, step=0.01, format="%.2f")
+
+    long_pnl = portfolio * stock_move
+    futures_pnl = -hedge_nominal * index_move
+    carry_pnl = hedge_nominal * carry_rate * holding_months / 12
+    net_pnl = long_pnl + futures_pnl + carry_pnl
+    margin = hedge_nominal * margin_rate
+    tracking_error = stock_move - index_move
+    net_pct = net_pnl / portfolio if portfolio else 0.0
+
+    st.markdown("### Результат сценария")
+    cards = st.columns(4)
+    cards[0].metric("Лонг", money(long_pnl), f"{stock_move:.2%}")
+    cards[1].metric("Шорт IMOEXF", money(futures_pnl), f"{-index_move:.2%} к номиналу")
+    cards[2].metric("Carry / базис", money(carry_pnl), "сценарная оценка")
+    cards[3].metric("Итог", money(net_pnl), f"{net_pct:.2%} от лонга")
+
+    left, right = st.columns([1.45, 1])
+    with left:
+        waterfall = go.Figure(go.Waterfall(
+            orientation="v",
+            measure=["relative", "relative", "relative", "total"],
+            x=["Лонг", "Шорт IMOEXF", "Carry / базис", "Итог"],
+            y=[long_pnl, futures_pnl, carry_pnl, net_pnl],
+            text=[money(long_pnl), money(futures_pnl), money(carry_pnl), money(net_pnl)],
+            textposition="outside",
+            connector={"line": {"color": "#475569"}},
+            increasing={"marker": {"color": "#34d399"}},
+            decreasing={"marker": {"color": "#fb7185"}},
+            totals={"marker": {"color": "#38bdf8"}},
+        ))
+        waterfall.update_layout(title="Декомпозиция P&L", **PLOT_LAYOUT)
+        st.plotly_chart(waterfall, use_container_width=True)
+    with right:
+        st.markdown("#### Что осталось без хеджа")
+        st.metric("Tracking error", f"{tracking_error:.2%}", "лонг относительно индекса")
+        st.metric("Ориентир ГО", money(margin), f"{margin_rate:.0%} номинала")
+        st.markdown(
+            f"""
+            <div class="insight-card">
+                <div class="eyebrow">READOUT</div>
+                <strong>Главная утечка — относительная доходность.</strong>
+                <p>Если портфель падает сильнее IMOEX, индексный шорт компенсирует рынок,
+                но не beta/состав корзины. В этом сценарии это {money(portfolio * tracking_error)}.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("### Стресс-тест: рынок отскакивает на +20%")
+    stress_move = 0.20
+    stress_long = portfolio * beta * stress_move
+    stress_short = -hedge_nominal * stress_move
+    stress_net = stress_long + stress_short + carry_pnl
+    stress_cash = abs(stress_short)
+    stress_cards = st.columns(4)
+    stress_cards[0].metric("Лонг", money(stress_long), f"beta {beta:.2f}")
+    stress_cards[1].metric("Вариационная маржа шорта", money(stress_short), "ежедневный cash outflow")
+    stress_cards[2].metric("Carry / базис", money(carry_pnl), "если сценарий реализуется")
+    stress_cards[3].metric("Итог сценария", money(stress_net), "экономический P&L")
+
+    st.markdown(
+        f"""
+        <div class="warning-card">
+            <div class="eyebrow">LIQUIDITY ALERT</div>
+            <strong>Потенциальная потребность в живых деньгах: {stress_cash / 1_000_000:.2f} млн ₽.</strong>
+            <p>Прибыль по акциям может быть бумажной, а убыток по фьючерсу списывается
+            вариационной маржой. Это стресс-ориентир, а не гарантия брокерского требования.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    tab1, tab2, tab3 = st.tabs(["Карта рисков", "Сценарии", "Как читать расчёт"])
+    with tab1:
+        risk_df = pd.DataFrame([
+            {"Риск": "Tracking error", "Статус": "Внимание", "Драйвер": f"{tracking_error:.2%} против IMOEX"},
+            {"Риск": "Вариационная маржа", "Статус": "Критично контролировать", "Драйвер": money(stress_cash) + " при +20%"},
+            {"Риск": "Carry / базис", "Статус": "Не гарантирован", "Драйвер": f"{carry_rate:.1%} годовых в модели"},
+            {"Риск": "ГО", "Статус": "Динамический", "Драйвер": money(margin) + " сейчас"},
+        ])
+        st.dataframe(risk_df, use_container_width=True, hide_index=True)
+    with tab2:
+        scenario_moves = np.linspace(-0.30, 0.30, 13)
+        scenario_df = pd.DataFrame({
+            "IMOEX": scenario_moves,
+            "Лонг": portfolio * beta * scenario_moves,
+            "Шорт IMOEXF": -hedge_nominal * scenario_moves,
+        })
+        scenario_df["Итог без carry"] = scenario_df["Лонг"] + scenario_df["Шорт IMOEXF"]
+        fig = go.Figure()
+        for column, color in [("Лонг", "#34d399"), ("Шорт IMOEXF", "#fb7185"), ("Итог без carry", "#38bdf8")]:
+            fig.add_trace(go.Scatter(
+                x=scenario_df["IMOEX"], y=scenario_df[column] / 1_000_000,
+                mode="lines+markers", name=column, line={"color": color, "width": 2},
+            ))
+        fig.update_layout(title="P&L при разных движениях IMOEX", xaxis_tickformat=".0%", yaxis_title="млн ₽", **PLOT_LAYOUT)
+        st.plotly_chart(fig, use_container_width=True)
+    with tab3:
+        st.markdown(
+            """
+            - **Шорт IMOEXF не платит фиксированный funding.** В расчёте carry / базис — отдельный
+              сценарный параметр, который может быть положительным или отрицательным.
+            - **ГО — не максимальный убыток.** Биржа меняет требования, а вариационная маржа
+              списывается ежедневно.
+            - **Полный номинальный хедж не равен beta-хеджу.** Для портфеля с beta выше единицы
+              может понадобиться больший номинал, но это увеличивает требования к ликвидности.
+            """
+        )
+        st.caption("Модель учебная и не учитывает комиссии, налоги, дивиденды, проскальзывание и изменение базиса.")
+
+
+if page_mode == "IMOEXF Hedge Lab":
+    render_hedge_lab()
+    st.stop()
 
 
 # ── Streamlit кэширование ──
