@@ -12,6 +12,7 @@ from src.conductor import analyze as conductor_analyze
 from src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI
 from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 from src.calibration import run_pipeline as _run_calibration_pipeline
+from src.outcome_engine import StructuredNoteSpec, simulate_stress_suite
 
 st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", layout="wide")
 
@@ -39,6 +40,23 @@ def cached_pipeline(tickers_key: str, p_ki: float, avg_vol: float, avg_corr: flo
     tickers = tickers_key.split(",")
     agi = PhoenixAGI.load_from_clickhouse() or PhoenixAGI()
     return _run_calibration_pipeline(tickers, agi.get_params(), p_ki, avg_vol, avg_corr)
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def cached_outcome_stress(
+    tickers_key: str,
+    barrier: float,
+    coupon_rate: float,
+    term_months: int,
+    n_paths: int,
+):
+    spec = StructuredNoteSpec(
+        basket=tickers_key.split(","),
+        barrier=barrier,
+        coupon_rate=coupon_rate,
+        term_months=term_months,
+    )
+    return simulate_stress_suite(spec, n_paths=n_paths)
 
 # ═══════════════════════════════════════════════════════════════════
 # CSS — Bloomberg Terminal
@@ -843,6 +861,40 @@ if basket_tickers:
                     st.markdown(f'<div style="color:#ff9500;font-size:10px">No product: {_res.get("error", "unknown")}</div>', unsafe_allow_html=True)
         except Exception as exc:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Product search error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [19] STRUCTURED NOTE OUTCOMES — explicit simulated/replay/realized states
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[19] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
+        try:
+            st.markdown(
+                '<div style="color:#d6a44a;font-size:9px;margin-bottom:6px">'
+                'Simulation is diagnostic only. It never trains agents; only '
+                'a resolved paper note is marked realized.</div>',
+                unsafe_allow_html=True,
+            )
+            if st.button("RUN OUTCOME STRESS", key="outcome_stress_btn", use_container_width=True):
+                _coupon_per_observation = float(D.get("coupon_pa", 12.0)) / 100.0 / 4.0
+                _outcomes = cached_outcome_stress(
+                    ",".join(basket_tickers),
+                    float(D.get("barrier", 65.0)) / 100.0,
+                    _coupon_per_observation,
+                    24,
+                    2000,
+                )
+                for _scenario, _report in _outcomes["scenarios"].items():
+                    st.markdown(
+                        f'<div style="color:#d6a44a;font-size:9px;border-bottom:1px solid #1a1400;padding:3px 0">'
+                        f'<b>{_scenario}</b> · source={_report["source"]} · '
+                        f'P(loss) {_report["p_loss"]:.1%} · '
+                        f'P(KI) {_report["p_barrier_breach"]:.1%} · '
+                        f'P(autocall) {_report["p_autocall"]:.1%} · '
+                        f'E[return] {_report["mean_return_pct"]:+.2f}% · '
+                        f'CVaR95 {_report["cvar_95"]:.3f}</div>',
+                        unsafe_allow_html=True,
+                    )
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Outcome engine error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [15] API & CONNECTIONS — Setup · Keys · Health Check
