@@ -124,6 +124,10 @@ def money(value: float) -> str:
     return f"{sign}{abs(value) / 1_000_000:.2f} млн ₽"
 
 
+def rubles(value: float) -> str:
+    return f"{value:,.0f} ₽".replace(",", " ")
+
+
 def render_hedge_lab() -> None:
     """Scenario dashboard for an equity portfolio hedged with IMOEXF."""
     st.markdown(
@@ -137,6 +141,35 @@ def render_hedge_lab() -> None:
         """,
         unsafe_allow_html=True,
     )
+
+    st.markdown("### Доходность с 1 февраля")
+    performance_inputs = st.columns(2)
+    with performance_inputs[0]:
+        start_value = st.number_input("Стартовая стоимость, ₽", min_value=0.0, value=50_800.0, step=100.0)
+    with performance_inputs[1]:
+        current_value = st.number_input("Текущая стоимость, ₽", min_value=0.0, value=56_000.0, step=100.0)
+    performance_pnl = current_value - start_value
+    performance_return = performance_pnl / start_value if start_value else 0.0
+    performance_cards = st.columns(3)
+    performance_cards[0].metric("Старт", rubles(start_value), "1 февраля")
+    performance_cards[1].metric("Сейчас", rubles(current_value), f"{performance_return:.2%}")
+    performance_cards[2].metric("Доходность", rubles(performance_pnl), f"{performance_return:.2%}")
+    performance_chart = go.Figure(go.Scatter(
+        x=["1 февраля", "Сейчас"],
+        y=[start_value, current_value],
+        mode="lines+markers+text",
+        text=[rubles(start_value), rubles(current_value)],
+        textposition="top center",
+        line={"color": "#34d399", "width": 3},
+        marker={"size": 10, "color": "#22d3ee"},
+    ))
+    performance_chart.update_layout(
+        title="Динамика стоимости",
+        yaxis_title="₽",
+        yaxis_tickformat=",~s",
+        **PLOT_LAYOUT,
+    )
+    st.plotly_chart(performance_chart, use_container_width=True)
 
     default_holdings = pd.DataFrame([
         {"Бумага": "X5", "Стоимость, ₽": 4_982_567.50, "Изменение, %": -22.88},
