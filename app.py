@@ -8,7 +8,7 @@ import plotly.express as px
 import logging
 import requests
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 from concurrent.futures import ThreadPoolExecutor
 
@@ -316,6 +316,46 @@ def load_moex_betas(tickers: tuple[str, ...], start_date: str, end_date: str) ->
         beta = returns[ticker].cov(market_returns) / variance if variance else np.nan
         result.append({"Бумага": ticker, "Beta к IMOEX": beta})
     return pd.DataFrame(result)
+
+
+@st.cache_data(ttl=900)
+def load_moex_backtest(
+    tickers: tuple[str, ...],
+    start_date: str,
+    end_date: str,
+) -> pd.DataFrame:
+    """Load daily closes for the portfolio constituents and market benchmarks."""
+    instruments = (*tickers, "IMOEX", "MCFTR", "RUSFAR")
+
+    def fetch_history(ticker: str) -> tuple[str, pd.Series | None]:
+        market = "index" if ticker in {"IMOEX", "MCFTR", "RUSFAR"} else "shares"
+        response = requests.get(
+            f"https://iss.moex.com/iss/history/engines/stock/markets/{market}/securities/{ticker}.json",
+            params={"from": start_date, "till": end_date, "limit": 1000},
+            timeout=8,
+        )
+        response.raise_for_status()
+        payload = response.json()["history"]
+        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
+        if frame.empty:
+            return ticker, None
+        frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
+        frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
+        series = (
+            frame.dropna(subset=["CLOSE"])
+            .set_index("TRADEDATE")["CLOSE"]
+            .groupby(level=0)
+            .last()
+            .sort_index()
+        )
+        return ticker, series
+
+    histories: dict[str, pd.Series] = {}
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        for ticker, series in executor.map(fetch_history, instruments):
+            if series is not None:
+                histories[ticker] = series
+    return pd.DataFrame(histories).sort_index()
 
 
 def parse_holdings_image(uploaded_file) -> tuple[pd.DataFrame, str]:
@@ -757,6 +797,89 @@ def render_hedge_lab() -> None:
         use_container_width=True,
         hide_index=True,
     )
+    st.markdown("### Backtest и прогноз на 12 месяцев")
+    st.caption(
+        "Сплошная линия — исторический расчёт по дневным MOEX-котировкам; пунктир — сценарный прогноз. "
+        "Прогноз не является гарантией доходности."
+    )
+    backtest_frame = st.selectbox(
+        "Исторический фрейм",
+        options=("1 месяц", "3 месяца", "1 год", "3 года", "5 лет"),
+        index=2,
+    )
+    frame_months = {"1 месяц": 1, "3 месяца": 3, "1 год": 12, "3 года": 36, "5 лет": 60}
+    backtest_end = datetime.now().date()
+    backtest_start = (pd.Timestamp(backtest_end) - pd.DateOffset(months=frame_months[backtest_frame])).date()
+    try:
+        backtest_data = load_moex_backtest(
+            tuple(edited_holdings["Бумага"].astype(str).str.upper()),
+            backtest_start.isoformat(),
+            backtest_end.isoformat(),
+        )
+        portfolio_columns = [
+            ticker for ticker in edited_holdings["Бумага"].astype(str).str.upper()
+            if ticker in backtest_data.columns
+        ]
+        if "IMOEX" not in backtest_data.columns or not portfolio_columns:
+            raise ValueError("Недостаточно истории для построения backtest")
+        weights = (
+            edited_holdings.set_index("Бумага")["Стоимость, ₽"]
+            .reindex(portfolio_columns)
+            .fillna(0)
+        )
+        weights = weights / weights.sum() if weights.sum() else pd.Series(1 / len(portfolio_columns), index=portfolio_columns)
+        returns = backtest_data[portfolio_columns + ["IMOEX"]].pct_change().dropna()
+        long_returns = returns[portfolio_columns].mul(weights, axis=1).sum(axis=1)
+        hedge_ratio = hedge_nominal / portfolio if portfolio else 0.0
+        hedged_returns = long_returns - hedge_ratio * returns["IMOEX"] + carry_rate / 252
+        curves = pd.DataFrame({
+            "Без хеджа": (1 + long_returns).cumprod() * 100,
+            "IMOEXF + funding": (1 + hedged_returns).cumprod() * 100,
+        })
+        def max_drawdown(series: pd.Series) -> float:
+            return float((series / series.cummax() - 1).min())
+
+        stats = pd.DataFrame([
+            {
+                "Стратегия": name,
+                "Доходность": series.iloc[-1] / series.iloc[0] - 1,
+                "Годовая волатильность": series.pct_change().std() * np.sqrt(252),
+                "Max drawdown": max_drawdown(series),
+            }
+            for name, series in curves.items()
+        ])
+        stats_display = stats.copy()
+        for column in ("Доходность", "Годовая волатильность", "Max drawdown"):
+            stats_display[column] = stats_display[column].map(lambda value: f"{value:.2%}")
+        st.dataframe(stats_display, use_container_width=True, hide_index=True)
+
+        forecast_days = 252
+        recent_returns = hedged_returns.tail(min(60, len(hedged_returns)))
+        base_daily = float(recent_returns.mean()) if not recent_returns.empty else 0.0
+        daily_vol = float(recent_returns.std()) if len(recent_returns) > 1 else 0.0
+        forecast_index = pd.bdate_range(
+            start=curves.index[-1] + timedelta(days=1),
+            periods=forecast_days,
+        )
+        forecast_base = curves["IMOEXF + funding"].iloc[-1] * (1 + base_daily) ** np.arange(1, forecast_days + 1)
+        forecast_low = curves["IMOEXF + funding"].iloc[-1] * (1 + base_daily - daily_vol) ** np.arange(1, forecast_days + 1)
+        forecast_high = curves["IMOEXF + funding"].iloc[-1] * (1 + base_daily + daily_vol) ** np.arange(1, forecast_days + 1)
+        forecast_chart = go.Figure()
+        forecast_chart.add_trace(go.Scatter(x=curves.index, y=curves["Без хеджа"], name="Без хеджа", line={"color": "#fb7185"}))
+        forecast_chart.add_trace(go.Scatter(x=curves.index, y=curves["IMOEXF + funding"], name="IMOEXF + funding", line={"color": "#fbbf24"}))
+        forecast_chart.add_trace(go.Scatter(x=forecast_index, y=forecast_base, name="Прогноз базовый", line={"color": "#fbbf24", "dash": "dot"}))
+        forecast_chart.add_trace(go.Scatter(x=forecast_index, y=forecast_low, name="Прогноз стресс", line={"color": "#fb7185", "dash": "dot"}))
+        forecast_chart.add_trace(go.Scatter(x=forecast_index, y=forecast_high, name="Прогноз отскок", line={"color": "#34d399", "dash": "dot"}))
+        forecast_chart.update_layout(
+            title=f"Backtest {backtest_frame} + прогноз 12 месяцев",
+            yaxis_title="Индекс, 100 = начало истории",
+            hovermode="x unified",
+            **PLOT_LAYOUT,
+        )
+        st.plotly_chart(forecast_chart, use_container_width=True)
+        st.caption(f"История: {backtest_data.index.min():%d.%m.%Y}–{backtest_data.index.max():%d.%m.%Y}; прогноз: 252 торговых дня.")
+    except (requests.RequestException, KeyError, ValueError, ZeroDivisionError) as exc:
+        st.warning(f"Backtest недоступен для выбранного периода: {exc}")
     protection = futures_pnl / abs(long_pnl) if long_pnl else 0.0
     efficiency_cards = st.columns(3)
     efficiency_cards[0].metric("Компенсация падения", f"{protection:.1%}", "шорт / убыток лонга")
