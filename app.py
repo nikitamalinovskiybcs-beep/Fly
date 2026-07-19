@@ -699,7 +699,18 @@ def render_hedge_lab() -> None:
             index_move = st.number_input("Изменение IMOEX", value=-13.0, step=0.5, format="%.2f") / 100
         with inputs[2]:
             margin_rate = st.number_input("Ориентир ГО", min_value=0.01, max_value=1.0, value=0.20, step=0.01, format="%.2f")
-            carry_rate = st.number_input("Сценарий carry / базиса годовых", value=14.0, step=0.5, format="%.1f") / 100
+            funding_from_key_rate = st.checkbox(
+                "Funding шорта = ключевая ставка",
+                value=True,
+                help="Пользовательское допущение: funding считается от ключевой ставки на полный номинал и срок позиции.",
+            )
+            carry_rate = st.number_input(
+                "Ключевая ставка / funding, годовых",
+                value=14.0,
+                step=0.5,
+                format="%.1f",
+                disabled=not funding_from_key_rate,
+            ) / 100
         with inputs[3]:
             holding_months = st.number_input("Период, месяцев", min_value=0.0, value=6.0, step=1.0)
             beta = st.number_input("Beta портфеля", min_value=0.0, value=float(round(beta_estimate, 2)), step=0.01, format="%.2f")
@@ -716,7 +727,11 @@ def render_hedge_lab() -> None:
     cards = st.columns(4)
     cards[0].metric("Лонг", money(long_pnl), f"{stock_move:.2%}")
     cards[1].metric("Шорт IMOEXF", money(futures_pnl), f"{-index_move:.2%} к номиналу")
-    cards[2].metric("Carry / базис", money(carry_pnl), "сценарная оценка")
+    cards[2].metric(
+        "Funding / carry",
+        money(carry_pnl),
+        "ключевая ставка" if funding_from_key_rate else "сценарный базис",
+    )
     cards[3].metric("Итог", money(net_pnl), f"{net_pct:.2%} от лонга")
     if abs(tracking_error) >= 0.05:
         st.warning(f"ALERT: tracking error {tracking_error:.2%}. Портфель заметно отклоняется от IMOEX.")
@@ -729,7 +744,11 @@ def render_hedge_lab() -> None:
         {"Изменение модели": "Beta-adjusted hedge", "P&L": long_pnl - portfolio * beta * index_move, "Доходность": (long_pnl - portfolio * beta * index_move) / portfolio if portfolio else 0.0, "Что измеряет": "Хедж с учётом чувствительности"},
     ])
     st.markdown("### Эффективность модели")
-    st.caption("Сравнение сценарное: beta-adjusted строка показывает, как меняется результат при номинале, рассчитанном по beta; carry не является гарантированным funding.")
+    st.caption(
+        "Сравнение сценарное: beta-adjusted строка показывает, как меняется результат при номинале, рассчитанном по beta. "
+        "При включённом переключателе funding шорта задан равным ключевой ставке на полный номинал и срок; "
+        "это модельное допущение, а не гарантия брокера."
+    )
     st.dataframe(
         efficiency_df.assign(**{
             "P&L": efficiency_df["P&L"].map(money),
