@@ -7,6 +7,7 @@ import pandas as pd
 from src.outcome_engine import (
     PaperOutcomeTracker,
     StructuredNoteSpec,
+    build_quality_report,
     evaluate_product_safety,
     replay_historical,
     replay_historical_windows,
@@ -127,3 +128,16 @@ def test_safety_gate_blocks_high_loss_and_does_not_use_simulated_learning() -> N
     )
     assert gate["passed"] is False
     assert "model_p_loss_above_limit" in gate["reasons"]
+
+
+def test_quality_report_is_conservative_with_small_samples() -> None:
+    report = build_quality_report(
+        {
+            "n_windows": 4,
+            "loss_rate_error": 0.05,
+        },
+        realized_outcomes=0,
+    )
+    assert report["status"] == "limited_evidence"
+    assert report["confidence_pct"] < 50
+    assert "historical_sample_below_20_windows" in report["warnings"]

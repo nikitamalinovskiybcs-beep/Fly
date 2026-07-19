@@ -12,7 +12,11 @@ from src.conductor import analyze as conductor_analyze
 from src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI
 from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 from src.calibration import run_pipeline as _run_calibration_pipeline
-from src.outcome_engine import StructuredNoteSpec, simulate_stress_suite
+from src.outcome_engine import (
+    StructuredNoteSpec,
+    load_quality_report,
+    simulate_stress_suite,
+)
 
 st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", layout="wide")
 
@@ -867,6 +871,16 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     with st.expander("[19] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
         try:
+            _quality = load_quality_report()
+            if _quality.get("status") != "not_available":
+                st.markdown(
+                    f'<div style="color:#d6a44a;font-size:9px;margin-bottom:6px">'
+                    f'Quality confidence: <b>{_quality.get("confidence_pct", 0):.1f}%</b> · '
+                    f'historical windows: {_quality.get("historical_windows", 0)} · '
+                    f'realized notes: {_quality.get("realized_notes", 0)} · '
+                    f'status: {_quality.get("status")}</div>',
+                    unsafe_allow_html=True,
+                )
             st.markdown(
                 '<div style="color:#d6a44a;font-size:9px;margin-bottom:6px">'
                 'Simulation is diagnostic only. It never trains agents; only '

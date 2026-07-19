@@ -333,20 +333,48 @@ class FlyScheduler:
             from src.outcome_engine import (
                 PaperOutcomeTracker,
                 StructuredNoteSpec,
+                QUALITY_REPORT_PATH,
+                build_quality_report,
                 evaluate_product_safety,
+                replay_historical_windows,
                 simulate_stress_suite,
             )
 
             best = product.get("best", {})
             if not best:
                 return {"status": "no_product"}
+            quality_spec = StructuredNoteSpec(basket=list(best["basket"]))
+            historical_prices = self._load_historical_prices(quality_spec.basket)
+            replay = replay_historical_windows(
+                historical_prices,
+                quality_spec,
+                window_days=max(252, quality_spec.term_months * 21),
+                step_days=21,
+                max_windows=50,
+                predicted_p_loss=float(best.get("p_loss_pct", 0.0)) / 100.0,
+            )
+            tracker = PaperOutcomeTracker()
+            realized_count = sum(
+                1 for note in tracker.notes if note.get("status") == "realized"
+            )
+            quality = build_quality_report(replay, realized_count)
+            QUALITY_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+            QUALITY_REPORT_PATH.write_text(json.dumps(quality, indent=2))
             stress = simulate_stress_suite(
-                StructuredNoteSpec(basket=list(best["basket"])),
+                quality_spec,
                 n_paths=500,
             )
-            gate = evaluate_product_safety(best, stress_report=stress)
+            gate = evaluate_product_safety(
+                best,
+                stress_report=stress,
+                quality_report=quality,
+            )
             if not gate["passed"]:
-                return {"status": "blocked_by_safety_gate", "gate": gate}
+                return {
+                    "status": "blocked_by_safety_gate",
+                    "gate": gate,
+                    "quality": quality,
+                }
 
             spec = StructuredNoteSpec(
                 basket=list(best["basket"]),
@@ -354,7 +382,6 @@ class FlyScheduler:
                 coupon_rate=float(best.get("coupon", 0.0)) / 100.0 / 4.0,
                 term_months=int(best.get("tenor_months", 24)),
             )
-            tracker = PaperOutcomeTracker()
             note_id = (
                 f"paper_{datetime.now().date().isoformat()}_"
                 f"{'_'.join(spec.basket)}_{int(spec.barrier * 100)}_{spec.term_months}"
@@ -389,6 +416,7 @@ class FlyScheduler:
             return {
                 "status": "updated",
                 "safety_gate": gate,
+                "quality": quality,
                 "notes_checked": len(refreshed),
                 "states": refreshed,
             }
@@ -410,6 +438,23 @@ class FlyScheduler:
             return prices
         except Exception as exc:
             logger.info("Paper price refresh skipped: %s", exc)
+            return {}
+
+    def _load_historical_prices(self, tickers: list[str]) -> dict[str, list[float]]:
+        """Load multi-year closes for replay without inventing missing data."""
+        try:
+            import yfinance as yf
+
+            prices: dict[str, list[float]] = {}
+            for ticker in tickers:
+                history = yf.Ticker(ticker).history(period="5y")
+                if not history.empty and "Close" in history:
+                    values = history["Close"].dropna().tolist()
+                    if values:
+                        prices[ticker] = values
+            return prices
+        except Exception as exc:
+            logger.info("Historical replay data unavailable: %s", exc)
             return {}
 
     def _run_basket_evolution(self) -> dict:

@@ -28,6 +28,7 @@ import pandas as pd
 
 OUTCOME_PATH = Path("data/structured_note_outcomes.json")
 REALIZED_FEEDBACK_PATH = Path("data/realized_outcome_feedback.json")
+QUALITY_REPORT_PATH = Path("data/outcome_quality_report.json")
 
 
 @dataclass(frozen=True)
@@ -311,12 +312,14 @@ def replay_historical_windows(
 def evaluate_product_safety(
     product: dict,
     stress_report: Optional[dict] = None,
+    quality_report: Optional[dict] = None,
     max_p_loss: float = 0.35,
     max_cvar: float = 0.65,
     min_baseline_lift: float = 0.0,
 ) -> dict:
     """Return a conservative recommendation gate for a product."""
     reasons: list[str] = []
+    warnings: list[str] = []
     p_loss = float(product.get("p_loss_pct", 0.0)) / 100.0
     if p_loss > max_p_loss:
         reasons.append("model_p_loss_above_limit")
@@ -330,15 +333,66 @@ def evaluate_product_safety(
             reasons.append("stress_p_loss_above_limit")
         if worst_cvar < max_cvar:
             reasons.append("stress_cvar_below_limit")
+    if quality_report:
+        warnings.extend(quality_report.get("warnings", []))
+        if quality_report.get("loss_rate_error") is not None and float(
+            quality_report["loss_rate_error"]
+        ) > 0.20:
+            reasons.append("historical_loss_miscalibration")
     return {
         "passed": not reasons,
         "reasons": reasons,
+        "warnings": warnings,
         "limits": {
             "max_p_loss": max_p_loss,
             "max_cvar": max_cvar,
             "min_baseline_lift": min_baseline_lift,
         },
     }
+
+
+def build_quality_report(
+    replay_report: dict,
+    realized_outcomes: int = 0,
+) -> dict:
+    """Turn replay and realized sample sizes into an honest quality report."""
+    windows = int(replay_report.get("n_windows", 0))
+    replay_error = replay_report.get("loss_rate_error")
+    warnings: list[str] = []
+    if windows < 20:
+        warnings.append("historical_sample_below_20_windows")
+    if realized_outcomes < 5:
+        warnings.append("realized_sample_below_5_notes")
+    if replay_error is not None and float(replay_error) > 0.20:
+        warnings.append("loss_probability_miscalibrated")
+    if realized_outcomes >= 5 and windows >= 20:
+        confidence = 0.85
+    elif windows >= 20:
+        confidence = 0.60
+    else:
+        confidence = 0.35
+    if replay_error is not None:
+        confidence *= max(0.25, 1.0 - min(float(replay_error), 0.75))
+    return {
+        "status": "calibrated" if not warnings else "limited_evidence",
+        "confidence": round(confidence, 4),
+        "confidence_pct": round(confidence * 100, 1),
+        "historical_windows": windows,
+        "realized_notes": int(realized_outcomes),
+        "loss_rate_error": replay_error,
+        "warnings": warnings,
+        "source": "historical_replay_and_realized_only",
+    }
+
+
+def load_quality_report(path: Path = QUALITY_REPORT_PATH) -> dict:
+    """Load the latest persisted quality report without triggering data access."""
+    if not path.exists():
+        return {"status": "not_available"}
+    try:
+        return json.loads(path.read_text())
+    except Exception:
+        return {"status": "invalid"}
 
 
 class PaperOutcomeTracker:
@@ -461,9 +515,26 @@ class PaperOutcomeTracker:
             })
             REALIZED_FEEDBACK_PATH.parent.mkdir(parents=True, exist_ok=True)
             REALIZED_FEEDBACK_PATH.write_text(json.dumps(feedback[-500:], indent=2))
+            calibration = {"status": "no_agent_accuracy_observations"}
+            agent_history = [
+                item for item in feedback
+                if item.get("learning_eligible") and item.get("agent_accuracies")
+            ]
+            if len(agent_history) >= 5:
+                from src.self_learning_agents import MetaAgent
+
+                MetaAgent().update_weights(agent_history)
+                calibration = {
+                    "status": "updated",
+                    "observations": len(agent_history),
+                }
             note["feedback_applied"] = True
             self._save()
-            return {"status": "applied", "note_id": note_id}
+            return {
+                "status": "applied",
+                "note_id": note_id,
+                "agent_calibration": calibration,
+            }
         return {"status": "not_found", "note_id": note_id}
 
     def _load_feedback(self) -> list[dict]:
