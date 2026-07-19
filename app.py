@@ -96,6 +96,10 @@ st.markdown("""
 # ── Header ──
 st.markdown('<div class="gradient-title">🔒 АДАПТИВНАЯ КРЕПОСТЬ // RISK TERMINAL</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">LIVE SCENARIO MONITOR · ЗАЩИТА КАПИТАЛА · MOEX BENCHMARKS</div>', unsafe_allow_html=True)
+if st.button("Обновить данные MOEX"):
+    st.cache_data.clear()
+    st.rerun()
+st.caption("История и бенчмарки кэшируются на 1 час; live-котировки обновляются примерно раз в минуту.")
 st.markdown(
     '<div class="terminal-bar"><span><b>RISK</b> / PORTFOLIO HEDGE</span><span>MCFTR · RUSFAR · IMOEXF</span><span>RUB</span></div>',
     unsafe_allow_html=True,
@@ -148,7 +152,7 @@ def rubles(value: float) -> str:
     return f"{value:,.0f} ₽".replace(",", " ")
 
 
-@st.cache_data(ttl=900)
+@st.cache_data(ttl=3600)
 def load_moex_benchmarks(start_date: str, end_date: str) -> pd.DataFrame:
     """Load MOEX total-return and money-market benchmark history."""
     rows: dict[str, pd.Series] = {}
@@ -174,7 +178,7 @@ def load_moex_benchmarks(start_date: str, end_date: str) -> pd.DataFrame:
     return benchmark
 
 
-@st.cache_data(ttl=900)
+@st.cache_data(ttl=3600)
 def load_sector_indices(start_date: str, end_date: str) -> pd.DataFrame:
     """Load MOEX financials and oil-and-gas total-return indices."""
     rows = {}
@@ -202,7 +206,7 @@ def load_sector_indices(start_date: str, end_date: str) -> pd.DataFrame:
     return data / data.iloc[0]
 
 
-@st.cache_data(ttl=900)
+@st.cache_data(ttl=3600)
 def load_sector_exposures(tickers: tuple[str, ...], start_date: str, end_date: str) -> pd.DataFrame:
     """Estimate each holding's beta to financials and oil-and-gas TR indices."""
     def fetch_history(ticker: str) -> tuple[str, pd.Series | None]:
@@ -272,7 +276,7 @@ def load_moex_quotes(tickers: tuple[str, ...]) -> pd.DataFrame:
     return pd.DataFrame(quotes)
 
 
-@st.cache_data(ttl=900)
+@st.cache_data(ttl=3600)
 def load_moex_betas(tickers: tuple[str, ...], start_date: str, end_date: str) -> pd.DataFrame:
     """Estimate 90-day beta versus IMOEX from MOEX daily closes."""
     def fetch_history(ticker: str) -> tuple[str, pd.Series | None]:
@@ -318,7 +322,7 @@ def load_moex_betas(tickers: tuple[str, ...], start_date: str, end_date: str) ->
     return pd.DataFrame(result)
 
 
-@st.cache_data(ttl=900)
+@st.cache_data(ttl=3600)
 def load_moex_backtest(
     tickers: tuple[str, ...],
     start_date: str,
