@@ -138,11 +138,42 @@ def render_hedge_lab() -> None:
         unsafe_allow_html=True,
     )
 
+    default_holdings = pd.DataFrame([
+        {"Бумага": "X5", "Стоимость, ₽": 4_982_567.50, "Изменение, %": -22.88},
+        {"Бумага": "T", "Стоимость, ₽": 5_022_652.24, "Изменение, %": -27.03},
+        {"Бумага": "NVTK", "Стоимость, ₽": 5_494_579.20, "Изменение, %": -19.53},
+        {"Бумага": "DOMRF", "Стоимость, ₽": 5_910_070.00, "Изменение, %": -6.22},
+        {"Бумага": "SBER", "Стоимость, ₽": 6_311_793.00, "Изменение, %": -7.54},
+        {"Бумага": "TRNFP", "Стоимость, ₽": 5_908_030.00, "Изменение, %": -14.39},
+    ])
+    with st.expander("Состав портфеля со скриншота", expanded=True):
+        edited_holdings = st.data_editor(
+            default_holdings,
+            use_container_width=True,
+            hide_index=True,
+            num_rows="fixed",
+            column_config={
+                "Стоимость, ₽": st.column_config.NumberColumn(format="%.2f ₽"),
+                "Изменение, %": st.column_config.NumberColumn(format="%.2f%%"),
+            },
+        )
+    portfolio = float(edited_holdings["Стоимость, ₽"].sum())
+    weighted_move = float(
+        (edited_holdings["Стоимость, ₽"] * edited_holdings["Изменение, %"]).sum() / portfolio
+    ) if portfolio else 0.0
+
     with st.expander("Параметры позиции", expanded=True):
         inputs = st.columns(4)
         with inputs[0]:
-            portfolio = st.number_input("Лонг портфеля, ₽", min_value=0.0, value=33_630_000.0, step=100_000.0)
-            stock_move = st.number_input("Изменение лонга", value=-16.35, step=0.5, format="%.2f") / 100
+            st.metric("Лонг портфеля", money(portfolio), "сумма позиций")
+            stock_move = st.number_input(
+                "Изменение лонга из отчёта",
+                value=-16.35,
+                step=0.5,
+                format="%.2f",
+                help="Значение из сводки брокера. Можно заменить на взвешенный результат таблицы.",
+            ) / 100
+            st.caption(f"Взвешенно по строкам: {weighted_move:.2f}%")
         with inputs[1]:
             hedge_nominal = st.number_input("Номинал шорта IMOEXF, ₽", min_value=0.0, value=33_630_000.0, step=100_000.0)
             index_move = st.number_input("Изменение IMOEX", value=-13.0, step=0.5, format="%.2f") / 100
@@ -199,6 +230,42 @@ def render_hedge_lab() -> None:
             """,
             unsafe_allow_html=True,
         )
+
+    st.markdown("### Где искать замену")
+    st.caption("Сайт не выносит приказов на сделки: он выделяет позиции для дополнительной проверки и сравнения.")
+    review_df = edited_holdings.copy()
+    review_df["Отклонение от IMOEX, п.п."] = review_df["Изменение, %"] - index_move * 100
+    review_df["Сигнал модели"] = np.where(
+        review_df["Отклонение от IMOEX, п.п."] <= -5,
+        "Кандидат на пересмотр",
+        "В пределах сценария",
+    )
+    st.dataframe(
+        review_df[["Бумага", "Стоимость, ₽", "Изменение, %", "Отклонение от IMOEX, п.п.", "Сигнал модели"]],
+        use_container_width=True,
+        hide_index=True,
+    )
+    replacement_df = pd.DataFrame([
+        {
+            "Роль в портфеле": "Снижение риска одной бумаги",
+            "Что сравнить": "Более широкий индексный слой",
+            "Зачем": "Меньше зависимости от X5/T и их индивидуальных новостей",
+            "Проверить": "Корреляцию с IMOEX, ликвидность, комиссии",
+        },
+        {
+            "Роль в портфеле": "Защитная акция",
+            "Что сравнить": "SBER / LKOH как альтернативы для анализа",
+            "Зачем": "Сравнить beta, просадку и дивидендный профиль",
+            "Проверить": "Долговую нагрузку, дивиденды, секторную концентрацию",
+        },
+        {
+            "Роль в портфеле": "Высокая beta",
+            "Что сравнить": "Сохранить только при наличии лимита риска",
+            "Зачем": "T и X5 дали наибольшее отставание от индекса",
+            "Проверить": "Допустимую просадку и размер позиции",
+        },
+    ])
+    st.dataframe(replacement_df, use_container_width=True, hide_index=True)
 
     st.markdown("### Стресс-тест: рынок отскакивает на +20%")
     stress_move = 0.20
