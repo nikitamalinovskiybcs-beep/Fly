@@ -6,6 +6,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 import logging
+import requests
 from datetime import datetime
 
 from src.assessor import StrategyRiskAssessor
@@ -28,21 +29,23 @@ st.set_page_config(
 # ── Custom CSS (стиль из оригинального дизайна) ──
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;600;700&display=swap');
     html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-    .main { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
-    .stApp { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
+    .main { background: #080b10; }
+    .stApp { background: #080b10; }
     .gradient-title {
-        background: linear-gradient(135deg, #06b6d4, #10b981, #3b82f6);
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
-        font-size: 2.5rem;
-        font-weight: 700;
-        text-align: center;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 1.75rem;
+        font-weight: 600;
+        letter-spacing: -.04em;
+        text-align: left;
         margin-bottom: 0.5rem;
     }
-    .subtitle { text-align: center; color: #94a3b8; font-size: 0.9rem; margin-bottom: 2rem; }
+    .subtitle { text-align: left; color: #64748b; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; margin-bottom: 1rem; }
     .metric-card {
         background: rgba(15, 23, 42, 0.5);
         border: 1px solid #334155;
@@ -65,21 +68,28 @@ st.markdown("""
     .alert-medium { background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; border-radius: 8px; padding: 0.75rem; color: #fde047; margin-bottom: 0.5rem; }
     .alert-low { background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; border-radius: 8px; padding: 0.75rem; color: #86efac; margin-bottom: 0.5rem; }
     div[data-testid="stMetric"] { background: rgba(15, 23, 42, 0.5); border: 1px solid #334155; border-radius: 12px; padding: 1rem; }
-    .hero-panel { background: radial-gradient(circle at 80% 10%, rgba(6,182,212,.2), transparent 34%), rgba(15,23,42,.72); border: 1px solid #334155; border-radius: 20px; padding: 2rem; margin: 1rem 0 1.5rem; }
-    .hero-panel h1 { color: #f8fafc; font-size: 2.4rem; margin: .25rem 0 .5rem; }
+    .hero-panel { background: #0d1219; border: 1px solid #263241; border-radius: 4px; padding: 1.35rem 1.5rem; margin: 1rem 0 1.5rem; }
+    .hero-panel h1 { color: #f8fafc; font-family: 'IBM Plex Mono', monospace; font-size: 1.65rem; margin: .25rem 0 .5rem; }
     .hero-panel p { color: #94a3b8; max-width: 760px; font-size: 1rem; line-height: 1.6; }
-    .eyebrow { color: #22d3ee; font-size: .7rem; font-weight: 700; letter-spacing: .14em; }
-    .insight-card, .warning-card { border-radius: 14px; padding: 1rem 1.1rem; margin-top: .75rem; }
-    .insight-card { background: rgba(14,116,144,.14); border: 1px solid rgba(34,211,238,.4); }
-    .warning-card { background: rgba(127,29,29,.22); border: 1px solid rgba(251,113,133,.65); }
+    .eyebrow { color: #f59e0b; font-family: 'IBM Plex Mono', monospace; font-size: .66rem; font-weight: 700; letter-spacing: .14em; }
+    .insight-card, .warning-card { border-radius: 4px; padding: 1rem 1.1rem; margin-top: .75rem; }
+    .insight-card { background: #0d1a1d; border: 1px solid #155e63; }
+    .warning-card { background: #211517; border: 1px solid #7f1d1d; }
     .insight-card strong, .warning-card strong { color: #f8fafc; }
     .insight-card p, .warning-card p { color: #cbd5e1; margin: .5rem 0 0; line-height: 1.5; }
+    .terminal-bar { display: flex; justify-content: space-between; gap: 1rem; background: #111820; border: 1px solid #263241; border-radius: 4px; padding: .55rem .8rem; color: #94a3b8; font-family: 'IBM Plex Mono', monospace; font-size: .7rem; margin-bottom: 1rem; }
+    .terminal-bar b { color: #fbbf24; }
+    div[data-testid="stMetric"] { border-radius: 4px; }
 </style>
 """, unsafe_allow_html=True)
 
 # ── Header ──
-st.markdown('<div class="gradient-title">IMOEXF Hedge Lab</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Хедж портфеля акций через фьючерс IMOEXF · сценарный анализ, tracking error и запас ликвидности</div>', unsafe_allow_html=True)
+st.markdown('<div class="gradient-title">IMOEXF HEDGE LAB // RISK TERMINAL</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">LIVE SCENARIO MONITOR · ХЕДЖ ПОРТФЕЛЯ · MOEX BENCHMARKS</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="terminal-bar"><span><b>RISK</b> / PORTFOLIO HEDGE</span><span>MCFTR · RUSFAR · IMOEXF</span><span>RUB</span></div>',
+    unsafe_allow_html=True,
+)
 
 # ── Sidebar ──
 with st.sidebar:
@@ -128,6 +138,32 @@ def rubles(value: float) -> str:
     return f"{value:,.0f} ₽".replace(",", " ")
 
 
+@st.cache_data(ttl=900)
+def load_moex_benchmarks(start_date: str, end_date: str) -> pd.DataFrame:
+    """Load MOEX total-return and money-market benchmark history."""
+    rows: dict[str, pd.Series] = {}
+    for secid in ("MCFTR", "RUSFAR"):
+        response = requests.get(
+            f"https://iss.moex.com/iss/history/engines/stock/markets/index/securities/{secid}.json",
+            params={"from": start_date, "till": end_date, "limit": 1000},
+            timeout=20,
+        )
+        response.raise_for_status()
+        payload = response.json()["history"]
+        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
+        if frame.empty:
+            raise ValueError(f"MOEX returned no data for {secid}")
+        frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
+        frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
+        rows[secid] = frame.dropna(subset=["CLOSE"]).set_index("TRADEDATE")["CLOSE"].sort_index()
+
+    benchmark = pd.DataFrame(rows).dropna()
+    benchmark["MCFTR"] = benchmark["MCFTR"] / benchmark["MCFTR"].iloc[0]
+    money_market_daily = (1 + benchmark["RUSFAR"] / 100) ** (1 / 365) - 1
+    benchmark["RUSFAR"] = (1 + money_market_daily).cumprod()
+    return benchmark
+
+
 def render_hedge_lab() -> None:
     """Scenario dashboard for an equity portfolio hedged with IMOEXF."""
     st.markdown(
@@ -143,10 +179,12 @@ def render_hedge_lab() -> None:
     )
 
     st.markdown("### Доходность с 1 февраля")
-    performance_inputs = st.columns(2)
+    performance_inputs = st.columns(3)
     with performance_inputs[0]:
-        start_value = st.number_input("Стартовая стоимость, ₽", min_value=0.0, value=50_800.0, step=100.0)
+        start_date = st.date_input("Дата старта", value=datetime(2026, 2, 1).date())
     with performance_inputs[1]:
+        start_value = st.number_input("Стартовая стоимость, ₽", min_value=0.0, value=50_800.0, step=100.0)
+    with performance_inputs[2]:
         current_value = st.number_input("Текущая стоимость, ₽", min_value=0.0, value=56_000.0, step=100.0)
     performance_pnl = current_value - start_value
     performance_return = performance_pnl / start_value if start_value else 0.0
@@ -170,6 +208,50 @@ def render_hedge_lab() -> None:
         **PLOT_LAYOUT,
     )
     st.plotly_chart(performance_chart, use_container_width=True)
+
+    st.markdown("### Сравнение с рынком")
+    st.caption("MCFTR — индекс МосБиржи полной доходности «брутто». RUSFAR — денежный рынок; доходность оценена через ежедневное начисление ставки.")
+    try:
+        benchmark_data = load_moex_benchmarks(
+            start_date.isoformat(),
+            datetime.now().date().isoformat(),
+        )
+        portfolio_curve = (
+            np.linspace(1, current_value / start_value, len(benchmark_data))
+            if start_value else np.ones(len(benchmark_data))
+        )
+        normalized = pd.DataFrame({
+            "Портфель": portfolio_curve,
+            "MCFTR / ММВБ TR": benchmark_data["MCFTR"],
+            "RUSFAR / денежный рынок": benchmark_data["RUSFAR"],
+        }, index=benchmark_data.index) * 100
+        market_chart = go.Figure()
+        for name, color in [
+            ("Портфель", "#fbbf24"),
+            ("MCFTR / ММВБ TR", "#22d3ee"),
+            ("RUSFAR / денежный рынок", "#a3e635"),
+        ]:
+            market_chart.add_trace(go.Scatter(
+                x=normalized.index,
+                y=normalized[name],
+                name=name,
+                mode="lines",
+                line={"color": color, "width": 2},
+            ))
+        market_chart.update_layout(
+            title=f"Индексировано к 100 на {start_date.strftime('%d.%m.%Y')}",
+            yaxis_title="Индекс, 100 = старт",
+            hovermode="x unified",
+            **PLOT_LAYOUT,
+        )
+        st.plotly_chart(market_chart, use_container_width=True)
+        benchmark_cards = st.columns(3)
+        benchmark_cards[0].metric("Портфель", f"{normalized['Портфель'].iloc[-1] - 100:+.2f}%", "от старта")
+        benchmark_cards[1].metric("MCFTR", f"{normalized['MCFTR / ММВБ TR'].iloc[-1] - 100:+.2f}%", "ММВБ полной доходности")
+        benchmark_cards[2].metric("RUSFAR", f"{normalized['RUSFAR / денежный рынок'].iloc[-1] - 100:+.2f}%", "денежный рынок")
+        st.caption(f"Последняя доступная дата MOEX: {benchmark_data.index[-1].strftime('%d.%m.%Y')}.")
+    except (requests.RequestException, KeyError, ValueError) as exc:
+        st.warning(f"MOEX benchmark data unavailable: {exc}. Остальные сценарии доступны вручную.")
 
     default_holdings = pd.DataFrame([
         {"Бумага": "X5", "Стоимость, ₽": 4_982_567.50, "Изменение, %": -22.88},
