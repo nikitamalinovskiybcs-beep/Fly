@@ -18,7 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Mapping, Optional
 
@@ -27,6 +27,7 @@ import pandas as pd
 
 
 OUTCOME_PATH = Path("data/structured_note_outcomes.json")
+REALIZED_FEEDBACK_PATH = Path("data/realized_outcome_feedback.json")
 
 
 @dataclass(frozen=True)
@@ -259,6 +260,87 @@ def simulate_stress_suite(
     }
 
 
+def replay_historical_windows(
+    prices: Mapping[str, pd.Series | list[float]],
+    spec: StructuredNoteSpec,
+    window_days: int = 252,
+    step_days: int = 21,
+    max_windows: int = 50,
+    predicted_p_loss: Optional[float] = None,
+) -> dict:
+    """Replay rolling historical windows and report realized replay metrics."""
+    series = {
+        ticker: pd.Series(values, dtype=float)
+        for ticker, values in prices.items()
+        if ticker in spec.basket
+    }
+    lengths = [len(value) for value in series.values()]
+    if len(series) != len(spec.basket) or not lengths or min(lengths) < window_days:
+        return {
+            "source": "historical_replay",
+            "status": "insufficient_data",
+            "windows": [],
+        }
+    n_windows = min(max_windows, 1 + (min(lengths) - window_days) // step_days)
+    results = []
+    for index in range(n_windows):
+        start = index * step_days
+        window = {ticker: value.iloc[start:start + window_days] for ticker, value in series.items()}
+        result = replay_historical(window, spec)
+        result["window_index"] = index
+        results.append(result)
+    losses = [item["outcome_type"] == "knock_in_loss" for item in results]
+    autocalls = [item["outcome_type"] == "autocall" for item in results]
+    realized_loss = float(np.mean(losses)) if losses else 0.0
+    report = {
+        "source": "historical_replay",
+        "status": "historical_replay",
+        "basket": list(spec.basket),
+        "n_windows": len(results),
+        "realized_replay_loss_rate": round(realized_loss, 6),
+        "autocall_rate": round(float(np.mean(autocalls)), 6) if autocalls else 0.0,
+        "mean_return_pct": round(float(np.mean([item["return_pct"] for item in results])), 4),
+        "windows": results,
+    }
+    if predicted_p_loss is not None:
+        report["predicted_p_loss"] = float(predicted_p_loss)
+        report["loss_rate_error"] = round(abs(realized_loss - predicted_p_loss), 6)
+    return report
+
+
+def evaluate_product_safety(
+    product: dict,
+    stress_report: Optional[dict] = None,
+    max_p_loss: float = 0.35,
+    max_cvar: float = 0.65,
+    min_baseline_lift: float = 0.0,
+) -> dict:
+    """Return a conservative recommendation gate for a product."""
+    reasons: list[str] = []
+    p_loss = float(product.get("p_loss_pct", 0.0)) / 100.0
+    if p_loss > max_p_loss:
+        reasons.append("model_p_loss_above_limit")
+    if float(product.get("selected_vs_baseline", 0.0)) < min_baseline_lift:
+        reasons.append("baseline_lift_below_limit")
+    if stress_report:
+        scenarios = stress_report.get("scenarios", {})
+        worst_loss = max(float(item.get("p_loss", 0.0)) for item in scenarios.values())
+        worst_cvar = min(float(item.get("cvar_95", 1.0)) for item in scenarios.values())
+        if worst_loss > max_p_loss:
+            reasons.append("stress_p_loss_above_limit")
+        if worst_cvar < max_cvar:
+            reasons.append("stress_cvar_below_limit")
+    return {
+        "passed": not reasons,
+        "reasons": reasons,
+        "limits": {
+            "max_p_loss": max_p_loss,
+            "max_cvar": max_cvar,
+            "min_baseline_lift": min_baseline_lift,
+        },
+    }
+
+
 class PaperOutcomeTracker:
     """Persist paper notes and resolve them from supplied historical paths."""
 
@@ -270,6 +352,7 @@ class PaperOutcomeTracker:
         self,
         spec: StructuredNoteSpec,
         note_id: Optional[str] = None,
+        metadata: Optional[dict] = None,
     ) -> dict:
         if note_id:
             for existing in self.notes:
@@ -281,6 +364,10 @@ class PaperOutcomeTracker:
             "status": "open",
             "spec": asdict(spec),
             "opened_at": _utc_now(),
+            "maturity_date": (
+                datetime.now(timezone.utc) + timedelta(days=spec.term_months * 30)
+            ).date().isoformat(),
+            "metadata": metadata or {},
         }
         self.notes.append(note)
         self._save()
@@ -306,6 +393,86 @@ class PaperOutcomeTracker:
             return outcome
         return {"status": "not_found", "note_id": note_id}
 
+    def refresh(
+        self,
+        note_id: str,
+        prices: Mapping[str, pd.Series | list[float]],
+        as_of: Optional[str] = None,
+    ) -> dict:
+        """Mark an open note to market, or realize it on termination/maturity."""
+        for note in self.notes:
+            if note.get("id") != note_id:
+                continue
+            spec = StructuredNoteSpec(**note["spec"])
+            replay = replay_historical(prices, spec)
+            if replay.get("status") == "insufficient_data":
+                return {"source": "paper", "status": "insufficient_data", "note_id": note_id}
+            observation_date = as_of or str(replay["end"])[:10]
+            matured = observation_date >= note.get("maturity_date", observation_date)
+            terminated = replay.get("outcome_type") == "autocall"
+            if matured or terminated:
+                return self.resolve(note_id, prices)
+            paper_state = {
+                "source": "paper",
+                "status": "paper",
+                "note_id": note_id,
+                "basket": list(spec.basket),
+                "as_of": observation_date,
+                "barrier_breached": replay["barrier_breached"],
+                "coupons_paid": replay["coupons_paid"],
+                "worst_of": replay["worst_of"],
+                "worst_final_pct": replay["worst_final_pct"],
+                "learning_eligible": False,
+            }
+            note["current_state"] = paper_state
+            self._save()
+            return paper_state
+        return {"status": "not_found", "note_id": note_id}
+
+    def apply_realized_feedback(self, note_id: str) -> dict:
+        """Feed a resolved note to learning components exactly once."""
+        for note in self.notes:
+            if note.get("id") != note_id:
+                continue
+            outcome = note.get("outcome", {})
+            if note.get("status") != "realized" or not outcome.get("learning_eligible"):
+                return {"status": "ignored", "reason": "not_realized"}
+            if note.get("feedback_applied"):
+                return {"status": "already_applied"}
+            from src.basket.evolution import BasketEvolutionAgent
+
+            spec = StructuredNoteSpec(**note["spec"])
+            predicted_prob = float(note.get("metadata", {}).get("predicted_autocall_prob", 0.5))
+            BasketEvolutionAgent().record_outcome(
+                tickers=list(spec.basket),
+                date=note["opened_at"],
+                autocall_triggered=outcome.get("outcome_type") == "autocall",
+                worst_of_asset=str(outcome.get("worst_of", "")),
+                predicted_score=float(note.get("metadata", {}).get("predicted_score", 0.0)),
+                predicted_prob=predicted_prob,
+            )
+            feedback = self._load_feedback()
+            feedback.append({
+                "note_id": note_id,
+                "source": "realized",
+                "learning_eligible": True,
+                "outcome_type": outcome.get("outcome_type"),
+                "agent_accuracies": note.get("metadata", {}).get("agent_accuracies", {}),
+            })
+            REALIZED_FEEDBACK_PATH.parent.mkdir(parents=True, exist_ok=True)
+            REALIZED_FEEDBACK_PATH.write_text(json.dumps(feedback[-500:], indent=2))
+            note["feedback_applied"] = True
+            self._save()
+            return {"status": "applied", "note_id": note_id}
+        return {"status": "not_found", "note_id": note_id}
+
+    def _load_feedback(self) -> list[dict]:
+        if not REALIZED_FEEDBACK_PATH.exists():
+            return []
+        try:
+            return json.loads(REALIZED_FEEDBACK_PATH.read_text())
+        except Exception:
+            return []
     def _load(self) -> list[dict]:
         if not self.path.exists():
             return []

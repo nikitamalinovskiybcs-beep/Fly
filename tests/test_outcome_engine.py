@@ -7,7 +7,9 @@ import pandas as pd
 from src.outcome_engine import (
     PaperOutcomeTracker,
     StructuredNoteSpec,
+    evaluate_product_safety,
     replay_historical,
+    replay_historical_windows,
     simulate_monte_carlo,
 )
 
@@ -97,3 +99,31 @@ def test_missing_price_data_is_explicit() -> None:
     spec = StructuredNoteSpec(basket=["A", "B"])
     result = replay_historical({"A": pd.Series([100, 101])}, spec)
     assert result["status"] == "insufficient_data"
+
+
+def test_historical_windows_report_replay_error_against_prediction() -> None:
+    spec = StructuredNoteSpec(basket=["A", "B"], term_months=3)
+    prices = _prices([[100, 100], [95, 95], [94, 94], [93, 93]] * 3)
+    report = replay_historical_windows(
+        prices,
+        spec,
+        window_days=4,
+        step_days=2,
+        predicted_p_loss=0.10,
+    )
+    assert report["status"] == "historical_replay"
+    assert report["n_windows"] == 5
+    assert report["loss_rate_error"] >= 0
+
+
+def test_safety_gate_blocks_high_loss_and_does_not_use_simulated_learning() -> None:
+    gate = evaluate_product_safety(
+        {"p_loss_pct": 50, "selected_vs_baseline": -1},
+        stress_report={
+            "scenarios": {
+                "base": {"p_loss": 0.4, "cvar_95": 0.5},
+            },
+        },
+    )
+    assert gate["passed"] is False
+    assert "model_p_loss_above_limit" in gate["reasons"]

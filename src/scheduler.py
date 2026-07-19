@@ -96,6 +96,10 @@ class FlyScheduler:
         results["best_product"] = product
         results["tasks_run"].append("best_product")
 
+        outcomes = self._run_outcome_tracking(product)
+        results["outcomes"] = outcomes
+        results["tasks_run"].append("outcomes")
+
         backup = self._run_backup()
         results["backup"] = backup
         results["tasks_run"].append("backup")
@@ -142,6 +146,10 @@ class FlyScheduler:
         product = self._run_product_search()
         results["best_product"] = product
         results["tasks_run"].append("best_product")
+
+        outcomes = self._run_outcome_tracking(product)
+        results["outcomes"] = outcomes
+        results["tasks_run"].append("outcomes")
 
         backup = self._run_backup()
         results["backup"] = backup
@@ -318,6 +326,91 @@ class FlyScheduler:
         except Exception as exc:
             logger.error("Product search failed: %s", exc)
             return {"status": "error", "error": str(exc)}
+
+    def _run_outcome_tracking(self, product: dict) -> dict:
+        """Issue and refresh paper notes only when the safety gate passes."""
+        try:
+            from src.outcome_engine import (
+                PaperOutcomeTracker,
+                StructuredNoteSpec,
+                evaluate_product_safety,
+                simulate_stress_suite,
+            )
+
+            best = product.get("best", {})
+            if not best:
+                return {"status": "no_product"}
+            stress = simulate_stress_suite(
+                StructuredNoteSpec(basket=list(best["basket"])),
+                n_paths=500,
+            )
+            gate = evaluate_product_safety(best, stress_report=stress)
+            if not gate["passed"]:
+                return {"status": "blocked_by_safety_gate", "gate": gate}
+
+            spec = StructuredNoteSpec(
+                basket=list(best["basket"]),
+                barrier=float(best.get("barrier", 60)) / 100.0,
+                coupon_rate=float(best.get("coupon", 0.0)) / 100.0 / 4.0,
+                term_months=int(best.get("tenor_months", 24)),
+            )
+            tracker = PaperOutcomeTracker()
+            note_id = (
+                f"paper_{datetime.now().date().isoformat()}_"
+                f"{'_'.join(spec.basket)}_{int(spec.barrier * 100)}_{spec.term_months}"
+            )
+            tracker.open_note(
+                spec,
+                note_id=note_id,
+                metadata={
+                    "predicted_score": best.get("final_objective", 0.0),
+                    "predicted_autocall_prob": best.get("p_autocall", 0.5),
+                    "agent_contributions": best.get("agent_contributions", {}),
+                },
+            )
+            refreshed = []
+            for note in tracker.notes:
+                if note.get("status") != "open":
+                    continue
+                if note.get("opened_at", "")[:10] >= datetime.now().date().isoformat():
+                    continue
+                prices = self._load_note_prices(note)
+                if not prices:
+                    continue
+                state = tracker.refresh(
+                    note["id"],
+                    prices,
+                    as_of=datetime.now().date().isoformat(),
+                )
+                if state.get("status") == "realized":
+                    refreshed.append(tracker.apply_realized_feedback(note["id"]))
+                else:
+                    refreshed.append(state)
+            return {
+                "status": "updated",
+                "safety_gate": gate,
+                "notes_checked": len(refreshed),
+                "states": refreshed,
+            }
+        except Exception as exc:
+            logger.error("Outcome tracking failed: %s", exc)
+            return {"status": "error", "error": str(exc)}
+
+    def _load_note_prices(self, note: dict) -> dict[str, list[float]]:
+        """Load prices from issue date, avoiding pre-issuance look-ahead."""
+        try:
+            import yfinance as yf
+
+            prices: dict[str, list[float]] = {}
+            start = note.get("opened_at", "")[:10]
+            for ticker in note["spec"]["basket"]:
+                history = yf.Ticker(ticker).history(start=start)
+                if not history.empty and "Close" in history:
+                    prices[ticker] = history["Close"].dropna().tolist()
+            return prices
+        except Exception as exc:
+            logger.info("Paper price refresh skipped: %s", exc)
+            return {}
 
     def _run_basket_evolution(self) -> dict:
         """Run basket scoring weight evolution."""
