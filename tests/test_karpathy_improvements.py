@@ -85,6 +85,16 @@ class TestNeutralize:
         out = neutralize(preds, feats, proportion=0.0)
         assert np.allclose(out, preds)
 
+    def test_era_correlations_are_finite(self) -> None:
+        from src.integrations.numerai_pipeline import era_correlations
+
+        preds = np.array([1.0, 2.0, 2.0, 1.0, 3.0, 4.0])
+        targets = np.array([1.0, 2.0, 1.0, 2.0, 3.0, 4.0])
+        eras = pd.Series(["e1", "e1", "e2", "e2", "e3", "e3"])
+        values = era_correlations(preds, targets, eras)
+        assert values
+        assert all(np.isfinite(value) for value in values)
+
 
 class TestConnectivityProbeCache:
     def test_cache_roundtrip(self, tmp_path, monkeypatch) -> None:
@@ -115,3 +125,17 @@ class TestConnectivityProbeCache:
         mgr.probe_connectivity(force=True)
         mgr.probe_connectivity(force=False, max_age_s=9999)  # should hit cache
         assert calls["n"] == 1
+
+    def test_probe_marks_live_result(self, tmp_path, monkeypatch) -> None:
+        import src.api_manager as am
+
+        monkeypatch.setattr(am, "PROBE_CACHE", tmp_path / "probe.json")
+        mgr = am.APIManager()
+        monkeypatch.setattr(
+            mgr,
+            "test_all",
+            lambda: {"numerai": {"connected": True, "message": "ok"}},
+        )
+        result = mgr.probe_connectivity(force=True)
+        assert result["live_verified"] is True
+        assert result["stale"] is False

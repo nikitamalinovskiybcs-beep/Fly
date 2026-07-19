@@ -10,6 +10,7 @@ Handles:
 import json
 import logging
 import os
+import time
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -285,6 +286,11 @@ class APIManager:
         try:
             data = json.loads(PROBE_CACHE.read_text())
             data["cached"] = True
+            ts = data.get("ts")
+            age_s = max(0.0, time.time() - float(ts)) if ts else None
+            data["age_s"] = round(age_s, 1) if age_s is not None else None
+            data["stale"] = age_s is None or age_s >= 3600
+            data["live_verified"] = bool(data.get("results"))
             return data
         except Exception:
             return {"cached": False, "results": {}, "ts": None}
@@ -296,8 +302,6 @@ class APIManager:
         and the UI renders from the cached JSON, so repeated page loads cost
         nothing. Pass ``force=True`` to refresh immediately.
         """
-        import time
-
         cached = self.get_cached_probe()
         if not force and cached.get("cached") and cached.get("ts"):
             if time.time() - float(cached["ts"]) < max_age_s:
@@ -308,6 +312,7 @@ class APIManager:
             "ts": time.time(),
             "connected": sum(1 for r in results.values() if r.get("connected")),
             "results": results,
+            "live_verified": True,
         }
         try:
             PROBE_CACHE.parent.mkdir(parents=True, exist_ok=True)
@@ -315,6 +320,8 @@ class APIManager:
         except Exception as exc:
             logger.warning("Probe cache write failed: %s", exc)
         payload["cached"] = False
+        payload["age_s"] = 0.0
+        payload["stale"] = False
         return payload
 
     def setup_supabase_tables(self) -> dict:

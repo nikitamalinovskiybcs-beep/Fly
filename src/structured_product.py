@@ -69,19 +69,76 @@ def best_config_for_basket(basket: List[str]) -> Dict[str, float]:
 
 def _agent_adjustment(basket: List[str], yf_data: Optional[Dict]) -> float:
     """Optional nudge from the 8-agent cascade (capped, safe on failure)."""
+    return _agent_report(basket, yf_data).get("total_adjustment", 0.0)
+
+
+def _agent_features(basket: List[str], yf_data: Dict) -> Dict[str, float]:
+    """Build the small feature vector consumed by the alpha agent."""
+    infos = [yf_data.get(t, {}) for t in basket]
+    if not infos:
+        return {}
+
+    pe_values = [
+        float(info.get("pe", 30.0))
+        for info in infos
+        if isinstance(info.get("pe", 30.0), (int, float))
+    ]
+    avg_pe = sum(pe_values) / len(pe_values) if pe_values else 30.0
+    avg_iv = sum(float(info.get("iv30", 30.0)) for info in infos) / len(infos)
+    avg_hist_vol = sum(
+        float(info.get("hist_vol", info.get("real_1y", 25.0)))
+        for info in infos
+    ) / len(infos)
+    avg_return = sum(float(info.get("return_1m", 0.0)) for info in infos) / len(infos)
+    sectors = [info.get("sector", "") for info in infos]
+    same_sector = sum(
+        1 for i in range(len(sectors)) for j in range(i + 1, len(sectors))
+        if sectors[i] and sectors[i] == sectors[j]
+    )
+    pair_count = max(1, len(infos) * (len(infos) - 1) // 2)
+
+    return {
+        "tox_norm": sum(
+            float(info.get("toxicity", info.get("tox_norm", 0.5)))
+            for info in infos
+        ) / len(infos),
+        "fund_norm": max(0.0, min(1.0, 1.0 / (1.0 + avg_pe / 30.0))),
+        "vol_norm": max(0.0, min(1.0, avg_iv / 60.0)),
+        "macro_norm": max(0.0, min(1.0, 0.5 + avg_return * 2.0)),
+        "corr_norm": max(0.0, min(1.0, same_sector / pair_count)),
+        "pki_norm": max(0.0, min(1.0, 0.5 + avg_return)),
+        "hist_vol_norm": max(0.0, min(1.0, avg_hist_vol / 60.0)),
+    }
+
+
+def _agent_report(basket: List[str], yf_data: Optional[Dict]) -> Dict:
+    """Run agents with non-empty features and return auditable contributions."""
     if not yf_data:
-        return 0.0
+        return {"total_adjustment": 0.0, "agents_with_signal": []}
     try:
         from src.self_learning_agents import run_all_self_learning_agents
         res = run_all_self_learning_agents(
-            tickers=basket, yf_data=yf_data, features={}, base_score=70.0,
+            tickers=basket,
+            yf_data=yf_data,
+            features=_agent_features(basket, yf_data),
+            base_score=70.0,
         )
         if not res.get("guardian_ok", True):
-            return 0.0
-        return float(max(-5.0, min(5.0, res.get("total_adjustment", 0.0))))
+            return {
+                "total_adjustment": 0.0,
+                "agents_with_signal": res.get("agents_with_signal", []),
+            }
+        return {
+            "total_adjustment": float(
+                max(-5.0, min(5.0, res.get("total_adjustment", 0.0)))
+            ),
+            "agents_with_signal": res.get("agents_with_signal", []),
+            "agent_contributions": res.get("agent_contributions", {}),
+            "confidence": res.get("confidence", 0.5),
+        }
     except Exception as exc:
         logger.info("Agent cascade skipped in product search: %s", exc)
-        return 0.0
+        return {"total_adjustment": 0.0, "agents_with_signal": []}
 
 
 def find_best_structured_product(
@@ -117,10 +174,16 @@ def find_best_structured_product(
         cfg = best_config_for_basket(basket)
         if not cfg:
             continue
-        adj = _agent_adjustment(basket, yf_data)
+        agent_report = _agent_report(basket, yf_data)
+        adj = float(agent_report.get("total_adjustment", 0.0))
         cfg = dict(cfg)
         cfg["basket"] = basket
         cfg["agent_adjustment"] = round(adj, 2)
+        cfg["agents_with_signal"] = agent_report.get("agents_with_signal", [])
+        cfg["agent_contributions"] = agent_report.get("agent_contributions", {})
+        cfg["agent_confidence"] = round(
+            float(agent_report.get("confidence", 0.5)), 2
+        )
         cfg["final_objective"] = round(cfg["objective"] + adj, 2)
         ranked.append(cfg)
 

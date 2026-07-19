@@ -39,6 +39,29 @@ class TestStructuredProduct:
         b = find_best_structured_product(universe, basket_size=3)
         assert a["best"]["basket"] == b["best"]["basket"]
 
+    def test_live_agent_features_are_used(self) -> None:
+        from src.structured_product import find_best_structured_product
+
+        yf_data = {
+            "AAPL": {
+                "pe": 25, "iv30": 22, "hist_vol": 20, "return_1m": 0.04,
+                "beta": 1.0, "sector": "Technology", "ema200_above": True,
+            },
+            "MSFT": {
+                "pe": 30, "iv30": 24, "hist_vol": 21, "return_1m": 0.03,
+                "beta": 1.1, "sector": "Technology", "ema200_above": True,
+            },
+            "JPM": {
+                "pe": 12, "iv30": 30, "hist_vol": 28, "return_1m": -0.01,
+                "beta": 1.2, "sector": "Financials", "ema200_above": False,
+            },
+        }
+        result = find_best_structured_product(
+            ["AAPL", "MSFT", "JPM"], basket_size=3, yf_data=yf_data,
+        )
+        assert result["best"]["agents_with_signal"]
+        assert result["best"]["agent_contributions"]
+
     def test_universe_too_small(self) -> None:
         from src.structured_product import find_best_structured_product
         result = find_best_structured_product(["AAPL"], basket_size=3)

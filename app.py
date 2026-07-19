@@ -505,6 +505,15 @@ if basket_tickers:
                 extra = f"score {ar.get('final_score', 0):.0f}"
             st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:9px">{label}</span><span style="color:#6a5a2a;font-size:9px">{extra}</span><span style="color:{adj_c};font-size:9px;font-weight:700">{adj:+.1f}</span></div>', unsafe_allow_html=True)
 
+        active_agents = sla.get("agents_with_signal", [])
+        active_label = " / ".join(active_agents) if active_agents else "нет"
+        st.markdown(
+            f'<div style="color:#6a5a2a;font-size:9px;margin-top:6px">'
+            f'Агенты с измеримым вкладом: {len(active_agents)}/{max(1, sla_total - 2)}'
+            f' · {active_label}</div>',
+            unsafe_allow_html=True,
+        )
+
         # Guardian status
         guardian = agent_results.get("overfit_guardian", {})
         if guardian.get("safety_ok") is False:
@@ -812,6 +821,7 @@ if basket_tickers:
                     _res = find_best_structured_product(_universe, basket_size=3)
                 if "best" in _res:
                     _b = _res["best"]
+                    _active_product_agents = len(_b.get("agents_with_signal", []))
                     st.markdown(f'''<div style="color:#34c759;font-size:11px;padding:4px;border:1px solid #1a3a1a;border-radius:4px">
                         <b>{' / '.join(_b["basket"])}</b><br>
                         Barrier {_b["barrier"]}% · Tenor {_b["tenor_months"]}mo ·
@@ -819,6 +829,7 @@ if basket_tickers:
                         Tox {_b["avg_tox"]:.2f}<br>
                         Objective {_b["final_objective"]:.1f}
                         (agent adj {_b["agent_adjustment"]:+.1f}) ·
+                        agents {_active_product_agents}/6 ·
                         evaluated {_res["n_evaluated"]} baskets</div>''',
                         unsafe_allow_html=True)
                     st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">LEADERBOARD</div>', unsafe_allow_html=True)
@@ -841,6 +852,7 @@ if basket_tickers:
             from src.api_manager import APIManager, SERVICES, mask_key
             api_mgr = APIManager()
             api_status = api_mgr.get_status()
+            cached_probe = api_mgr.get_cached_probe()
 
             connected_count = api_status["connected"]
             total_count = api_status["total"]
@@ -849,6 +861,29 @@ if basket_tickers:
                 <div class="qc" style="flex:1;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">LOCAL (always on)</div><div style="color:#34c759;font-size:12px;font-weight:700">SQLite + DuckDB</div></div>
                 <div class="qc" style="flex:1;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">CLOUD CONNECTED</div><div style="color:#ffb000;font-size:14px;font-weight:700">{connected_count}/{total_count}</div></div>
             </div>''', unsafe_allow_html=True)
+
+            if cached_probe.get("cached"):
+                probe_age = cached_probe.get("age_s")
+                probe_label = (
+                    "stale cache"
+                    if cached_probe.get("stale")
+                    else f'live probe {probe_age:.0f}s ago'
+                )
+                probe_color = "#ff9500" if cached_probe.get("stale") else "#34c759"
+                st.markdown(
+                    f'<div style="color:{probe_color};font-size:9px;margin-bottom:6px">'
+                    f'Connectivity: {probe_label} · '
+                    f'{cached_probe.get("connected", 0)} services reachable'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(
+                    '<div style="color:#6a5a2a;font-size:9px;margin-bottom:6px">'
+                    'Connectivity: not probed yet (keys-only status shown)'
+                    '</div>',
+                    unsafe_allow_html=True,
+                )
 
             for svc_id, svc_info in SERVICES.items():
                 svc_status = api_status["services"][svc_id]
@@ -913,7 +948,7 @@ if basket_tickers:
                             st.markdown(f'<div style="color:#ff3b30;font-size:10px">{test_result["message"]}</div>', unsafe_allow_html=True)
 
             if st.button("TEST ALL CONNECTIONS", key="test_all_api", use_container_width=True):
-                all_results = api_mgr.test_all()
+                all_results = api_mgr.probe_connectivity(force=True)["results"]
                 for svc_id_r, result in all_results.items():
                     c = "#34c759" if result["connected"] else "#ff3b30"
                     icon = "●" if result["connected"] else "○"

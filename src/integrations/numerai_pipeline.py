@@ -94,6 +94,51 @@ def neutralize(
     return preds - proportion * exposure
 
 
+def era_correlations(
+    predictions: np.ndarray,
+    targets: np.ndarray,
+    eras: pd.Series,
+) -> list[float]:
+    """Return finite per-era correlations for robust validation scoring."""
+    frame = pd.DataFrame({
+        "prediction": np.asarray(predictions, dtype=float),
+        "target": np.asarray(targets, dtype=float),
+        "era": eras.to_numpy(),
+    })
+    correlations: list[float] = []
+    for _, group in frame.groupby("era", sort=True):
+        if len(group) < 2 or group["prediction"].nunique() < 2:
+            continue
+        corr = float(np.corrcoef(group["prediction"], group["target"])[0, 1])
+        if np.isfinite(corr):
+            correlations.append(corr)
+    return correlations
+
+
+def _mean_era_corr(predictions: np.ndarray, frame: pd.DataFrame) -> float:
+    if "era" not in frame.columns:
+        return float(np.corrcoef(predictions, frame[TARGET_COL])[0, 1])
+    values = era_correlations(predictions, frame[TARGET_COL].to_numpy(), frame["era"])
+    return float(np.mean(values)) if values else 0.0
+
+
+def _choose_neutralize_proportion(
+    predictions: np.ndarray,
+    frame: pd.DataFrame,
+    candidates: tuple[float, ...] = (0.0, 0.25, 0.5, 0.75, 1.0),
+) -> tuple[float, dict[float, float]]:
+    """Select the cheapest post-process using validation-era mean correlation."""
+    scores = {
+        proportion: _mean_era_corr(
+            neutralize(predictions, frame.iloc[:, : len(frame.columns) - 2], proportion),
+            frame,
+        )
+        for proportion in candidates
+    }
+    best = max(scores, key=scores.get)
+    return best, scores
+
+
 def train_and_predict(
     paths: dict,
     era_stride: int = 4,
@@ -149,12 +194,26 @@ def train_and_predict(
 
     val_pred = model.predict(valid[features])
     corr_raw = float(np.corrcoef(val_pred, valid[TARGET_COL])[0, 1])
-    val_neutral = neutralize(val_pred, valid[features], neutralize_proportion)
+    raw_era_corr = era_correlations(
+        val_pred, valid[TARGET_COL].to_numpy(), valid["era"]
+    ) if "era" in valid.columns else []
+    proportion = neutralize_proportion
+    selection_scores: dict[float, float] = {}
+    if "era" in valid.columns:
+        proportion, selection_scores = _choose_neutralize_proportion(
+            val_pred,
+            valid[features + ["era", TARGET_COL]],
+            (0.0, 0.25, neutralize_proportion, 0.75, 1.0),
+        )
+    val_neutral = neutralize(val_pred, valid[features], proportion)
     corr_neutral = float(np.corrcoef(val_neutral, valid[TARGET_COL])[0, 1])
+    neutral_era_corr = era_correlations(
+        val_neutral, valid[TARGET_COL].to_numpy(), valid["era"]
+    ) if "era" in valid.columns else []
 
     live = _read_columns(paths["live"], features, [])
     live_pred = model.predict(live[features])
-    live_neutral = neutralize(live_pred, live[features], neutralize_proportion)
+    live_neutral = neutralize(live_pred, live[features], proportion)
     predictions = pd.DataFrame(
         {"id": live.index, "prediction": _rank(live_neutral)}
     )
@@ -162,7 +221,14 @@ def train_and_predict(
     return {
         "validation_corr": round(corr_neutral, 5),
         "validation_corr_raw": round(corr_raw, 5),
-        "neutralize_proportion": neutralize_proportion,
+        "validation_era_corr_raw": round(float(np.mean(raw_era_corr)), 5) if raw_era_corr else None,
+        "validation_era_corr_neutral": round(float(np.mean(neutral_era_corr)), 5) if neutral_era_corr else None,
+        "neutral_era_wins": int(sum(
+            neutral > raw for neutral, raw in zip(neutral_era_corr, raw_era_corr)
+        )),
+        "n_validation_eras": len(raw_era_corr),
+        "neutralize_proportion": proportion,
+        "neutralize_selection_scores": selection_scores,
         "n_features": len(features),
         "n_train_rows": int(len(train)),
         "n_live_rows": int(len(predictions)),

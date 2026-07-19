@@ -1021,4 +1021,17 @@ def run_all_self_learning_agents(
         "regime": results.get("regime", {}).get("regime", "N/A"),
         "sentiment": results.get("sentiment", {}).get("label", "N/A"),
         "guardian_ok": results.get("overfit_guardian", {}).get("safety_ok", True),
+        "agent_contributions": {
+            name: round(float(item.get("weighted_adj", item.get("scoring_adj", 0))), 2)
+            for name, item in results.get("meta", {}).get(
+                "agent_adjustments", {}
+            ).items()
+        },
+        "agents_with_signal": [
+            name
+            for name, value in results.get("meta", {}).get(
+                "agent_adjustments", {}
+            ).items()
+            if abs(float(value.get("weighted_adj", 0))) >= 0.01
+        ],
     }
