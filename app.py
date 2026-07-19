@@ -7,12 +7,21 @@ import plotly.graph_objects as go
 import plotly.express as px
 import logging
 import requests
+import re
 from datetime import datetime
+from io import BytesIO
 
 from src.assessor import StrategyRiskAssessor
 from src.core_metrics import returns_from_prices
 from src.risk_metrics import drawdown_series
 from src.data_module import DEFAULT_TICKERS
+
+try:
+    import pytesseract
+    from PIL import Image
+except ImportError:
+    pytesseract = None
+    Image = None
 
 # Логирование
 logging.basicConfig(
@@ -21,8 +30,8 @@ logging.basicConfig(
 )
 
 st.set_page_config(
-    page_title="Quant Risk Hub",
-    page_icon="📊",
+    page_title="Адаптивная крепость",
+    page_icon="🔒",
     layout="wide",
 )
 
@@ -84,8 +93,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── Header ──
-st.markdown('<div class="gradient-title">IMOEXF HEDGE LAB // RISK TERMINAL</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">LIVE SCENARIO MONITOR · ХЕДЖ ПОРТФЕЛЯ · MOEX BENCHMARKS</div>', unsafe_allow_html=True)
+st.markdown('<div class="gradient-title">🔒 АДАПТИВНАЯ КРЕПОСТЬ // RISK TERMINAL</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">LIVE SCENARIO MONITOR · ЗАЩИТА КАПИТАЛА · MOEX BENCHMARKS</div>', unsafe_allow_html=True)
 st.markdown(
     '<div class="terminal-bar"><span><b>RISK</b> / PORTFOLIO HEDGE</span><span>MCFTR · RUSFAR · IMOEXF</span><span>RUB</span></div>',
     unsafe_allow_html=True,
@@ -162,6 +171,93 @@ def load_moex_benchmarks(start_date: str, end_date: str) -> pd.DataFrame:
     money_market_daily = (1 + benchmark["RUSFAR"] / 100) ** (1 / 365) - 1
     benchmark["RUSFAR"] = (1 + money_market_daily).cumprod()
     return benchmark
+
+
+@st.cache_data(ttl=60)
+def load_moex_quotes(tickers: tuple[str, ...]) -> pd.DataFrame:
+    """Load current MOEX quotes for the uploaded portfolio."""
+    quotes = []
+    for ticker in tickers:
+        response = requests.get(
+            f"https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/{ticker}.json",
+            params={"iss.meta": "off"},
+            timeout=20,
+        )
+        response.raise_for_status()
+        payload = response.json()["marketdata"]
+        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
+        if frame.empty:
+            continue
+        row = frame.iloc[0]
+        quotes.append({
+            "Бумага": ticker,
+            "Цена MOEX": pd.to_numeric(row.get("LAST"), errors="coerce"),
+            "Изм. дня, %": pd.to_numeric(row.get("LASTCHANGEPRCNT"), errors="coerce"),
+        })
+    return pd.DataFrame(quotes)
+
+
+@st.cache_data(ttl=900)
+def load_moex_betas(tickers: tuple[str, ...], start_date: str, end_date: str) -> pd.DataFrame:
+    """Estimate 90-day beta versus IMOEX from MOEX daily closes."""
+    histories = {}
+    for ticker in (*tickers, "IMOEX"):
+        market = "index" if ticker == "IMOEX" else "shares"
+        response = requests.get(
+            f"https://iss.moex.com/iss/history/engines/stock/markets/{market}/securities/{ticker}.json",
+            params={"from": start_date, "till": end_date, "limit": 1000},
+            timeout=20,
+        )
+        response.raise_for_status()
+        payload = response.json()["history"]
+        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
+        if frame.empty:
+            continue
+        frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
+        frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
+        histories[ticker] = (
+            frame.dropna(subset=["CLOSE"])
+            .set_index("TRADEDATE")["CLOSE"]
+            .groupby(level=0)
+            .last()
+            .sort_index()
+        )
+    prices = pd.DataFrame(histories).dropna()
+    returns = prices.pct_change().dropna()
+    if "IMOEX" not in returns:
+        raise ValueError("IMOEX history unavailable")
+    market_returns = returns["IMOEX"]
+    result = []
+    for ticker in tickers:
+        if ticker not in returns:
+            continue
+        variance = market_returns.var()
+        beta = returns[ticker].cov(market_returns) / variance if variance else np.nan
+        result.append({"Бумага": ticker, "Beta к IMOEX": beta})
+    return pd.DataFrame(result)
+
+
+def parse_holdings_image(uploaded_file) -> tuple[pd.DataFrame, str]:
+    """Best-effort OCR for common broker portfolio screenshots."""
+    if pytesseract is None or Image is None:
+        raise RuntimeError("OCR dependencies are not installed")
+    image = Image.open(BytesIO(uploaded_file.getvalue()))
+    text = pytesseract.image_to_string(image, lang="rus+eng")
+    known_tickers = ("X5", "T", "NVTK", "DOMRF", "SBER", "TRNFP")
+    rows = []
+    for ticker in known_tickers:
+        match = re.search(
+            rf"\b{ticker}\b(?P<body>.{{0,180}}?)(?P<pct>-?\d+[,.]\d+)\s*%",
+            text,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+        if not match:
+            continue
+        numbers = re.findall(r"\d[\d\s]*[,.]\d{2}", match.group("body"))
+        value = float(numbers[0].replace(" ", "").replace(",", ".")) if numbers else np.nan
+        change = float(match.group("pct").replace(",", "."))
+        rows.append({"Бумага": ticker, "Стоимость, ₽": value, "Изменение, %": change})
+    return pd.DataFrame(rows), text
 
 
 def render_hedge_lab() -> None:
@@ -261,6 +357,29 @@ def render_hedge_lab() -> None:
         {"Бумага": "SBER", "Стоимость, ₽": 6_311_793.00, "Изменение, %": -7.54},
         {"Бумага": "TRNFP", "Стоимость, ₽": 5_908_030.00, "Изменение, %": -14.39},
     ])
+    uploaded_portfolio = st.file_uploader(
+        "Вставить скриншот портфеля",
+        type=["png", "jpg", "jpeg"],
+        help="Сайт покажет скриншот и попробует распознать тикеры, значения и доходность.",
+    )
+    if uploaded_portfolio:
+        st.image(uploaded_portfolio, caption="Загруженный скриншот", use_container_width=True)
+        try:
+            parsed_holdings, ocr_text = parse_holdings_image(uploaded_portfolio)
+            if not parsed_holdings.empty:
+                default_holdings = default_holdings.set_index("Бумага")
+                parsed_holdings = parsed_holdings.set_index("Бумага")
+                default_holdings.update(parsed_holdings)
+                default_holdings = default_holdings.reset_index()
+                st.success(f"OCR распознал {len(parsed_holdings)} позиций. Проверьте таблицу ниже.")
+            else:
+                st.warning("Тикеры не распознаны автоматически — заполните таблицу вручную.")
+            with st.expander("Текст OCR для проверки"):
+                st.code(ocr_text or "Текст не найден")
+        except RuntimeError:
+            st.info("Скриншот загружен. OCR будет доступен после установки языкового пакета; таблицу можно редактировать вручную.")
+        except (ValueError, OSError) as exc:
+            st.warning(f"Не удалось прочитать скриншот: {exc}")
     with st.expander("Состав портфеля со скриншота", expanded=True):
         edited_holdings = st.data_editor(
             default_holdings,
@@ -272,10 +391,44 @@ def render_hedge_lab() -> None:
                 "Изменение, %": st.column_config.NumberColumn(format="%.2f%%"),
             },
         )
+    try:
+        quotes = load_moex_quotes(tuple(edited_holdings["Бумага"].astype(str).str.upper()))
+        if not quotes.empty:
+            live_holdings = edited_holdings.merge(quotes, on="Бумага", how="left")
+            st.dataframe(
+                live_holdings[["Бумага", "Цена MOEX", "Изм. дня, %", "Стоимость, ₽"]],
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.caption("Котировки MOEX обновляются автоматически примерно раз в минуту; стоимость портфеля берётся из таблицы.")
+    except (requests.RequestException, KeyError, ValueError) as exc:
+        st.warning(f"Live quotes unavailable: {exc}")
     portfolio = float(edited_holdings["Стоимость, ₽"].sum())
     weighted_move = float(
         (edited_holdings["Стоимость, ₽"] * edited_holdings["Изменение, %"]).sum() / portfolio
     ) if portfolio else 0.0
+    beta_estimate = 1.01
+    try:
+        beta_df = load_moex_betas(
+            tuple(edited_holdings["Бумага"].astype(str).str.upper()),
+            (datetime.now() - pd.Timedelta(days=120)).date().isoformat(),
+            datetime.now().date().isoformat(),
+        )
+        if not beta_df.empty:
+            beta_weighted = beta_df.merge(edited_holdings[["Бумага", "Стоимость, ₽"]], on="Бумага")
+            beta_estimate = float(
+                (beta_weighted["Beta к IMOEX"] * beta_weighted["Стоимость, ₽"]).sum() / portfolio
+            )
+            st.markdown("#### Beta и номинал хеджа")
+            beta_view = beta_df.copy()
+            beta_view["Beta к IMOEX"] = beta_view["Beta к IMOEX"].round(2)
+            st.dataframe(beta_view, use_container_width=True, hide_index=True)
+            beta_cards = st.columns(3)
+            beta_cards[0].metric("Beta портфеля", f"{beta_estimate:.2f}", "90 дней к IMOEX")
+            beta_cards[1].metric("Beta-adjusted hedge", money(portfolio * beta_estimate), "рекомендуемый номинал модели")
+            beta_cards[2].metric("Текущий hedge", money(33_630_000), f"{33_630_000 / (portfolio * beta_estimate):.0%} от beta-хеджа")
+    except (requests.RequestException, KeyError, ValueError, ZeroDivisionError):
+        beta_df = pd.DataFrame()
 
     with st.expander("Параметры позиции", expanded=True):
         inputs = st.columns(4)
@@ -297,7 +450,7 @@ def render_hedge_lab() -> None:
             carry_rate = st.number_input("Сценарий carry / базиса годовых", value=14.0, step=0.5, format="%.1f") / 100
         with inputs[3]:
             holding_months = st.number_input("Период, месяцев", min_value=0.0, value=6.0, step=1.0)
-            beta = st.number_input("Beta портфеля", min_value=0.0, value=1.01, step=0.01, format="%.2f")
+            beta = st.number_input("Beta портфеля", min_value=0.0, value=float(round(beta_estimate, 2)), step=0.01, format="%.2f")
 
     long_pnl = portfolio * stock_move
     futures_pnl = -hedge_nominal * index_move
@@ -313,6 +466,10 @@ def render_hedge_lab() -> None:
     cards[1].metric("Шорт IMOEXF", money(futures_pnl), f"{-index_move:.2%} к номиналу")
     cards[2].metric("Carry / базис", money(carry_pnl), "сценарная оценка")
     cards[3].metric("Итог", money(net_pnl), f"{net_pct:.2%} от лонга")
+    if abs(tracking_error) >= 0.05:
+        st.warning(f"ALERT: tracking error {tracking_error:.2%}. Портфель заметно отклоняется от IMOEX.")
+    if hedge_nominal < portfolio * beta:
+        st.info(f"Недохедж: номинал IMOEXF ниже beta-adjusted оценки примерно на {money(portfolio * beta - hedge_nominal)}.")
 
     left, right = st.columns([1.45, 1])
     with left:
