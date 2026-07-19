@@ -15,6 +15,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 ENV_PATH = Path(".env")
+PROBE_CACHE = Path("data/connectivity_probe.json")
 
 SERVICES = {
     "supabase": {
@@ -276,6 +277,45 @@ class APIManager:
             "connected": connected,
             "local_always_on": ["SQLite", "DuckDB"],
         }
+
+    def get_cached_probe(self) -> dict:
+        """Read the last cached connectivity probe (pure-render, no network)."""
+        if not PROBE_CACHE.exists():
+            return {"cached": False, "results": {}, "ts": None}
+        try:
+            data = json.loads(PROBE_CACHE.read_text())
+            data["cached"] = True
+            return data
+        except Exception:
+            return {"cached": False, "results": {}, "ts": None}
+
+    def probe_connectivity(self, force: bool = False, max_age_s: int = 3600) -> dict:
+        """Probe all services and cache the result to disk.
+
+        Karpathy-style: the network probe runs at most once per ``max_age_s``
+        and the UI renders from the cached JSON, so repeated page loads cost
+        nothing. Pass ``force=True`` to refresh immediately.
+        """
+        import time
+
+        cached = self.get_cached_probe()
+        if not force and cached.get("cached") and cached.get("ts"):
+            if time.time() - float(cached["ts"]) < max_age_s:
+                return cached
+
+        results = self.test_all()
+        payload = {
+            "ts": time.time(),
+            "connected": sum(1 for r in results.values() if r.get("connected")),
+            "results": results,
+        }
+        try:
+            PROBE_CACHE.parent.mkdir(parents=True, exist_ok=True)
+            PROBE_CACHE.write_text(json.dumps(payload, indent=2, default=str))
+        except Exception as exc:
+            logger.warning("Probe cache write failed: %s", exc)
+        payload["cached"] = False
+        return payload
 
     def setup_supabase_tables(self) -> dict:
         """Create required tables in Supabase if they don't exist.

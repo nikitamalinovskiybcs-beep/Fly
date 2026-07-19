@@ -665,6 +665,36 @@ class PaperTradingAgent:
         if not hist_data:
             return {"error": "no_data"}
 
+        return self._run_bootstrap_loop(hist_data, days)
+
+    def bootstrap_synthetic(self, days: int = 120, seed: int = 42) -> dict:
+        """Bootstrap learning from deterministic synthetic price paths.
+
+        Network-free and cheap (Karpathy-style precompute): generates
+        reproducible geometric-Brownian-motion histories per ticker so
+        weekly_learning() and monthly_evolution() always have qualifying
+        closed trades even when yfinance is rate-limited or offline.
+        """
+        rng = np.random.default_rng(seed)
+        n = days + 60
+        idx = pd.date_range(end=pd.Timestamp.today().normalize(), periods=n, freq="B")
+        hist_data: dict[str, pd.DataFrame] = {}
+        for i, ticker in enumerate(self.tickers):
+            drift = 0.0004 + 0.0002 * ((i % 3) - 1)  # per-ticker trend
+            shocks = rng.normal(drift, 0.03, n)  # ~48% annualized vol
+            close = 100.0 * np.exp(np.cumsum(shocks))
+            volume = rng.uniform(5e5, 2e6, n)
+            hist_data[ticker] = pd.DataFrame(
+                {"Close": close, "Volume": volume}, index=idx,
+            )
+        result = self._run_bootstrap_loop(hist_data, days)
+        result["mode"] = "synthetic"
+        return result
+
+    def _run_bootstrap_loop(
+        self, hist_data: dict[str, pd.DataFrame], days: int,
+    ) -> dict:
+        """Shared rolling-window simulation for historical/synthetic bootstrap."""
         min_len = min(len(df) for df in hist_data.values())
         if min_len < days + 50:
             days = max(20, min_len - 50)

@@ -760,12 +760,13 @@ if basket_tickers:
 
             b_col1, b_col2, b_col3 = st.columns(3)
             with b_col1:
-                if st.button("BOOTSTRAP 120 DAYS", key="bootstrap_btn", use_container_width=True):
-                    with st.spinner("Bootstrapping historical trades..."):
-                        boot_result = _pt.bootstrap_historical(days=120)
+                if st.button("BOOTSTRAP (FAST)", key="bootstrap_btn", use_container_width=True):
+                    with st.spinner("Bootstrapping trades (offline, deterministic)..."):
+                        boot_result = _pt.bootstrap_synthetic(days=120)
                         st.markdown(f'''<div style="color:#34c759;font-size:10px;padding:4px">
                             Trades: {boot_result.get("total_trades", 0)} | Closed: {boot_result.get("closed_trades", 0)} |
-                            P&L: ${boot_result.get("pnl", 0):+,.0f} | Learning insights: {boot_result.get("learning_insights", 0)}
+                            P&L: ${boot_result.get("pnl", 0):+,.0f} | Insights: {boot_result.get("learning_insights", 0)} |
+                            Gen: {_pt._generation}
                         </div>''', unsafe_allow_html=True)
             with b_col2:
                 if st.button("RUN LEARNING", key="learn_btn", use_container_width=True):

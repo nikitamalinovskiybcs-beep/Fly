@@ -352,27 +352,22 @@ class AlphaAgent:
 
     def _estimate_signal_quality(self, name: str, value: float,
                                  features: Dict) -> float:
-        """Estimate signal quality using domain heuristics.
-        Returns pseudo-Sharpe ratio."""
-        # Signals correlated with low toxicity / high fundamentals = good
+        """Estimate signal quality deterministically (no random noise).
+
+        Returns a reproducible pseudo-Sharpe: alignment of the candidate
+        signal with the low-toxicity / high-fundamental direction, scaled
+        by bounded magnitude. Deterministic so the same inputs always give
+        the same ranking (previously a random term made this a mirage).
+        """
         tox = features.get("tox_norm", 0.5)
         fund = features.get("fund_norm", 0.5)
 
         if abs(value) < 1e-8:
-            return 0
+            return 0.0
 
-        # Direction: positive value should correlate with good outcome
-        # (low tox, high fund)
         direction_score = (1 - tox) * 0.5 + fund * 0.5
-
-        # Signal magnitude matters (but not too much)
-        mag = min(2, abs(value))
-
-        # Noise penalty
-        noise = 0.1 * np.random.randn()
-
-        sharpe = direction_score * mag + noise
-        return max(0, sharpe)
+        mag = min(2.0, abs(value))
+        return max(0.0, direction_score * mag)
 
 
 # ═══════════════════════════════════════════════════════════════

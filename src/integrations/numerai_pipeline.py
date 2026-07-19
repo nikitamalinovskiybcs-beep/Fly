@@ -73,10 +73,32 @@ def _read_columns(path: str, features: list[str], extra: list[str]) -> pd.DataFr
     return pd.read_parquet(path, columns=cols)
 
 
+def neutralize(
+    predictions: np.ndarray,
+    feature_df: pd.DataFrame,
+    proportion: float = 0.5,
+) -> np.ndarray:
+    """Feature-neutralize predictions via a single least-squares fit.
+
+    Cheap post-process (no retraining): subtracts a ``proportion`` of the
+    linear projection of predictions onto the feature space, reducing
+    feature exposure. This is the standard Numerai trick that trades a bit
+    of raw correlation for far more stable per-era performance.
+    """
+    preds = np.asarray(predictions, dtype=float)
+    fmat = feature_df.to_numpy(dtype=float)
+    fmat = fmat - fmat.mean(axis=0)
+    centered = preds - preds.mean()
+    beta, *_ = np.linalg.lstsq(fmat, centered, rcond=None)
+    exposure = fmat @ beta
+    return preds - proportion * exposure
+
+
 def train_and_predict(
     paths: dict,
     era_stride: int = 4,
     num_boost_round: int = 2000,
+    neutralize_proportion: float = 0.5,
 ) -> dict:
     """Train LightGBM on (optionally subsampled) train data and predict live.
 
@@ -126,16 +148,21 @@ def train_and_predict(
     )
 
     val_pred = model.predict(valid[features])
-    corr = float(np.corrcoef(val_pred, valid[TARGET_COL])[0, 1])
+    corr_raw = float(np.corrcoef(val_pred, valid[TARGET_COL])[0, 1])
+    val_neutral = neutralize(val_pred, valid[features], neutralize_proportion)
+    corr_neutral = float(np.corrcoef(val_neutral, valid[TARGET_COL])[0, 1])
 
     live = _read_columns(paths["live"], features, [])
     live_pred = model.predict(live[features])
+    live_neutral = neutralize(live_pred, live[features], neutralize_proportion)
     predictions = pd.DataFrame(
-        {"id": live.index, "prediction": _rank(live_pred)}
+        {"id": live.index, "prediction": _rank(live_neutral)}
     )
 
     return {
-        "validation_corr": round(corr, 5),
+        "validation_corr": round(corr_neutral, 5),
+        "validation_corr_raw": round(corr_raw, 5),
+        "neutralize_proportion": neutralize_proportion,
         "n_features": len(features),
         "n_train_rows": int(len(train)),
         "n_live_rows": int(len(predictions)),
