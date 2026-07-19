@@ -249,52 +249,60 @@ def load_sector_exposures(tickers: tuple[str, ...], start_date: str, end_date: s
 @st.cache_data(ttl=60)
 def load_moex_quotes(tickers: tuple[str, ...]) -> pd.DataFrame:
     """Load current MOEX quotes for the uploaded portfolio."""
-    quotes = []
-    for ticker in tickers:
+    def fetch_quote(ticker: str) -> dict[str, object] | None:
         response = requests.get(
             f"https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/{ticker}.json",
             params={"iss.meta": "off"},
-            timeout=20,
+            timeout=8,
         )
         response.raise_for_status()
         payload = response.json()["marketdata"]
         frame = pd.DataFrame(payload["data"], columns=payload["columns"])
         if frame.empty:
-            continue
+            return None
         row = frame.iloc[0]
-        quotes.append({
+        return {
             "Бумага": ticker,
             "Цена MOEX": pd.to_numeric(row.get("LAST"), errors="coerce"),
             "Изм. дня, %": pd.to_numeric(row.get("LASTCHANGEPRCNT"), errors="coerce"),
-        })
+        }
+
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        quotes = [quote for quote in executor.map(fetch_quote, tickers) if quote is not None]
     return pd.DataFrame(quotes)
 
 
 @st.cache_data(ttl=900)
 def load_moex_betas(tickers: tuple[str, ...], start_date: str, end_date: str) -> pd.DataFrame:
     """Estimate 90-day beta versus IMOEX from MOEX daily closes."""
-    histories = {}
-    for ticker in (*tickers, "IMOEX"):
+    def fetch_history(ticker: str) -> tuple[str, pd.Series | None]:
         market = "index" if ticker == "IMOEX" else "shares"
         response = requests.get(
             f"https://iss.moex.com/iss/history/engines/stock/markets/{market}/securities/{ticker}.json",
             params={"from": start_date, "till": end_date, "limit": 1000},
-            timeout=20,
+            timeout=8,
         )
         response.raise_for_status()
         payload = response.json()["history"]
         frame = pd.DataFrame(payload["data"], columns=payload["columns"])
         if frame.empty:
-            continue
+            return ticker, None
         frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
         frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
-        histories[ticker] = (
+        series = (
             frame.dropna(subset=["CLOSE"])
             .set_index("TRADEDATE")["CLOSE"]
             .groupby(level=0)
             .last()
             .sort_index()
         )
+        return ticker, series
+
+    histories = {}
+    with ThreadPoolExecutor(max_workers=7) as executor:
+        for ticker, series in executor.map(fetch_history, (*tickers, "IMOEX")):
+            if series is not None:
+                histories[ticker] = series
     prices = pd.DataFrame(histories).dropna()
     returns = prices.pct_change().dropna()
     if "IMOEX" not in returns:
