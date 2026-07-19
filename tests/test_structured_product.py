@@ -61,6 +61,11 @@ class TestStructuredProduct:
         )
         assert result["best"]["agents_with_signal"]
         assert result["best"]["agent_contributions"]
+        assert set(result["best"]["split_objectives"]) == {
+            "train", "validation", "test",
+        }
+        assert "baseline_comparison" in result
+        assert result["selection_method"].startswith("min(")
 
     def test_universe_too_small(self) -> None:
         from src.structured_product import find_best_structured_product

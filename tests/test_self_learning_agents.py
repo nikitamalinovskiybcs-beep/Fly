@@ -1,6 +1,5 @@
 """Tests for src.self_learning_agents — 8 self-learning agents cascade."""
 
-import numpy as np
 import pytest
 
 from src.self_learning_agents import (
@@ -189,6 +188,21 @@ def test_meta_decision_valid() -> None:
     meta = MetaAgent()
     result = meta.predict({}, base_score=75)
     assert result["decision"] in ("BUY", "HOLD", "AVOID")
+
+
+def test_meta_walk_forward_update() -> None:
+    meta = MetaAgent()
+    history = [
+        {"agent_accuracies": {"sentiment": 80, "alpha": 55}},
+        {"agent_accuracies": {"sentiment": 82, "alpha": 58}},
+        {"agent_accuracies": {"sentiment": 84, "alpha": 52}},
+        {"agent_accuracies": {"sentiment": 83, "alpha": 54}},
+        {"agent_accuracies": {"sentiment": 85, "alpha": 53}},
+    ]
+    before = dict(meta.weights)
+    meta.update_weights(history)
+    assert meta.weights["sentiment"] != before["sentiment"]
+    assert sum(meta.weights.values()) == pytest.approx(1.0, abs=0.01)
 
 
 # ── Full cascade ──

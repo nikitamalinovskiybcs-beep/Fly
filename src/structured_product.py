@@ -27,6 +27,54 @@ BARRIERS = [0.55, 0.60, 0.65, 0.70, 0.75]
 TENORS = [12, 18, 24, 36]
 
 
+def _split_objectives(cfg: Dict[str, float]) -> Dict[str, float]:
+    """Stress-split one model output to detect fragile recommendations.
+
+    This is a deterministic model-split guard, not a claim of live
+    out-of-sample performance. Real settled-note outcomes can replace these
+    assumptions when they accumulate.
+    """
+    scenarios = {
+        "train": (1.00, 0.00, 0.00),
+        "validation": (0.97, 0.015, 0.005),
+        "test": (0.92, 0.035, 0.010),
+    }
+    values = {}
+    for name, (coupon_factor, loss_shift, tox_shift) in scenarios.items():
+        coupon = cfg["coupon"] * coupon_factor
+        loss = min(1.0, cfg["p_loss_pct"] / 100.0 + loss_shift)
+        toxicity = min(1.0, cfg["avg_tox"] + tox_shift)
+        values[name] = round(
+            coupon * (1.0 - loss)
+            - loss * 40.0
+            - toxicity * 8.0
+            - max(0.0, (cfg["barrier"] / 100.0 - 0.55)) * 12.0,
+            2,
+        )
+    return values
+
+
+def _baseline_comparison(
+    universe: List[str],
+    basket_size: int,
+    best: Dict[str, float],
+) -> Dict:
+    """Compare the selected product against transparent no-agent baselines."""
+    baseline_basket = universe[:basket_size]
+    baseline = best_config_for_basket(baseline_basket)
+    no_agent = float(best["objective"])
+    return {
+        "baseline_basket": baseline_basket,
+        "baseline_objective": round(float(baseline.get("objective", 0.0)), 2),
+        "selected_vs_baseline": round(
+            float(best["final_objective"]) - float(baseline.get("objective", 0.0)),
+            2,
+        ),
+        "agent_lift": round(float(best["agent_adjustment"]), 2),
+        "no_agent_objective": round(no_agent, 2),
+    }
+
+
 def score_product(
     basket: List[str], barrier: float, tenor_months: int,
 ) -> Dict[str, float]:
@@ -184,7 +232,12 @@ def find_best_structured_product(
         cfg["agent_confidence"] = round(
             float(agent_report.get("confidence", 0.5)), 2
         )
-        cfg["final_objective"] = round(cfg["objective"] + adj, 2)
+        cfg["split_objectives"] = _split_objectives(cfg)
+        cfg["worst_split_objective"] = min(cfg["split_objectives"].values())
+        cfg["final_objective"] = round(
+            min(cfg["objective"] + adj, cfg["worst_split_objective"] + adj),
+            2,
+        )
         ranked.append(cfg)
 
     if not ranked:
@@ -197,6 +250,8 @@ def find_best_structured_product(
         "best": best,
         "leaderboard": ranked[:top_n],
         "n_evaluated": len(ranked),
+        "baseline_comparison": _baseline_comparison(universe, basket_size, best),
+        "selection_method": "min(train, validation, test model splits)",
         "recommendation": (
             f"Лучший продукт: {' / '.join(best['basket'])} · "
             f"барьер {best['barrier']}% · срок {best['tenor_months']}мес · "

@@ -869,21 +869,31 @@ class MetaAgent:
         return result
 
     def update_weights(self, performance_history: List[Dict]):
-        """Recalculate agent weights based on historical performance.
-        Called weekly by automation."""
+        """Recalculate weights from cheap walk-forward performance estimates."""
         if len(performance_history) < 5:
             return
 
-        # Simple: weight by recent prediction accuracy
-        for entry in performance_history[-20:]:
-            agent_accs = entry.get("agent_accuracies", {})
-            for agent_name, acc in agent_accs.items():
+        observations = {}
+        for entry in performance_history[-30:]:
+            for agent_name, accuracy in entry.get("agent_accuracies", {}).items():
                 if agent_name in self.weights:
-                    # EMA update
-                    alpha = 0.1
-                    current = self.weights[agent_name]
-                    target = acc / 100.0
-                    self.weights[agent_name] = round(current * (1 - alpha) + target * alpha, 3)
+                    observations.setdefault(agent_name, []).append(float(accuracy))
+
+        calibration = {}
+        for agent_name, values in observations.items():
+            if len(values) < 3:
+                continue
+            walk_forward = []
+            for index in range(2, len(values)):
+                prior_mean = float(np.mean(values[:index]))
+                walk_forward.append(max(0.0, 100.0 - abs(values[index] - prior_mean)))
+            recent = float(np.mean(values[-5:]))
+            calibration[agent_name] = 0.5 * float(np.mean(walk_forward)) + 0.5 * recent
+
+        for agent_name, score in calibration.items():
+            current = self.weights[agent_name]
+            target = max(0.05, min(1.0, score / 100.0))
+            self.weights[agent_name] = round(0.8 * current + 0.2 * target, 3)
 
         # Normalize weights
         total = sum(self.weights.values())
@@ -892,6 +902,7 @@ class MetaAgent:
 
         _save_agent_state(self.NAME, {
             "weights": self.weights,
+            "walk_forward_calibration": calibration,
             "last_update": datetime.utcnow().isoformat(),
         })
 
