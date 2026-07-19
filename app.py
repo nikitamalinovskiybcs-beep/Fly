@@ -10,6 +10,7 @@ import requests
 import re
 from datetime import datetime
 from io import BytesIO
+from concurrent.futures import ThreadPoolExecutor
 
 from src.assessor import StrategyRiskAssessor
 from src.core_metrics import returns_from_prices
@@ -204,27 +205,34 @@ def load_sector_indices(start_date: str, end_date: str) -> pd.DataFrame:
 @st.cache_data(ttl=900)
 def load_sector_exposures(tickers: tuple[str, ...], start_date: str, end_date: str) -> pd.DataFrame:
     """Estimate each holding's beta to financials and oil-and-gas TR indices."""
-    histories = {}
-    for ticker in (*tickers, "MEFNTR", "MEOGTR"):
+    def fetch_history(ticker: str) -> tuple[str, pd.Series | None]:
+        market = "index" if ticker.startswith("ME") else "shares"
         response = requests.get(
-            f"https://iss.moex.com/iss/history/engines/stock/markets/{'index' if ticker.startswith('ME') else 'shares'}/securities/{ticker}.json",
+            f"https://iss.moex.com/iss/history/engines/stock/markets/{market}/securities/{ticker}.json",
             params={"from": start_date, "till": end_date, "limit": 1000},
-            timeout=20,
+            timeout=8,
         )
         response.raise_for_status()
         payload = response.json()["history"]
         frame = pd.DataFrame(payload["data"], columns=payload["columns"])
         if frame.empty:
-            continue
+            return ticker, None
         frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
         frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
-        histories[ticker] = (
+        series = (
             frame.dropna(subset=["CLOSE"])
             .set_index("TRADEDATE")["CLOSE"]
             .groupby(level=0)
             .last()
             .sort_index()
         )
+        return ticker, series
+
+    histories = {}
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        for ticker, series in executor.map(fetch_history, (*tickers, "MEFNTR", "MEOGTR")):
+            if series is not None:
+                histories[ticker] = series
     returns = pd.DataFrame(histories).pct_change().dropna()
     result = []
     for ticker in tickers:
