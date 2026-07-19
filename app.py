@@ -173,6 +173,71 @@ def load_moex_benchmarks(start_date: str, end_date: str) -> pd.DataFrame:
     return benchmark
 
 
+@st.cache_data(ttl=900)
+def load_sector_indices(start_date: str, end_date: str) -> pd.DataFrame:
+    """Load MOEX financials and oil-and-gas total-return indices."""
+    rows = {}
+    for secid in ("MEFNTR", "MEOGTR"):
+        response = requests.get(
+            f"https://iss.moex.com/iss/history/engines/stock/markets/index/securities/{secid}.json",
+            params={"from": start_date, "till": end_date, "limit": 1000},
+            timeout=20,
+        )
+        response.raise_for_status()
+        payload = response.json()["history"]
+        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
+        if frame.empty:
+            raise ValueError(f"MOEX returned no data for {secid}")
+        frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
+        frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
+        rows[secid] = (
+            frame.dropna(subset=["CLOSE"])
+            .set_index("TRADEDATE")["CLOSE"]
+            .groupby(level=0)
+            .last()
+            .sort_index()
+        )
+    data = pd.DataFrame(rows).dropna()
+    return data / data.iloc[0]
+
+
+@st.cache_data(ttl=900)
+def load_sector_exposures(tickers: tuple[str, ...], start_date: str, end_date: str) -> pd.DataFrame:
+    """Estimate each holding's beta to financials and oil-and-gas TR indices."""
+    histories = {}
+    for ticker in (*tickers, "MEFNTR", "MEOGTR"):
+        response = requests.get(
+            f"https://iss.moex.com/iss/history/engines/stock/markets/{'index' if ticker.startswith('ME') else 'shares'}/securities/{ticker}.json",
+            params={"from": start_date, "till": end_date, "limit": 1000},
+            timeout=20,
+        )
+        response.raise_for_status()
+        payload = response.json()["history"]
+        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
+        if frame.empty:
+            continue
+        frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
+        frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
+        histories[ticker] = (
+            frame.dropna(subset=["CLOSE"])
+            .set_index("TRADEDATE")["CLOSE"]
+            .groupby(level=0)
+            .last()
+            .sort_index()
+        )
+    returns = pd.DataFrame(histories).pct_change().dropna()
+    result = []
+    for ticker in tickers:
+        if ticker not in returns:
+            continue
+        row = {"Бумага": ticker}
+        for sector in ("MEFNTR", "MEOGTR"):
+            if sector in returns and returns[sector].var():
+                row[f"Beta {sector}"] = returns[ticker].cov(returns[sector]) / returns[sector].var()
+        result.append(row)
+    return pd.DataFrame(result)
+
+
 @st.cache_data(ttl=60)
 def load_moex_quotes(tickers: tuple[str, ...]) -> pd.DataFrame:
     """Load current MOEX quotes for the uploaded portfolio."""
@@ -349,6 +414,61 @@ def render_hedge_lab() -> None:
     except (requests.RequestException, KeyError, ValueError) as exc:
         st.warning(f"MOEX benchmark data unavailable: {exc}. Остальные сценарии доступны вручную.")
 
+    st.markdown("### Сектора: банки против нефти")
+    st.caption("MEFNTR — финансовый сектор; MEOGTR — нефть и газ. Корреляция рассчитывается по дневным доходностям.")
+    try:
+        sector_data = load_sector_indices(
+            start_date.isoformat(),
+            datetime.now().date().isoformat(),
+        )
+        sector_returns = sector_data.pct_change().dropna()
+        sector_chart = go.Figure()
+        for name, color in [("MEFNTR · банки", "#f59e0b"), ("MEOGTR · нефть и газ", "#f43f5e")]:
+            secid = name.split(" · ")[0]
+            sector_chart.add_trace(go.Scatter(
+                x=sector_data.index,
+                y=sector_data[secid] * 100,
+                mode="lines",
+                name=name,
+                line={"color": color, "width": 2},
+            ))
+        sector_chart.update_layout(
+            title="Секторальная доходность, база 100",
+            yaxis_title="Индекс",
+            **PLOT_LAYOUT,
+        )
+        st.plotly_chart(sector_chart, use_container_width=True)
+        correlations = pd.DataFrame({
+            "30 дней": sector_returns["MEFNTR"].rolling(30).corr(sector_returns["MEOGTR"]),
+            "90 дней": sector_returns["MEFNTR"].rolling(90).corr(sector_returns["MEOGTR"]),
+            "252 дня": sector_returns["MEFNTR"].rolling(252).corr(sector_returns["MEOGTR"]),
+        }).dropna(how="all")
+        correlation_chart = go.Figure()
+        for name, color in [("30 дней", "#22d3ee"), ("90 дней", "#a3e635"), ("252 дня", "#fbbf24")]:
+            correlation_chart.add_trace(go.Scatter(
+                x=correlations.index,
+                y=correlations[name],
+                mode="lines",
+                name=name,
+                line={"color": color, "width": 2},
+            ))
+        correlation_chart.update_layout(
+            title="Rolling-корреляция банков и нефти",
+            yaxis_title="Корреляция",
+            yaxis_range=[-1, 1],
+            **PLOT_LAYOUT,
+        )
+        st.plotly_chart(correlation_chart, use_container_width=True)
+        latest_corr = correlations.iloc[-1]
+        corr_cards = st.columns(3)
+        corr_cards[0].metric("Корреляция 30д", f"{latest_corr['30 дней']:.2f}")
+        corr_cards[1].metric("Корреляция 90д", f"{latest_corr['90 дней']:.2f}")
+        corr_cards[2].metric("Корреляция 252д", f"{latest_corr['252 дня']:.2f}")
+        if latest_corr["90 дней"] < 0.2:
+            st.warning("ALERT: 90-дневная корреляция секторов низкая — общий IMOEX-хедж может давать высокий tracking error.")
+    except (requests.RequestException, KeyError, ValueError) as exc:
+        st.warning(f"Sector data unavailable: {exc}")
+
     default_holdings = pd.DataFrame([
         {"Бумага": "X5", "Стоимость, ₽": 4_982_567.50, "Изменение, %": -22.88},
         {"Бумага": "T", "Стоимость, ₽": 5_022_652.24, "Изменение, %": -27.03},
@@ -429,6 +549,21 @@ def render_hedge_lab() -> None:
             beta_cards[2].metric("Текущий hedge", money(33_630_000), f"{33_630_000 / (portfolio * beta_estimate):.0%} от beta-хеджа")
     except (requests.RequestException, KeyError, ValueError, ZeroDivisionError):
         beta_df = pd.DataFrame()
+    try:
+        sector_exposure = load_sector_exposures(
+            tuple(edited_holdings["Бумага"].astype(str).str.upper()),
+            (datetime.now() - pd.Timedelta(days=120)).date().isoformat(),
+            datetime.now().date().isoformat(),
+        )
+        if not sector_exposure.empty:
+            st.markdown("#### Экспозиция к секторам")
+            st.dataframe(
+                sector_exposure.round(2),
+                use_container_width=True,
+                hide_index=True,
+            )
+    except (requests.RequestException, KeyError, ValueError):
+        sector_exposure = pd.DataFrame()
 
     with st.expander("Параметры позиции", expanded=True):
         inputs = st.columns(4)
@@ -470,6 +605,27 @@ def render_hedge_lab() -> None:
         st.warning(f"ALERT: tracking error {tracking_error:.2%}. Портфель заметно отклоняется от IMOEX.")
     if hedge_nominal < portfolio * beta:
         st.info(f"Недохедж: номинал IMOEXF ниже beta-adjusted оценки примерно на {money(portfolio * beta - hedge_nominal)}.")
+    efficiency_df = pd.DataFrame([
+        {"Изменение модели": "Без хеджа", "P&L": long_pnl, "Доходность": long_pnl / portfolio if portfolio else 0.0, "Что измеряет": "Базовый риск корзины"},
+        {"Изменение модели": "+ шорт IMOEXF", "P&L": long_pnl + futures_pnl, "Доходность": (long_pnl + futures_pnl) / portfolio if portfolio else 0.0, "Что измеряет": "Защита от движения рынка"},
+        {"Изменение модели": "+ carry / базис", "P&L": net_pnl, "Доходность": net_pct, "Что измеряет": "Сценарный полный результат"},
+        {"Изменение модели": "Beta-adjusted hedge", "P&L": long_pnl - portfolio * beta * index_move, "Доходность": (long_pnl - portfolio * beta * index_move) / portfolio if portfolio else 0.0, "Что измеряет": "Хедж с учётом чувствительности"},
+    ])
+    st.markdown("### Эффективность модели")
+    st.caption("Сравнение сценарное: beta-adjusted строка показывает, как меняется результат при номинале, рассчитанном по beta; carry не является гарантированным funding.")
+    st.dataframe(
+        efficiency_df.assign(**{
+            "P&L": efficiency_df["P&L"].map(money),
+            "Доходность": efficiency_df["Доходность"].map(lambda value: f"{value:.2%}"),
+        }),
+        use_container_width=True,
+        hide_index=True,
+    )
+    protection = futures_pnl / abs(long_pnl) if long_pnl else 0.0
+    efficiency_cards = st.columns(3)
+    efficiency_cards[0].metric("Компенсация падения", f"{protection:.1%}", "шорт / убыток лонга")
+    efficiency_cards[1].metric("Снижение tracking error", money(abs(portfolio * tracking_error) - abs(long_pnl + futures_pnl)), "приближённо")
+    efficiency_cards[2].metric("Нужный cash buffer", money(stress_cash if "stress_cash" in locals() else hedge_nominal * 0.20), "стресс +20%")
 
     left, right = st.columns([1.45, 1])
     with left:
