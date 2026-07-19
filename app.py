@@ -325,6 +325,83 @@ def parse_holdings_image(uploaded_file) -> tuple[pd.DataFrame, str]:
     return pd.DataFrame(rows), text
 
 
+def build_agent_reports(
+    portfolio: float,
+    stock_move: float,
+    index_move: float,
+    hedge_nominal: float,
+    beta: float,
+    margin: float,
+    tracking_error: float,
+    sector_corr_90: float,
+    sector_exposure: pd.DataFrame,
+) -> list[dict[str, str]]:
+    """Run deterministic analytical agents; no order execution or broker actions."""
+    reports = [
+        {
+            "agent": "DATA AGENT",
+            "status": "READY",
+            "signal": "MOEX / OCR / manual inputs",
+            "readout": "Проверяет наличие котировок, дату последнего обновления и согласованность введённых значений.",
+        },
+        {
+            "agent": "RISK AGENT",
+            "status": "ALERT" if abs(tracking_error) >= 0.05 else "READY",
+            "signal": f"Tracking error {tracking_error:.2%}",
+            "readout": "Контролирует beta, относительную доходность и запас ГО; высокий tracking error требует пересмотра состава.",
+        },
+        {
+            "agent": "HEDGE AGENT",
+            "status": "ALERT" if hedge_nominal < portfolio * beta else "READY",
+            "signal": f"IMOEXF {hedge_nominal / portfolio:.0%} / beta {beta:.2f}" if portfolio else "Нет портфеля",
+            "readout": f"Beta-adjusted ориентир: {money(portfolio * beta)}. Агент не отправляет сделки, а показывает расхождение.",
+        },
+        {
+            "agent": "SECTOR AGENT",
+            "status": "ALERT" if pd.notna(sector_corr_90) and sector_corr_90 < 0.2 else "READY",
+            "signal": f"Corr(банки, нефть) 90д: {sector_corr_90:.2f}" if pd.notna(sector_corr_90) else "Нет sector data",
+            "readout": "Сравнивает MEFNTR и MEOGTR; низкая корреляция означает, что один индексный хедж хуже описывает портфель.",
+        },
+        {
+            "agent": "REPORT AGENT",
+            "status": "READY",
+            "signal": f"ГО {money(margin)}",
+            "readout": f"Сводит результат: лонг {stock_move:.2%}, IMOEX {index_move:.2%}, потребность в ликвидности {money(margin)}.",
+        },
+    ]
+    if sector_exposure.empty:
+        reports[3]["status"] = "WAIT"
+    return reports
+
+
+def render_agent_command_center(reports: list[dict[str, str]]) -> None:
+    """Render the coordinator output for the analytical agents."""
+    st.markdown("### Agent Command Center")
+    st.caption("Пять аналитических агентов работают как прозрачные правила и метрики; торговых поручений и автосделок нет.")
+    cols = st.columns(len(reports))
+    for col, report in zip(cols, reports):
+        with col:
+            color = {"READY": "#22c55e", "ALERT": "#ef4444", "WAIT": "#eab308"}[report["status"]]
+            st.markdown(
+                f"""
+                <div class="metric-card" style="min-height: 150px; text-align: left;">
+                    <div style="color: {color}; font-family: 'IBM Plex Mono', monospace; font-size: .72rem;">
+                        {report["status"]}
+                    </div>
+                    <strong>{report["agent"]}</strong>
+                    <div style="color: #fbbf24; margin: .45rem 0;">{report["signal"]}</div>
+                    <div style="color: #94a3b8; font-size: .78rem; line-height: 1.35;">{report["readout"]}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+    alerts = [report for report in reports if report["status"] == "ALERT"]
+    if alerts:
+        st.warning(f"Координатор: активных сигналов — {len(alerts)}. Сначала проверьте Risk/Hedge/Sector Agent.")
+    else:
+        st.success("Координатор: критических сигналов нет в текущем сценарии.")
+
+
 def render_hedge_lab() -> None:
     """Scenario dashboard for an equity portfolio hedged with IMOEXF."""
     st.markdown(
@@ -416,6 +493,7 @@ def render_hedge_lab() -> None:
 
     st.markdown("### Сектора: банки против нефти")
     st.caption("MEFNTR — финансовый сектор; MEOGTR — нефть и газ. Корреляция рассчитывается по дневным доходностям.")
+    sector_corr_90 = np.nan
     try:
         sector_data = load_sector_indices(
             start_date.isoformat(),
@@ -460,6 +538,7 @@ def render_hedge_lab() -> None:
         )
         st.plotly_chart(correlation_chart, use_container_width=True)
         latest_corr = correlations.iloc[-1]
+        sector_corr_90 = float(latest_corr["90 дней"])
         corr_cards = st.columns(3)
         corr_cards[0].metric("Корреляция 30д", f"{latest_corr['30 дней']:.2f}")
         corr_cards[1].metric("Корреляция 90д", f"{latest_corr['90 дней']:.2f}")
@@ -718,6 +797,19 @@ def render_hedge_lab() -> None:
         """,
         unsafe_allow_html=True,
     )
+
+    agent_reports = build_agent_reports(
+        portfolio=portfolio,
+        stock_move=stock_move,
+        index_move=index_move,
+        hedge_nominal=hedge_nominal,
+        beta=beta,
+        margin=margin,
+        tracking_error=tracking_error,
+        sector_corr_90=sector_corr_90,
+        sector_exposure=sector_exposure,
+    )
+    render_agent_command_center(agent_reports)
 
     tab1, tab2, tab3 = st.tabs(["Карта рисков", "Сценарии", "Как читать расчёт"])
     with tab1:
