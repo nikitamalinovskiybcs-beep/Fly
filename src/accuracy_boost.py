@@ -67,9 +67,8 @@ def k_fold_cross_validation(score_fn, data: List, k: int = 5) -> Dict:
     if len(data) < k * 2:
         return {"cv_accuracy": 0, "cv_win_rate": 0, "k": k, "fold_results": []}
 
-    np.random.seed(42)
-    indices = np.arange(len(data))
-    np.random.shuffle(indices)
+    rng = np.random.default_rng(42)
+    indices = rng.permutation(len(data))
     fold_size = len(data) // k
 
     fold_results = []
@@ -77,8 +76,6 @@ def k_fold_cross_validation(score_fn, data: List, k: int = 5) -> Dict:
         val_start = fold * fold_size
         val_end = val_start + fold_size
         val_idx = indices[val_start:val_end]
-        train_idx = np.concatenate([indices[:val_start], indices[val_end:]])
-
         val_data = [data[i] for i in val_idx]
         correct = sum(1 for tks, ty, actual in val_data
                       if (actual > 70 and score_fn(tks, ty) > 70)
@@ -107,24 +104,21 @@ def k_fold_cross_validation(score_fn, data: List, k: int = 5) -> Dict:
 # ═══════════════════════════════════════════════════════════════
 
 def neural_score(features: np.ndarray, hidden_size: int = 8) -> float:
-    """Simple 2-layer neural network for scoring.
-    Trained via gradient descent on settled notes.
-    features: [avg_tox, max_tox, div_factor, term_y, n_tickers, ...]"""
-    # Pre-trained weights (learned from 50 settled notes)
-    # Layer 1: input(6) -> hidden(8), ReLU
-    np.random.seed(42)
-    W1 = np.random.randn(6, hidden_size) * 0.3
-    b1 = np.zeros(hidden_size)
-    # Layer 2: hidden(8) -> output(1), sigmoid
-    W2 = np.random.randn(hidden_size, 1) * 0.3
-    b2 = np.zeros(1)
+    """Deterministic heuristic score kept for API compatibility.
 
-    # Forward pass
-    f = np.array(features[:6]).reshape(1, -1)
-    h = np.maximum(0, f @ W1 + b1)  # ReLU
-    out = 1.0 / (1.0 + np.exp(-(h @ W2 + b2)))  # Sigmoid
-    score = 50 + out[0, 0] * 50  # Map to [50, 100]
-    return round(float(score), 1)
+    This is not a trained neural network; its fixed projection must not be
+    reported as learned-model evidence.
+    """
+    del hidden_size
+    # Layer 1: input(6) -> hidden(8), ReLU
+    f = np.asarray(features[:6], dtype=float)
+    if f.size == 0:
+        return 50.0
+    f = np.pad(f, (0, max(0, 6 - f.size)))[:6]
+    risk = 0.35 * f[0] + 0.25 * f[1] + 0.15 * max(0.0, f[3] - 2.0)
+    diversification = 0.15 * (1.0 - f[2])
+    score = 100.0 - 35.0 * risk + 10.0 * diversification
+    return round(float(np.clip(score, 50.0, 100.0)), 1)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -602,9 +596,12 @@ def apply_all_improvements(score: float, basket_tickers: List[str],
     result["pki_corrections_total"] = round(sum(pki_corrections.values()), 1)
     result["pki_corrections_detail"] = pki_corrections
 
-    # #13: Drift detection (placeholder — needs historical predictions)
-    result["drift_status"] = {"drift_detected": False, "recommendation": "OK"}
-    result["improvements_applied"].append("drift_detection")
+    result["drift_status"] = {
+        "drift_detected": None,
+        "status": "unavailable",
+        "recommendation": "collect_historical_predictions",
+        "reason": "historical predictions are not available",
+    }
 
     result["n_improvements"] = len(result["improvements_applied"])
 

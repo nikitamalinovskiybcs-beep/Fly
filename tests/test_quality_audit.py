@@ -26,3 +26,12 @@ def test_synthetic_calibration_rows_are_reproducible() -> None:
     second = generate_synthetic_baskets(settled, n_synthetic=10, seed=7)
 
     assert first == second
+
+
+def test_neural_score_is_explicitly_a_heuristic() -> None:
+    from src.accuracy_boost import neural_score
+
+    assert 50.0 <= neural_score(np.array([0.2, 0.3, 0.8, 1.0, 3.0, 0.1])) <= 100.0
+    assert neural_score(np.array([0.2, 0.3, 0.8, 1.0, 3.0, 0.1])) == neural_score(
+        np.array([0.2, 0.3, 0.8, 1.0, 3.0, 0.1]),
+    )

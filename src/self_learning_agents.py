@@ -681,8 +681,8 @@ class OverfitGuardian:
     }
 
     def predict(self, agent_results: Dict[str, Dict],
-                current_accuracy: float = 80.0,
-                current_win_rate: float = 78.0) -> Dict:
+                current_accuracy: float = 0.0,
+                current_win_rate: float = 0.0) -> Dict:
         """Monitor all agents and check for degradation."""
         state = _load_agent_state(self.NAME)
         history = state.get("history", [])
@@ -707,7 +707,10 @@ class OverfitGuardian:
             health = "healthy"
             reason = ""
 
-            if abs(adj) > 5:
+            if "error" in result:
+                health = "unavailable"
+                reason = str(result["error"])
+            elif abs(adj) > 5:
                 health = "suspicious"
                 reason = f"extreme adjustment ({adj:+.1f})"
             elif conf < 0.3:
@@ -740,6 +743,9 @@ class OverfitGuardian:
         if current_win_rate < self.SAFETY_THRESHOLDS["min_win_rate"]:
             safety_ok = False
             safety_issues.append(f"win_rate {current_win_rate:.0f}% < {self.SAFETY_THRESHOLDS['min_win_rate']}%")
+        if degraded_agents:
+            safety_ok = False
+            safety_issues.append(f"degraded agents: {', '.join(degraded_agents)}")
 
         # Recommendation
         if not safety_ok:
@@ -918,8 +924,8 @@ def run_all_self_learning_agents(
     base_score: float,
     corr_matrix: Optional[np.ndarray] = None,
     external_data: Optional[Dict] = None,
-    current_accuracy: float = 80.0,
-    current_win_rate: float = 78.0,
+    current_accuracy: float = 0.0,
+    current_win_rate: float = 0.0,
 ) -> Dict:
     """Run all 8 agents in cascade order and return combined result.
 

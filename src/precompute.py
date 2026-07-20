@@ -2383,7 +2383,7 @@ def _compare_vs_industry(p_ki: float, avg_vol: float, avg_corr: float,
             "p_ki_method": "Analytical GBM + multivariate normal + DCC correlation",
             "vol_model": "Implied vol surface (IV30/60/90) from xfinlink + skew adjustment",
             "correlation": "DCC-GARCH dynamic (EWMA λ=0.94) + stress regime (×1.5)",
-            "scoring": "Ensemble ML (3 models, precision-optimized, 78% win rate)",
+            "scoring": "Ensemble scorer; measured win rate shown only with evidence",
             "strengths": [
                 "Self-learning: improves with each settled note",
                 "Real-time macro regime detection (VIX/stress filter)",
@@ -2430,23 +2430,22 @@ def _compare_vs_industry(p_ki: float, avg_vol: float, avg_corr: float,
     if avg_vol > 35:
         estimated_gap_pp += 1.0  # reduced from 2.0 (Heston partially handles this)
 
-    our_accuracy_pct = max(85, 100 - estimated_gap_pp * 2)  # relative to Numerix
-
     comparison["gap_analysis"] = {
-        "p_ki_gap_vs_numerix_pp": round(estimated_gap_pp, 1),
-        "our_accuracy_vs_numerix_pct": round(our_accuracy_pct, 0),
+        "p_ki_gap_vs_numerix_pp": None,
+        "our_accuracy_vs_numerix_pct": None,
+        "model_assumption_gap_pp": round(estimated_gap_pp, 1),
         "main_gaps": [
-            f"Vol-of-vol (Heston): ~{estimated_gap_pp:.0f}pp P(KI) underestimate vs LSV",
+            "Vol-of-vol (Heston) gap is not measured without a benchmark",
             "No jump-diffusion: gap events (earnings) not modeled in diffusion",
             "Discrete barrier monitoring: continuous approximation introduces ~2pp error",
             "No stochastic rates: assumes flat rf (minor, ~0.5pp for 2Y)",
         ],
         "our_advantages": [
-            f"Self-learning scoring: 78% win rate on 50 settled notes",
-            f"DCC stress correlations partially close LSV gap",
-            f"Macro regime filter: avoids trades in VIX stress (reduces realized loss)",
-            f"12 scoring factors vs pure P(KI): broader risk view",
-            f"Cost: $0 vs $50K-200K/year for Numerix",
+            "Self-learning scoring: measured only on available settled notes",
+            "DCC stress correlations are a model feature, not benchmark evidence",
+            "Macro regime filter is not a realized-loss estimate",
+            "12 scoring factors vs pure P(KI): broader risk view",
+            "Cost: $0 vs $50K-200K/year for Numerix",
         ],
         "improvements_applied": [
             "Analytical GBM with multivariate normal (was: heuristic formula)",
@@ -2457,21 +2456,10 @@ def _compare_vs_industry(p_ki: float, avg_vol: float, avg_corr: float,
         ],
     }
 
-    # Overall quality score (0-100, where 100 = Numerix quality)
-    quality_score = 72  # base: analytical GBM is solid
-    quality_score += 5  # Heston vol-of-vol correction (closes ~3pp gap)
-    quality_score += 3  # Discrete barrier monitoring (Broadie-Glasserman-Kou)
-    quality_score += 4 if avg_vol < 40 else 0  # more accurate for normal vol
-    quality_score += 4  # DCC-GARCH correlations
-    quality_score += 3  # implied vol surface
-    quality_score += 5  # self-learning (k-fold CV, adaptive weights, feedback loop)
-    quality_score = min(96, quality_score)  # cap: near-Numerix but without full LSV
-
-    comparison["quality_score"] = quality_score
+    comparison["quality_score"] = None
     comparison["quality_interpretation"] = (
-        f"{quality_score}% of Numerix accuracy. "
-        f"Main gap: vol-of-vol (~{estimated_gap_pp:.0f}pp). "
-        f"Advantage: self-learning + macro filter give 78% trade win rate."
+        "Not measured: Numerix/broker benchmark observations are unavailable. "
+        "The model-assumption gap is not an accuracy estimate."
     )
 
     return comparison

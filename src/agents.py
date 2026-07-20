@@ -817,21 +817,13 @@ class BenchmarkTrackerAgent:
         return brier_sum / max(1, len(data))
 
     def _estimate_numerix_quality(self, w: Dict, data: List) -> Dict:
-        """Estimate quality vs Numerix benchmark."""
-        from src.precompute import _score_one_note
-
-        # Numerix has ~3pp P(KI) gap from perfect
-        # Our model's accuracy approximates how close we are
-        from src.precompute import _compute_accuracy
-        acc = _compute_accuracy(w, data)
-
-        # Quality = accuracy / 100 * 100% (simplified)
-        quality = min(100, acc * 1.15)  # slight correction for methodology
-
         return {
-            "quality_pct": round(quality, 1),
-            "estimated_pki_gap_pp": round(max(0, (100 - quality) * 0.15), 1),
-            "level": "excellent" if quality > 90 else "good" if quality > 75 else "needs_improvement",
+            "available": False,
+            "quality_pct": None,
+            "estimated_pki_gap_pp": None,
+            "level": "unavailable",
+            "reason": "No Numerix or broker benchmark observations supplied",
+            "n_observations": 0,
         }
 
     def _load_history(self) -> List[Dict]:

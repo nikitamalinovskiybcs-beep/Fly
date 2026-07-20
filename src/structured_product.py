@@ -175,6 +175,9 @@ def _agent_report(basket: List[str], yf_data: Optional[Dict]) -> Dict:
             return {
                 "total_adjustment": 0.0,
                 "agents_with_signal": res.get("agents_with_signal", []),
+                "agent_contributions": res.get("agent_contributions", {}),
+                "confidence": res.get("confidence", 0.5),
+                "degraded": True,
             }
         return {
             "total_adjustment": float(

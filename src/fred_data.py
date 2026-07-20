@@ -42,6 +42,7 @@ def get_fred_data() -> Dict:
                 pass
 
         # Derived metrics
+        observed_keys = set(result)
         rate_10y = result.get("rate_10y", 4.5)
         rate_2y = result.get("rate_2y", 4.3)
         result["yield_curve_slope"] = round(rate_10y - rate_2y, 2)
@@ -58,7 +59,10 @@ def get_fred_data() -> Dict:
         else:
             result["fred_regime"] = "normal"
 
-        result["available"] = True
+        result["available"] = bool(observed_keys)
+        result["source"] = "fred_live" if len(observed_keys) == 4 else "fred_partial"
+        if not observed_keys:
+            result["warning"] = "FRED unavailable; defaults used"
         _cache["fred"] = result
         return result
 
@@ -67,6 +71,8 @@ def get_fred_data() -> Dict:
             "vix": 20.0, "rate_10y": 4.5, "rate_2y": 4.3,
             "yield_curve_slope": 0.2, "yield_curve_inverted": False,
             "credit_spread": 1.5, "fred_regime": "normal", "available": False,
+            "source": "fallback_defaults",
+            "warning": "FRED unavailable; defaults used",
         }
         _cache["fred"] = fallback
         return fallback
