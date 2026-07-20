@@ -1,11 +1,9 @@
 """Tests for src.agents — paper trading agent and models."""
 
-import json
 import shutil
 import tempfile
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -234,6 +232,28 @@ class TestPaperTradingAgent:
         reloaded.DATA_DIR = Path(self.tmp)
         reloaded._load_state()
         assert reloaded._generation == 7
+
+    def test_generation_persists_on_fresh_instances(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """The UI's fresh agent instance must not reset learned state."""
+        from src.agents.paper_trader import PaperTradingAgent
+
+        state_dir = Path(self.tmp) / "paper_trading"
+        monkeypatch.setattr(PaperTradingAgent, "DATA_DIR", state_dir)
+
+        agent = PaperTradingAgent(tickers=["AAPL"])
+        agent._generation = 4
+        agent._signal_weights["regime"] = 0.22
+        agent._save_state()
+
+        reloaded = PaperTradingAgent(tickers=["AAPL"])
+        assert reloaded._generation == 4
+        assert reloaded._signal_weights["regime"] == 0.22
+
+    def test_default_state_path_is_not_cwd_relative(self) -> None:
+        """Changing the launch directory must not create a new model state."""
+        from src.agents.paper_trader import PaperTradingAgent
+
+        assert PaperTradingAgent.DATA_DIR.is_absolute()
 
     def test_alpha_signal_in_collected_signals(self) -> None:
         """The Numerai alpha is wired into the signal set used for decisions."""

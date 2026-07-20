@@ -11,6 +11,8 @@ Architecture:
 
 import json
 import logging
+import os
+import shutil
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -35,7 +37,13 @@ logger = logging.getLogger(__name__)
 class PaperTradingAgent:
     """Paper trading agent with self-learning signal weights."""
 
-    DATA_DIR = Path("data/paper_trading")
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    DATA_DIR = Path(
+        os.environ.get(
+            "FLY_PAPER_DATA_DIR",
+            str(PROJECT_ROOT / "data" / "paper_trading"),
+        ),
+    )
     INITIAL_CASH = 100_000.0
     COMMISSION_PCT = 0.001
     SLIPPAGE_PCT = 0.0005
@@ -73,6 +81,7 @@ class PaperTradingAgent:
         self._generation: int = 0
 
         self.DATA_DIR.mkdir(parents=True, exist_ok=True)
+        self._migrate_legacy_state()
         self._load_state()
 
     def run_daily(self) -> list[PaperTrade]:
@@ -810,6 +819,23 @@ class PaperTradingAgent:
 
     # ── Persistence ──
 
+    def _migrate_legacy_state(self) -> None:
+        """Move state from the old cwd-relative location once."""
+        if self.DATA_DIR != self.__class__.DATA_DIR:
+            return
+
+        legacy_dir = Path.cwd() / "data" / "paper_trading"
+        if legacy_dir == self.DATA_DIR or not legacy_dir.exists():
+            return
+
+        try:
+            for source in legacy_dir.iterdir():
+                target = self.DATA_DIR / source.name
+                if not target.exists():
+                    shutil.copy2(source, target)
+        except OSError as exc:
+            logger.warning("Legacy paper state migration failed: %s", exc)
+
     def _save_state(self) -> None:
         """Save all state to JSON files."""
         try:
@@ -823,7 +849,10 @@ class PaperTradingAgent:
                 }
                 for t in self._trades
             ]
-            (self.DATA_DIR / "trades.json").write_text(json.dumps(trades_data, indent=2))
+            self.DATA_DIR.mkdir(parents=True, exist_ok=True)
+            (self.DATA_DIR / "trades.json").write_text(
+                json.dumps(trades_data, indent=2),
+            )
 
             portfolio = {
                 "cash": self._cash,
@@ -882,11 +911,19 @@ class PaperTradingAgent:
             if config_path.exists():
                 cfg = json.loads(config_path.read_text())
                 if isinstance(cfg, dict) and "weights" in cfg:
-                    self._signal_weights = cfg["weights"]
-                    self._generation = cfg.get("generation", 0)
+                    loaded_weights = cfg["weights"]
+                    if isinstance(loaded_weights, dict):
+                        self._signal_weights = {
+                            name: float(loaded_weights.get(name, default))
+                            for name, default in self.DEFAULT_SIGNAL_WEIGHTS.items()
+                        }
+                    self._generation = max(0, int(cfg.get("generation", 0)))
                 else:
                     # backward-compat: old format stored weights at top level
-                    self._signal_weights = cfg
+                    self._signal_weights = {
+                        name: float(cfg.get(name, default))
+                        for name, default in self.DEFAULT_SIGNAL_WEIGHTS.items()
+                    }
 
         except Exception as exc:
             logger.warning("Load state failed: %s", exc)
