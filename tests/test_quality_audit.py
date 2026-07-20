@@ -28,6 +28,21 @@ def test_synthetic_calibration_rows_are_reproducible() -> None:
     assert first == second
 
 
+def test_random_synthetic_basket_batch_has_requested_size() -> None:
+    from src.accuracy_boost import generate_synthetic_baskets
+
+    settled = [("AAPL/MSFT/GOOG", 2.0, 0), ("AMD/NIO/TSLA", 2.5, 1)]
+    rows = generate_synthetic_baskets(
+        settled,
+        n_synthetic=100,
+        seed=11,
+        random_only=True,
+    )
+
+    assert len(rows) == 100
+    assert all(len(row) == 3 for row in rows)
+
+
 def test_neural_score_is_explicitly_a_heuristic() -> None:
     from src.accuracy_boost import neural_score
 

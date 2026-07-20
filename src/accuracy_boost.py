@@ -23,6 +23,7 @@ def generate_synthetic_baskets(
     settled_notes: List[Tuple],
     n_synthetic: int = 100,
     seed: int = 42,
+    random_only: bool = False,
 ) -> List[Tuple]:
     """Generate synthetic training data from existing settled notes.
     Uses perturbation + interpolation to expand dataset 50 → 200+."""
@@ -31,15 +32,16 @@ def generate_synthetic_baskets(
     if not settled_notes:
         return synthetic
 
-    # 1. Perturbation: add noise to term_y
-    for basket_str, term_y, bad in settled_notes:
-        for delta in [-0.3, 0.3]:
-            new_term = max(0.3, term_y + delta)
-            # Shorter term → more likely good; longer term → more likely bad
-            new_bad = bad
-            if delta > 0 and term_y < 2.5 and bad == 0:
-                new_bad = 1 if rng.random() < 0.3 else 0
-            synthetic.append((basket_str, round(new_term, 1), new_bad))
+    if not random_only:
+        # 1. Perturbation: add noise to term_y
+        for basket_str, term_y, bad in settled_notes:
+            for delta in [-0.3, 0.3]:
+                new_term = max(0.3, term_y + delta)
+                # Shorter term → more likely good; longer term → more likely bad
+                new_bad = bad
+                if delta > 0 and term_y < 2.5 and bad == 0:
+                    new_bad = 1 if rng.random() < 0.3 else 0
+                synthetic.append((basket_str, round(new_term, 1), new_bad))
 
     # 2. Recombination: create new baskets from existing tickers
     all_tickers = set()
@@ -48,7 +50,7 @@ def generate_synthetic_baskets(
         all_tickers.update(tks)
 
     ticker_list = sorted(all_tickers)
-    for _ in range(min(n_synthetic, 50)):
+    for _ in range(n_synthetic):
         n_tks = int(rng.choice([3, 4, 5]))
         selected = list(rng.choice(ticker_list, size=min(n_tks, len(ticker_list)), replace=False))
         term_y = round(float(rng.uniform(0.5, 4.0)), 1)

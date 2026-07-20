@@ -279,7 +279,11 @@ def calibrate_scoring_on_settled() -> Dict:
     # [IMP #1-3] Enhanced synthetic augmentation using accuracy_boost
     try:
         from src.accuracy_boost import generate_synthetic_baskets
-        synthetic = generate_synthetic_baskets(SETTLED_NOTES, n_synthetic=80)
+        synthetic = generate_synthetic_baskets(
+            SETTLED_NOTES,
+            n_synthetic=100,
+            random_only=True,
+        )
         for basket_str, term_y, bad in synthetic:
             tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
             if tks:
@@ -396,6 +400,7 @@ def calibrate_scoring_on_settled() -> Dict:
         "acc_after": round(acc_after, 0),
         "n_notes": len(data),
         "n_synthetic": len(synthetic_data),
+        "synthetic_source": "deterministic_heuristic_augmentation",
         "n_train": len(train_data),
         "n_val": len(val_data),
         "weights": {k: round(v, 2) if isinstance(v, float) else v for k, v in final_w.items()},
