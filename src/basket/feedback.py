@@ -16,7 +16,8 @@ from src.basket.scorer import BasketScorer
 
 logger = logging.getLogger(__name__)
 
-FEEDBACK_PATH = Path("data/basket_feedback.json")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+FEEDBACK_PATH = PROJECT_ROOT / "data" / "basket_feedback.json"
 
 
 class BasketFeedbackLoop:

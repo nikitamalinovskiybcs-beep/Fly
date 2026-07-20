@@ -26,9 +26,11 @@ import numpy as np
 import pandas as pd
 
 
-OUTCOME_PATH = Path("data/structured_note_outcomes.json")
-REALIZED_FEEDBACK_PATH = Path("data/realized_outcome_feedback.json")
-QUALITY_REPORT_PATH = Path("data/outcome_quality_report.json")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = PROJECT_ROOT / "data"
+OUTCOME_PATH = DATA_DIR / "structured_note_outcomes.json"
+REALIZED_FEEDBACK_PATH = DATA_DIR / "realized_outcome_feedback.json"
+QUALITY_REPORT_PATH = DATA_DIR / "outcome_quality_report.json"
 
 
 @dataclass(frozen=True)

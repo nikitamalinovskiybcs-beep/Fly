@@ -35,3 +35,33 @@ def test_neural_score_is_explicitly_a_heuristic() -> None:
     assert neural_score(np.array([0.2, 0.3, 0.8, 1.0, 3.0, 0.1])) == neural_score(
         np.array([0.2, 0.3, 0.8, 1.0, 3.0, 0.1]),
     )
+
+
+def test_scheduler_connects_complete_market_data_to_product_agents(monkeypatch) -> None:
+    import src.scheduler as scheduler_module
+
+    seen = {}
+
+    def fake_market_data(tickers):
+        return {ticker: {"source": "yfinance"} for ticker in tickers}
+
+    def fake_product_search(universe, basket_size, yf_data=None):
+        seen["yf_data"] = yf_data
+        return {
+            "best": {"basket": universe[:basket_size]},
+            "n_evaluated": 1,
+            "recommendation": "test",
+        }
+
+    monkeypatch.setattr("src.data_module.fetch_ticker_data", fake_market_data)
+    monkeypatch.setattr(
+        "src.structured_product.find_best_structured_product",
+        fake_product_search,
+    )
+
+    result = scheduler_module.FlyScheduler(
+        universe=["AAPL", "MSFT", "GOOGL"],
+    )._run_product_search()
+
+    assert result["agents_enabled"] is True
+    assert seen["yf_data"]["AAPL"]["source"] == "yfinance"

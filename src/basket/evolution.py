@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 class BasketEvolutionAgent:
     """Optimize basket scoring weights based on outcome feedback."""
 
-    WEIGHTS_PATH = Path("data/basket_weights.json")
-    LOG_PATH = Path("data/basket_evolution_log.json")
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    WEIGHTS_PATH = PROJECT_ROOT / "data" / "basket_weights.json"
+    LOG_PATH = PROJECT_ROOT / "data" / "basket_evolution_log.json"
     MIN_OUTCOMES = 10
     IMPROVEMENT_THRESHOLD = 0.02
 

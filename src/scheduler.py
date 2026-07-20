@@ -21,8 +21,10 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-SCHEDULE_LOG = Path("data/scheduler_log.json")
-NUMERAI_STATE = Path("data/numerai_submissions.json")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = PROJECT_ROOT / "data"
+SCHEDULE_LOG = DATA_DIR / "scheduler_log.json"
+NUMERAI_STATE = DATA_DIR / "numerai_submissions.json"
 
 
 class FlyScheduler:
@@ -314,14 +316,28 @@ class FlyScheduler:
     def _run_product_search(self) -> dict:
         """Search the universe for the best structured product (core goal)."""
         try:
+            from src.data_module import fetch_ticker_data
             from src.structured_product import find_best_structured_product
-            result = find_best_structured_product(self.universe, basket_size=3)
+            market_data = fetch_ticker_data(self.universe)
+            has_complete_real_data = all(
+                market_data.get(t, {}).get("source") != "estimated"
+                for t in self.universe
+            )
+            result = find_best_structured_product(
+                self.universe,
+                basket_size=3,
+                yf_data=market_data if has_complete_real_data else None,
+            )
             best = result.get("best", {})
             return {
                 "status": "ok",
                 "best": best,
                 "n_evaluated": result.get("n_evaluated", 0),
                 "recommendation": result.get("recommendation", ""),
+                "market_data_source": (
+                    "live_complete" if has_complete_real_data else "estimated_or_incomplete"
+                ),
+                "agents_enabled": has_complete_real_data,
             }
         except Exception as exc:
             logger.error("Product search failed: %s", exc)
@@ -343,7 +359,12 @@ class FlyScheduler:
             best = product.get("best", {})
             if not best:
                 return {"status": "no_product"}
-            quality_spec = StructuredNoteSpec(basket=list(best["basket"]))
+            quality_spec = StructuredNoteSpec(
+                basket=list(best["basket"]),
+                barrier=float(best.get("barrier", 60)) / 100.0,
+                coupon_rate=float(best.get("coupon", 0.0)) / 100.0 / 4.0,
+                term_months=int(best.get("tenor_months", 24)),
+            )
             historical_prices = self._load_historical_prices(quality_spec.basket)
             replay = replay_historical_windows(
                 historical_prices,
@@ -376,12 +397,7 @@ class FlyScheduler:
                     "quality": quality,
                 }
 
-            spec = StructuredNoteSpec(
-                basket=list(best["basket"]),
-                barrier=float(best.get("barrier", 60)) / 100.0,
-                coupon_rate=float(best.get("coupon", 0.0)) / 100.0 / 4.0,
-                term_months=int(best.get("tenor_months", 24)),
-            )
+            spec = quality_spec
             note_id = (
                 f"paper_{datetime.now().date().isoformat()}_"
                 f"{'_'.join(spec.basket)}_{int(spec.barrier * 100)}_{spec.term_months}"
