@@ -19,15 +19,17 @@ from scipy.stats import norm
 # #1-3: MORE DATA — synthetic baskets + cross-validation
 # ═══════════════════════════════════════════════════════════════
 
-def generate_synthetic_baskets(settled_notes: List[Tuple], n_synthetic: int = 100) -> List[Tuple]:
+def generate_synthetic_baskets(
+    settled_notes: List[Tuple],
+    n_synthetic: int = 100,
+    seed: int = 42,
+) -> List[Tuple]:
     """Generate synthetic training data from existing settled notes.
     Uses perturbation + interpolation to expand dataset 50 → 200+."""
     synthetic = []
+    rng = np.random.default_rng(seed)
     if not settled_notes:
         return synthetic
-
-    good_notes = [(t, ty, b) for t, ty, b in settled_notes if b == 0]
-    bad_notes = [(t, ty, b) for t, ty, b in settled_notes if b == 1]
 
     # 1. Perturbation: add noise to term_y
     for basket_str, term_y, bad in settled_notes:
@@ -36,7 +38,7 @@ def generate_synthetic_baskets(settled_notes: List[Tuple], n_synthetic: int = 10
             # Shorter term → more likely good; longer term → more likely bad
             new_bad = bad
             if delta > 0 and term_y < 2.5 and bad == 0:
-                new_bad = 1 if np.random.random() < 0.3 else 0
+                new_bad = 1 if rng.random() < 0.3 else 0
             synthetic.append((basket_str, round(new_term, 1), new_bad))
 
     # 2. Recombination: create new baskets from existing tickers
@@ -45,16 +47,16 @@ def generate_synthetic_baskets(settled_notes: List[Tuple], n_synthetic: int = 10
         tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
         all_tickers.update(tks)
 
-    ticker_list = list(all_tickers)
+    ticker_list = sorted(all_tickers)
     for _ in range(min(n_synthetic, 50)):
-        n_tks = np.random.choice([3, 4, 5])
-        selected = list(np.random.choice(ticker_list, size=min(n_tks, len(ticker_list)), replace=False))
-        term_y = round(np.random.uniform(0.5, 4.0), 1)
+        n_tks = int(rng.choice([3, 4, 5]))
+        selected = list(rng.choice(ticker_list, size=min(n_tks, len(ticker_list)), replace=False))
+        term_y = round(float(rng.uniform(0.5, 4.0)), 1)
         # Heuristic: high-vol tickers with long term → likely bad
         high_vol_tickers = {"TSLA", "NIO", "BYND", "PLUG", "ENPH", "RUN", "NOVA", "XPEV"}
         n_high_vol = sum(1 for t in selected if t in high_vol_tickers)
         bad_prob = 0.3 + n_high_vol * 0.15 + max(0, term_y - 2) * 0.1
-        bad = 1 if np.random.random() < bad_prob else 0
+        bad = 1 if rng.random() < bad_prob else 0
         synthetic.append(("/".join(selected), term_y, bad))
 
     return synthetic

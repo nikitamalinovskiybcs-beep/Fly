@@ -390,9 +390,15 @@ if basket_tickers:
     sl_acc = sl.get("scoring_acc_after", 0)
     sl_wr = sl.get("win_rate", 0)
     sl_val = sl.get("val_acc", 0)
+    sl_status = sl.get("status", "unknown")
     acc_color = "#34c759" if cal_after.get("test_acc", 0) >= 70 else "#ffb000"
 
-    with st.expander(f"[6] САМООБУЧЕНИЕ    Gen {sl_gen} · ACC {cal_after.get('test_acc',0):.0f}% · Win {sl_wr}%"):
+    with st.expander(f"[6] САМООБУЧЕНИЕ    Gen {sl_gen} · ACC {cal_after.get('test_acc',0):.0f}% · Win {sl_wr}% · {sl_status}"):
+        if sl_status != "calibrated":
+            st.markdown(
+                f'<div style="color:#ff3b30;font-size:10px">Self-learning unavailable: {sl.get("error", "insufficient evidence")}</div>',
+                unsafe_allow_html=True,
+            )
         st.markdown(f'''
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
             <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">ACCURACY</div><div style="color:{acc_color};font-size:16px;font-weight:700">{pl_bt.get("loss_accuracy",0):.0f}%</div></div>

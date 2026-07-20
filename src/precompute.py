@@ -255,7 +255,7 @@ def calibrate_scoring_on_settled() -> Dict:
 
     w = _load_scoring_weights()
 
-    # Build full dataset (+ synthetic augmentation for small dataset)
+    # Keep realized/settled evidence separate from synthetic augmentation.
     data = []
     for basket_str, term_y, bad in SETTLED_NOTES:
         tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
@@ -275,6 +275,7 @@ def calibrate_scoring_on_settled() -> Dict:
             w = dict(_DEFAULT_SCORING_WEIGHTS)
             w["generation"] = w.get("generation", 0)
 
+    synthetic_data = []
     # [IMP #1-3] Enhanced synthetic augmentation using accuracy_boost
     try:
         from src.accuracy_boost import generate_synthetic_baskets
@@ -283,7 +284,7 @@ def calibrate_scoring_on_settled() -> Dict:
             tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
             if tks:
                 actual = 90.0 if bad == 0 else 52.0
-                data.append((tks, term_y, actual))
+                synthetic_data.append((tks, term_y, actual))
     except Exception:
         # Fallback: original simple augmentation
         n_good = sum(1 for _, _, a in data if a > 70)
@@ -291,11 +292,11 @@ def calibrate_scoring_on_settled() -> Dict:
         if n_good > n_bad * 1.5:
             bad_notes = [(t, ty, a) for t, ty, a in data if a <= 70]
             for tks, ty, actual in bad_notes[:5]:
-                data.append((tks, ty + 0.3, actual + 2))
+                synthetic_data.append((tks, ty + 0.3, actual + 2))
         elif n_bad > n_good * 1.5:
             good_notes = [(t, ty, a) for t, ty, a in data if a > 70]
             for tks, ty, actual in good_notes[:5]:
-                data.append((tks, ty - 0.2, actual - 2))
+                synthetic_data.append((tks, ty - 0.2, actual - 2))
 
     if not data:
         return {"generation": 0, "before_mae": 0, "after_mae": 0,
@@ -303,7 +304,7 @@ def calibrate_scoring_on_settled() -> Dict:
 
     # Walk-forward split: 70% train, 30% validation
     split_idx = int(len(data) * 0.7)
-    train_data = data[:split_idx]
+    train_data = data[:split_idx] + synthetic_data
     val_data = data[split_idx:]
 
     # Measure BEFORE (on full data)
@@ -394,6 +395,7 @@ def calibrate_scoring_on_settled() -> Dict:
         "acc_before": round(acc_before, 0),
         "acc_after": round(acc_after, 0),
         "n_notes": len(data),
+        "n_synthetic": len(synthetic_data),
         "n_train": len(train_data),
         "n_val": len(val_data),
         "weights": {k: round(v, 2) if isinstance(v, float) else v for k, v in final_w.items()},
@@ -2006,8 +2008,12 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             "optimizer": "precision_ensemble_sgd",
             "status": "calibrated",
         }
-    except Exception:
-        result["self_learning"] = {"generation": 0, "status": "init"}
+    except Exception as exc:
+        result["self_learning"] = {
+            "generation": 0,
+            "status": "unavailable",
+            "error": type(exc).__name__,
+        }
 
     # ── 10 IMPROVEMENTS ──
 
@@ -2195,6 +2201,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     try:
         from src.self_learning_agents import run_all_self_learning_agents
 
+        self_learning = result.get("self_learning", {})
         sl_agents = run_all_self_learning_agents(
             tickers=basket_tickers,
             yf_data=yf_data,
@@ -2202,8 +2209,8 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             base_score=result["score"],
             corr_matrix=corr_mat,
             external_data=result.get("external_data"),
-            current_accuracy=self_learning.get("scoring_acc_after", 80.0),
-            current_win_rate=self_learning.get("win_rate", 78.0),
+            current_accuracy=self_learning.get("scoring_acc_after", 0.0),
+            current_win_rate=self_learning.get("win_rate", 0.0),
         )
         result["sl_agents"] = sl_agents
 
