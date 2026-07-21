@@ -80,3 +80,25 @@ def test_scheduler_connects_complete_market_data_to_product_agents(monkeypatch) 
 
     assert result["agents_enabled"] is True
     assert seen["yf_data"]["AAPL"]["source"] == "yfinance"
+
+
+def test_smart_alternatives_do_not_repeat_placeholder_scores() -> None:
+    from src.precompute import compute_smart_alternatives
+
+    result = compute_smart_alternatives(
+        ["AAPL", "MSFT", "GOOG"],
+        {
+            "AAPL": {"source": "estimated", "is_real": False},
+            "MSFT": {"source": "estimated", "is_real": False},
+            "GOOG": {"source": "estimated", "is_real": False},
+        },
+        {
+            "per_ticker": {
+                "AAPL": {"tox": 0.4},
+                "MSFT": {"tox": 0.3},
+                "GOOG": {"tox": 0.5},
+            },
+        },
+    )
+
+    assert result == []

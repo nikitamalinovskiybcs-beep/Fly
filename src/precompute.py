@@ -660,11 +660,19 @@ def compute_smart_alternatives(basket: List[str], yf_data: Dict,
     for sector, tickers in _UNIVERSE.items():
         for t in tickers:
             if t not in basket_set:
-                tox_val = per_ticker.get(t, {}).get("tox", 0.3)
-                # Quick quality estimate
                 info = yf_data.get(t, {})
+                tox_entry = per_ticker.get(t, {})
+                source = info.get("source", "")
+                if (
+                    not info
+                    or source in {"estimated", "fallback_defaults"}
+                    or info.get("is_real") is False
+                    or not tox_entry
+                ):
+                    continue
+                tox_val = tox_entry.get("tox", 0.3)
+                # Quick quality estimate from observed candidate data.
                 vol = info.get("iv30", 30)
-                beta = info.get("beta", 1.0)
                 ema_above = info.get("ema200_above", True)
                 quality = 80 - tox_val * 20 - (vol - 25) * 0.15 + (5 if ema_above else 0) + (3 if sector != worst_sector else 0)
                 candidates.append({
@@ -674,6 +682,9 @@ def compute_smart_alternatives(basket: List[str], yf_data: Dict,
                     "tox": round(tox_val, 2),
                     "vol": round(vol, 1) if vol else 30,
                 })
+
+    if not candidates:
+        return []
 
     # Sort by quality, take top N
     candidates.sort(key=lambda x: x["est_quality"], reverse=True)
