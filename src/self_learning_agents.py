@@ -352,27 +352,22 @@ class AlphaAgent:
 
     def _estimate_signal_quality(self, name: str, value: float,
                                  features: Dict) -> float:
-        """Estimate signal quality using domain heuristics.
-        Returns pseudo-Sharpe ratio."""
-        # Signals correlated with low toxicity / high fundamentals = good
+        """Estimate signal quality deterministically (no random noise).
+
+        Returns a reproducible pseudo-Sharpe: alignment of the candidate
+        signal with the low-toxicity / high-fundamental direction, scaled
+        by bounded magnitude. Deterministic so the same inputs always give
+        the same ranking (previously a random term made this a mirage).
+        """
         tox = features.get("tox_norm", 0.5)
         fund = features.get("fund_norm", 0.5)
 
         if abs(value) < 1e-8:
-            return 0
+            return 0.0
 
-        # Direction: positive value should correlate with good outcome
-        # (low tox, high fund)
         direction_score = (1 - tox) * 0.5 + fund * 0.5
-
-        # Signal magnitude matters (but not too much)
-        mag = min(2, abs(value))
-
-        # Noise penalty
-        noise = 0.1 * np.random.randn()
-
-        sharpe = direction_score * mag + noise
-        return max(0, sharpe)
+        mag = min(2.0, abs(value))
+        return max(0.0, direction_score * mag)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -686,8 +681,8 @@ class OverfitGuardian:
     }
 
     def predict(self, agent_results: Dict[str, Dict],
-                current_accuracy: float = 80.0,
-                current_win_rate: float = 78.0) -> Dict:
+                current_accuracy: float = 0.0,
+                current_win_rate: float = 0.0) -> Dict:
         """Monitor all agents and check for degradation."""
         state = _load_agent_state(self.NAME)
         history = state.get("history", [])
@@ -712,7 +707,10 @@ class OverfitGuardian:
             health = "healthy"
             reason = ""
 
-            if abs(adj) > 5:
+            if "error" in result:
+                health = "unavailable"
+                reason = str(result["error"])
+            elif abs(adj) > 5:
                 health = "suspicious"
                 reason = f"extreme adjustment ({adj:+.1f})"
             elif conf < 0.3:
@@ -745,6 +743,9 @@ class OverfitGuardian:
         if current_win_rate < self.SAFETY_THRESHOLDS["min_win_rate"]:
             safety_ok = False
             safety_issues.append(f"win_rate {current_win_rate:.0f}% < {self.SAFETY_THRESHOLDS['min_win_rate']}%")
+        if degraded_agents:
+            safety_ok = False
+            safety_issues.append(f"degraded agents: {', '.join(degraded_agents)}")
 
         # Recommendation
         if not safety_ok:
@@ -874,21 +875,31 @@ class MetaAgent:
         return result
 
     def update_weights(self, performance_history: List[Dict]):
-        """Recalculate agent weights based on historical performance.
-        Called weekly by automation."""
+        """Recalculate weights from cheap walk-forward performance estimates."""
         if len(performance_history) < 5:
             return
 
-        # Simple: weight by recent prediction accuracy
-        for entry in performance_history[-20:]:
-            agent_accs = entry.get("agent_accuracies", {})
-            for agent_name, acc in agent_accs.items():
+        observations = {}
+        for entry in performance_history[-30:]:
+            for agent_name, accuracy in entry.get("agent_accuracies", {}).items():
                 if agent_name in self.weights:
-                    # EMA update
-                    alpha = 0.1
-                    current = self.weights[agent_name]
-                    target = acc / 100.0
-                    self.weights[agent_name] = round(current * (1 - alpha) + target * alpha, 3)
+                    observations.setdefault(agent_name, []).append(float(accuracy))
+
+        calibration = {}
+        for agent_name, values in observations.items():
+            if len(values) < 3:
+                continue
+            walk_forward = []
+            for index in range(2, len(values)):
+                prior_mean = float(np.mean(values[:index]))
+                walk_forward.append(max(0.0, 100.0 - abs(values[index] - prior_mean)))
+            recent = float(np.mean(values[-5:]))
+            calibration[agent_name] = 0.5 * float(np.mean(walk_forward)) + 0.5 * recent
+
+        for agent_name, score in calibration.items():
+            current = self.weights[agent_name]
+            target = max(0.05, min(1.0, score / 100.0))
+            self.weights[agent_name] = round(0.8 * current + 0.2 * target, 3)
 
         # Normalize weights
         total = sum(self.weights.values())
@@ -897,6 +908,7 @@ class MetaAgent:
 
         _save_agent_state(self.NAME, {
             "weights": self.weights,
+            "walk_forward_calibration": calibration,
             "last_update": datetime.utcnow().isoformat(),
         })
 
@@ -912,8 +924,8 @@ def run_all_self_learning_agents(
     base_score: float,
     corr_matrix: Optional[np.ndarray] = None,
     external_data: Optional[Dict] = None,
-    current_accuracy: float = 80.0,
-    current_win_rate: float = 78.0,
+    current_accuracy: float = 0.0,
+    current_win_rate: float = 0.0,
 ) -> Dict:
     """Run all 8 agents in cascade order and return combined result.
 
@@ -1026,4 +1038,17 @@ def run_all_self_learning_agents(
         "regime": results.get("regime", {}).get("regime", "N/A"),
         "sentiment": results.get("sentiment", {}).get("label", "N/A"),
         "guardian_ok": results.get("overfit_guardian", {}).get("safety_ok", True),
+        "agent_contributions": {
+            name: round(float(item.get("weighted_adj", item.get("scoring_adj", 0))), 2)
+            for name, item in results.get("meta", {}).get(
+                "agent_adjustments", {}
+            ).items()
+        },
+        "agents_with_signal": [
+            name
+            for name, value in results.get("meta", {}).get(
+                "agent_adjustments", {}
+            ).items()
+            if abs(float(value.get("weighted_adj", 0))) >= 0.01
+        ],
     }

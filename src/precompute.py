@@ -255,7 +255,7 @@ def calibrate_scoring_on_settled() -> Dict:
 
     w = _load_scoring_weights()
 
-    # Build full dataset (+ synthetic augmentation for small dataset)
+    # Keep realized/settled evidence separate from synthetic augmentation.
     data = []
     for basket_str, term_y, bad in SETTLED_NOTES:
         tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
@@ -275,15 +275,20 @@ def calibrate_scoring_on_settled() -> Dict:
             w = dict(_DEFAULT_SCORING_WEIGHTS)
             w["generation"] = w.get("generation", 0)
 
+    synthetic_data = []
     # [IMP #1-3] Enhanced synthetic augmentation using accuracy_boost
     try:
         from src.accuracy_boost import generate_synthetic_baskets
-        synthetic = generate_synthetic_baskets(SETTLED_NOTES, n_synthetic=80)
+        synthetic = generate_synthetic_baskets(
+            SETTLED_NOTES,
+            n_synthetic=100,
+            random_only=True,
+        )
         for basket_str, term_y, bad in synthetic:
             tks = basket_str.split("/") if isinstance(basket_str, str) else basket_str
             if tks:
                 actual = 90.0 if bad == 0 else 52.0
-                data.append((tks, term_y, actual))
+                synthetic_data.append((tks, term_y, actual))
     except Exception:
         # Fallback: original simple augmentation
         n_good = sum(1 for _, _, a in data if a > 70)
@@ -291,11 +296,11 @@ def calibrate_scoring_on_settled() -> Dict:
         if n_good > n_bad * 1.5:
             bad_notes = [(t, ty, a) for t, ty, a in data if a <= 70]
             for tks, ty, actual in bad_notes[:5]:
-                data.append((tks, ty + 0.3, actual + 2))
+                synthetic_data.append((tks, ty + 0.3, actual + 2))
         elif n_bad > n_good * 1.5:
             good_notes = [(t, ty, a) for t, ty, a in data if a > 70]
             for tks, ty, actual in good_notes[:5]:
-                data.append((tks, ty - 0.2, actual - 2))
+                synthetic_data.append((tks, ty - 0.2, actual - 2))
 
     if not data:
         return {"generation": 0, "before_mae": 0, "after_mae": 0,
@@ -303,7 +308,7 @@ def calibrate_scoring_on_settled() -> Dict:
 
     # Walk-forward split: 70% train, 30% validation
     split_idx = int(len(data) * 0.7)
-    train_data = data[:split_idx]
+    train_data = data[:split_idx] + synthetic_data
     val_data = data[split_idx:]
 
     # Measure BEFORE (on full data)
@@ -345,7 +350,15 @@ def calibrate_scoring_on_settled() -> Dict:
             final_w[k] = _DEFAULT_SCORING_WEIGHTS.get(k, final_w[k])
             weak_features.append(k)
 
-    final_w["generation"] = w.get("generation", 0) + 1
+    # Generation is monotonic across ALL persisted calibrations, so it keeps
+    # growing even when the loaded weights get reset by the coverage guard
+    # above (previously this made generation stick at 1 forever).
+    try:
+        from src.gdrive_store import get_params_history
+        prior_runs = len(get_params_history(limit=10_000))
+    except Exception:
+        prior_runs = int(w.get("generation", 0))
+    final_w["generation"] = max(int(w.get("generation", 0)), prior_runs) + 1
 
     # Measure AFTER — on VALIDATION set (honest out-of-sample)
     val_mae = float(np.mean(np.abs([a - _score_one_note(final_w, t, ty) for t, ty, a in val_data]))) if val_data else 0
@@ -386,6 +399,8 @@ def calibrate_scoring_on_settled() -> Dict:
         "acc_before": round(acc_before, 0),
         "acc_after": round(acc_after, 0),
         "n_notes": len(data),
+        "n_synthetic": len(synthetic_data),
+        "synthetic_source": "deterministic_heuristic_augmentation",
         "n_train": len(train_data),
         "n_val": len(val_data),
         "weights": {k: round(v, 2) if isinstance(v, float) else v for k, v in final_w.items()},
@@ -645,11 +660,19 @@ def compute_smart_alternatives(basket: List[str], yf_data: Dict,
     for sector, tickers in _UNIVERSE.items():
         for t in tickers:
             if t not in basket_set:
-                tox_val = per_ticker.get(t, {}).get("tox", 0.3)
-                # Quick quality estimate
                 info = yf_data.get(t, {})
+                tox_entry = per_ticker.get(t, {})
+                source = info.get("source", "")
+                if (
+                    not info
+                    or source in {"estimated", "fallback_defaults"}
+                    or info.get("is_real") is False
+                    or not tox_entry
+                ):
+                    continue
+                tox_val = tox_entry.get("tox", 0.3)
+                # Quick quality estimate from observed candidate data.
                 vol = info.get("iv30", 30)
-                beta = info.get("beta", 1.0)
                 ema_above = info.get("ema200_above", True)
                 quality = 80 - tox_val * 20 - (vol - 25) * 0.15 + (5 if ema_above else 0) + (3 if sector != worst_sector else 0)
                 candidates.append({
@@ -659,6 +682,9 @@ def compute_smart_alternatives(basket: List[str], yf_data: Dict,
                     "tox": round(tox_val, 2),
                     "vol": round(vol, 1) if vol else 30,
                 })
+
+    if not candidates:
+        return []
 
     # Sort by quality, take top N
     candidates.sort(key=lambda x: x["est_quality"], reverse=True)
@@ -1998,8 +2024,12 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             "optimizer": "precision_ensemble_sgd",
             "status": "calibrated",
         }
-    except Exception:
-        result["self_learning"] = {"generation": 0, "status": "init"}
+    except Exception as exc:
+        result["self_learning"] = {
+            "generation": 0,
+            "status": "unavailable",
+            "error": type(exc).__name__,
+        }
 
     # ── 10 IMPROVEMENTS ──
 
@@ -2187,6 +2217,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     try:
         from src.self_learning_agents import run_all_self_learning_agents
 
+        self_learning = result.get("self_learning", {})
         sl_agents = run_all_self_learning_agents(
             tickers=basket_tickers,
             yf_data=yf_data,
@@ -2194,8 +2225,8 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             base_score=result["score"],
             corr_matrix=corr_mat,
             external_data=result.get("external_data"),
-            current_accuracy=self_learning.get("scoring_acc_after", 80.0),
-            current_win_rate=self_learning.get("win_rate", 78.0),
+            current_accuracy=self_learning.get("scoring_acc_after", 0.0),
+            current_win_rate=self_learning.get("win_rate", 0.0),
         )
         result["sl_agents"] = sl_agents
 
@@ -2368,7 +2399,7 @@ def _compare_vs_industry(p_ki: float, avg_vol: float, avg_corr: float,
             "p_ki_method": "Analytical GBM + multivariate normal + DCC correlation",
             "vol_model": "Implied vol surface (IV30/60/90) from xfinlink + skew adjustment",
             "correlation": "DCC-GARCH dynamic (EWMA λ=0.94) + stress regime (×1.5)",
-            "scoring": "Ensemble ML (3 models, precision-optimized, 78% win rate)",
+            "scoring": "Ensemble scorer; measured win rate shown only with evidence",
             "strengths": [
                 "Self-learning: improves with each settled note",
                 "Real-time macro regime detection (VIX/stress filter)",
@@ -2415,23 +2446,22 @@ def _compare_vs_industry(p_ki: float, avg_vol: float, avg_corr: float,
     if avg_vol > 35:
         estimated_gap_pp += 1.0  # reduced from 2.0 (Heston partially handles this)
 
-    our_accuracy_pct = max(85, 100 - estimated_gap_pp * 2)  # relative to Numerix
-
     comparison["gap_analysis"] = {
-        "p_ki_gap_vs_numerix_pp": round(estimated_gap_pp, 1),
-        "our_accuracy_vs_numerix_pct": round(our_accuracy_pct, 0),
+        "p_ki_gap_vs_numerix_pp": None,
+        "our_accuracy_vs_numerix_pct": None,
+        "model_assumption_gap_pp": round(estimated_gap_pp, 1),
         "main_gaps": [
-            f"Vol-of-vol (Heston): ~{estimated_gap_pp:.0f}pp P(KI) underestimate vs LSV",
+            "Vol-of-vol (Heston) gap is not measured without a benchmark",
             "No jump-diffusion: gap events (earnings) not modeled in diffusion",
             "Discrete barrier monitoring: continuous approximation introduces ~2pp error",
             "No stochastic rates: assumes flat rf (minor, ~0.5pp for 2Y)",
         ],
         "our_advantages": [
-            f"Self-learning scoring: 78% win rate on 50 settled notes",
-            f"DCC stress correlations partially close LSV gap",
-            f"Macro regime filter: avoids trades in VIX stress (reduces realized loss)",
-            f"12 scoring factors vs pure P(KI): broader risk view",
-            f"Cost: $0 vs $50K-200K/year for Numerix",
+            "Self-learning scoring: measured only on available settled notes",
+            "DCC stress correlations are a model feature, not benchmark evidence",
+            "Macro regime filter is not a realized-loss estimate",
+            "12 scoring factors vs pure P(KI): broader risk view",
+            "Cost: $0 vs $50K-200K/year for Numerix",
         ],
         "improvements_applied": [
             "Analytical GBM with multivariate normal (was: heuristic formula)",
@@ -2442,21 +2472,10 @@ def _compare_vs_industry(p_ki: float, avg_vol: float, avg_corr: float,
         ],
     }
 
-    # Overall quality score (0-100, where 100 = Numerix quality)
-    quality_score = 72  # base: analytical GBM is solid
-    quality_score += 5  # Heston vol-of-vol correction (closes ~3pp gap)
-    quality_score += 3  # Discrete barrier monitoring (Broadie-Glasserman-Kou)
-    quality_score += 4 if avg_vol < 40 else 0  # more accurate for normal vol
-    quality_score += 4  # DCC-GARCH correlations
-    quality_score += 3  # implied vol surface
-    quality_score += 5  # self-learning (k-fold CV, adaptive weights, feedback loop)
-    quality_score = min(96, quality_score)  # cap: near-Numerix but without full LSV
-
-    comparison["quality_score"] = quality_score
+    comparison["quality_score"] = None
     comparison["quality_interpretation"] = (
-        f"{quality_score}% of Numerix accuracy. "
-        f"Main gap: vol-of-vol (~{estimated_gap_pp:.0f}pp). "
-        f"Advantage: self-learning + macro filter give 78% trade win rate."
+        "Not measured: Numerix/broker benchmark observations are unavailable. "
+        "The model-assumption gap is not an accuracy estimate."
     )
 
     return comparison
