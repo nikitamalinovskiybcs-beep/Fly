@@ -32,7 +32,7 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run auto-improvement cycle + 5 agents
+      - name: Run auto-improvement cycle + 5 agents + 8 self-learning agents
         id: improve
         run: |
           python -c "
@@ -69,6 +69,24 @@ jobs:
                   print(f'  {name}: OK')
 
           report['agents'] = agents_report
+
+          # Phase 3: Run 8 self-learning agents (test run)
+          print()
+          print('=== 8 SELF-LEARNING AGENTS TEST ===')
+          try:
+              from src.self_learning_agents import run_all_self_learning_agents
+              sl_report = run_all_self_learning_agents(
+                  tickers=['MSFT', 'GOOGL', 'JNJ', 'PG'],
+                  yf_data={},
+                  features={'pki_norm': 0.5, 'vol_norm': 0.4, 'corr_norm': 0.5, 'tox_norm': 0.3, 'fund_norm': 0.6},
+                  base_score=75.0,
+              )
+              print(f'SL Agents: {sl_report[\"agents_ok\"]}/{sl_report[\"agents_run\"]} OK')
+              print(f'Decision: {sl_report[\"decision\"]} (conf {sl_report[\"confidence\"]:.0%})')
+              print(f'Score adj: {sl_report[\"total_adjustment\"]:+.1f}')
+              report['self_learning_agents'] = sl_report
+          except Exception as e:
+              print(f'SL Agents ERROR: {e}')
 
           # Save combined report as artifact
           with open('improvement_report.json', 'w') as f:
