@@ -10,8 +10,9 @@ from src.phoenix_engine import GDRIVE_AVAILABLE
 from src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI
 from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 from src.calibration import run_pipeline as _run_calibration_pipeline
-from src.data_module import fetch_ticker_data, get_data_source_status
+from src.data_module import get_data_source_status
 from src.commercial_readiness import assess_commercial_readiness
+from src.full_pipeline import run_full_analysis
 from src.outcome_engine import (
     StructuredNoteSpec,
     load_quality_report,
@@ -25,6 +26,11 @@ st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", la
 def cached_precompute(tickers_key: str):
     tickers = tickers_key.split(",")
     return _precompute_all(tickers)
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def cached_full_analysis(tickers_key: str):
+    return run_full_analysis(tickers_key.split(","))
 
 
 @st.cache_data(ttl=600, show_spinner=False)
@@ -63,12 +69,12 @@ def cached_outcome_stress(
     return simulate_stress_suite(spec, n_paths=n_paths)
 
 
-def render_process_map(data: dict) -> None:
-    """Render the real decision path as a status-aware process graph."""
+def render_process_map(data: dict, pipeline: dict) -> None:
+    """Render the real decision path as a status-aware neural-style graph."""
     gate_passed = bool(data.get("evidence_gate", {}).get("passed"))
     quality = load_quality_report()
     realized = int(quality.get("realized_notes", 0))
-    source = data.get("data_source", "unknown")
+    source = data.get("data_source", "unknown").upper()
     colors = {
         "active": "#34c759",
         "blocked": "#ff3b30",
@@ -76,44 +82,47 @@ def render_process_map(data: dict) -> None:
         "waiting": "#6a5a2a",
         "neutral": "#6db6ff",
     }
+    stages = pipeline.get("stages", {})
+    active_color = colors["active"] if gate_passed else colors["diagnostic"]
     nodes = [
-        ("MARKET DATA", source, colors["active"] if source in {"xfinlink", "yfinance"} else colors["diagnostic"], 0.5, 1.0),
-        ("EVIDENCE GATE", "PASSED" if gate_passed else "BLOCKED", colors["active"] if gate_passed else colors["blocked"], 1.8, 1.0),
-        ("PHOENIX SCORE", "LIVE" if gate_passed else "DIAGNOSTIC", colors["active"] if gate_passed else colors["diagnostic"], 3.1, 1.0),
-        ("AGENTS", "8 ACTIVE" if gate_passed else "DISABLED", colors["active"] if gate_passed else colors["blocked"], 4.4, 1.0),
-        ("PRODUCT", "SELECT" if gate_passed else "HOLD", colors["active"] if gate_passed else colors["blocked"], 5.7, 1.0),
-        ("PAPER NOTE", "TRACKING", colors["neutral"], 7.0, 1.0),
-        ("REALIZED", f"{realized} NOTES" if realized else "WAITING", colors["active"] if realized else colors["waiting"], 8.3, 1.0),
+        ("MARKET DATA", source, active_color, 0.5, 1.0),
+        ("IV / BETA", "FEATURES", active_color, 1.7, 1.6),
+        ("RETURNS", "FEATURES", active_color, 1.7, 0.4),
+        ("EVIDENCE GATE", "PASSED" if gate_passed else "BLOCKED", colors["active"] if gate_passed else colors["blocked"], 3.0, 1.0),
+        ("PHOENIX", stages.get("phoenix", "UNKNOWN").upper(), active_color, 4.4, 1.6),
+        ("AGENTS", stages.get("agents", "UNKNOWN").upper(), active_color if gate_passed else colors["blocked"], 4.4, 0.4),
+        ("PRODUCT", stages.get("product", "UNKNOWN").upper(), active_color if gate_passed else colors["blocked"], 5.8, 1.0),
+        ("PAPER", "TRACKING", colors["neutral"], 7.2, 1.6),
+        ("REALIZED", f"{realized} NOTES" if realized else "WAITING", colors["active"] if realized else colors["waiting"], 7.2, 0.4),
     ]
     x_values = [node[3] for node in nodes]
     y_values = [node[4] for node in nodes]
     node_colors = [node[2] for node in nodes]
     labels = [f"<b>{node[0]}</b><br><sup>{node[1]}</sup>" for node in nodes]
-    active_indices = [
-        index for index, node in enumerate(nodes)
-        if node[2] in {colors["active"], colors["neutral"]}
+    edges = [
+        (0, 1), (0, 2), (1, 3), (2, 3), (3, 4), (3, 5),
+        (4, 6), (5, 6), (6, 7), (6, 8),
     ]
 
     fig = go.Figure()
-    for index in range(len(nodes) - 1):
-        edge_color = node_colors[index] if node_colors[index] == node_colors[index + 1] else "#6a5a2a"
+    for start, end in edges:
+        edge_color = node_colors[start] if node_colors[start] == node_colors[end] else "#6a5a2a"
         fig.add_trace(go.Scatter(
-            x=[x_values[index], x_values[index + 1]],
-            y=[1.0, 1.0],
+            x=[x_values[start], x_values[end]],
+            y=[y_values[start], y_values[end]],
             mode="lines",
             line={"color": edge_color, "width": 2},
             hoverinfo="skip",
             showlegend=False,
         ))
-    if active_indices:
-        fig.add_trace(go.Scatter(
-            x=[x_values[index] for index in active_indices],
-            y=[1.0 for _ in active_indices],
-            mode="markers",
-            marker={"size": 34, "color": [node_colors[index] for index in active_indices], "opacity": 0.12},
-            hoverinfo="skip",
-            showlegend=False,
-        ))
+    fig.add_trace(go.Scatter(
+        x=x_values,
+        y=y_values,
+        mode="markers",
+        marker={"size": 42, "color": node_colors, "opacity": 0.10},
+        hoverinfo="skip",
+        showlegend=False,
+    ))
     fig.add_trace(go.Scatter(
         x=x_values,
         y=y_values,
@@ -126,12 +135,12 @@ def render_process_map(data: dict) -> None:
         showlegend=False,
     ))
     fig.update_layout(
-        height=165,
+        height=230,
         margin={"l": 10, "r": 10, "t": 8, "b": 8},
         paper_bgcolor="#000000",
         plot_bgcolor="#000000",
-        xaxis={"visible": False, "range": [0, 8.8]},
-        yaxis={"visible": False, "range": [0.65, 1.35]},
+        xaxis={"visible": False, "range": [0, 8]},
+        yaxis={"visible": False, "range": [0, 2]},
         showlegend=False,
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -177,7 +186,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">LEAN · 15 секций · ФЕНИКС v36.0 · 8 Agents · Basket · Paper Trading · Self-Learning · API</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">ONE PIPELINE · 15 STEPS · ФЕНИКС v36.0 · 8 AGENTS · PRODUCT · OUTCOMES · API</span></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
@@ -187,16 +196,38 @@ with bc[0]:
     st.markdown('<div style="padding:10px 0"><span style="color:#ffb000;font-size:14px;font-weight:700;letter-spacing:3px">PHOENIX</span></div>', unsafe_allow_html=True)
 with bc[1]:
     st.markdown('<div class="bi">', unsafe_allow_html=True)
-    basket_input = st.text_input("basket", value="AAPL DELL GOOG", placeholder="AAPL MSFT NVDA AMD TSLA", label_visibility="collapsed")
+    basket_input = st.text_input(
+        "basket",
+        value="AAPL DELL GOOG",
+        placeholder="AAPL MSFT NVDA AMD TSLA",
+        label_visibility="collapsed",
+        key="basket_input",
+    )
     st.markdown('</div>', unsafe_allow_html=True)
+requested_tickers = [
+    t.strip().upper()
+    for t in basket_input.replace(",", " ").split()
+    if t.strip()
+]
+if "analysis_tickers" not in st.session_state:
+    st.session_state.analysis_tickers = requested_tickers
 with bc[2]:
-    st.button("▶ РАСЧЁТ ↵", key="run_basket", type="primary", use_container_width=True)
+    if st.button("▶ RUN FULL ANALYSIS", key="run_basket", type="primary", use_container_width=True):
+        st.session_state.analysis_tickers = requested_tickers
+        st.cache_data.clear()
+        st.rerun()
 
-basket_tickers = [t.strip().upper() for t in basket_input.replace(",", " ").split() if t.strip()]
+basket_tickers = st.session_state.analysis_tickers
 n_tickers = len(basket_tickers)
 
 basket_label = ", ".join(basket_tickers)
 st.markdown(f'<div style="color:#d6a44a;font-size:10px;padding:2px 0">КОРЗИНА: {basket_label}</div>', unsafe_allow_html=True)
+if requested_tickers != basket_tickers:
+    st.markdown(
+        '<div style="color:#ffb000;font-size:9px;padding:2px 0">'
+        'Новая корзина ожидает запуска: нажмите RUN FULL ANALYSIS.</div>',
+        unsafe_allow_html=True,
+    )
 
 rc1, rc2 = st.columns([3, 1])
 with rc2:
@@ -209,7 +240,8 @@ with rc2:
 # ═══════════════════════════════════════════════════════════════════
 if basket_tickers:
     with st.spinner("⚡ Precomputing..."):
-        D = cached_precompute(",".join(basket_tickers))
+        _pipeline = cached_full_analysis(",".join(basket_tickers))
+        D = _pipeline["data"]
 
     ch = D["ch"]
     wo = ch.get("worst_of", {})
@@ -241,7 +273,34 @@ if basket_tickers:
     # [1] ВЕРДИКТ — Score + Recommendation
     # ═══════════════════════════════════════════════════════════════
     with st.expander("LIVE PROCESS MAP · data → decision → outcome", expanded=True):
-        render_process_map(D)
+        render_process_map(D, _pipeline)
+
+    with st.expander("[0] MODEL BASIS    Formula · assumptions · evidence"):
+        st.markdown(
+            '<div style="color:#d6a44a;font-size:10px;line-height:1.7">'
+            '<b style="color:#ffb000">Phoenix score</b> = base score + '
+            'diversification/fundamental/trend bonuses − P(KI)/volatility/'
+            'correlation/toxicity/macro/earnings penalties. '
+            'The score is a decision-support index, not a probability of profit.<br>'
+            '<b style="color:#ffb000">P(KI)</b> uses a worst-of analytical '
+            'barrier approximation with observed volatility, correlation and '
+            'stress adjustments; it is not a dealer quote or guarantee.<br>'
+            '<b style="color:#ffb000">Agents</b> are lightweight rule-based '
+            'and ensemble components. They are not presented as a trained '
+            'deep neural network unless realized training evidence exists.<br>'
+            '<b style="color:#ffb000">Evidence rule</b>: estimated data can '
+            'support diagnostics only. Live selection requires a passed evidence gate.'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+        _confidence = D.get("score_confidence", 0)
+        _range = D.get("score_range", [])
+        st.markdown(
+            f'<div style="color:#6db6ff;font-size:10px;margin-top:6px">'
+            f'Confidence: {_confidence:.0f}% · score range: {_range or "not available"} · '
+            f'generation: {D.get("scoring_generation", 0)}</div>',
+            unsafe_allow_html=True,
+        )
 
     rec = D.get("recommendation", {})
     rec_action = rec.get("action", "?")
@@ -573,10 +632,11 @@ if basket_tickers:
     sla_confidence = sla.get("confidence", 0)
     sla_regime = sla.get("regime", "N/A")
     sla_sentiment = sla.get("sentiment", "N/A")
+    sla_director = sla.get("director_status", "legacy")
     sla_adj = D.get("sl_agents_adj", 0)
     sla_dec_c = "#34c759" if sla_decision == "BUY" else "#ff3b30" if sla_decision == "AVOID" else "#ffb000"
 
-    with st.expander(f"[9] АГЕНТЫ    {sla_ok}/{sla_total} OK · {sla_decision} · Conf {sla_confidence:.0%}"):
+    with st.expander(f"[9] АГЕНТЫ    {sla_ok}/{sla_total} OK · {sla_decision} · {sla_director} · Conf {sla_confidence:.0%}"):
         # Summary metrics
         st.markdown(f'''
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
@@ -586,6 +646,24 @@ if basket_tickers:
             <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">SENTIMENT</div><div style="color:{"#34c759" if sla_sentiment == "BULLISH" else "#ff3b30" if sla_sentiment == "BEARISH" else "#ffb000"};font-size:14px;font-weight:700">{sla_sentiment}</div></div>
             <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">СКОР ADJ</div><div style="color:{"#34c759" if sla_adj > 0 else "#ff3b30" if sla_adj < 0 else "#ffb000"};font-size:14px;font-weight:700">{sla_adj:+.1f}</div></div>
         </div>''', unsafe_allow_html=True)
+
+        cascade_levels = sla.get("cascade_levels", [])
+        if cascade_levels:
+            st.markdown(
+                '<div style="color:#d6a44a;font-size:9px;font-weight:700;'
+                'margin:6px 0 3px">MULTI-LEVEL CASCADE</div>',
+                unsafe_allow_html=True,
+            )
+            for level in cascade_levels:
+                level_color = "#34c759" if level["status"] == "complete" else "#ffb000"
+                st.markdown(
+                    f'<div style="display:flex;gap:8px;padding:2px 8px;'
+                    f'border-bottom:1px solid #1a1400;color:#d6a44a;font-size:9px">'
+                    f'<span style="color:{level_color};font-weight:700">'
+                    f'L{level["level"]} {level["status"].upper()}</span>'
+                    f'<span>{level["name"]}: {", ".join(level["agents"])}</span></div>',
+                    unsafe_allow_html=True,
+                )
 
         # Per-agent details
         agent_results = sla.get("results", {})
@@ -728,7 +806,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [12] PAPER TRADING — Agent signals + portfolio
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[12] PAPER TRADING    Agent · Portfolio · Signals"):
+    with st.expander("[11] PAPER TRADING    Agent · Portfolio · Signals"):
         try:
             from src.agents.paper_trader import PaperTradingAgent
             from src.agents.models import TradeAction
@@ -789,7 +867,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [13] DATA & STORAGE — Database status + backup
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[13] DATA & STORAGE    Database · Cloud · Backup"):
+    with st.expander("[12] DATA & STORAGE    Database · Cloud · Backup"):
         try:
             from src.storage import Storage
             storage = Storage()
@@ -824,55 +902,50 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [18] BEST STRUCTURED PRODUCT — agent-driven product search
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[18] BEST STRUCTURED PRODUCT    Universe search · Barrier/Tenor grid"):
+    with st.expander("[13] BEST STRUCTURED PRODUCT    Universe search · Barrier/Tenor grid"):
         try:
-            from src.structured_product import find_best_structured_product
-            _universe = list(dict.fromkeys(
-                list(basket_tickers) + ["AAPL", "MSFT", "GOOGL", "AMZN",
-                                        "NVDA", "META", "JPM", "XOM"]
-            ))
+            _res = _pipeline["product"]
+            _universe = list(dict.fromkeys(list(basket_tickers) + [
+                "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "JPM", "XOM",
+            ]))
             st.markdown(
                 f'<div style="color:#d6a44a;font-size:9px;margin-bottom:4px">'
-                f'Universe: {len(_universe)} tickers · basket size 3 · '
-                f'barrier×tenor grid</div>', unsafe_allow_html=True)
-            if st.button("FIND BEST PRODUCT", key="best_prod_btn", use_container_width=True):
-                with st.spinner("Searching universe for the best structured product..."):
-                    _universe_data = fetch_ticker_data(_universe, period="2y")
-                    _res = find_best_structured_product(
-                        _universe,
-                        basket_size=3,
-                        yf_data=_universe_data,
-                        require_real_data=True,
-                    )
-                if "best" in _res:
-                    _b = _res["best"]
-                    _active_product_agents = len(_b.get("agents_with_signal", []))
-                    st.markdown(f'''<div style="color:#34c759;font-size:11px;padding:4px;border:1px solid #1a3a1a;border-radius:4px">
-                        <b>{' / '.join(_b["basket"])}</b><br>
-                        Barrier {_b["barrier"]}% · Tenor {_b["tenor_months"]}mo ·
-                        Coupon ~{_b["coupon"]:.0f}% · P(loss) {_b["p_loss_pct"]:.0f}% ·
-                        Tox {_b["avg_tox"]:.2f}<br>
-                        Objective {_b["final_objective"]:.1f}
-                        (agent adj {_b["agent_adjustment"]:+.1f}) ·
-                        agents {_active_product_agents}/8 ·
-                        evaluated {_res["n_evaluated"]} baskets</div>''',
+                f'Pipeline universe: {len(_universe)} tickers · basket size 3 · '
+                f'barrier×tenor grid · stage: {_pipeline["stages"]["product"]}</div>',
+                unsafe_allow_html=True)
+            if "best" in _res:
+                _b = _res["best"]
+                _active_product_agents = len(_b.get("agents_with_signal", []))
+                st.markdown(f'''<div style="color:#34c759;font-size:11px;padding:4px;border:1px solid #1a3a1a;border-radius:4px">
+                    <b>{' / '.join(_b["basket"])}</b><br>
+                    Barrier {_b["barrier"]}% · Tenor {_b["tenor_months"]}mo ·
+                    Coupon ~{_b["coupon"]:.0f}% · P(loss) {_b["p_loss_pct"]:.0f}% ·
+                    Tox {_b["avg_tox"]:.2f}<br>
+                    Objective {_b["final_objective"]:.1f}
+                    (agent adj {_b["agent_adjustment"]:+.1f}) ·
+                    agents {_active_product_agents}/8 ·
+                    evaluated {_res["n_evaluated"]} baskets</div>''',
+                    unsafe_allow_html=True)
+                st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">LEADERBOARD</div>', unsafe_allow_html=True)
+                for _c in _res["leaderboard"]:
+                    st.markdown(
+                        f'<div style="color:#d6a44a;font-size:9px;border-bottom:1px solid #1a1400;padding:2px 0">'
+                        f'{" / ".join(_c["basket"])} — obj {_c["final_objective"]:.1f} · '
+                        f'{_c["barrier"]}%/{_c["tenor_months"]}mo · cpn {_c["coupon"]:.0f}%</div>',
                         unsafe_allow_html=True)
-                    st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">LEADERBOARD</div>', unsafe_allow_html=True)
-                    for _c in _res["leaderboard"]:
-                        st.markdown(
-                            f'<div style="color:#d6a44a;font-size:9px;border-bottom:1px solid #1a1400;padding:2px 0">'
-                            f'{" / ".join(_c["basket"])} — obj {_c["final_objective"]:.1f} · '
-                            f'{_c["barrier"]}%/{_c["tenor_months"]}mo · cpn {_c["coupon"]:.0f}%</div>',
-                            unsafe_allow_html=True)
-                else:
-                    st.markdown(f'<div style="color:#ff9500;font-size:10px">No product: {_res.get("error", "unknown")}</div>', unsafe_allow_html=True)
+            else:
+                st.markdown(
+                    f'<div style="color:#ff9500;font-size:10px">No product: '
+                    f'{_res.get("error", "unknown")}</div>',
+                    unsafe_allow_html=True,
+                )
         except Exception as exc:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Product search error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [19] STRUCTURED NOTE OUTCOMES — explicit simulated/replay/realized states
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[19] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
+    with st.expander("[14] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
         try:
             _quality = load_quality_report()
             _readiness = assess_commercial_readiness(
@@ -911,15 +984,8 @@ if basket_tickers:
                 'a resolved paper note is marked realized.</div>',
                 unsafe_allow_html=True,
             )
-            if st.button("RUN OUTCOME STRESS", key="outcome_stress_btn", use_container_width=True):
-                _coupon_per_observation = float(D.get("coupon_pa", 12.0)) / 100.0 / 4.0
-                _outcomes = cached_outcome_stress(
-                    ",".join(basket_tickers),
-                    float(D.get("barrier", 65.0)) / 100.0,
-                    _coupon_per_observation,
-                    24,
-                    2000,
-                )
+            _outcomes = _pipeline["stress"]
+            if _outcomes:
                 for _scenario, _report in _outcomes["scenarios"].items():
                     st.markdown(
                         f'<div style="color:#d6a44a;font-size:9px;border-bottom:1px solid #1a1400;padding:3px 0">'

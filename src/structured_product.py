@@ -206,8 +206,8 @@ def _agent_report(basket: List[str], yf_data: Optional[Dict]) -> Dict:
     if not yf_data:
         return {"total_adjustment": 0.0, "agents_with_signal": []}
     try:
-        from src.self_learning_agents import run_all_self_learning_agents
-        res = run_all_self_learning_agents(
+        from src.self_learning_agents import AgentDirector
+        res = AgentDirector().run(
             tickers=basket,
             yf_data=yf_data,
             features=_agent_features(basket, yf_data),
