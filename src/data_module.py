@@ -9,7 +9,7 @@ Pattern: try xfinlink first → if unavailable/error → yfinance fallback.
 
 import datetime as dt
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -94,6 +94,7 @@ def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
                     if df is None or df.empty or len(df) < 50:
                         continue
                     closes = df["close"].dropna().values
+                    as_of = str(df.index[-1])[:10]
                     returns = np.diff(np.log(closes))
                     vol_1y = float(np.std(returns[-252:]) * np.sqrt(252)) if len(returns) >= 252 else float(np.std(returns) * np.sqrt(252))
                     real_1y = float((closes[-1] / closes[-min(252, len(closes))] - 1)) if len(closes) > 1 else 0
@@ -113,6 +114,7 @@ def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
                         "returns": returns,
                         "source": "xfinlink",
                         "is_real": True,
+                        "as_of": as_of,
                     }
                 except Exception:
                     continue
@@ -138,6 +140,7 @@ def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
                     closes_s = closes_s.dropna()
                     if len(closes_s) < 50:
                         continue
+                    as_of = str(closes_s.index[-1])[:10]
                     closes = closes_s.values
                     returns = np.diff(np.log(closes))
                     vol_1y = float(np.std(returns[-252:]) * np.sqrt(252)) if len(returns) >= 252 else float(np.std(returns) * np.sqrt(252))
@@ -158,6 +161,7 @@ def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
                         "returns": returns,
                         "source": "yfinance",
                         "is_real": True,
+                        "as_of": as_of,
                     }
                 except Exception:
                     continue
@@ -180,6 +184,7 @@ def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
                 "returns": np.diff(np.log(closes)).tolist(),
                 "source": "estimated",
                 "is_real": False,
+                "as_of": None,
                 "warning": "market data unavailable; deterministic proxy used",
             }
 
@@ -398,7 +403,6 @@ def compute_dcc_correlations(tickers: List[str], period: str = "2y") -> Dict:
         return {"avg_corr": 0.5, "stress_corr": 0.75, "regime": "normal",
                 "corr_multiplier": 1.0, "high_corr_pairs": []}
 
-    n = len(tickers)
     available = [t for t in tickers if t in returns.columns]
     if len(available) < 2:
         return {"avg_corr": 0.5, "stress_corr": 0.75, "regime": "normal",
@@ -524,7 +528,6 @@ def cache_ticker_data(tickers: List[str], data: Dict) -> bool:
     """
     try:
         from src.gdrive_store import save_data
-        import json
         cache_payload = {
             "tickers": tickers,
             "data": {t: {k: v for k, v in d.items()

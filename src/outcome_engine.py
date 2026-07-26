@@ -16,6 +16,7 @@ market facts.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
@@ -31,6 +32,46 @@ DATA_DIR = PROJECT_ROOT / "data"
 OUTCOME_PATH = DATA_DIR / "structured_note_outcomes.json"
 REALIZED_FEEDBACK_PATH = DATA_DIR / "realized_outcome_feedback.json"
 QUALITY_REPORT_PATH = DATA_DIR / "outcome_quality_report.json"
+
+
+def build_decision_record(
+    product: Mapping,
+    market_data: Optional[Mapping] = None,
+    evidence_gate: Optional[Mapping] = None,
+    generated_at: Optional[str] = None,
+) -> dict:
+    """Create one auditable record linking data, selection, and outcomes."""
+    market_data = market_data or {}
+    evidence_gate = dict(evidence_gate or {})
+    observed_dates = sorted(
+        str(item.get("as_of"))
+        for item in market_data.values()
+        if item.get("as_of")
+    )
+    market_data_as_of = observed_dates[-1] if observed_dates else None
+    payload = {
+        "basket": list(product.get("basket", [])),
+        "barrier": product.get("barrier"),
+        "tenor_months": product.get("tenor_months"),
+        "coupon": product.get("coupon"),
+        "final_objective": product.get("final_objective"),
+        "market_data_as_of": market_data_as_of,
+        "evidence_gate": evidence_gate,
+    }
+    digest = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, default=str).encode(),
+    ).hexdigest()[:16]
+    return {
+        "decision_id": f"decision_{digest}",
+        "generated_at": generated_at or _utc_now(),
+        "market_data_as_of": market_data_as_of,
+        "freshness_status": (
+            "verified" if market_data_as_of else "unverified"
+        ),
+        "evidence_gate": evidence_gate,
+        "selection": payload,
+        "outcome_source": "paper_until_realized",
+    }
 
 
 @dataclass(frozen=True)
@@ -416,6 +457,9 @@ class PaperOutcomeTracker:
                     return existing
         note = {
             "id": note_id or f"{'_'.join(spec.basket)}_{_utc_now()}",
+            "decision_id": (metadata or {}).get("decision_record", {}).get(
+                "decision_id"
+            ),
             "source": "paper",
             "status": "open",
             "spec": asdict(spec),
@@ -441,6 +485,7 @@ class PaperOutcomeTracker:
                     "source": "realized",
                     "status": "realized",
                     "learning_eligible": True,
+                    "decision_id": note.get("decision_id"),
                 }
                 note["status"] = "realized"
                 note["outcome"] = outcome
@@ -472,6 +517,7 @@ class PaperOutcomeTracker:
                 "source": "paper",
                 "status": "paper",
                 "note_id": note_id,
+                "decision_id": note.get("decision_id"),
                 "basket": list(spec.basket),
                 "as_of": observation_date,
                 "barrier_breached": replay["barrier_breached"],
@@ -535,6 +581,7 @@ class PaperOutcomeTracker:
             return {
                 "status": "applied",
                 "note_id": note_id,
+                "decision_id": note.get("decision_id"),
                 "agent_calibration": calibration,
             }
         return {"status": "not_found", "note_id": note_id}
