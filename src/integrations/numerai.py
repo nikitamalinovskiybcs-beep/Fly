@@ -10,6 +10,7 @@ Keys are optional — can download data without an account.
 """
 
 import logging
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -25,15 +26,18 @@ class NumeraiIntegration:
     def __init__(self, public_id: str = "", secret_key: str = "") -> None:
         self._napi = None
         self._enabled = False
+        public_id = public_id or os.getenv("NUMERAI_PUBLIC_ID", "")
+        secret_key = secret_key or os.getenv("NUMERAI_SECRET_KEY", "")
 
         if not public_id or not secret_key:
             logger.info("Numerai keys not provided, submission disabled")
+            return
 
         try:
             import numerapi
             self._napi = numerapi.NumerAPI(
-                public_id=public_id or None,
-                secret_key=secret_key or None,
+                public_id=public_id,
+                secret_key=secret_key,
             )
             self._enabled = True
         except ImportError:

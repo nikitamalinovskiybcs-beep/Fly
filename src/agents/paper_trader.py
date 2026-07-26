@@ -44,6 +44,7 @@ class PaperTradingAgent:
             str(PROJECT_ROOT / "data" / "paper_trading"),
         ),
     )
+    DEFAULT_DATA_DIR = DATA_DIR
     INITIAL_CASH = 100_000.0
     COMMISSION_PCT = 0.001
     SLIPPAGE_PCT = 0.0005
@@ -79,10 +80,11 @@ class PaperTradingAgent:
         self._volume_cache: dict[str, pd.Series] = {}
         self._alpha_cache: dict[str, float] = {}
         self._generation: int = 0
+        self._loaded_data_dir: Optional[Path] = None
 
         self.DATA_DIR.mkdir(parents=True, exist_ok=True)
-        self._migrate_legacy_state()
-        self._load_state()
+        if self.__class__.DATA_DIR != self.__class__.DEFAULT_DATA_DIR:
+            self._ensure_state_loaded()
 
     def run_daily(self) -> list[PaperTrade]:
         """Main daily loop: collect signals, decide, execute, record.
@@ -90,6 +92,7 @@ class PaperTradingAgent:
         Returns:
             List of trades executed today.
         """
+        self._ensure_state_loaded()
         today_trades: list[PaperTrade] = []
         prices = self._fetch_prices()
         self._alpha_cache = self._compute_alpha(prices)
@@ -281,6 +284,7 @@ class PaperTradingAgent:
 
     def get_portfolio(self) -> PaperPortfolio:
         """Current portfolio state."""
+        self._ensure_state_loaded()
         positions = list(self._positions.values())
         positions_value = sum(p.quantity * p.current_price for p in positions)
         total = self._cash + positions_value
@@ -296,6 +300,7 @@ class PaperTradingAgent:
 
     def get_stats(self) -> PaperTradingStats:
         """Calculate performance statistics from trade history."""
+        self._ensure_state_loaded()
         closed = [t for t in self._trades if t.status == "closed"]
         if not closed:
             return PaperTradingStats()
@@ -340,6 +345,7 @@ class PaperTradingAgent:
 
     def get_equity_curve(self) -> pd.DataFrame:
         """Return daily portfolio value series."""
+        self._ensure_state_loaded()
         if not self._snapshots:
             return pd.DataFrame(columns=["date", "value"])
         data = [{"date": s.date, "value": s.portfolio_value} for s in self._snapshots]
@@ -351,6 +357,7 @@ class PaperTradingAgent:
         Returns:
             List of insights discovered.
         """
+        self._ensure_state_loaded()
         insights: list[LearningInsight] = []
         recent_trades = [
             t for t in self._trades
@@ -819,6 +826,15 @@ class PaperTradingAgent:
 
     # ── Persistence ──
 
+    def _ensure_state_loaded(self) -> None:
+        """Load state after callers have selected the active data directory."""
+        if self._loaded_data_dir == self.DATA_DIR:
+            return
+        self.DATA_DIR.mkdir(parents=True, exist_ok=True)
+        self._migrate_legacy_state()
+        self._load_state()
+        self._loaded_data_dir = self.DATA_DIR
+
     def _migrate_legacy_state(self) -> None:
         """Move state from the old cwd-relative location once."""
         if self.DATA_DIR != self.__class__.DATA_DIR:
@@ -838,6 +854,7 @@ class PaperTradingAgent:
 
     def _save_state(self) -> None:
         """Save all state to JSON files."""
+        self._ensure_state_loaded()
         try:
             trades_data = [
                 {

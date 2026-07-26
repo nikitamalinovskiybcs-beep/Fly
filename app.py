@@ -567,15 +567,38 @@ if basket_tickers:
             st.caption("Underlyings: " + ", ".join(scored_tickers))
             report = bs.score_basket(scored_tickers)
 
-            grade_c = "#34c759" if report.total_score >= 70 else "#ffb000" if report.total_score >= 50 else "#ff3b30"
+            canonical_score = (
+                float(score) if preset == "(current basket)" else report.total_score
+            )
+            canonical_grade = (
+                "A+" if canonical_score >= 90
+                else "A" if canonical_score >= 80
+                else "B+" if canonical_score >= 70
+                else "B" if canonical_score >= 60
+                else "C" if canonical_score >= 50
+                else "D"
+            )
+            grade_c = "#34c759" if canonical_score >= 70 else "#ffb000" if canonical_score >= 50 else "#ff3b30"
+            score_label = (
+                "Phoenix score (canonical)"
+                if preset == "(current basket)"
+                else "Diagnostic basket score"
+            )
             st.markdown(f'''
             <div class="qc" style="border-left:3px solid {grade_c};padding:10px">
                 <div style="display:flex;justify-content:space-between;align-items:center">
-                    <div><span style="color:{grade_c};font-size:22px;font-weight:700">{report.grade.value}</span>
-                    <span style="color:#d6a44a;font-size:11px;margin-left:8px">{report.recommendation}</span></div>
-                    <span style="color:{grade_c};font-size:20px;font-weight:700">{report.total_score:.1f}/100</span>
+                    <div><span style="color:{grade_c};font-size:22px;font-weight:700">{canonical_grade}</span>
+                    <span style="color:#d6a44a;font-size:11px;margin-left:8px">{score_label}</span></div>
+                    <span style="color:{grade_c};font-size:20px;font-weight:700">{canonical_score:.1f}/100</span>
                 </div>
             </div>''', unsafe_allow_html=True)
+            if preset == "(current basket)":
+                st.caption(
+                    "The eight criteria below are diagnostics; the displayed "
+                    "Phoenix score is the single score used by the verdict."
+                )
+            else:
+                st.caption(report.recommendation)
 
             for criterion in report.criteria:
                 raw_c = "#34c759" if criterion.raw_score >= 70 else "#ffb000" if criterion.raw_score >= 50 else "#ff3b30"
@@ -846,7 +869,9 @@ if basket_tickers:
                 f'barrier×tenor grid</div>', unsafe_allow_html=True)
             if st.button("FIND BEST PRODUCT", key="best_prod_btn", use_container_width=True):
                 with st.spinner("Searching universe for the best structured product..."):
-                    _res = find_best_structured_product(_universe, basket_size=3)
+                    _res = find_best_structured_product(
+                        _universe, basket_size=3, yf_data=yf,
+                    )
                 if "best" in _res:
                     _b = _res["best"]
                     _active_product_agents = len(_b.get("agents_with_signal", []))
@@ -857,7 +882,7 @@ if basket_tickers:
                         Tox {_b["avg_tox"]:.2f}<br>
                         Objective {_b["final_objective"]:.1f}
                         (agent adj {_b["agent_adjustment"]:+.1f}) ·
-                        agents {_active_product_agents}/6 ·
+                        agents {_active_product_agents}/8 ·
                         evaluated {_res["n_evaluated"]} baskets</div>''',
                         unsafe_allow_html=True)
                     st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">LEADERBOARD</div>', unsafe_allow_html=True)
@@ -922,16 +947,17 @@ if basket_tickers:
     with st.expander("[15] API & CONNECTIONS    Setup · Keys · Health Check"):
         try:
             from src.api_manager import APIManager, SERVICES, mask_key
-            api_mgr = APIManager()
+            api_mgr = APIManager(load_env=True)
             api_status = api_mgr.get_status()
             cached_probe = api_mgr.get_cached_probe()
 
             connected_count = api_status["connected"]
             total_count = api_status["total"]
+            configured_count = api_status.get("configured", 0)
             st.markdown(f'''
             <div style="display:flex;gap:4px;margin-bottom:8px">
                 <div class="qc" style="flex:1;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">LOCAL (always on)</div><div style="color:#34c759;font-size:12px;font-weight:700">SQLite + DuckDB</div></div>
-                <div class="qc" style="flex:1;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">CLOUD CONNECTED</div><div style="color:#ffb000;font-size:14px;font-weight:700">{connected_count}/{total_count}</div></div>
+                <div class="qc" style="flex:1;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">CLOUD VERIFIED</div><div style="color:#ffb000;font-size:14px;font-weight:700">{connected_count}/{total_count}</div><div style="color:#6a5a2a;font-size:8px">{configured_count} configured</div></div>
             </div>''', unsafe_allow_html=True)
 
             if cached_probe.get("cached"):
@@ -952,7 +978,7 @@ if basket_tickers:
             else:
                 st.markdown(
                     '<div style="color:#6a5a2a;font-size:9px;margin-bottom:6px">'
-                    'Connectivity: not probed yet (keys-only status shown)'
+                    f'Connectivity: not probed yet · {configured_count} service(s) configured'
                     '</div>',
                     unsafe_allow_html=True,
                 )
@@ -960,8 +986,13 @@ if basket_tickers:
             for svc_id, svc_info in SERVICES.items():
                 svc_status = api_status["services"][svc_id]
                 has_keys = svc_status["has_keys"]
-                dot = '<span style="color:#34c759">●</span>' if has_keys else '<span style="color:#ff3b30">○</span>'
-                status_text = "keys saved" if has_keys else "not configured"
+                is_connected = svc_status.get("connected", False)
+                dot = '<span style="color:#34c759">●</span>' if is_connected else '<span style="color:#ffb000">○</span>' if has_keys else '<span style="color:#ff3b30">○</span>'
+                status_text = (
+                    "live verified" if is_connected
+                    else "keys saved; not probed" if has_keys
+                    else "not configured"
+                )
 
                 st.markdown(f'''<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-bottom:1px solid #1a1400">
                     <span style="font-size:10px">{dot}</span>
