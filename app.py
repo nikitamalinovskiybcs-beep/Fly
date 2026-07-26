@@ -632,10 +632,11 @@ if basket_tickers:
     sla_confidence = sla.get("confidence", 0)
     sla_regime = sla.get("regime", "N/A")
     sla_sentiment = sla.get("sentiment", "N/A")
+    sla_director = sla.get("director_status", "legacy")
     sla_adj = D.get("sl_agents_adj", 0)
     sla_dec_c = "#34c759" if sla_decision == "BUY" else "#ff3b30" if sla_decision == "AVOID" else "#ffb000"
 
-    with st.expander(f"[9] АГЕНТЫ    {sla_ok}/{sla_total} OK · {sla_decision} · Conf {sla_confidence:.0%}"):
+    with st.expander(f"[9] АГЕНТЫ    {sla_ok}/{sla_total} OK · {sla_decision} · {sla_director} · Conf {sla_confidence:.0%}"):
         # Summary metrics
         st.markdown(f'''
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">

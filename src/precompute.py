@@ -2244,10 +2244,10 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
 
     # ── 8 SELF-LEARNING AGENTS ──
     try:
-        from src.self_learning_agents import run_all_self_learning_agents
+        from src.self_learning_agents import AgentDirector
 
         self_learning = result.get("self_learning", {})
-        sl_agents = run_all_self_learning_agents(
+        sl_agents = AgentDirector().run(
             tickers=basket_tickers,
             yf_data=yf_data,
             features=score_features,
@@ -2256,6 +2256,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             external_data=result.get("external_data"),
             current_accuracy=self_learning.get("scoring_acc_after", 0.0),
             current_win_rate=self_learning.get("win_rate", 0.0),
+            evidence_gate=result.get("evidence_gate"),
         )
         result["sl_agents"] = sl_agents
 

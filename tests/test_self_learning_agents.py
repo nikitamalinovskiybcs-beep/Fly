@@ -3,6 +3,7 @@
 import pytest
 
 from src.self_learning_agents import (
+    AgentDirector,
     SentimentAgent,
     RegimeAgent,
     AlphaAgent,
@@ -230,3 +231,17 @@ def test_run_all_agents_empty_data() -> None:
     assert result["agents_run"] == 8
     # Some agents may still work with empty data
     assert result["agents_ok"] >= 4
+
+
+def test_agent_director_blocks_incomplete_evidence() -> None:
+    result = AgentDirector().run(
+        tickers=["AAPL"],
+        yf_data={},
+        features={},
+        base_score=70.0,
+        evidence_gate={"passed": False},
+    )
+
+    assert result["director_status"] == "blocked_by_evidence"
+    assert result["agents_run"] == 0
+    assert all(level["status"] == "blocked" for level in result["cascade_levels"])

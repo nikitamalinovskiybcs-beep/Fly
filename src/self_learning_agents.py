@@ -911,6 +911,48 @@ class MetaAgent:
 # MASTER: Run all 8 agents in cascade
 # ═══════════════════════════════════════════════════════════════
 
+
+class AgentDirector:
+    """Orchestrate the cascade and enforce evidence/conflict gates."""
+
+    MAX_DISAGREEMENT = 8.0
+
+    def run(
+        self,
+        tickers: List[str],
+        yf_data: Dict,
+        features: Dict[str, float],
+        base_score: float,
+        evidence_gate: Optional[Dict] = None,
+        **kwargs,
+    ) -> Dict:
+        """Run the cascade only when evidence is eligible for the task."""
+        if evidence_gate is not None and not evidence_gate.get("passed", False):
+            return {
+                "agents_run": 0,
+                "agents_ok": 0,
+                "decision": "BLOCKED",
+                "confidence": 0.0,
+                "director_status": "blocked_by_evidence",
+                "cascade_levels": [
+                    {"level": level, "name": name, "agents": agents, "status": "blocked"}
+                    for level, name, agents in (
+                        (1, "evidence_features", ["sentiment", "regime", "alpha"]),
+                        (2, "risk_context", ["risk", "timing", "correlation"]),
+                        (3, "governance", ["overfit_guardian", "meta"]),
+                    )
+                ],
+                "results": {},
+            }
+        return run_all_self_learning_agents(
+            tickers=tickers,
+            yf_data=yf_data,
+            features=features,
+            base_score=base_score,
+            **kwargs,
+        )
+
+
 def run_all_self_learning_agents(
     tickers: List[str],
     yf_data: Dict,
@@ -920,6 +962,7 @@ def run_all_self_learning_agents(
     external_data: Optional[Dict] = None,
     current_accuracy: float = 0.0,
     current_win_rate: float = 0.0,
+    evidence_gate: Optional[Dict] = None,
 ) -> Dict:
     """Run all 8 agents in cascade order and return combined result.
 
@@ -928,6 +971,15 @@ def run_all_self_learning_agents(
       Layer 2: Risk, Timing, Correlation (use Layer 1 results)
       Layer 3: Overfit Guardian, Meta Agent (orchestration)
     """
+    if evidence_gate is not None and not evidence_gate.get("passed", False):
+        return AgentDirector().run(
+            tickers=tickers,
+            yf_data=yf_data,
+            features=features,
+            base_score=base_score,
+            evidence_gate=evidence_gate,
+        )
+
     results = {}
     agents_run = 0
     agents_ok = 0
@@ -1003,13 +1055,42 @@ def run_all_self_learning_agents(
         results["overfit_guardian"] = {"agent": "overfit_guardian", "error": str(e), "scoring_adj": 0}
     agents_run += 1
 
+    upstream_adjustments = [
+        float(results.get(name, {}).get("scoring_adj", 0.0))
+        for name in ("sentiment", "regime", "alpha", "risk", "timing", "correlation")
+        if results.get(name, {}).get("error") is None
+    ]
+    disagreement = round(float(np.std(upstream_adjustments)), 3) if upstream_adjustments else 0.0
+    guardian_result = results.get("overfit_guardian", {})
+    guardian_ok = guardian_result.get("safety_ok", True)
+    guardian_calibrated = current_accuracy > 0 or current_win_rate > 0
+    director_status = "ready"
+    meta_blocked_reason = ""
+    if not guardian_ok and guardian_calibrated:
+        director_status = "blocked_by_guardian"
+        meta_blocked_reason = "guardian_safety_gate"
+    elif disagreement > AgentDirector.MAX_DISAGREEMENT:
+        director_status = "blocked_by_disagreement"
+        meta_blocked_reason = "upstream_signal_disagreement"
+    elif not guardian_ok:
+        director_status = "awaiting_guardian_calibration"
+
     try:
-        meta = MetaAgent()
-        results["meta"] = meta.predict(
-            results, base_score,
-            results.get("overfit_guardian"),
-        )
-        agents_ok += 1
+        if meta_blocked_reason:
+            results["meta"] = {
+                "agent": "meta",
+                "error": meta_blocked_reason,
+                "decision": "HOLD",
+                "final_score": base_score,
+                "confidence": 0.0,
+            }
+        else:
+            meta = MetaAgent()
+            results["meta"] = meta.predict(
+                results, base_score,
+                results.get("overfit_guardian"),
+            )
+            agents_ok += 1
     except Exception as e:
         results["meta"] = {"agent": "meta", "error": str(e), "scoring_adj": 0}
     agents_run += 1
@@ -1058,6 +1139,9 @@ def run_all_self_learning_agents(
         "total_adjustment": round(final_score - base_score, 1),
         "decision": decision,
         "confidence": confidence,
+        "director_status": director_status,
+        "signal_disagreement": disagreement,
+        "meta_blocked_reason": meta_blocked_reason,
         "regime": results.get("regime", {}).get("regime", "N/A"),
         "sentiment": results.get("sentiment", {}).get("label", "N/A"),
         "guardian_ok": results.get("overfit_guardian", {}).get("safety_ok", True),
