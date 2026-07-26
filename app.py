@@ -73,30 +73,32 @@ def cached_outcome_stress(
 
 
 def render_process_map(data: dict, pipeline: dict) -> None:
-    """Render the real decision path as a status-aware neural-style graph."""
+    """Render the real decision path as a cloud-neural status graph."""
     gate_passed = bool(data.get("evidence_gate", {}).get("passed"))
     quality = load_quality_report()
     realized = int(quality.get("realized_notes", 0))
     source = data.get("data_source", "unknown").upper()
     colors = {
-        "active": "#34c759",
+        "active": "#48e6ff",
+        "core": "#b86cff",
+        "signal": "#ff72d2",
         "blocked": "#ff3b30",
         "diagnostic": "#ffb000",
         "waiting": "#6a5a2a",
-        "neutral": "#6db6ff",
+        "neutral": "#7b8cff",
     }
     stages = pipeline.get("stages", {})
     active_color = colors["active"] if gate_passed else colors["diagnostic"]
     nodes = [
-        ("MARKET DATA", source, active_color, 0.5, 1.0),
-        ("IV / BETA", "FEATURES", active_color, 1.7, 1.6),
-        ("RETURNS", "FEATURES", active_color, 1.7, 0.4),
-        ("EVIDENCE GATE", "PASSED" if gate_passed else "BLOCKED", colors["active"] if gate_passed else colors["blocked"], 3.0, 1.0),
-        ("PHOENIX", stages.get("phoenix", "UNKNOWN").upper(), active_color, 4.4, 1.6),
-        ("AGENTS", stages.get("agents", "UNKNOWN").upper(), active_color if gate_passed else colors["blocked"], 4.4, 0.4),
-        ("PRODUCT", stages.get("product", "UNKNOWN").upper(), active_color if gate_passed else colors["blocked"], 5.8, 1.0),
-        ("PAPER", "TRACKING", colors["neutral"], 7.2, 1.6),
-        ("REALIZED", f"{realized} NOTES" if realized else "WAITING", colors["active"] if realized else colors["waiting"], 7.2, 0.4),
+        ("MARKET DATA", source, active_color, 0.3, 1.0, "INPUT"),
+        ("IV / BETA", "FEATURES", colors["signal"], 1.6, 1.7, "FEATURES"),
+        ("RETURNS", "FEATURES", colors["signal"], 1.6, 0.3, "FEATURES"),
+        ("EVIDENCE GATE", "PASSED" if gate_passed else "BLOCKED", colors["active"] if gate_passed else colors["blocked"], 3.0, 1.0, "CONTROL"),
+        ("PHOENIX", stages.get("phoenix", "UNKNOWN").upper(), colors["core"], 4.4, 1.7, "CORE"),
+        ("AGENTS", stages.get("agents", "UNKNOWN").upper(), active_color if gate_passed else colors["blocked"], 4.4, 0.3, "CASCADE"),
+        ("PRODUCT", stages.get("product", "UNKNOWN").upper(), colors["core"], 5.9, 1.0, "DECISION"),
+        ("PAPER", "TRACKING", colors["neutral"], 7.4, 1.7, "OUTCOME"),
+        ("REALIZED", f"{realized} NOTES" if realized else "WAITING", colors["active"] if realized else colors["waiting"], 7.4, 0.3, "FEEDBACK"),
     ]
     x_values = [node[3] for node in nodes]
     y_values = [node[4] for node in nodes]
@@ -109,20 +111,31 @@ def render_process_map(data: dict, pipeline: dict) -> None:
 
     fig = go.Figure()
     for start, end in edges:
-        edge_color = node_colors[start] if node_colors[start] == node_colors[end] else "#6a5a2a"
+        edge_color = node_colors[start] if node_colors[start] == node_colors[end] else "#27345c"
+        is_live = gate_passed and start not in {7, 8}
         fig.add_trace(go.Scatter(
             x=[x_values[start], x_values[end]],
             y=[y_values[start], y_values[end]],
             mode="lines",
-            line={"color": edge_color, "width": 2},
+            line={"color": edge_color, "width": 3 if is_live else 1},
             hoverinfo="skip",
             showlegend=False,
         ))
+        if is_live:
+            fractions = (0.24, 0.52, 0.78)
+            fig.add_trace(go.Scatter(
+                x=[x_values[start] + (x_values[end] - x_values[start]) * fraction for fraction in fractions],
+                y=[y_values[start] + (y_values[end] - y_values[start]) * fraction for fraction in fractions],
+                mode="markers",
+                marker={"size": 6, "color": colors["active"], "opacity": 0.85},
+                hoverinfo="skip",
+                showlegend=False,
+            ))
     fig.add_trace(go.Scatter(
-        x=x_values,
-        y=y_values,
+        x=[value * 0.98 for value in x_values],
+        y=[value * 0.98 for value in y_values],
         mode="markers",
-        marker={"size": 42, "color": node_colors, "opacity": 0.10},
+        marker={"size": 62, "color": node_colors, "opacity": 0.08},
         hoverinfo="skip",
         showlegend=False,
     ))
@@ -132,18 +145,34 @@ def render_process_map(data: dict, pipeline: dict) -> None:
         mode="markers+text",
         text=labels,
         textposition="bottom center",
-        textfont={"family": "JetBrains Mono, monospace", "size": 10, "color": "#d6a44a"},
-        marker={"size": 18, "color": node_colors, "line": {"color": "#ffd56a", "width": 1}},
+        textfont={"family": "JetBrains Mono, monospace", "size": 9, "color": "#d9e7ff"},
+        marker={"size": 22, "color": node_colors, "line": {"color": "#d9e7ff", "width": 1}},
         hovertemplate="%{text}<extra></extra>",
         showlegend=False,
     ))
     fig.update_layout(
-        height=230,
-        margin={"l": 10, "r": 10, "t": 8, "b": 8},
-        paper_bgcolor="#000000",
-        plot_bgcolor="#000000",
+        height=300,
+        margin={"l": 12, "r": 12, "t": 28, "b": 18},
+        paper_bgcolor="#050816",
+        plot_bgcolor="#050816",
+        title={
+            "text": "◉ LIVE NEURAL CLOUD · REAL PIPELINE STATE",
+            "font": {"family": "JetBrains Mono, monospace", "size": 11, "color": "#8feaff"},
+            "x": 0.02,
+            "y": 0.98,
+        },
+        annotations=[
+            {
+                "x": node[3],
+                "y": 2.02,
+                "text": node[5],
+                "showarrow": False,
+                "font": {"size": 8, "color": "#6177b8"},
+            }
+            for node in nodes
+        ],
         xaxis={"visible": False, "range": [0, 8]},
-        yaxis={"visible": False, "range": [0, 2]},
+        yaxis={"visible": False, "range": [0, 2.2]},
         showlegend=False,
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
