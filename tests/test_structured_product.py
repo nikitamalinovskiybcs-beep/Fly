@@ -67,6 +67,40 @@ class TestStructuredProduct:
         assert "baseline_comparison" in result
         assert result["selection_method"].startswith("min(")
 
+    def test_real_market_data_changes_objective(self) -> None:
+        from src.structured_product import score_product
+
+        market_data = {
+            ticker: {
+                "source": "xfinlink",
+                "is_real": True,
+                "iv30": 55,
+                "beta": 1.8,
+                "ema200_pct": -12,
+            }
+            for ticker in ("AAPL", "MSFT", "JPM")
+        }
+        static = score_product(["AAPL", "MSFT", "JPM"], 0.65, 24)
+        live = score_product(
+            ["AAPL", "MSFT", "JPM"], 0.65, 24, yf_data=market_data,
+        )
+        assert live["market_adjustment"] < 0
+        assert live["objective"] < static["objective"]
+
+    def test_real_data_gate_rejects_estimated_universe(self) -> None:
+        from src.structured_product import find_best_structured_product
+
+        result = find_best_structured_product(
+            ["AAPL", "MSFT", "JPM"],
+            basket_size=3,
+            yf_data={
+                ticker: {"source": "estimated", "is_real": False}
+                for ticker in ("AAPL", "MSFT", "JPM")
+            },
+            require_real_data=True,
+        )
+        assert result["error"] == "insufficient_real_market_data"
+
     def test_universe_too_small(self) -> None:
         from src.structured_product import find_best_structured_product
         result = find_best_structured_product(["AAPL"], basket_size=3)

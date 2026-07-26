@@ -9,7 +9,7 @@ from src.phoenix_engine import GDRIVE_AVAILABLE
 from src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI
 from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 from src.calibration import run_pipeline as _run_calibration_pipeline
-from src.data_module import get_data_source_status
+from src.data_module import fetch_ticker_data, get_data_source_status
 from src.outcome_engine import (
     StructuredNoteSpec,
     load_quality_report,
@@ -746,8 +746,12 @@ if basket_tickers:
                 f'barrier×tenor grid</div>', unsafe_allow_html=True)
             if st.button("FIND BEST PRODUCT", key="best_prod_btn", use_container_width=True):
                 with st.spinner("Searching universe for the best structured product..."):
+                    _universe_data = fetch_ticker_data(_universe, period="2y")
                     _res = find_best_structured_product(
-                        _universe, basket_size=3, yf_data=yf,
+                        _universe,
+                        basket_size=3,
+                        yf_data=_universe_data,
+                        require_real_data=True,
                     )
                 if "best" in _res:
                     _b = _res["best"]

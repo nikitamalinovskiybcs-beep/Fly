@@ -112,6 +112,7 @@ def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
                         "closes": closes,
                         "returns": returns,
                         "source": "xfinlink",
+                        "is_real": True,
                     }
                 except Exception:
                     continue
@@ -156,6 +157,7 @@ def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
                         "closes": closes,
                         "returns": returns,
                         "source": "yfinance",
+                        "is_real": True,
                     }
                 except Exception:
                     continue

@@ -1263,6 +1263,7 @@ def _fetch_yf_data(tickers: List[str], period: str = "2y") -> Dict:
             "returns": returns,
             "next_earnings": fund.get("next_earnings_date", None),
             "source": d.get("source", "unknown"),
+            "is_real": d.get("is_real", d.get("source") not in {"estimated", "fallback_defaults"}),
         }
         rec = ANALYST_MAP.get(t, (1.80, "buy"))
         result[t]["rec_score"] = rec[0]
