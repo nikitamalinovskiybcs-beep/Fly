@@ -9,10 +9,14 @@ Pattern: try xfinlink first → if unavailable/error → yfinance fallback.
 
 import datetime as dt
 import os
+import time
 from typing import Dict, List
 
 import numpy as np
 import pandas as pd
+
+_FETCH_CACHE: Dict[tuple[tuple[str, ...], str], tuple[float, Dict]] = {}
+_FETCH_CACHE_TTL_SECONDS = 300
 
 # ── xfinlink setup ──
 try:
@@ -78,7 +82,7 @@ def fetch_prices(
     return pd.DataFrame()
 
 
-def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
+def _fetch_ticker_data_uncached(tickers: List[str], period: str = "2y") -> Dict:
     """Fetch comprehensive ticker data (spot, vol, returns, beta).
     Returns dict[ticker] = {spot, iv30, real_1y, vol_used, beta, ema200_pct, ...}
     Used by precompute.py for all market-dependent calculations.
@@ -189,6 +193,23 @@ def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
             }
 
     return result
+
+
+def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
+    """Fetch ticker data with a short in-process cache for pipeline reruns."""
+    key = (tuple(dict.fromkeys(tickers)), period)
+    now = time.monotonic()
+    cached = _FETCH_CACHE.get(key)
+    if cached and now - cached[0] < _FETCH_CACHE_TTL_SECONDS:
+        return cached[1]
+    result = _fetch_ticker_data_uncached(list(key[0]), period=period)
+    _FETCH_CACHE[key] = (now, result)
+    return result
+
+
+def clear_ticker_data_cache() -> None:
+    """Force the next analysis to fetch fresh market data."""
+    _FETCH_CACHE.clear()
 
 
 def fetch_iv_percentile(tickers: List[str]) -> Dict[str, float]:

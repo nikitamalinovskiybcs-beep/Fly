@@ -13,3 +13,4 @@ data/scheduler_log.json
 data/numerai_submissions.json
 data/paper_trading/
 data/connectivity_probe.json
+data/runtime/

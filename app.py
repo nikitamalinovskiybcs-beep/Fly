@@ -21,6 +21,11 @@ from src.outcome_engine import (
 )
 from src.online_learning import assess_learning_gate, load_realized_feedback
 from src.performance_metrics import build_realized_evaluation
+from src.snapshot_cache import (
+    load_snapshot,
+    refresh_in_background,
+    save_snapshot,
+)
 
 st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", layout="wide")
 
@@ -31,9 +36,22 @@ def cached_precompute(tickers_key: str):
     return _precompute_all(tickers)
 
 
-@st.cache_data(ttl=300, show_spinner=False)
 def cached_full_analysis(tickers_key: str):
-    return run_full_analysis(tickers_key.split(","))
+    tickers = tickers_key.split(",")
+    snapshot = load_snapshot(tickers)
+    if snapshot is not None:
+        payload = dict(snapshot.payload)
+        payload["_snapshot"] = {
+            "status": "fresh" if snapshot.fresh else "stale_served_refreshing",
+            "age_seconds": round(snapshot.age_seconds, 1),
+        }
+        if not snapshot.fresh:
+            refresh_in_background(tickers, run_full_analysis)
+        return payload
+    payload = run_full_analysis(tickers)
+    save_snapshot(tickers, payload)
+    payload["_snapshot"] = {"status": "fresh", "age_seconds": 0.0}
+    return payload
 
 
 @st.cache_data(ttl=600, show_spinner=False)
@@ -268,10 +286,12 @@ requested_tickers = [
 ]
 if "analysis_tickers" not in st.session_state:
     st.session_state.analysis_tickers = requested_tickers
+if "analysis_requested" not in st.session_state:
+    st.session_state.analysis_requested = False
 with bc[2]:
     if st.button("▶ RUN FULL ANALYSIS", key="run_basket", type="primary", use_container_width=True):
         st.session_state.analysis_tickers = requested_tickers
-        st.cache_data.clear()
+        st.session_state.analysis_requested = True
         st.rerun()
 
 basket_tickers = st.session_state.analysis_tickers
@@ -286,15 +306,22 @@ if requested_tickers != basket_tickers:
         unsafe_allow_html=True,
     )
 
-rc1, rc2 = st.columns([3, 1])
-with rc2:
-    if st.button("🔄 ОБНОВИТЬ ЦЕНЫ", key="refresh_prices", use_container_width=True):
-        st.cache_data.clear()
-        st.rerun()
+rc1 = st.container()
 
 # ═══════════════════════════════════════════════════════════════════
 # PRECOMPUTE ALL (Karpathy method — one call, all data)
 # ═══════════════════════════════════════════════════════════════════
+if basket_tickers and not st.session_state.analysis_requested:
+    st.markdown(
+        '<div class="qc" style="border-left:3px solid #ffb000;padding:16px;margin-top:10px">'
+        '<div style="color:#ffb000;font-size:16px;font-weight:700">READY TO RUN</div>'
+        '<div style="color:#d6a44a;font-size:10px;margin-top:5px">'
+        'All calculations are waiting. Press RUN FULL ANALYSIS to fetch fresh market data '
+        'and execute the complete pipeline.</div></div>',
+        unsafe_allow_html=True,
+    )
+    st.stop()
+
 if basket_tickers:
     with st.spinner("⚡ Precomputing..."):
         _pipeline = cached_full_analysis(",".join(basket_tickers))
@@ -320,9 +347,10 @@ if basket_tickers:
             else "DIAGNOSTIC ONLY · REAL MARKET DATA INCOMPLETE"
         )
         gate_color = "#34c759" if gate.get("passed") else "#ff3b30"
+        snapshot_status = _pipeline.get("_snapshot", {}).get("status", "computed")
         st.markdown(
             f'<div style="color:{gate_color};font-size:9px;padding-top:2px">'
-            f'{gate_label}</div>',
+            f'{gate_label} · {snapshot_status} · ready snapshot TTL 5 min</div>',
             unsafe_allow_html=True,
         )
 
