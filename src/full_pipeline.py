@@ -54,6 +54,7 @@ def run_full_analysis(tickers: List[str]) -> Dict:
         real_universe,
         basket_size=3,
         yf_data=market_data,
+        max_candidates=80,
     )
     best = product.get("best", {})
     stages["product"] = "complete" if best else product.get("error", "blocked")
@@ -65,7 +66,7 @@ def run_full_analysis(tickers: List[str]) -> Dict:
             coupon_rate=float(best.get("coupon", 0.0)) / 100.0 / 4.0,
             term_months=int(best.get("tenor_months", 24)),
         )
-        stress = simulate_stress_suite(spec, n_paths=500)
+        stress = simulate_stress_suite(spec, n_paths=250)
         stages["outcomes"] = "stress_complete"
     else:
         stages["outcomes"] = "waiting_for_product"

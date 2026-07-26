@@ -10,7 +10,7 @@ from src.phoenix_engine import GDRIVE_AVAILABLE
 from src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI
 from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 from src.calibration import run_pipeline as _run_calibration_pipeline
-from src.data_module import clear_ticker_data_cache, get_data_source_status
+from src.data_module import get_data_source_status
 from src.commercial_readiness import assess_commercial_readiness
 from src.full_pipeline import run_full_analysis
 from src.outcome_engine import (
@@ -274,8 +274,6 @@ with bc[2]:
     if st.button("▶ RUN FULL ANALYSIS", key="run_basket", type="primary", use_container_width=True):
         st.session_state.analysis_tickers = requested_tickers
         st.session_state.analysis_requested = True
-        clear_ticker_data_cache()
-        st.cache_data.clear()
         st.rerun()
 
 basket_tickers = st.session_state.analysis_tickers
@@ -333,7 +331,7 @@ if basket_tickers:
         gate_color = "#34c759" if gate.get("passed") else "#ff3b30"
         st.markdown(
             f'<div style="color:{gate_color};font-size:9px;padding-top:2px">'
-            f'{gate_label} · RUN FULL ANALYSIS refreshes the snapshot</div>',
+            f'{gate_label} · snapshot cache TTL 5 min</div>',
             unsafe_allow_html=True,
         )
 
