@@ -240,6 +240,7 @@ def find_best_structured_product(
     yf_data: Optional[Dict] = None,
     max_candidates: int = 200,
     top_n: int = 5,
+    agent_candidate_limit: int = 12,
     require_real_data: bool = False,
 ) -> Dict:
     """Search a universe for the best structured product.
@@ -285,10 +286,24 @@ def find_best_structured_product(
         cfg = best_config_for_basket(basket, yf_data=yf_data)
         if not cfg:
             continue
-        agent_report = _agent_report(basket, yf_data)
-        adj = float(agent_report.get("total_adjustment", 0.0))
         cfg = dict(cfg)
         cfg["basket"] = basket
+        cfg["split_objectives"] = _split_objectives(cfg)
+        cfg["worst_split_objective"] = min(cfg["split_objectives"].values())
+        cfg["final_objective"] = round(
+            min(cfg["objective"], cfg["worst_split_objective"]),
+            2,
+        )
+        ranked.append(cfg)
+
+    ranked.sort(key=lambda c: c["final_objective"], reverse=True)
+    for index, cfg in enumerate(ranked):
+        basket = list(cfg["basket"])
+        if index >= agent_candidate_limit:
+            agent_report = {}
+        else:
+            agent_report = _agent_report(basket, yf_data)
+        adj = float(agent_report.get("total_adjustment", 0.0))
         cfg["agent_adjustment"] = round(adj, 2)
         cfg["agents_with_signal"] = agent_report.get("agents_with_signal", [])
         cfg["agent_contributions"] = agent_report.get("agent_contributions", {})
@@ -301,7 +316,6 @@ def find_best_structured_product(
             min(cfg["objective"] + adj, cfg["worst_split_objective"] + adj),
             2,
         )
-        ranked.append(cfg)
 
     if not ranked:
         return {"error": "no_valid_products"}

@@ -10,7 +10,7 @@ from src.phoenix_engine import GDRIVE_AVAILABLE
 from src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI
 from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 from src.calibration import run_pipeline as _run_calibration_pipeline
-from src.data_module import get_data_source_status
+from src.data_module import clear_ticker_data_cache, get_data_source_status
 from src.commercial_readiness import assess_commercial_readiness
 from src.full_pipeline import run_full_analysis
 from src.outcome_engine import (
@@ -289,6 +289,7 @@ if requested_tickers != basket_tickers:
 rc1, rc2 = st.columns([3, 1])
 with rc2:
     if st.button("🔄 ОБНОВИТЬ ЦЕНЫ", key="refresh_prices", use_container_width=True):
+        clear_ticker_data_cache()
         st.cache_data.clear()
         st.rerun()
 
