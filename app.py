@@ -10,6 +10,7 @@ from src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI
 from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 from src.calibration import run_pipeline as _run_calibration_pipeline
 from src.data_module import fetch_ticker_data, get_data_source_status
+from src.commercial_readiness import assess_commercial_readiness
 from src.outcome_engine import (
     StructuredNoteSpec,
     load_quality_report,
@@ -796,6 +797,27 @@ if basket_tickers:
     with st.expander("[19] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
         try:
             _quality = load_quality_report()
+            _readiness = assess_commercial_readiness(
+                D.get("evidence_gate", {}),
+                _quality,
+            )
+            _readiness_color = (
+                "#34c759" if _readiness["status"] == "production_review"
+                else "#ffb000" if _readiness["status"] == "pilot_ready"
+                else "#ff3b30"
+            )
+            st.markdown(
+                f'<div style="border:1px solid {_readiness_color};padding:6px;margin-bottom:6px">'
+                f'<div style="color:{_readiness_color};font-size:11px;font-weight:700">'
+                f'COMMERCIAL STATUS: {_readiness["label"]}</div>'
+                f'<div style="color:#d6a44a;font-size:9px">'
+                f'{_readiness["allowed_claim"]} '
+                f'Realized notes: {_readiness["realized_notes"]}; '
+                f'historical windows: {_readiness["historical_windows"]}.</div>'
+                f'<div style="color:#ff3b30;font-size:9px">'
+                f'{_readiness["blocked_claim"]}</div></div>',
+                unsafe_allow_html=True,
+            )
             if _quality.get("status") != "not_available":
                 st.markdown(
                     f'<div style="color:#d6a44a;font-size:9px;margin-bottom:6px">'
