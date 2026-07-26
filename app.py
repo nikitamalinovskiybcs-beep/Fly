@@ -14,10 +14,13 @@ from src.data_module import get_data_source_status
 from src.commercial_readiness import assess_commercial_readiness
 from src.full_pipeline import run_full_analysis
 from src.outcome_engine import (
+    PaperOutcomeTracker,
     StructuredNoteSpec,
     load_quality_report,
     simulate_stress_suite,
 )
+from src.online_learning import assess_learning_gate, load_realized_feedback
+from src.performance_metrics import build_realized_evaluation
 
 st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", layout="wide")
 
@@ -948,6 +951,8 @@ if basket_tickers:
     with st.expander("[14] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
         try:
             _quality = load_quality_report()
+            _evaluation = build_realized_evaluation(PaperOutcomeTracker().notes)
+            _learning_gate = assess_learning_gate(load_realized_feedback())
             _readiness = assess_commercial_readiness(
                 D.get("evidence_gate", {}),
                 _quality,
@@ -982,6 +987,20 @@ if basket_tickers:
                 '<div style="color:#d6a44a;font-size:9px;margin-bottom:6px">'
                 'Simulation is diagnostic only. It never trains agents; only '
                 'a resolved paper note is marked realized.</div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f'<div style="color:#6db6ff;font-size:9px;border:1px solid #12304a;'
+                f'padding:5px;margin-bottom:6px">'
+                f'REALIZED BASELINE: {_evaluation["realized_notes"]}/'
+                f'{_evaluation["target_notes"]} notes '
+                f'({_evaluation["progress_pct"]:.1f}%) · '
+                f'win {_evaluation["win_rate_pct"]:.1f}% · '
+                f'mean return {_evaluation["mean_return_pct"] if _evaluation["mean_return_pct"] is not None else "n/a"}% · '
+                f'Brier {_evaluation["brier_autocall"] if _evaluation["brier_autocall"] is not None else "n/a"}<br>'
+                f'LEARNING GATE: {_learning_gate["status"].upper()} · '
+                f'{_learning_gate["reason"]} · drift '
+                f'{_learning_gate.get("drift", "n/a")}</div>',
                 unsafe_allow_html=True,
             )
             _outcomes = _pipeline["stress"]
