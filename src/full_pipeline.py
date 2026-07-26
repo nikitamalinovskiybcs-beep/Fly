@@ -41,11 +41,19 @@ def run_full_analysis(tickers: List[str]) -> Dict:
         "product": "pending",
         "outcomes": "pending",
     }
+    real_universe = [
+        ticker for ticker in universe
+        if market_data.get(ticker, {}).get(
+            "is_real",
+            market_data.get(ticker, {}).get("source") in {"xfinlink", "yfinance"},
+        )
+        and market_data.get(ticker, {}).get("source")
+        not in {"estimated", "fallback_defaults"}
+    ]
     product = find_best_structured_product(
-        universe,
+        real_universe,
         basket_size=3,
         yf_data=market_data,
-        require_real_data=True,
     )
     best = product.get("best", {})
     stages["product"] = "complete" if best else product.get("error", "blocked")
