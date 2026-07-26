@@ -217,6 +217,7 @@ def test_run_all_agents(tickers: list[str], yf_data: dict, features: dict) -> No
     assert result["agents_run"] == 8
     assert result["agents_ok"] == 8
     assert "decision" in result
+    assert [level["level"] for level in result["cascade_levels"]] == [1, 2, 3]
 
 
 def test_run_all_agents_empty_data() -> None:

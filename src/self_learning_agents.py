@@ -21,12 +21,10 @@ Safety: never degrade accuracy below 75% or win_rate below 70%.
 import json
 import math
 import os
-import time
 import numpy as np
 from typing import Dict, List, Tuple, Optional
-from datetime import datetime, timedelta
-from scipy.stats import norm, pearsonr
-from scipy.optimize import minimize
+from datetime import datetime
+from scipy.stats import norm
 
 
 _AGENTS_DIR = os.path.expanduser("~/phoenix_agents")
@@ -82,7 +80,6 @@ class SentimentAgent:
             analyst_score = max(-1, min(1, (3.0 - rec) / 2.0))
 
             # Signal 2: EMA200 trend (above = bullish)
-            ema_above = info.get("ema200_above", True)
             ema_pct = info.get("ema200_pct", 0)
             trend_score = max(-1, min(1, ema_pct / 20.0))
 
@@ -185,7 +182,6 @@ class RegimeAgent:
             info = yf_data.get(t, {})
             # Use available return metrics
             ret_1m = info.get("return_1m", 0)
-            ret_3m = info.get("return_3m", 0)
             vol = info.get("iv30", 25) / 100
             ema_above = info.get("ema200_above", True)
 
@@ -212,8 +208,6 @@ class RegimeAgent:
         # Bayesian posterior for basket regime
         if all_returns:
             avg_ret = float(np.mean(all_returns))
-            avg_vol = float(np.std(all_returns)) if len(all_returns) > 1 else 0.01
-
             posteriors = {}
             for regime_name, params in self.REGIMES.items():
                 mu = params["mu_prior"]
@@ -1029,6 +1023,35 @@ def run_all_self_learning_agents(
     return {
         "agents_run": agents_run,
         "agents_ok": agents_ok,
+        "cascade_levels": [
+            {
+                "level": 1,
+                "name": "evidence_features",
+                "agents": ["sentiment", "regime", "alpha"],
+                "status": "complete" if all(
+                    results.get(name, {}).get("error") is None
+                    for name in ("sentiment", "regime", "alpha")
+                ) else "degraded",
+            },
+            {
+                "level": 2,
+                "name": "risk_context",
+                "agents": ["risk", "timing", "correlation"],
+                "status": "complete" if all(
+                    results.get(name, {}).get("error") is None
+                    for name in ("risk", "timing", "correlation")
+                ) else "degraded",
+            },
+            {
+                "level": 3,
+                "name": "governance",
+                "agents": ["overfit_guardian", "meta"],
+                "status": "complete" if all(
+                    results.get(name, {}).get("error") is None
+                    for name in ("overfit_guardian", "meta")
+                ) else "degraded",
+            },
+        ],
         "results": results,
         "final_score": final_score,
         "base_score": base_score,

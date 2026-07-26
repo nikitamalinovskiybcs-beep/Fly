@@ -646,6 +646,24 @@ if basket_tickers:
             <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">СКОР ADJ</div><div style="color:{"#34c759" if sla_adj > 0 else "#ff3b30" if sla_adj < 0 else "#ffb000"};font-size:14px;font-weight:700">{sla_adj:+.1f}</div></div>
         </div>''', unsafe_allow_html=True)
 
+        cascade_levels = sla.get("cascade_levels", [])
+        if cascade_levels:
+            st.markdown(
+                '<div style="color:#d6a44a;font-size:9px;font-weight:700;'
+                'margin:6px 0 3px">MULTI-LEVEL CASCADE</div>',
+                unsafe_allow_html=True,
+            )
+            for level in cascade_levels:
+                level_color = "#34c759" if level["status"] == "complete" else "#ffb000"
+                st.markdown(
+                    f'<div style="display:flex;gap:8px;padding:2px 8px;'
+                    f'border-bottom:1px solid #1a1400;color:#d6a44a;font-size:9px">'
+                    f'<span style="color:{level_color};font-weight:700">'
+                    f'L{level["level"]} {level["status"].upper()}</span>'
+                    f'<span>{level["name"]}: {", ".join(level["agents"])}</span></div>',
+                    unsafe_allow_html=True,
+                )
+
         # Per-agent details
         agent_results = sla.get("results", {})
         agent_labels = {
