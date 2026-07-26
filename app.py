@@ -73,19 +73,19 @@ def cached_outcome_stress(
 
 
 def render_process_map(data: dict, pipeline: dict) -> None:
-    """Render the real decision path as a cloud-neural status graph."""
+    """Render the real decision path as a cybernetic network."""
     gate_passed = bool(data.get("evidence_gate", {}).get("passed"))
     quality = load_quality_report()
     realized = int(quality.get("realized_notes", 0))
     source = data.get("data_source", "unknown").upper()
     colors = {
-        "active": "#48e6ff",
-        "core": "#b86cff",
-        "signal": "#ff72d2",
+        "active": "#46d9ff",
+        "core": "#ffb347",
+        "signal": "#8ba8ff",
         "blocked": "#ff3b30",
         "diagnostic": "#ffb000",
         "waiting": "#6a5a2a",
-        "neutral": "#7b8cff",
+        "neutral": "#6d86b8",
     }
     stages = pipeline.get("stages", {})
     active_color = colors["active"] if gate_passed else colors["diagnostic"]
@@ -110,6 +110,25 @@ def render_process_map(data: dict, pipeline: dict) -> None:
     ]
 
     fig = go.Figure()
+    grid_shapes = []
+    for x in range(0, 9):
+        grid_shapes.append({
+            "type": "line",
+            "x0": x,
+            "x1": x,
+            "y0": 0,
+            "y1": 2.2,
+            "line": {"color": "#13233d", "width": 1},
+        })
+    for y in (0, 0.5, 1, 1.5, 2):
+        grid_shapes.append({
+            "type": "line",
+            "x0": 0,
+            "x1": 8,
+            "y0": y,
+            "y1": y,
+            "line": {"color": "#13233d", "width": 1},
+        })
     for start, end in edges:
         edge_color = node_colors[start] if node_colors[start] == node_colors[end] else "#27345c"
         is_live = gate_passed and start not in {7, 8}
@@ -135,7 +154,7 @@ def render_process_map(data: dict, pipeline: dict) -> None:
         x=[value * 0.98 for value in x_values],
         y=[value * 0.98 for value in y_values],
         mode="markers",
-        marker={"size": 62, "color": node_colors, "opacity": 0.08},
+        marker={"size": 62, "color": node_colors, "opacity": 0.06},
         hoverinfo="skip",
         showlegend=False,
     ))
@@ -146,18 +165,23 @@ def render_process_map(data: dict, pipeline: dict) -> None:
         text=labels,
         textposition="bottom center",
         textfont={"family": "JetBrains Mono, monospace", "size": 9, "color": "#d9e7ff"},
-        marker={"size": 22, "color": node_colors, "line": {"color": "#d9e7ff", "width": 1}},
+        marker={
+            "size": [26 if node[0] == "PHOENIX" else 22 for node in nodes],
+            "color": node_colors,
+            "symbol": ["hexagon" if node[0] in {"PHOENIX", "EVIDENCE GATE"} else "square" for node in nodes],
+            "line": {"color": "#d9e7ff", "width": 1},
+        },
         hovertemplate="%{text}<extra></extra>",
         showlegend=False,
     ))
     fig.update_layout(
         height=300,
         margin={"l": 12, "r": 12, "t": 28, "b": 18},
-        paper_bgcolor="#050816",
-        plot_bgcolor="#050816",
+        paper_bgcolor="#020711",
+        plot_bgcolor="#020711",
         title={
-            "text": "◉ LIVE NEURAL CLOUD · REAL PIPELINE STATE",
-            "font": {"family": "JetBrains Mono, monospace", "size": 11, "color": "#8feaff"},
+            "text": "▣ CYBERNETIC NETWORK · REAL PIPELINE STATE",
+            "font": {"family": "JetBrains Mono, monospace", "size": 11, "color": "#46d9ff"},
             "x": 0.02,
             "y": 0.98,
         },
@@ -173,6 +197,7 @@ def render_process_map(data: dict, pipeline: dict) -> None:
         ],
         xaxis={"visible": False, "range": [0, 8]},
         yaxis={"visible": False, "range": [0, 2.2]},
+        shapes=grid_shapes,
         showlegend=False,
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
