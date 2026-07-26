@@ -34,6 +34,15 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+Для предварительного расчёта готового snapshot (например, через cron):
+
+```bash
+python -m src.scheduler --snapshot --tickers AAPL,DELL,GOOG
+```
+
+В Streamlit после первого запуска snapshot также поддерживается фоновым
+обновлением, пока процесс приложения активен.
+
 ## Деплой на Fly.io
 
 ```bash

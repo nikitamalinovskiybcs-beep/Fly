@@ -16,6 +16,7 @@ MAX_STALE_SECONDS = 86_400
 _EXECUTOR = ThreadPoolExecutor(max_workers=1)
 _LOCK = threading.Lock()
 _REFRESH: Optional[Future] = None
+_SCHEDULER_THREAD: Optional[threading.Thread] = None
 
 
 @dataclass(frozen=True)
@@ -95,4 +96,29 @@ def refresh_in_background(
             save_snapshot(tickers, payload)
 
         _REFRESH = _EXECUTOR.submit(refresh)
+        return True
+
+
+def start_periodic_refresh(
+    tickers: List[str],
+    compute: Callable[[List[str]], Dict[str, object]],
+    interval_seconds: int = 900,
+) -> bool:
+    """Keep the requested basket warm while the app process is alive."""
+    global _SCHEDULER_THREAD
+    with _LOCK:
+        if _SCHEDULER_THREAD is not None and _SCHEDULER_THREAD.is_alive():
+            return False
+
+        def loop() -> None:
+            while True:
+                time.sleep(interval_seconds)
+                refresh_in_background(tickers, compute)
+
+        _SCHEDULER_THREAD = threading.Thread(
+            target=loop,
+            name="snapshot-refresh",
+            daemon=True,
+        )
+        _SCHEDULER_THREAD.start()
         return True

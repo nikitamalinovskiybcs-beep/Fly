@@ -76,3 +76,29 @@ class TestNumeraiSubmission:
         assert saved["last_round"] == 1310
         second = scheduler._run_numerai_submission()
         assert second["status"] == "already_submitted"
+
+
+def test_snapshot_precompute_persists_ready_result(monkeypatch) -> None:
+    import src.scheduler as sched_mod
+
+    saved = {}
+
+    monkeypatch.setattr(
+        sched_mod,
+        "run_full_analysis",
+        lambda tickers: {"generated_at": "now", "tickers": tickers},
+    )
+    monkeypatch.setattr(
+        sched_mod,
+        "save_snapshot",
+        lambda tickers, payload: saved.update(
+            {"tickers": tickers, "payload": payload},
+        ),
+    )
+
+    scheduler = sched_mod.FlyScheduler(tickers=["AAPL", "MSFT"])
+    result = scheduler.run_snapshot_precompute()
+
+    assert result["status"] == "completed"
+    assert saved["tickers"] == ["AAPL", "MSFT"]
+    assert saved["payload"]["tickers"] == ["AAPL", "MSFT"]

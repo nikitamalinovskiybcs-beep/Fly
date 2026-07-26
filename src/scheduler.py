@@ -20,6 +20,8 @@ from pathlib import Path
 from typing import Optional
 
 from src.outcome_engine import build_decision_record
+from src.full_pipeline import run_full_analysis
+from src.snapshot_cache import save_snapshot
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +112,16 @@ class FlyScheduler:
 
         self._save_run(results)
         return results
+
+    def run_snapshot_precompute(self) -> dict:
+        """Precompute and persist a ready full-analysis snapshot."""
+        payload = run_full_analysis(self.tickers)
+        save_snapshot(self.tickers, payload)
+        return {
+            "status": "completed",
+            "tickers": self.tickers,
+            "generated_at": payload.get("generated_at"),
+        }
 
     def run_all_now(self) -> dict:
         """Force-run all tasks regardless of schedule.
@@ -599,6 +611,8 @@ if __name__ == "__main__":
                         help="Run one Autopilot cycle now")
     parser.add_argument("--best-product", action="store_true",
                         help="Search the universe for the best structured product")
+    parser.add_argument("--snapshot", action="store_true",
+                        help="Precompute and persist a ready full-analysis snapshot")
     parser.add_argument("--tickers", type=str, default="AAPL,MSFT,GOOGL,AMZN,NVDA",
                         help="Comma-separated tickers")
     parser.add_argument("--interval", type=int, default=60,
@@ -627,6 +641,10 @@ if __name__ == "__main__":
     elif args.best_product:
         print("Searching for best structured product...")
         result = scheduler._run_product_search()
+        print(json.dumps(result, indent=2, default=str))
+    elif args.snapshot:
+        print("Precomputing ready snapshot...")
+        result = scheduler.run_snapshot_precompute()
         print(json.dumps(result, indent=2, default=str))
     elif args.bootstrap > 0:
         print(f"Bootstrapping with {args.bootstrap} days...")

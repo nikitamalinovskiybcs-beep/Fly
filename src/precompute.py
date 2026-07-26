@@ -6,6 +6,7 @@ Streamlit app only does st.markdown() calls — zero compute in render loop.
 
 import numpy as np
 import math
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 
@@ -1570,23 +1571,22 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # 4. Correlation matrix
     result["corr"] = _compute_correlation_matrix(yf_data, basket_tickers)
 
-    # 4b. Rolling correlations (time-varying) — detects regime changes
-    result["rolling_corr"] = compute_rolling_correlations(basket_tickers, window=60)
-
-    # 4c. IV Percentile — where is current vol vs history
-    result["iv_percentile"] = fetch_iv_percentile(basket_tickers)
-
-    # 4d. Earnings gap risk — warnings for upcoming reports
-    result["earnings_gap_risk"] = check_earnings_risk(basket_tickers)
-
-    # 4e. Implied vol surface — IV30/60/90, skew, term structure (more accurate than hist vol)
-    result["iv_surface"] = fetch_implied_vol_surface(basket_tickers)
-
-    # 4f. DCC-GARCH correlations — stress regime correlations (correlations spike in crisis)
-    result["dcc_corr"] = compute_dcc_correlations(basket_tickers)
-
-    # 4g. Macro factors — VIX, rates, credit spreads (market-wide risk)
-    result["macro"] = fetch_macro_factors()
+    # These feature blocks are independent after the basket snapshot exists.
+    feature_jobs = {
+        "rolling_corr": lambda: compute_rolling_correlations(basket_tickers, window=60),
+        "iv_percentile": lambda: fetch_iv_percentile(basket_tickers),
+        "earnings_gap_risk": lambda: check_earnings_risk(basket_tickers),
+        "iv_surface": lambda: fetch_implied_vol_surface(basket_tickers),
+        "dcc_corr": lambda: compute_dcc_correlations(basket_tickers),
+        "macro": fetch_macro_factors,
+    }
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {
+            name: executor.submit(job)
+            for name, job in feature_jobs.items()
+        }
+        for name, future in futures.items():
+            result[name] = future.result()
 
     # 4h. Cache data for offline access (non-blocking)
     try:

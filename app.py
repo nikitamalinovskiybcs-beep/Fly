@@ -25,6 +25,7 @@ from src.snapshot_cache import (
     load_snapshot,
     refresh_in_background,
     save_snapshot,
+    start_periodic_refresh,
 )
 
 st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", layout="wide")
@@ -50,6 +51,7 @@ def cached_full_analysis(tickers_key: str):
         return payload
     payload = run_full_analysis(tickers)
     save_snapshot(tickers, payload)
+    start_periodic_refresh(tickers, run_full_analysis)
     payload["_snapshot"] = {"status": "fresh", "age_seconds": 0.0}
     return payload
 
