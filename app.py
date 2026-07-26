@@ -1,17 +1,15 @@
-"""Worst-of Phoenix Terminal — Bloomberg-style dashboard (LEAN version).
-Karpathy method: ALL computation in precompute.py/buyside.py, this file is pure rendering.
-25 sections → 9 essential sections (8 original + agents) that affect prediction accuracy."""
+"""Worst-of Phoenix Terminal — Bloomberg-style dashboard.
+Computation stays in the domain modules; this file renders the decision workflow."""
 
 import datetime
-import math
 import streamlit as st
 
 from src.precompute import precompute_all as _precompute_all, SECTOR_MAP
-from src.phoenix_engine import simulate_basket as phoenix_simulate, save_to_gdrive, GDRIVE_AVAILABLE
-from src.conductor import analyze as conductor_analyze
+from src.phoenix_engine import GDRIVE_AVAILABLE
 from src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI
 from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 from src.calibration import run_pipeline as _run_calibration_pipeline
+from src.data_module import get_data_source_status
 from src.outcome_engine import (
     StructuredNoteSpec,
     load_quality_report,
@@ -394,6 +392,10 @@ if basket_tickers:
     acc_color = "#34c759" if cal_after.get("test_acc", 0) >= 70 else "#ffb000"
 
     with st.expander(f"[6] САМООБУЧЕНИЕ    Gen {sl_gen} · ACC {cal_after.get('test_acc',0):.0f}% · Win {sl_wr}% · {sl_status}"):
+        st.caption(
+            "Metrics are historical/replay calibration only; realized-note "
+            "evidence is not available yet."
+        )
         if sl_status != "calibrated":
             st.markdown(
                 f'<div style="color:#ff3b30;font-size:10px">Self-learning unavailable: {sl.get("error", "insufficient evidence")}</div>',
@@ -633,60 +635,6 @@ if basket_tickers:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Basket scoring error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [11] PHOENIX ANALYTICS — Greeks, IV, Barrier Risk
-    # ═══════════════════════════════════════════════════════════════
-    with st.expander("[11] PHOENIX ANALYTICS    Greeks · IV · Barrier Risk"):
-        try:
-            from src.phoenix.implied_vol import ImpliedVolEngine
-            from src.phoenix.barrier_risk import BarrierRiskAnalyzer
-            from src.phoenix.implied_corr import ImpliedCorrelationEngine
-
-            iv_engine = ImpliedVolEngine()
-            barrier_analyzer = BarrierRiskAnalyzer()
-
-            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin-bottom:4px">IMPLIED VOLATILITY</div>', unsafe_allow_html=True)
-            iv_data = []
-            for t in basket_tickers:
-                atm_iv = iv_engine.get_atm_iv(t)
-                skew = iv_engine.get_skew(t)
-                iv_pct = iv_engine.get_iv_percentile(t)
-                iv_data.append({"ticker": t, "atm_iv": atm_iv, "skew": skew, "iv_pct": iv_pct})
-                iv_c = "#ff3b30" if atm_iv > 0.40 else "#ffb000" if atm_iv > 0.25 else "#34c759"
-                st.markdown(f'''<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400">
-                    <span style="color:#d6a44a;font-size:10px">{t}</span>
-                    <span style="color:{iv_c};font-size:10px">IV: {atm_iv:.1%}</span>
-                    <span style="color:#6a5a2a;font-size:10px">Skew: {skew:.2f}</span>
-                    <span style="color:#6a5a2a;font-size:10px">Pctl: {iv_pct:.0%}</span>
-                </div>''', unsafe_allow_html=True)
-
-            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">BARRIER RISK</div>', unsafe_allow_html=True)
-            for t in basket_tickers:
-                spot_val = yf.get(t, {}).get("spot", 100)
-                barrier_val = spot_val * 0.60
-                br = barrier_analyzer.analyze(t, spot=spot_val, barrier=barrier_val, iv=iv_engine.get_atm_iv(t))
-                dist_c = "#ff3b30" if br.distance_pct < 0.10 else "#ffb000" if br.distance_pct < 0.25 else "#34c759"
-                st.markdown(f'''<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400">
-                    <span style="color:#d6a44a;font-size:10px">{t}</span>
-                    <span style="color:{dist_c};font-size:10px">Dist: {br.distance_pct:.1%}</span>
-                    <span style="color:#6a5a2a;font-size:10px">Gap: {br.gap_risk_overnight:.3f}</span>
-                    <span style="color:#6a5a2a;font-size:10px">Digital: {br.digital_risk_pct:.1%}</span>
-                </div>''', unsafe_allow_html=True)
-
-            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">IMPLIED CORRELATION</div>', unsafe_allow_html=True)
-            corr_engine = ImpliedCorrelationEngine()
-            corr_result = corr_engine.calculate(basket_tickers)
-            rc = "#ff3b30" if corr_result.implied_correlation > 0.80 else "#34c759"
-            st.markdown(f'''<div class="qc" style="padding:8px">
-                <div style="display:flex;gap:20px">
-                    <div><span style="color:#d6a44a;font-size:9px">REALIZED</span> <span style="color:#ffb000;font-size:14px;font-weight:700">{corr_result.realized_correlation:.3f}</span></div>
-                    <div><span style="color:#d6a44a;font-size:9px">IMPLIED</span> <span style="color:{rc};font-size:14px;font-weight:700">{corr_result.implied_correlation:.3f}</span></div>
-                    <div><span style="color:#d6a44a;font-size:9px">PREMIUM</span> <span style="color:#ffb000;font-size:14px;font-weight:700">{corr_result.correlation_risk_premium:.3f}</span></div>
-                </div>
-            </div>''', unsafe_allow_html=True)
-        except Exception as exc:
-            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Phoenix analytics error: {exc}</div>', unsafe_allow_html=True)
-
-    # ═══════════════════════════════════════════════════════════════
     # [12] PAPER TRADING — Agent signals + portfolio
     # ═══════════════════════════════════════════════════════════════
     with st.expander("[12] PAPER TRADING    Agent · Portfolio · Signals"):
@@ -781,77 +729,6 @@ if basket_tickers:
                     st.markdown('<div style="color:#ff3b30;font-size:10px">Backup failed</div>', unsafe_allow_html=True)
         except Exception as exc:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Storage error: {exc}</div>', unsafe_allow_html=True)
-
-    # ═══════════════════════════════════════════════════════════════
-    # [14] SELF-LEARNING ENGINE — Bootstrap · Scheduler · Evolution
-    # ═══════════════════════════════════════════════════════════════
-    with st.expander("[14] SELF-LEARNING ENGINE    Bootstrap · Scheduler · Evolution"):
-        try:
-            from src.agents.paper_trader import PaperTradingAgent as _PTAgent
-            _pt = _PTAgent(tickers=basket_tickers)
-            closed_trades = [t for t in _pt._trades if t.status == "closed"]
-            total_trades = len(_pt._trades)
-
-            learning_ready = len(closed_trades) >= 3
-            evolution_ready = len(closed_trades) >= 20
-
-            lr_c = "#34c759" if learning_ready else "#ff3b30"
-            ev_c = "#34c759" if evolution_ready else "#ff3b30"
-
-            st.markdown(f'''
-            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
-                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">TOTAL TRADES</div><div style="color:#ffb000;font-size:14px;font-weight:700">{total_trades}</div></div>
-                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">CLOSED</div><div style="color:#ffb000;font-size:14px;font-weight:700">{len(closed_trades)}</div></div>
-                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">LEARNING</div><div style="color:{lr_c};font-size:14px;font-weight:700">{"READY" if learning_ready else f"NEED {3 - len(closed_trades)}"}</div></div>
-                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">EVOLUTION</div><div style="color:{ev_c};font-size:14px;font-weight:700">{"READY" if evolution_ready else f"NEED {20 - len(closed_trades)}"}</div></div>
-                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">GENERATION</div><div style="color:#fa8000;font-size:14px;font-weight:700">{_pt._generation}</div></div>
-            </div>''', unsafe_allow_html=True)
-
-            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:6px 0 4px">CURRENT SIGNAL WEIGHTS</div>', unsafe_allow_html=True)
-            for sig_name, sig_weight in sorted(_pt._signal_weights.items(), key=lambda x: -x[1]):
-                is_default = abs(sig_weight - _PTAgent.DEFAULT_SIGNAL_WEIGHTS.get(sig_name, 0)) < 0.001
-                changed_c = "#6a5a2a" if is_default else "#34c759"
-                label = "" if is_default else " (learned)"
-                st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:1px 0">
-                    <span style="color:#d6a44a;font-size:9px;width:110px;text-align:right">{sig_name}</span>
-                    <div style="flex:1;height:8px;background:#1a1400"><div style="width:{sig_weight * 300:.0f}%;height:100%;background:#fa8000"></div></div>
-                    <span style="color:{changed_c};font-size:9px;width:60px">{sig_weight:.0%}{label}</span>
-                </div>''', unsafe_allow_html=True)
-
-            b_col1, b_col2, b_col3 = st.columns(3)
-            with b_col1:
-                if st.button("BOOTSTRAP (FAST)", key="bootstrap_btn", use_container_width=True):
-                    with st.spinner("Bootstrapping trades (offline, deterministic)..."):
-                        boot_result = _pt.bootstrap_synthetic(days=120)
-                        st.markdown(f'''<div style="color:#34c759;font-size:10px;padding:4px">
-                            Trades: {boot_result.get("total_trades", 0)} | Closed: {boot_result.get("closed_trades", 0)} |
-                            P&L: ${boot_result.get("pnl", 0):+,.0f} | Insights: {boot_result.get("learning_insights", 0)} |
-                            Gen: {_pt._generation}
-                        </div>''', unsafe_allow_html=True)
-            with b_col2:
-                if st.button("RUN LEARNING", key="learn_btn", use_container_width=True):
-                    insights = _pt.weekly_learning()
-                    if insights:
-                        for ins in insights:
-                            st.markdown(f'<div style="color:#34c759;font-size:10px">{ins.description}</div>', unsafe_allow_html=True)
-                    else:
-                        st.markdown('<div style="color:#6a5a2a;font-size:10px">No changes (need more closed trades)</div>', unsafe_allow_html=True)
-            with b_col3:
-                if st.button("RUN EVOLUTION", key="evolve_btn", use_container_width=True):
-                    evo = _pt.monthly_evolution()
-                    status_txt = evo.get("status", "")
-                    if "improvement" in str(evo):
-                        st.markdown(f'<div style="color:#34c759;font-size:10px">Weights optimized! Sharpe +{evo.get("sharpe_improvement", 0):.4f}</div>', unsafe_allow_html=True)
-                    else:
-                        st.markdown(f'<div style="color:#6a5a2a;font-size:10px">{status_txt or "No improvement found"}</div>', unsafe_allow_html=True)
-
-            if _pt._insights:
-                st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">LEARNING HISTORY</div>', unsafe_allow_html=True)
-                for ins in _pt._insights[-5:]:
-                    st.markdown(f'<div style="color:#d6a44a;font-size:9px;border-bottom:1px solid #1a1400;padding:2px 0">{ins.description}</div>', unsafe_allow_html=True)
-
-        except Exception as exc:
-            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Self-learning error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [18] BEST STRUCTURED PRODUCT — agent-driven product search
@@ -1061,112 +938,19 @@ if basket_tickers:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">API Manager error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [16] BACKTESTER — Strategy simulation on historical data
-    # ═══════════════════════════════════════════════════════════════
-    with st.expander("[16] BACKTESTER    Strategy · Sharpe · Drawdown"):
-        try:
-            from src.backtester import BacktestConfig, BacktestEngine, BacktestReporter
-            from src.strategies import (
-                EnsembleStrategy,
-                MeanReversionStrategy,
-                MomentumStrategy,
-                TrendFollowingStrategy,
-            )
-
-            _strats = {
-                "Momentum": MomentumStrategy,
-                "Mean Reversion": MeanReversionStrategy,
-                "Trend Following": TrendFollowingStrategy,
-                "Ensemble": EnsembleStrategy,
-            }
-            bt_col1, bt_col2 = st.columns(2)
-            with bt_col1:
-                bt_strat = st.selectbox("Strategy", list(_strats.keys()), key="bt_strat")
-            with bt_col2:
-                bt_years = st.selectbox("History", ["1y", "2y", "3y"], index=1, key="bt_years")
-
-            if st.button("RUN BACKTEST", key="bt_run"):
-                yrs = int(bt_years[0])
-                end = datetime.date.today()
-                start = end - datetime.timedelta(days=365 * yrs)
-                cfg = BacktestConfig(
-                    tickers=basket_tickers[:5],
-                    start_date=start.isoformat(),
-                    end_date=end.isoformat(),
-                    rebalance_freq="weekly",
-                )
-                with st.spinner("Simulating..."):
-                    res = BacktestEngine(_strats[bt_strat](), cfg).run()
-                if res.equity_curve:
-                    m1, m2, m3, m4 = st.columns(4)
-                    m1.metric("Return", f"{res.total_return:+.1f}%")
-                    m2.metric("Sharpe", f"{res.sharpe:.2f}")
-                    m3.metric("Max DD", f"{res.max_drawdown:.1f}%")
-                    m4.metric("Win rate", f"{res.win_rate:.0f}%")
-                    st.text(BacktestReporter().summary(res))
-                    eq_df = BacktestReporter().to_dataframe(res)
-                    if not eq_df.empty:
-                        st.line_chart(eq_df["value"])
-                else:
-                    st.markdown('<div style="color:#ff3b30;font-size:10px">No data returned for backtest</div>', unsafe_allow_html=True)
-        except Exception as exc:
-            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Backtester error: {exc}</div>', unsafe_allow_html=True)
-
-    # ═══════════════════════════════════════════════════════════════
-    # [17] PORTFOLIO OPTIMIZER — Risk parity · Max Sharpe · HRP
-    # ═══════════════════════════════════════════════════════════════
-    with st.expander("[17] PORTFOLIO OPTIMIZER    Risk Parity · Max Sharpe · HRP"):
-        try:
-            import pandas as pd
-
-            from src.data_module import fetch_ticker_data
-            from src.portfolio_optimizer.optimizer import PortfolioOptimizer
-
-            opt_method = st.selectbox(
-                "Method",
-                ["hrp", "risk_parity", "max_sharpe", "min_variance"],
-                key="opt_method",
-            )
-            if st.button("OPTIMIZE ALLOCATION", key="opt_run"):
-                universe = basket_tickers[:6]
-                fetched = fetch_ticker_data(universe, period="1y")
-                series = {}
-                for tk, info in fetched.items():
-                    rets_arr = info.get("returns")
-                    if rets_arr is not None and len(rets_arr) > 60:
-                        series[tk] = pd.Series(rets_arr)
-                if len(series) >= 2:
-                    n = min(len(s) for s in series.values())
-                    rets = pd.DataFrame({tk: s.iloc[-n:].to_numpy() for tk, s in series.items()})
-                    alloc = PortfolioOptimizer().optimize(rets, method=opt_method)
-                    o1, o2, o3 = st.columns(3)
-                    o1.metric("Exp. return", f"{alloc.expected_return:.1f}%")
-                    o2.metric("Exp. vol", f"{alloc.expected_volatility:.1f}%")
-                    o3.metric("Sharpe", f"{alloc.expected_sharpe:.2f}")
-                    weights_df = pd.DataFrame(
-                        {"weight": {k: round(v, 4) for k, v in alloc.weights.items()}}
-                    )
-                    st.bar_chart(weights_df["weight"])
-                else:
-                    st.markdown('<div style="color:#ff3b30;font-size:10px">Need price data for at least 2 tickers</div>', unsafe_allow_html=True)
-        except Exception as exc:
-            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Optimizer error: {exc}</div>', unsafe_allow_html=True)
-
-    # ═══════════════════════════════════════════════════════════════
     # FOOTER
     # ═══════════════════════════════════════════════════════════════
-    st.markdown(f'''
+    st.markdown('''
     <div style="margin-top:16px;padding:8px 14px;border-top:1px solid #3a2a00">
         <small style="color:#3a2a00;font-size:9px;line-height:1.4">
-            P(KI): 4 methods (VG + Fourier COS + FD + Trinomial). Scoring: 12-factor ML + 8 agents.
-            Self-learning: k-fold CV, 80% win rate. Quality: 96% vs Numerix. Cost: $0.
+            P(KI): four model methods. Scoring: 12-factor Phoenix score + eight agents.
+            Model performance is shown only when the relevant replay, paper, or realized evidence exists.
         </small>
     </div>
     ''', unsafe_allow_html=True)
 
 now_utc = datetime.datetime.now(datetime.timezone.utc)
 gdrive_st = "G-DRIVE" if GDRIVE_AVAILABLE else "LOCAL"
-from src.data_module import get_data_source_status
 data_src_lbl = get_data_source_status().upper()
 st.markdown(f'''
 <div class="sbar">
