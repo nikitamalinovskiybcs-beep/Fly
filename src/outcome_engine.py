@@ -563,19 +563,9 @@ class PaperOutcomeTracker:
             })
             REALIZED_FEEDBACK_PATH.parent.mkdir(parents=True, exist_ok=True)
             REALIZED_FEEDBACK_PATH.write_text(json.dumps(feedback[-500:], indent=2))
-            calibration = {"status": "no_agent_accuracy_observations"}
-            agent_history = [
-                item for item in feedback
-                if item.get("learning_eligible") and item.get("agent_accuracies")
-            ]
-            if len(agent_history) >= 5:
-                from src.self_learning_agents import MetaAgent
+            from src.online_learning import apply_guarded_learning
 
-                MetaAgent().update_weights(agent_history)
-                calibration = {
-                    "status": "updated",
-                    "observations": len(agent_history),
-                }
+            calibration = apply_guarded_learning(feedback)
             note["feedback_applied"] = True
             self._save()
             return {
