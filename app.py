@@ -3,6 +3,7 @@ Computation stays in the domain modules; this file renders the decision workflow
 
 import datetime
 import streamlit as st
+import plotly.graph_objects as go
 
 from src.precompute import precompute_all as _precompute_all, SECTOR_MAP
 from src.phoenix_engine import GDRIVE_AVAILABLE
@@ -60,6 +61,80 @@ def cached_outcome_stress(
         term_months=term_months,
     )
     return simulate_stress_suite(spec, n_paths=n_paths)
+
+
+def render_process_map(data: dict) -> None:
+    """Render the real decision path as a status-aware process graph."""
+    gate_passed = bool(data.get("evidence_gate", {}).get("passed"))
+    quality = load_quality_report()
+    realized = int(quality.get("realized_notes", 0))
+    source = data.get("data_source", "unknown")
+    colors = {
+        "active": "#34c759",
+        "blocked": "#ff3b30",
+        "diagnostic": "#ffb000",
+        "waiting": "#6a5a2a",
+        "neutral": "#6db6ff",
+    }
+    nodes = [
+        ("MARKET DATA", source, colors["active"] if source in {"xfinlink", "yfinance"} else colors["diagnostic"], 0.5, 1.0),
+        ("EVIDENCE GATE", "PASSED" if gate_passed else "BLOCKED", colors["active"] if gate_passed else colors["blocked"], 1.8, 1.0),
+        ("PHOENIX SCORE", "LIVE" if gate_passed else "DIAGNOSTIC", colors["active"] if gate_passed else colors["diagnostic"], 3.1, 1.0),
+        ("AGENTS", "8 ACTIVE" if gate_passed else "DISABLED", colors["active"] if gate_passed else colors["blocked"], 4.4, 1.0),
+        ("PRODUCT", "SELECT" if gate_passed else "HOLD", colors["active"] if gate_passed else colors["blocked"], 5.7, 1.0),
+        ("PAPER NOTE", "TRACKING", colors["neutral"], 7.0, 1.0),
+        ("REALIZED", f"{realized} NOTES" if realized else "WAITING", colors["active"] if realized else colors["waiting"], 8.3, 1.0),
+    ]
+    x_values = [node[3] for node in nodes]
+    y_values = [node[4] for node in nodes]
+    node_colors = [node[2] for node in nodes]
+    labels = [f"<b>{node[0]}</b><br><sup>{node[1]}</sup>" for node in nodes]
+    active_indices = [
+        index for index, node in enumerate(nodes)
+        if node[2] in {colors["active"], colors["neutral"]}
+    ]
+
+    fig = go.Figure()
+    for index in range(len(nodes) - 1):
+        edge_color = node_colors[index] if node_colors[index] == node_colors[index + 1] else "#6a5a2a"
+        fig.add_trace(go.Scatter(
+            x=[x_values[index], x_values[index + 1]],
+            y=[1.0, 1.0],
+            mode="lines",
+            line={"color": edge_color, "width": 2},
+            hoverinfo="skip",
+            showlegend=False,
+        ))
+    if active_indices:
+        fig.add_trace(go.Scatter(
+            x=[x_values[index] for index in active_indices],
+            y=[1.0 for _ in active_indices],
+            mode="markers",
+            marker={"size": 34, "color": [node_colors[index] for index in active_indices], "opacity": 0.12},
+            hoverinfo="skip",
+            showlegend=False,
+        ))
+    fig.add_trace(go.Scatter(
+        x=x_values,
+        y=y_values,
+        mode="markers+text",
+        text=labels,
+        textposition="bottom center",
+        textfont={"family": "JetBrains Mono, monospace", "size": 10, "color": "#d6a44a"},
+        marker={"size": 18, "color": node_colors, "line": {"color": "#ffd56a", "width": 1}},
+        hovertemplate="%{text}<extra></extra>",
+        showlegend=False,
+    ))
+    fig.update_layout(
+        height=165,
+        margin={"l": 10, "r": 10, "t": 8, "b": 8},
+        paper_bgcolor="#000000",
+        plot_bgcolor="#000000",
+        xaxis={"visible": False, "range": [0, 8.8]},
+        yaxis={"visible": False, "range": [0.65, 1.35]},
+        showlegend=False,
+    )
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 # ═══════════════════════════════════════════════════════════════════
 # CSS — Bloomberg Terminal
@@ -165,6 +240,9 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [1] ВЕРДИКТ — Score + Recommendation
     # ═══════════════════════════════════════════════════════════════
+    with st.expander("LIVE PROCESS MAP · data → decision → outcome", expanded=True):
+        render_process_map(D)
+
     rec = D.get("recommendation", {})
     rec_action = rec.get("action", "?")
     rec_color = rec.get("color", "#ffb000")
