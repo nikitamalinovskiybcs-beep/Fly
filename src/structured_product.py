@@ -58,10 +58,11 @@ def _baseline_comparison(
     universe: List[str],
     basket_size: int,
     best: Dict[str, float],
+    yf_data: Optional[Dict] = None,
 ) -> Dict:
     """Compare the selected product against transparent no-agent baselines."""
     baseline_basket = universe[:basket_size]
-    baseline = best_config_for_basket(baseline_basket)
+    baseline = best_config_for_basket(baseline_basket, yf_data=yf_data)
     no_agent = float(best["objective"])
     return {
         "baseline_basket": baseline_basket,
@@ -75,8 +76,44 @@ def _baseline_comparison(
     }
 
 
+def _market_adjustment(
+    basket: List[str], yf_data: Optional[Dict],
+) -> Dict[str, float]:
+    """Translate observed market risk into an auditable objective adjustment."""
+    if not yf_data or any(
+        not yf_data.get(t)
+        or (
+            yf_data[t].get("is_real") is False
+            and yf_data[t].get("source") not in {"xfinlink", "yfinance"}
+        )
+        or yf_data[t].get("source") in {"estimated", "fallback_defaults"}
+        for t in basket
+    ):
+        return {
+            "market_iv": 0.0,
+            "market_beta": 0.0,
+            "market_trend": 0.0,
+            "market_adjustment": 0.0,
+        }
+
+    infos = [yf_data[t] for t in basket]
+    avg_iv = sum(float(info.get("iv30", 30.0)) for info in infos) / len(infos)
+    avg_beta = sum(float(info.get("beta", 1.0)) for info in infos) / len(infos)
+    avg_trend = sum(float(info.get("ema200_pct", 0.0)) for info in infos) / len(infos)
+    vol_penalty = max(0.0, avg_iv - 30.0) * 0.15
+    beta_penalty = max(0.0, avg_beta - 1.0) * 2.0
+    trend_bonus = max(-2.0, min(2.0, avg_trend * 0.05))
+    return {
+        "market_iv": round(avg_iv, 1),
+        "market_beta": round(avg_beta, 2),
+        "market_trend": round(avg_trend, 1),
+        "market_adjustment": round(trend_bonus - vol_penalty - beta_penalty, 2),
+    }
+
+
 def score_product(
     basket: List[str], barrier: float, tenor_months: int,
+    yf_data: Optional[Dict] = None,
 ) -> Dict[str, float]:
     """Risk-adjusted score for one concrete product configuration.
 
@@ -93,6 +130,8 @@ def score_product(
     barrier_penalty = max(0.0, (barrier - 0.55)) * 12.0
     # Expected carry net of loss, minus toxicity and barrier risk penalties.
     objective = coupon * (1.0 - p_loss) - p_loss * 40.0 - tox * 8.0 - barrier_penalty
+    market = _market_adjustment(basket, yf_data)
+    objective += market["market_adjustment"]
 
     return {
         "barrier": round(barrier * 100),
@@ -100,16 +139,19 @@ def score_product(
         "coupon": round(coupon, 1),
         "p_loss_pct": round(p_loss * 100, 1),
         "avg_tox": round(tox, 3),
+        **market,
         "objective": round(objective, 2),
     }
 
 
-def best_config_for_basket(basket: List[str]) -> Dict[str, float]:
+def best_config_for_basket(
+    basket: List[str], yf_data: Optional[Dict] = None,
+) -> Dict[str, float]:
     """Grid-search barrier × tenor for the best configuration of one basket."""
     best: Optional[Dict[str, float]] = None
     for barrier in BARRIERS:
         for tenor in TENORS:
-            cfg = score_product(basket, barrier, tenor)
+            cfg = score_product(basket, barrier, tenor, yf_data=yf_data)
             if best is None or cfg["objective"] > best["objective"]:
                 best = cfg
     return best or {}
@@ -198,6 +240,7 @@ def find_best_structured_product(
     yf_data: Optional[Dict] = None,
     max_candidates: int = 200,
     top_n: int = 5,
+    require_real_data: bool = False,
 ) -> Dict:
     """Search a universe for the best structured product.
 
@@ -215,6 +258,23 @@ def find_best_structured_product(
     if len(universe) < basket_size:
         return {"error": "universe_too_small", "n": len(universe)}
 
+    if require_real_data:
+        universe = [
+            ticker for ticker in universe
+            if yf_data
+            and yf_data.get(ticker, {}).get(
+                "is_real",
+                yf_data.get(ticker, {}).get("source") in {"xfinlink", "yfinance"},
+            )
+            and yf_data.get(ticker, {}).get("source") not in {"estimated", "fallback_defaults"}
+        ]
+        if len(universe) < basket_size:
+            return {
+                "error": "insufficient_real_market_data",
+                "available_real_tickers": len(universe),
+                "required_tickers": basket_size,
+            }
+
     combos = list(itertools.combinations(universe, basket_size))
     if len(combos) > max_candidates:
         combos = combos[:max_candidates]
@@ -222,7 +282,7 @@ def find_best_structured_product(
     ranked: List[Dict] = []
     for combo in combos:
         basket = list(combo)
-        cfg = best_config_for_basket(basket)
+        cfg = best_config_for_basket(basket, yf_data=yf_data)
         if not cfg:
             continue
         agent_report = _agent_report(basket, yf_data)
@@ -253,7 +313,9 @@ def find_best_structured_product(
         "best": best,
         "leaderboard": ranked[:top_n],
         "n_evaluated": len(ranked),
-        "baseline_comparison": _baseline_comparison(universe, basket_size, best),
+        "baseline_comparison": _baseline_comparison(
+            universe, basket_size, best, yf_data=yf_data,
+        ),
         "selection_method": "min(train, validation, test model splits)",
         "recommendation": (
             f"Лучший продукт: {' / '.join(best['basket'])} · "

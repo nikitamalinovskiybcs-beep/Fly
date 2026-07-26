@@ -7,12 +7,35 @@ import pandas as pd
 from src.outcome_engine import (
     PaperOutcomeTracker,
     StructuredNoteSpec,
+    build_decision_record,
     build_quality_report,
     evaluate_product_safety,
     replay_historical,
     replay_historical_windows,
     simulate_monte_carlo,
 )
+
+
+def test_decision_record_links_market_evidence_to_product() -> None:
+    record = build_decision_record(
+        {
+            "basket": ["A", "B"],
+            "barrier": 60,
+            "tenor_months": 24,
+            "coupon": 8.0,
+            "final_objective": 12.4,
+        },
+        market_data={
+            "A": {"source": "xfinlink", "is_real": True, "as_of": "2025-01-02"},
+            "B": {"source": "xfinlink", "is_real": True, "as_of": "2025-01-03"},
+        },
+        evidence_gate={"passed": True, "real_tickers": ["A", "B"]},
+        generated_at="2025-01-03T12:00:00+00:00",
+    )
+    assert record["decision_id"].startswith("decision_")
+    assert record["market_data_as_of"] == "2025-01-03"
+    assert record["freshness_status"] == "verified"
+    assert record["selection"]["basket"] == ["A", "B"]
 
 
 def _prices(rows: list[list[float]]) -> dict[str, pd.Series]:
@@ -94,6 +117,23 @@ def test_paper_resolution_is_the_only_learning_eligible_outcome(tmp_path) -> Non
     assert resolved["learning_eligible"] is True
     saved = json.loads(path.read_text())
     assert saved["notes"][0]["status"] == "realized"
+
+
+def test_paper_note_keeps_decision_id_until_realized(tmp_path) -> None:
+    tracker = PaperOutcomeTracker(tmp_path / "outcomes.json")
+    spec = StructuredNoteSpec(basket=["A", "B"], term_months=3)
+    note = tracker.open_note(
+        spec,
+        note_id="note-linked",
+        metadata={"decision_record": {"decision_id": "decision_123"}},
+    )
+    assert note["decision_id"] == "decision_123"
+    state = tracker.refresh(
+        "note-linked",
+        _prices([[100, 100], [101, 101], [102, 102]]),
+        as_of="2024-01-02",
+    )
+    assert state["decision_id"] == "decision_123"
 
 
 def test_missing_price_data_is_explicit() -> None:

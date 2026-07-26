@@ -3,6 +3,32 @@
 import numpy as np
 
 
+def test_zero_realized_outcomes_are_pilot_only() -> None:
+    from src.commercial_readiness import assess_commercial_readiness
+
+    result = assess_commercial_readiness(
+        {"passed": True},
+        {"realized_notes": 0, "historical_windows": 50},
+    )
+
+    assert result["status"] == "pilot_ready"
+    assert result["pilot_ready"] is True
+    assert result["production_ready"] is False
+    assert "guaranteed returns" in result["blocked_claim"]
+
+
+def test_incomplete_market_evidence_blocks_live_use() -> None:
+    from src.commercial_readiness import assess_commercial_readiness
+
+    result = assess_commercial_readiness(
+        {"passed": False},
+        {"realized_notes": 0, "historical_windows": 0},
+    )
+
+    assert result["status"] == "not_ready"
+    assert result["pilot_ready"] is False
+
+
 def test_market_data_fallback_is_deterministic_and_marked_estimated(monkeypatch) -> None:
     import src.data_module as data_module
 

@@ -1263,6 +1263,7 @@ def _fetch_yf_data(tickers: List[str], period: str = "2y") -> Dict:
             "returns": returns,
             "next_earnings": fund.get("next_earnings_date", None),
             "source": d.get("source", "unknown"),
+            "is_real": d.get("is_real", d.get("source") not in {"estimated", "fallback_defaults"}),
         }
         rec = ANALYST_MAP.get(t, (1.80, "buy"))
         result[t]["rec_score"] = rec[0]
@@ -1543,6 +1544,22 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # 3. Market data (xfinlink primary, yfinance fallback)
     yf_data = _fetch_yf_data(basket_tickers)
     result["yf"] = yf_data
+    real_data_tickers = [
+        ticker for ticker in basket_tickers
+        if yf_data.get(ticker, {}).get("is_real") is True
+    ]
+    result["evidence_gate"] = {
+        "passed": len(real_data_tickers) == len(basket_tickers),
+        "real_tickers": real_data_tickers,
+        "missing_tickers": [
+            ticker for ticker in basket_tickers
+            if ticker not in real_data_tickers
+        ],
+        "sources": sorted({
+            yf_data[ticker].get("source", "unknown")
+            for ticker in real_data_tickers
+        }),
+    }
     # Report which data source was used
     if yf_data:
         first_src = next(iter(yf_data.values()), {}).get("source", "yfinance")
@@ -1739,7 +1756,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
 
     # [IMP-2] Bayesian confidence: how certain is the score?
     # Confidence based on: data quality, ensemble spread, macro stability
-    data_quality = 1.0 if all(yf_data.get(t, {}).get("source") != "estimated" for t in basket_tickers) else 0.6
+    data_quality = 1.0 if result["evidence_gate"]["passed"] else 0.6
     ensemble_conf = 1.0  # will be updated from self_learning later
     macro_conf = 0.7 if macro_regime == "stress" else 1.0
     confidence = round(data_quality * macro_conf * 100, 0)
@@ -1794,7 +1811,19 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
         "threshold": 70,
         "macro_filter": macro_downgrade,
         "macro_regime": macro_regime,
+        "evidence_gate_passed": result["evidence_gate"]["passed"],
     }
+    if not result["evidence_gate"]["passed"]:
+        result["recommendation"] = {
+            **result["recommendation"],
+            "action": "BLOCKED",
+            "color": "#ff3b30",
+            "reason": (
+                "Недостаточно подтверждённых рыночных данных: "
+                "расчёт только диагностический"
+            ),
+            "win_rate_expected": None,
+        }
 
     # 13. P(KI) — analytical worst-of barrier probability (Numerix-grade)
     # Method: GBM closed-form P(min_i S_i(T) < barrier) using multivariate normal

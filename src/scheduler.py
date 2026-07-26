@@ -19,6 +19,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
+from src.outcome_engine import build_decision_record
+
 logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -320,15 +322,43 @@ class FlyScheduler:
             from src.structured_product import find_best_structured_product
             market_data = fetch_ticker_data(self.universe)
             has_complete_real_data = all(
-                market_data.get(t, {}).get("source") != "estimated"
+                market_data.get(t, {}).get(
+                    "is_real",
+                    market_data.get(t, {}).get("source") in {"xfinlink", "yfinance"},
+                )
                 for t in self.universe
             )
+            if not has_complete_real_data:
+                return {
+                    "status": "blocked_by_evidence",
+                    "best": {},
+                    "n_evaluated": 0,
+                    "recommendation": "",
+                    "market_data_source": "estimated_or_incomplete",
+                    "agents_enabled": False,
+                }
             result = find_best_structured_product(
                 self.universe,
                 basket_size=3,
-                yf_data=market_data if has_complete_real_data else None,
+                yf_data=market_data,
             )
             best = result.get("best", {})
+            evidence_gate = {
+                "passed": has_complete_real_data,
+                "real_tickers": [
+                    ticker for ticker in self.universe
+                    if market_data.get(ticker, {}).get("is_real") is True
+                ],
+                "missing_tickers": [
+                    ticker for ticker in self.universe
+                    if market_data.get(ticker, {}).get("is_real") is not True
+                ],
+                "sources": sorted({
+                    market_data[ticker].get("source", "unknown")
+                    for ticker in self.universe
+                    if market_data.get(ticker)
+                }),
+            }
             return {
                 "status": "ok",
                 "best": best,
@@ -338,6 +368,11 @@ class FlyScheduler:
                     "live_complete" if has_complete_real_data else "estimated_or_incomplete"
                 ),
                 "agents_enabled": has_complete_real_data,
+                "decision_record": build_decision_record(
+                    best,
+                    market_data=market_data,
+                    evidence_gate=evidence_gate,
+                ) if best else None,
             }
         except Exception as exc:
             logger.error("Product search failed: %s", exc)
@@ -406,6 +441,7 @@ class FlyScheduler:
                 spec,
                 note_id=note_id,
                 metadata={
+                    "decision_record": product.get("decision_record"),
                     "predicted_score": best.get("final_objective", 0.0),
                     "predicted_autocall_prob": best.get("p_autocall", 0.5),
                     "agent_contributions": best.get("agent_contributions", {}),

@@ -137,8 +137,9 @@ SERVICES = {
 class APIManager:
     """Manages all external API connections."""
 
-    def __init__(self) -> None:
-        self._load_env()
+    def __init__(self, load_env: bool = False) -> None:
+        if load_env:
+            self._load_env()
 
     def _load_env(self) -> None:
         """Load .env file if it exists."""
@@ -152,7 +153,7 @@ class APIManager:
                     key = key.strip()
                     value = value.strip().strip('"').strip("'")
                     if value:
-                        os.environ[key] = value
+                        os.environ.setdefault(key, value)
 
     def save_keys(self, service_id: str, keys: dict[str, str]) -> bool:
         """Save API keys for a service to .env file.
@@ -271,11 +272,27 @@ class APIManager:
                 "description": svc_info["description"],
             }
 
-        connected = sum(1 for s in statuses.values() if s["has_keys"])
+        cached_probe = self.get_cached_probe()
+        probe_results = cached_probe.get("results", {})
+        probe_is_current = bool(cached_probe.get("live_verified")) and not cached_probe.get("stale", True)
+        connected = sum(
+            1 for service_id, status in statuses.items()
+            if probe_is_current and probe_results.get(service_id, {}).get("connected") is True
+        )
+        for service_id, status in statuses.items():
+            probe = probe_results.get(service_id)
+            status["connected"] = bool(
+                probe_is_current and probe and probe.get("connected")
+            )
+            status["probe_message"] = probe.get("message", "") if probe else ""
+        live_verified = probe_is_current
         return {
             "services": statuses,
             "total": len(SERVICES),
             "connected": connected,
+            "configured": sum(1 for s in statuses.values() if s["has_keys"]),
+            "live_verified": live_verified,
+            "probe_ts": cached_probe.get("ts"),
             "local_always_on": ["SQLite", "DuckDB"],
         }
 
@@ -325,75 +342,17 @@ class APIManager:
         return payload
 
     def setup_supabase_tables(self) -> dict:
-        """Create required tables in Supabase if they don't exist.
+        """Explain how to create required tables in Supabase.
 
         Returns:
-            Dict with tables created.
+            A truthful response because DDL is not available through the
+            publishable PostgREST client.
         """
-        url = os.getenv("SUPABASE_URL", "")
-        key = os.getenv("SUPABASE_KEY", "")
-        if not url or not key:
-            return {"error": "No Supabase keys"}
-
-        try:
-            from supabase import create_client
-            client = create_client(url, key)
-
-            tables_sql = [
-                """CREATE TABLE IF NOT EXISTS trades (
-                    id TEXT PRIMARY KEY,
-                    timestamp TEXT,
-                    ticker TEXT,
-                    action TEXT,
-                    price REAL,
-                    quantity REAL,
-                    pnl REAL,
-                    pnl_pct REAL,
-                    status TEXT DEFAULT 'open',
-                    confidence REAL,
-                    signals JSONB,
-                    created_at TIMESTAMPTZ DEFAULT NOW()
-                )""",
-                """CREATE TABLE IF NOT EXISTS portfolio_snapshots (
-                    id SERIAL PRIMARY KEY,
-                    date TEXT UNIQUE,
-                    cash REAL,
-                    positions_value REAL,
-                    total_value REAL,
-                    daily_return REAL,
-                    created_at TIMESTAMPTZ DEFAULT NOW()
-                )""",
-                """CREATE TABLE IF NOT EXISTS learning_log (
-                    id SERIAL PRIMARY KEY,
-                    timestamp TEXT,
-                    parameter TEXT,
-                    old_value REAL,
-                    new_value REAL,
-                    reason TEXT,
-                    created_at TIMESTAMPTZ DEFAULT NOW()
-                )""",
-                """CREATE TABLE IF NOT EXISTS basket_weights (
-                    id SERIAL PRIMARY KEY,
-                    timestamp TEXT,
-                    weights JSONB,
-                    accuracy REAL,
-                    trigger TEXT,
-                    created_at TIMESTAMPTZ DEFAULT NOW()
-                )""",
-            ]
-
-            created = []
-            for sql in tables_sql:
-                try:
-                    client.rpc("exec_sql", {"query": sql}).execute()
-                    table_name = sql.split("IF NOT EXISTS ")[1].split(" (")[0]
-                    created.append(table_name)
-                except Exception:
-                    pass
-
-            return {"status": "ok", "tables": created}
-        except Exception as exc:
-            return {"error": str(exc)}
+        return {
+            "status": "manual_sql_required",
+            "error": "DDL is not supported through the publishable Supabase API",
+            "message": "Run the schema migration in Supabase SQL Editor.",
+        }
 
     def _test_supabase(self) -> dict:
         url = os.getenv("SUPABASE_URL", "")
@@ -409,10 +368,23 @@ class APIManager:
             return {"connected": False, "message": "supabase package not installed. Run: pip install supabase"}
         except Exception as exc:
             err = str(exc)
-            if "relation" in err and "does not exist" in err:
-                return {"connected": True, "message": "Connected (tables need creation)"}
+            if "PGRST205" in err or (
+                "schema cache" in err and "public." in err
+            ) or ("relation" in err and "does not exist" in err):
+                return {
+                    "connected": True,
+                    "schema_ready": False,
+                    "message": "Endpoint reachable; required table is missing",
+                }
             if "Invalid API key" in err or "401" in err:
-                return {"connected": False, "message": "Invalid API key"}
+                return {"connected": False, "schema_ready": False, "message": "Invalid API key"}
+            if "403" in err or "permission" in err.lower():
+                return {
+                    "connected": True,
+                    "schema_ready": True,
+                    "write_ready": False,
+                    "message": "Connected; operation denied by policy",
+                }
             return {"connected": False, "message": f"Error: {err[:100]}"}
 
     def _test_firebase(self) -> dict:
