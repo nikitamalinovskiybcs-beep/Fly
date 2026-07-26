@@ -82,7 +82,10 @@ def _market_adjustment(
     """Translate observed market risk into an auditable objective adjustment."""
     if not yf_data or any(
         not yf_data.get(t)
-        or yf_data[t].get("is_real") is False
+        or (
+            yf_data[t].get("is_real") is False
+            and yf_data[t].get("source") not in {"xfinlink", "yfinance"}
+        )
         or yf_data[t].get("source") in {"estimated", "fallback_defaults"}
         for t in basket
     ):
@@ -258,7 +261,12 @@ def find_best_structured_product(
     if require_real_data:
         universe = [
             ticker for ticker in universe
-            if yf_data and yf_data.get(ticker, {}).get("is_real") is True
+            if yf_data
+            and yf_data.get(ticker, {}).get(
+                "is_real",
+                yf_data.get(ticker, {}).get("source") in {"xfinlink", "yfinance"},
+            )
+            and yf_data.get(ticker, {}).get("source") not in {"estimated", "fallback_defaults"}
         ]
         if len(universe) < basket_size:
             return {

@@ -320,13 +320,25 @@ class FlyScheduler:
             from src.structured_product import find_best_structured_product
             market_data = fetch_ticker_data(self.universe)
             has_complete_real_data = all(
-                market_data.get(t, {}).get("source") != "estimated"
+                market_data.get(t, {}).get(
+                    "is_real",
+                    market_data.get(t, {}).get("source") in {"xfinlink", "yfinance"},
+                )
                 for t in self.universe
             )
+            if not has_complete_real_data:
+                return {
+                    "status": "blocked_by_evidence",
+                    "best": {},
+                    "n_evaluated": 0,
+                    "recommendation": "",
+                    "market_data_source": "estimated_or_incomplete",
+                    "agents_enabled": False,
+                }
             result = find_best_structured_product(
                 self.universe,
                 basket_size=3,
-                yf_data=market_data if has_complete_real_data else None,
+                yf_data=market_data,
             )
             best = result.get("best", {})
             return {

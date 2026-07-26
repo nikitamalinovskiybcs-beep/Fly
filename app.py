@@ -148,6 +148,18 @@ if basket_tickers:
     with rc1:
         data_src = D.get("data_source", "yfinance")
         st.markdown(f'<div style="color:#6a5a2a;font-size:9px;padding-top:8px">Данные: {D.get("ts", "N/A")[:19]} · {data_src} · Gen {D.get("scoring_generation", 0)}</div>', unsafe_allow_html=True)
+        gate = D.get("evidence_gate", {})
+        gate_label = (
+            "REAL MARKET DATA · GATE PASSED"
+            if gate.get("passed")
+            else "DIAGNOSTIC ONLY · REAL MARKET DATA INCOMPLETE"
+        )
+        gate_color = "#34c759" if gate.get("passed") else "#ff3b30"
+        st.markdown(
+            f'<div style="color:{gate_color};font-size:9px;padding-top:2px">'
+            f'{gate_label}</div>',
+            unsafe_allow_html=True,
+        )
 
     # ═══════════════════════════════════════════════════════════════
     # [1] ВЕРДИКТ — Score + Recommendation
