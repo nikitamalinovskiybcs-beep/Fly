@@ -268,9 +268,13 @@ requested_tickers = [
 ]
 if "analysis_tickers" not in st.session_state:
     st.session_state.analysis_tickers = requested_tickers
+if "analysis_requested" not in st.session_state:
+    st.session_state.analysis_requested = False
 with bc[2]:
     if st.button("▶ RUN FULL ANALYSIS", key="run_basket", type="primary", use_container_width=True):
         st.session_state.analysis_tickers = requested_tickers
+        st.session_state.analysis_requested = True
+        clear_ticker_data_cache()
         st.cache_data.clear()
         st.rerun()
 
@@ -286,16 +290,22 @@ if requested_tickers != basket_tickers:
         unsafe_allow_html=True,
     )
 
-rc1, rc2 = st.columns([3, 1])
-with rc2:
-    if st.button("🔄 ОБНОВИТЬ ЦЕНЫ", key="refresh_prices", use_container_width=True):
-        clear_ticker_data_cache()
-        st.cache_data.clear()
-        st.rerun()
+rc1 = st.container()
 
 # ═══════════════════════════════════════════════════════════════════
 # PRECOMPUTE ALL (Karpathy method — one call, all data)
 # ═══════════════════════════════════════════════════════════════════
+if basket_tickers and not st.session_state.analysis_requested:
+    st.markdown(
+        '<div class="qc" style="border-left:3px solid #ffb000;padding:16px;margin-top:10px">'
+        '<div style="color:#ffb000;font-size:16px;font-weight:700">READY TO RUN</div>'
+        '<div style="color:#d6a44a;font-size:10px;margin-top:5px">'
+        'All calculations are waiting. Press RUN FULL ANALYSIS to fetch fresh market data '
+        'and execute the complete pipeline.</div></div>',
+        unsafe_allow_html=True,
+    )
+    st.stop()
+
 if basket_tickers:
     with st.spinner("⚡ Precomputing..."):
         _pipeline = cached_full_analysis(",".join(basket_tickers))
@@ -323,7 +333,7 @@ if basket_tickers:
         gate_color = "#34c759" if gate.get("passed") else "#ff3b30"
         st.markdown(
             f'<div style="color:{gate_color};font-size:9px;padding-top:2px">'
-            f'{gate_label}</div>',
+            f'{gate_label} · RUN FULL ANALYSIS refreshes the snapshot</div>',
             unsafe_allow_html=True,
         )
 
