@@ -526,7 +526,7 @@ if basket_tickers:
     if not _gate_passed:
         _block_reasons.append("evidence gate incomplete")
     if p_ki >= 35:
-        _block_reasons.append(f"P(KI) {p_ki:.0%} above safety threshold")
+        _block_reasons.append(f"P(KI) {p_ki:.0f}% above safety threshold")
     if _director_status in {
         "blocked_by_guardian",
         "blocked_by_disagreement",
