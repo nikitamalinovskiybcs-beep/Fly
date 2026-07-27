@@ -11,6 +11,7 @@ import time
 
 
 SNAPSHOT_PATH = Path("data/runtime/full_analysis_snapshot.pkl")
+SNAPSHOT_VERSION = 2
 SNAPSHOT_TTL_SECONDS = 300
 MAX_STALE_SECONDS = 86_400
 _EXECUTOR = ThreadPoolExecutor(max_workers=1)
@@ -45,6 +46,8 @@ def load_snapshot(
         return None
     if not isinstance(record, dict):
         return None
+    if record.get("version") != SNAPSHOT_VERSION:
+        return None
     if record.get("tickers") != list(dict.fromkeys(tickers)):
         return None
     created_at = float(record.get("created_at", 0.0))
@@ -71,6 +74,7 @@ def save_snapshot(
     snapshot_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = snapshot_path.with_suffix(".tmp")
     record = {
+        "version": SNAPSHOT_VERSION,
         "tickers": list(dict.fromkeys(tickers)),
         "created_at": time.time(),
         "created_iso": datetime.now(timezone.utc).isoformat(),
