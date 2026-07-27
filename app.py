@@ -471,10 +471,10 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [1] ВЕРДИКТ — Score + Recommendation
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("LIVE PROCESS MAP · data → decision → outcome", expanded=True):
+    with st.expander("AUDIT MAP · data → decision → outcome", expanded=False):
         render_process_map(D, _pipeline)
 
-    with st.expander("[0] MODEL BASIS    Formula · assumptions · evidence"):
+    with st.expander("[0] MODEL BASIS    Formula · assumptions · evidence", expanded=False):
         st.markdown(
             '<div style="color:#d6a44a;font-size:10px;line-height:1.7">'
             '<b style="color:#ffb000">Phoenix score</b> = base score + '
@@ -510,12 +510,40 @@ if basket_tickers:
     rs_grade = "A+" if rs >= 90 else "A" if rs >= 80 else "B" if rs >= 70 else "C" if rs >= 60 else "D"
     sl = D.get("self_learning", {})
     gen = D.get("scoring_generation", 0)
+    _gate_passed = bool(D.get("evidence_gate", {}).get("passed"))
+    _director_status = D.get("sl_agents", {}).get("director_status", "")
+    _verdict = (
+        "GOOD" if _gate_passed and rs >= 80
+        else "CAUTION" if rs >= 65
+        else "BAD"
+    )
+    _verdict_color = (
+        "#34c759" if _verdict == "GOOD"
+        else "#ffb000" if _verdict == "CAUTION"
+        else "#ff3b30"
+    )
+    _block_reasons = []
+    if not _gate_passed:
+        _block_reasons.append("evidence gate incomplete")
+    if p_ki >= 35:
+        _block_reasons.append(f"P(KI) {p_ki:.0f}% above safety threshold")
+    if _director_status in {
+        "blocked_by_guardian",
+        "blocked_by_disagreement",
+        "awaiting_guardian_calibration",
+    }:
+        _block_reasons.append(_director_status.replace("_", " "))
+    _why_blocked = (
+        " · ".join(_block_reasons)
+        if _block_reasons
+        else "no primary blocker; review quote-fit and paper evidence"
+    )
 
     st.markdown(f'''
-    <div class="qc" style="border-left:3px solid {rec_color};padding:14px;margin:8px 0">
+    <div class="qc" style="border-left:3px solid {_verdict_color};padding:14px;margin:8px 0">
         <div style="display:flex;justify-content:space-between;align-items:center">
             <div>
-                <span style="color:{rec_color};font-size:22px;font-weight:700">{rec_action}</span>
+                <span style="color:{_verdict_color};font-size:22px;font-weight:700">PHOENIX {_verdict}</span>
                 <span style="color:#d6a44a;font-size:11px;margin-left:8px">{rec_reason}</span>
             </div>
             <div style="text-align:right">
@@ -526,8 +554,11 @@ if basket_tickers:
         </div>
         <div style="margin:6px 0;height:6px;background:#1a1400;border-radius:1px"><div style="height:100%;width:{max(0, (rs - 50) * 2)}%;background:{rs_color};border-radius:1px"></div></div>
         <div style="display:flex;justify-content:space-between;margin-top:4px">
-            <span style="color:#6a5a2a;font-size:9px">Win rate: {rec.get("win_rate_expected", 0)}% · Gen {gen}</span>
+            <span style="color:#6a5a2a;font-size:9px">Model action: {rec_action} · Gen {gen}</span>
             <span style="background:{rs_color}22;border:1px solid {rs_color};padding:2px 8px;color:{rs_color};font-size:10px;font-weight:700">P(KI) {p_ki:.0f}%</span>
+        </div>
+        <div style="color:{_verdict_color};font-size:9px;margin-top:7px">
+            WHY BLOCKED / WHAT TO CHECK: {_why_blocked}
         </div>
     </div>
     ''', unsafe_allow_html=True)
