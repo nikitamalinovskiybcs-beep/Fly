@@ -128,12 +128,29 @@ def test_paper_note_keeps_decision_id_until_realized(tmp_path) -> None:
         metadata={"decision_record": {"decision_id": "decision_123"}},
     )
     assert note["decision_id"] == "decision_123"
+    assert note["instrument_type"] == "structured_note"
     state = tracker.refresh(
         "note-linked",
         _prices([[100, 100], [101, 101], [102, 102]]),
         as_of="2024-01-02",
     )
     assert state["decision_id"] == "decision_123"
+
+
+def test_open_paper_note_has_mark_to_market_state(tmp_path) -> None:
+    tracker = PaperOutcomeTracker(tmp_path / "outcomes.json")
+    spec = StructuredNoteSpec(basket=["A", "B"], term_months=24)
+    tracker.open_note(spec, note_id="note-mtm")
+
+    state = tracker.refresh(
+        "note-mtm",
+        _prices([[100, 100], [70, 70], [50, 50]]),
+        as_of="2024-01-02",
+    )
+
+    assert state["status"] == "paper"
+    assert state["mark_to_market_principal"] == 0.5
+    assert state["mark_to_market_return_pct"] < 0
 
 
 def test_missing_price_data_is_explicit() -> None:

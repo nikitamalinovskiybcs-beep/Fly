@@ -153,6 +153,11 @@ def replay_historical(
 
     payoff = principal + coupons_paid * spec.coupon_rate
     final_row = performance.iloc[-1]
+    current_worst = float(final_row.min())
+    mark_to_market_principal = current_worst if barrier_breached else 1.0
+    mark_to_market_value = (
+        mark_to_market_principal + coupons_paid * spec.coupon_rate
+    )
     return {
         "source": "historical_replay",
         "status": "historical_replay",
@@ -168,7 +173,13 @@ def replay_historical(
         "payoff": round(payoff, 6),
         "return_pct": round((payoff - 1.0) * 100, 4),
         "worst_of": str(final_row.idxmin()),
-        "worst_final_pct": round(float(final_row.min()) * 100, 4),
+        "worst_final_pct": round(current_worst * 100, 4),
+        "mark_to_market_principal": round(mark_to_market_principal, 6),
+        "mark_to_market_value": round(mark_to_market_value, 6),
+        "mark_to_market_return_pct": round(
+            (mark_to_market_value - 1.0) * 100,
+            4,
+        ),
     }
 
 
@@ -457,6 +468,7 @@ class PaperOutcomeTracker:
                     return existing
         note = {
             "id": note_id or f"{'_'.join(spec.basket)}_{_utc_now()}",
+            "instrument_type": "structured_note",
             "decision_id": (metadata or {}).get("decision_record", {}).get(
                 "decision_id"
             ),
@@ -524,6 +536,9 @@ class PaperOutcomeTracker:
                 "coupons_paid": replay["coupons_paid"],
                 "worst_of": replay["worst_of"],
                 "worst_final_pct": replay["worst_final_pct"],
+                "mark_to_market_principal": replay["mark_to_market_principal"],
+                "mark_to_market_value": replay["mark_to_market_value"],
+                "mark_to_market_return_pct": replay["mark_to_market_return_pct"],
                 "learning_eligible": False,
             }
             note["current_state"] = paper_state
