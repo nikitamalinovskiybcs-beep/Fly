@@ -322,10 +322,24 @@ def find_best_structured_product(
 
     ranked.sort(key=lambda c: c["final_objective"], reverse=True)
     best = ranked[0]
+    candidate_catalog = [
+        {
+            "rank": index,
+            "basket": " / ".join(candidate["basket"]),
+            "barrier_pct": candidate["barrier"],
+            "tenor_months": candidate["tenor_months"],
+            "coupon_pct": round(candidate["coupon"], 1),
+            "objective": candidate["final_objective"],
+            "agent_evaluated": index <= agent_candidate_limit,
+            "selected": index == 1,
+        }
+        for index, candidate in enumerate(ranked, start=1)
+    ]
 
     return {
         "best": best,
         "leaderboard": ranked[:top_n],
+        "candidate_catalog": candidate_catalog,
         "n_evaluated": len(ranked),
         "baseline_comparison": _baseline_comparison(
             universe, basket_size, best, yf_data=yf_data,

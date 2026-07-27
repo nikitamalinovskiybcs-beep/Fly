@@ -2,6 +2,7 @@
 Computation stays in the domain modules; this file renders the decision workflow."""
 
 import datetime
+import html
 import streamlit as st
 import plotly.graph_objects as go
 
@@ -108,6 +109,9 @@ def render_process_map(data: dict, pipeline: dict) -> None:
         "neutral": "#6d86b8",
     }
     stages = pipeline.get("stages", {})
+    product = pipeline.get("product", {})
+    catalog = product.get("candidate_catalog", [])
+    candidate_count = len(catalog) or int(product.get("n_evaluated", 0))
     active_color = colors["active"] if gate_passed else colors["diagnostic"]
     nodes = [
         ("MARKET DATA", source, active_color, 0.3, 1.0, "INPUT"),
@@ -200,7 +204,7 @@ def render_process_map(data: dict, pipeline: dict) -> None:
         paper_bgcolor="#020711",
         plot_bgcolor="#020711",
         title={
-            "text": "▣ CYBERNETIC NETWORK · REAL PIPELINE STATE",
+            "text": f"▣ TERMINAL MAP · {candidate_count} CANDIDATES · REAL PIPELINE STATE",
             "font": {"family": "JetBrains Mono, monospace", "size": 11, "color": "#46d9ff"},
             "x": 0.02,
             "y": 0.98,
@@ -221,6 +225,35 @@ def render_process_map(data: dict, pipeline: dict) -> None:
         showlegend=False,
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    if catalog:
+        selected = product.get("best", {})
+        selected_name = " / ".join(selected.get("basket", []))
+        rows = []
+        for candidate in catalog:
+            row_color = "#ffb347" if candidate.get("selected") else "#d6a44a"
+            rows.append(
+                "<tr>"
+                f'<td style="color:{row_color}">{candidate["rank"]}</td>'
+                f'<td style="color:{row_color}">{html.escape(candidate["basket"])}</td>'
+                f'<td>{candidate["barrier_pct"]:.0f}%</td>'
+                f'<td>{candidate["tenor_months"]}m</td>'
+                f'<td>{candidate["coupon_pct"]:.1f}%</td>'
+                f'<td>{candidate["objective"]:.1f}</td>'
+                f'<td>{"AGENT" if candidate["agent_evaluated"] else "BASE"}</td>'
+                "</tr>"
+            )
+        st.markdown(
+            f'<div style="color:#46d9ff;font-size:10px;margin-top:8px">'
+            f'▣ CANDIDATE MATRIX · {len(catalog)} evaluated · SELECTED: '
+            f'{html.escape(selected_name)}</div>'
+            '<div style="max-height:220px;overflow:auto;border:1px solid #13233d">'
+            '<table style="width:100%;font-size:9px;color:#d6a44a">'
+            '<thead><tr><th>#</th><th>BASKET</th><th>BARRIER</th><th>TENOR</th>'
+            '<th>COUPON</th><th>OBJECTIVE</th><th>MODE</th></tr></thead><tbody>'
+            + "".join(rows)
+            + "</tbody></table></div>",
+            unsafe_allow_html=True,
+        )
 
 # ═══════════════════════════════════════════════════════════════════
 # CSS — Bloomberg Terminal
