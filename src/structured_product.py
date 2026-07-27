@@ -145,12 +145,15 @@ def score_product(
 
 
 def best_config_for_basket(
-    basket: List[str], yf_data: Optional[Dict] = None,
+    basket: List[str],
+    yf_data: Optional[Dict] = None,
+    barriers: Optional[List[float]] = None,
+    tenors: Optional[List[int]] = None,
 ) -> Dict[str, float]:
     """Grid-search barrier × tenor for the best configuration of one basket."""
     best: Optional[Dict[str, float]] = None
-    for barrier in BARRIERS:
-        for tenor in TENORS:
+    for barrier in barriers or BARRIERS:
+        for tenor in tenors or TENORS:
             cfg = score_product(basket, barrier, tenor, yf_data=yf_data)
             if best is None or cfg["objective"] > best["objective"]:
                 best = cfg
@@ -242,6 +245,8 @@ def find_best_structured_product(
     top_n: int = 5,
     agent_candidate_limit: int = 12,
     require_real_data: bool = False,
+    target_barrier_pct: Optional[float] = None,
+    target_tenor_months: Optional[int] = None,
 ) -> Dict:
     """Search a universe for the best structured product.
 
@@ -283,7 +288,22 @@ def find_best_structured_product(
     ranked: List[Dict] = []
     for combo in combos:
         basket = list(combo)
-        cfg = best_config_for_basket(basket, yf_data=yf_data)
+        barriers = (
+            [float(target_barrier_pct) / 100.0]
+            if target_barrier_pct is not None
+            else None
+        )
+        tenors = (
+            [int(target_tenor_months)]
+            if target_tenor_months is not None
+            else None
+        )
+        cfg = best_config_for_basket(
+            basket,
+            yf_data=yf_data,
+            barriers=barriers,
+            tenors=tenors,
+        )
         if not cfg:
             continue
         cfg = dict(cfg)

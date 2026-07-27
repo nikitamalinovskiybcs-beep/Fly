@@ -1,7 +1,7 @@
 """Single entry point for the complete Phoenix decision pipeline."""
 
 from datetime import datetime, timezone
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from src.data_module import fetch_ticker_data
 from src.outcome_engine import StructuredNoteSpec, simulate_stress_suite
@@ -14,8 +14,15 @@ DEFAULT_PRODUCT_UNIVERSE = [
 ]
 
 
-def run_full_analysis(tickers: List[str]) -> Dict:
+def run_full_analysis(
+    tickers: List[str],
+    product_preferences: Optional[Dict[str, int | float]] = None,
+) -> Dict:
     """Run data, scoring, agents, product selection, and stress in order."""
+    preferences = product_preferences or {}
+    target_barrier = preferences.get("barrier_pct")
+    target_tenor = preferences.get("tenor_months")
+    coupon_frequency = int(preferences.get("coupon_frequency_months", 3))
     basket = list(dict.fromkeys(tickers))
     data = precompute_all(basket)
     universe = list(dict.fromkeys(basket + DEFAULT_PRODUCT_UNIVERSE))
@@ -55,6 +62,8 @@ def run_full_analysis(tickers: List[str]) -> Dict:
         basket_size=3,
         yf_data=market_data,
         max_candidates=80,
+        target_barrier_pct=target_barrier,
+        target_tenor_months=target_tenor,
     )
     best = product.get("best", {})
     stages["product"] = "complete" if best else product.get("error", "blocked")
@@ -63,7 +72,10 @@ def run_full_analysis(tickers: List[str]) -> Dict:
         spec = StructuredNoteSpec(
             basket=list(best["basket"]),
             barrier=float(best.get("barrier", 60)) / 100.0,
-            coupon_rate=float(best.get("coupon", 0.0)) / 100.0 / 4.0,
+            coupon_rate=(
+                float(best.get("coupon", 0.0)) / 100.0
+                / (12.0 / max(coupon_frequency, 1))
+            ),
             term_months=int(best.get("tenor_months", 24)),
         )
         stress = simulate_stress_suite(spec, n_paths=250)
