@@ -58,6 +58,15 @@ CLICKHOUSE_SECURE=false python -m src.scheduler --snapshot --tickers AAPL,DELL,G
 Self-hosted контейнер доступен только там, где запущен
 Docker; для Streamlit Cloud нужен отдельно доступный сервер.
 
+Загрузка наблюдаемой исторической OHLCV-истории в ClickHouse:
+
+```bash
+python scripts/ingest_ohlcv.py AAPL MSFT NVDA --period 3y
+```
+
+Скрипт использует рабочий Phoenix `DataManager`/yfinance provider,
+пропускает уже загруженные даты и не загружает Monte Carlo или synthetic data.
+
 ## Деплой на Fly.io
 
 ```bash
