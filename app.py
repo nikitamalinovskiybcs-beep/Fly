@@ -38,9 +38,27 @@ def cached_precompute(tickers_key: str):
     return _precompute_all(tickers)
 
 
-def cached_full_analysis(tickers_key: str):
+def cached_full_analysis(
+    tickers_key: str,
+    barrier_pct: float,
+    tenor_months: int,
+    coupon_frequency_months: int,
+):
     tickers = tickers_key.split(",")
-    snapshot = load_snapshot(tickers)
+    preferences = {
+        "barrier_pct": barrier_pct,
+        "tenor_months": tenor_months,
+        "coupon_frequency_months": coupon_frequency_months,
+    }
+    variant = (
+        f"barrier={barrier_pct:.1f};tenor={tenor_months};"
+        f"frequency={coupon_frequency_months}"
+    )
+
+    def compute(requested: list[str]) -> dict:
+        return run_full_analysis(requested, preferences)
+
+    snapshot = load_snapshot(tickers, variant=variant)
     if snapshot is not None:
         payload = dict(snapshot.payload)
         payload["_snapshot"] = {
@@ -48,11 +66,11 @@ def cached_full_analysis(tickers_key: str):
             "age_seconds": round(snapshot.age_seconds, 1),
         }
         if not snapshot.fresh:
-            refresh_in_background(tickers, run_full_analysis)
+            refresh_in_background(tickers, compute, variant=variant)
         return payload
-    payload = run_full_analysis(tickers)
-    save_snapshot(tickers, payload)
-    start_periodic_refresh(tickers, run_full_analysis)
+    payload = compute(tickers)
+    save_snapshot(tickers, payload, variant=variant)
+    start_periodic_refresh(tickers, compute, variant=variant)
     payload["_snapshot"] = {"status": "fresh", "age_seconds": 0.0}
     return payload
 
@@ -319,17 +337,60 @@ requested_tickers = [
     for t in basket_input.replace(",", " ").split()
     if t.strip()
 ]
+req_cols = st.columns([2, 1, 1, 1])
+with req_cols[0]:
+    st.markdown(
+        '<div style="color:#d6a44a;font-size:9px;padding-top:8px">'
+        'REQUIREMENTS · BEST BASKET</div>',
+        unsafe_allow_html=True,
+    )
+with req_cols[1]:
+    requested_barrier = st.number_input(
+        "БАРЬЕР, %",
+        min_value=50.0,
+        max_value=90.0,
+        value=65.0,
+        step=1.0,
+        key="requested_barrier",
+    )
+with req_cols[2]:
+    requested_tenor = st.number_input(
+        "СРОК, МЕС.",
+        min_value=3,
+        max_value=60,
+        value=24,
+        step=3,
+        key="requested_tenor",
+    )
+with req_cols[3]:
+    requested_frequency = st.number_input(
+        "КУПОН, МЕС.",
+        min_value=1,
+        max_value=12,
+        value=3,
+        step=1,
+        key="requested_frequency",
+    )
 if "analysis_tickers" not in st.session_state:
     st.session_state.analysis_tickers = requested_tickers
 if "analysis_requested" not in st.session_state:
     st.session_state.analysis_requested = False
+requested_preferences = {
+    "barrier_pct": float(requested_barrier),
+    "tenor_months": int(requested_tenor),
+    "coupon_frequency_months": int(requested_frequency),
+}
+if "analysis_preferences" not in st.session_state:
+    st.session_state.analysis_preferences = requested_preferences
 with bc[2]:
     if st.button("▶ RUN FULL ANALYSIS", key="run_basket", type="primary", use_container_width=True):
         st.session_state.analysis_tickers = requested_tickers
+        st.session_state.analysis_preferences = requested_preferences
         st.session_state.analysis_requested = True
         st.rerun()
 
 basket_tickers = st.session_state.analysis_tickers
+active_preferences = st.session_state.analysis_preferences
 n_tickers = len(basket_tickers)
 
 basket_label = ", ".join(basket_tickers)
@@ -340,13 +401,26 @@ if requested_tickers != basket_tickers:
         'Новая корзина ожидает запуска: нажмите RUN FULL ANALYSIS.</div>',
         unsafe_allow_html=True,
     )
+if requested_preferences != active_preferences:
+    st.markdown(
+        '<div style="color:#ffb000;font-size:9px;padding:2px 0">'
+        'Новые требования ожидают запуска: нажмите RUN FULL ANALYSIS.</div>',
+        unsafe_allow_html=True,
+    )
 
 rc1 = st.container()
 
 # ═══════════════════════════════════════════════════════════════════
 # PRECOMPUTE ALL (Karpathy method — one call, all data)
 # ═══════════════════════════════════════════════════════════════════
-if basket_tickers and not st.session_state.analysis_requested:
+if (
+    basket_tickers
+    and (
+        not st.session_state.analysis_requested
+        or requested_tickers != basket_tickers
+        or requested_preferences != active_preferences
+    )
+):
     st.markdown(
         '<div class="qc" style="border-left:3px solid #ffb000;padding:16px;margin-top:10px">'
         '<div style="color:#ffb000;font-size:16px;font-weight:700">READY TO RUN</div>'
@@ -359,7 +433,12 @@ if basket_tickers and not st.session_state.analysis_requested:
 
 if basket_tickers:
     with st.spinner("⚡ Precomputing..."):
-        _pipeline = cached_full_analysis(",".join(basket_tickers))
+        _pipeline = cached_full_analysis(
+            ",".join(basket_tickers),
+            active_preferences["barrier_pct"],
+            active_preferences["tenor_months"],
+            active_preferences["coupon_frequency_months"],
+        )
         D = _pipeline["data"]
 
     ch = D["ch"]
@@ -489,9 +568,20 @@ if basket_tickers:
         st.markdown(f'<div style="display:flex;flex-wrap:wrap;gap:0">{grid}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # КУПОН КЛИЕНТУ
+    # BEST BASKET REQUIREMENTS AND BROKER CALIBRATION
     # ═══════════════════════════════════════════════════════════════
-    st.markdown('<div class="sec">КУПОН КЛИЕНТУ</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="sec">CALCULATE BEST BASKET · REQUIREMENTS</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<div style="color:#d6a44a;font-size:9px;margin:4px 0 8px">'
+        f'Лучшие бумаги из universe · срок {active_preferences["tenor_months"]} мес. · '
+        f'барьер {active_preferences["barrier_pct"]:.0f}% · купон каждые '
+        f'{active_preferences["coupon_frequency_months"]} мес.'
+        '</div>',
+        unsafe_allow_html=True,
+    )
     cp = st.columns(6)
     cp[0].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">КУПОН P.A.</div><div style="color:#34c759;font-size:18px;font-weight:700">{D["coupon_pa"]:.2f}%</div></div>', unsafe_allow_html=True)
     cp[1].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(АВТОКОЛЛ)</div><div style="color:#ffb000;font-size:18px;font-weight:700">{p_autocall:.1f}%</div></div>', unsafe_allow_html=True)

@@ -11,6 +11,7 @@ import time
 
 
 SNAPSHOT_PATH = Path("data/runtime/full_analysis_snapshot.pkl")
+SNAPSHOT_VERSION = 2
 SNAPSHOT_TTL_SECONDS = 300
 MAX_STALE_SECONDS = 86_400
 _EXECUTOR = ThreadPoolExecutor(max_workers=1)
@@ -33,6 +34,7 @@ def _path_for(path: Optional[Path]) -> Path:
 def load_snapshot(
     tickers: List[str],
     path: Optional[Path] = None,
+    variant: str = "",
 ) -> Optional[Snapshot]:
     """Load a recent snapshot for the exact requested basket."""
     snapshot_path = _path_for(path)
@@ -44,6 +46,10 @@ def load_snapshot(
     except (OSError, EOFError, pickle.PickleError):
         return None
     if not isinstance(record, dict):
+        return None
+    if record.get("version") != SNAPSHOT_VERSION:
+        return None
+    if record.get("variant", "") != variant:
         return None
     if record.get("tickers") != list(dict.fromkeys(tickers)):
         return None
@@ -65,12 +71,15 @@ def save_snapshot(
     tickers: List[str],
     payload: Dict[str, object],
     path: Optional[Path] = None,
+    variant: str = "",
 ) -> None:
     """Atomically persist a completed pipeline result."""
     snapshot_path = _path_for(path)
     snapshot_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = snapshot_path.with_suffix(".tmp")
     record = {
+        "version": SNAPSHOT_VERSION,
+        "variant": variant,
         "tickers": list(dict.fromkeys(tickers)),
         "created_at": time.time(),
         "created_iso": datetime.now(timezone.utc).isoformat(),
@@ -84,6 +93,7 @@ def save_snapshot(
 def refresh_in_background(
     tickers: List[str],
     compute: Callable[[List[str]], Dict[str, object]],
+    variant: str = "",
 ) -> bool:
     """Start one stale-snapshot refresh and avoid duplicate workers."""
     global _REFRESH
@@ -93,7 +103,7 @@ def refresh_in_background(
 
         def refresh() -> None:
             payload = compute(tickers)
-            save_snapshot(tickers, payload)
+            save_snapshot(tickers, payload, variant=variant)
 
         _REFRESH = _EXECUTOR.submit(refresh)
         return True
@@ -103,6 +113,7 @@ def start_periodic_refresh(
     tickers: List[str],
     compute: Callable[[List[str]], Dict[str, object]],
     interval_seconds: int = 900,
+    variant: str = "",
 ) -> bool:
     """Keep the requested basket warm while the app process is alive."""
     global _SCHEDULER_THREAD
@@ -113,7 +124,7 @@ def start_periodic_refresh(
         def loop() -> None:
             while True:
                 time.sleep(interval_seconds)
-                refresh_in_background(tickers, compute)
+                refresh_in_background(tickers, compute, variant=variant)
 
         _SCHEDULER_THREAD = threading.Thread(
             target=loop,
