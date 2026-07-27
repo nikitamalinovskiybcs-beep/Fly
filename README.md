@@ -43,6 +43,21 @@ python -m src.scheduler --snapshot --tickers AAPL,DELL,GOOG
 В Streamlit после первого запуска snapshot также поддерживается фоновым
 обновлением, пока процесс приложения активен.
 
+## Self-hosted ClickHouse
+
+Для локального режима без ClickHouse Cloud billing:
+
+```bash
+docker compose --env-file .env -f docker-compose.clickhouse.yml up -d
+CLICKHOUSE_HOST=localhost CLICKHOUSE_USER=default \
+CLICKHOUSE_SECURE=false python -m src.scheduler --snapshot --tickers AAPL,DELL,GOOG
+```
+
+Задайте `CLICKHOUSE_PASSWORD` в локальном `.env`; секреты не коммитятся.
+Аналитические таблицы создаются автоматически при первом старте контейнера.
+Self-hosted контейнер доступен только там, где запущен
+Docker; для Streamlit Cloud нужен отдельно доступный сервер.
+
 ## Деплой на Fly.io
 
 ```bash

@@ -83,6 +83,7 @@ class Storage:
                     host=self.config.clickhouse_host,
                     user=self.config.clickhouse_user,
                     password=self.config.clickhouse_password,
+                    secure=self.config.clickhouse_secure,
                 )
             except Exception as exc:
                 logger.info("ClickHouse unavailable: %s", exc)

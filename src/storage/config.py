@@ -23,6 +23,10 @@ class StorageConfig:
         self.clickhouse_host: str = self._setting("CLICKHOUSE_HOST")
         self.clickhouse_user: str = self._setting("CLICKHOUSE_USER", "default")
         self.clickhouse_password: str = self._setting("CLICKHOUSE_PASSWORD")
+        self.clickhouse_secure: bool = self._setting(
+            "CLICKHOUSE_SECURE",
+            "true" if self.clickhouse_host.endswith(".clickhouse.cloud") else "false",
+        ).lower() in {"1", "true", "yes"}
 
         self.r2_endpoint: str = self._setting("R2_ENDPOINT")
         self.r2_access_key: str = self._setting("R2_ACCESS_KEY")
