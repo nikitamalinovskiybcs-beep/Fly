@@ -163,7 +163,7 @@ def _fallback_risk(
     else:
         level = "low"
 
-    adj_map = {"low": 3, "medium": 0, "high": -3, "extreme": -7}
+    adj_map = {"low": 2, "medium": 0, "high": -2, "extreme": -4}
     return {
         "risk_level": level,
         "score_adjustment": adj_map[level],
