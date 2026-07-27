@@ -1,12 +1,10 @@
-"""ClickHouse Cloud client — columnar OLAP for large analytical datasets.
-
-Free tier: 10GB storage, 100GB queries/month.
-100x faster than PostgreSQL for aggregations on millions of rows.
+"""ClickHouse client — columnar OLAP for large analytical datasets.
 
 Environment variables:
-    CLICKHOUSE_HOST=xxx.clickhouse.cloud
+    CLICKHOUSE_HOST=localhost
     CLICKHOUSE_USER=default
     CLICKHOUSE_PASSWORD=xxx
+    CLICKHOUSE_SECURE=false
 """
 
 import logging
@@ -23,11 +21,16 @@ class ClickHouseStorage:
     Tables:
         ohlcv — ticker price history (partitioned by year)
         backtest_results — strategy performance records
-        numerai_features — Numerai tournament data
         indicator_cache — precomputed technical indicators
     """
 
-    def __init__(self, host: str = "", user: str = "default", password: str = "") -> None:
+    def __init__(
+        self,
+        host: str = "",
+        user: str = "default",
+        password: str = "",
+        secure: bool = True,
+    ) -> None:
         self._client = None
         self._enabled = False
 
@@ -38,7 +41,7 @@ class ClickHouseStorage:
         try:
             import clickhouse_connect
             self._client = clickhouse_connect.get_client(
-                host=host, username=user, password=password, secure=True,
+                host=host, username=user, password=password, secure=secure,
             )
             self._create_tables()
             self._enabled = True

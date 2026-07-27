@@ -1188,6 +1188,48 @@ if basket_tickers:
                         f'{" / ".join(_c["basket"])} — obj {_c["final_objective"]:.1f} · '
                         f'{_c["barrier"]}%/{_c["tenor_months"]}mo · cpn {_c["coupon"]:.0f}%</div>',
                         unsafe_allow_html=True)
+                _catalog = _res.get("candidate_catalog", [])
+                if _catalog:
+                    _fig = go.Figure()
+                    _fig.add_trace(go.Scatter(
+                        x=[item.get("expected_return_pct", 0) for item in _catalog],
+                        y=[item.get("reliability_pct", 0) for item in _catalog],
+                        mode="markers",
+                        text=[
+                            f'{item["basket"]}<br>volatility proxy '
+                            f'{item.get("volatility_pct", 0):.1f}%'
+                            for item in _catalog
+                        ],
+                        marker={
+                            "size": [
+                                max(8, min(28, item.get("volatility_pct", 0) / 2))
+                                for item in _catalog
+                            ],
+                            "color": [
+                                "#34c759" if item.get("selected") else "#6db6ff"
+                                for item in _catalog
+                            ],
+                            "opacity": 0.8,
+                        },
+                        hovertemplate="%{text}<br>return %{x:.1f}%"
+                        "<br>reliability %{y:.1f}%<extra></extra>",
+                    ))
+                    _fig.update_layout(
+                        height=280,
+                        margin={"l": 8, "r": 8, "t": 24, "b": 8},
+                        paper_bgcolor="#020711",
+                        plot_bgcolor="#020711",
+                        font={"color": "#d6a44a", "size": 9},
+                        title="SLOW MAP · return × reliability · size = volatility",
+                        xaxis={"title": "Expected return %", "gridcolor": "#142033"},
+                        yaxis={"title": "Reliability %", "gridcolor": "#142033"},
+                        showlegend=False,
+                    )
+                    st.plotly_chart(
+                        _fig,
+                        use_container_width=True,
+                        config={"displayModeBar": False},
+                    )
             else:
                 st.markdown(
                     f'<div style="color:#ff9500;font-size:10px">No product: '

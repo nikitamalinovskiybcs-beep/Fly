@@ -63,6 +63,11 @@ class TestStructuredProduct:
         assert result["best"]["agent_contributions"]
         assert len(result["candidate_catalog"]) == result["n_evaluated"]
         assert result["candidate_catalog"][0]["selected"] is True
+        assert {
+            "expected_return_pct",
+            "reliability_pct",
+            "volatility_pct",
+        } <= set(result["candidate_catalog"][0])
         assert set(result["best"]["split_objectives"]) == {
             "train", "validation", "test",
         }

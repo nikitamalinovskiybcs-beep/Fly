@@ -6,6 +6,7 @@ If any var is missing, that backend falls back gracefully.
 
 import logging
 import os
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -14,21 +15,39 @@ class StorageConfig:
     """Centralized config for all storage backends."""
 
     def __init__(self) -> None:
-        self.supabase_url: str = os.getenv("SUPABASE_URL", "")
-        self.supabase_key: str = os.getenv("SUPABASE_KEY", "")
+        self.supabase_url: str = self._setting("SUPABASE_URL")
+        self.supabase_key: str = self._setting("SUPABASE_KEY")
 
-        self.firebase_creds: str = os.getenv("FIREBASE_CREDENTIALS", "")
+        self.firebase_creds: str = self._setting("FIREBASE_CREDENTIALS")
 
-        self.clickhouse_host: str = os.getenv("CLICKHOUSE_HOST", "")
-        self.clickhouse_user: str = os.getenv("CLICKHOUSE_USER", "default")
-        self.clickhouse_password: str = os.getenv("CLICKHOUSE_PASSWORD", "")
+        self.clickhouse_host: str = self._setting("CLICKHOUSE_HOST")
+        self.clickhouse_user: str = self._setting("CLICKHOUSE_USER", "default")
+        self.clickhouse_password: str = self._setting("CLICKHOUSE_PASSWORD")
+        self.clickhouse_secure: bool = self._setting(
+            "CLICKHOUSE_SECURE",
+            "true" if self.clickhouse_host.endswith(".clickhouse.cloud") else "false",
+        ).lower() in {"1", "true", "yes"}
 
-        self.r2_endpoint: str = os.getenv("R2_ENDPOINT", "")
-        self.r2_access_key: str = os.getenv("R2_ACCESS_KEY", "")
-        self.r2_secret_key: str = os.getenv("R2_SECRET_KEY", "")
+        self.r2_endpoint: str = self._setting("R2_ENDPOINT")
+        self.r2_access_key: str = self._setting("R2_ACCESS_KEY")
+        self.r2_secret_key: str = self._setting("R2_SECRET_KEY")
         self.r2_bucket: str = os.getenv("R2_BUCKET", "fly-data")
 
-        self.redis_url: str = os.getenv("REDIS_URL", "")
+        self.redis_url: str = self._setting("REDIS_URL")
+
+    @staticmethod
+    def _setting(name: str, default: str = "") -> str:
+        """Read Streamlit secrets first, then environment variables."""
+        if "streamlit" in sys.modules:
+            import streamlit as st
+
+            try:
+                value = st.secrets.get(name)
+                if value:
+                    return str(value)
+            except Exception:
+                pass
+        return os.getenv(name, default)
 
     @property
     def supabase_available(self) -> bool:
