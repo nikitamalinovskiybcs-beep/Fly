@@ -350,6 +350,12 @@ def find_best_structured_product(
             "tenor_months": candidate["tenor_months"],
             "coupon_pct": round(candidate["coupon"], 1),
             "objective": candidate["final_objective"],
+            "expected_return_pct": round(
+                candidate["coupon"] * (1.0 - candidate["p_loss_pct"] / 100.0),
+                1,
+            ),
+            "reliability_pct": round(100.0 - candidate["p_loss_pct"], 1),
+            "volatility_pct": round(candidate.get("market_iv", 0.0), 1),
             "agent_evaluated": index <= agent_candidate_limit,
             "selected": index == 1,
         }
