@@ -11,9 +11,9 @@ Returns flat dict for pure Streamlit rendering.
 """
 
 import csv
-import os
 import numpy as np
-from typing import Dict, List, Any, Optional
+import statistics
+from typing import Dict, List, Any
 from pathlib import Path
 
 
@@ -385,6 +385,43 @@ def find_similar_dealer_quotes(
     return matches[:top_n]
 
 
+def dealer_quote_summary() -> Dict[str, Any]:
+    """Summarize the observed dealer-quote file without inventing sample size."""
+    csv_path = Path(__file__).parent.parent / "data" / "dealer_quotes.csv"
+    if not csv_path.exists():
+        return {
+            "source": "dealer_quotes.csv",
+            "status": "unavailable",
+            "total_quotes": 0,
+            "valid_quotes": 0,
+        }
+    total = 0
+    valid = []
+    rejects = 0
+    with open(csv_path, "r") as handle:
+        for row in csv.DictReader(handle):
+            total += 1
+            if row.get("status") != "ok" or not row.get("coupon"):
+                rejects += 1
+                continue
+            try:
+                valid.append(float(row["coupon"]))
+            except (TypeError, ValueError):
+                rejects += 1
+    return {
+        "source": "dealer_quotes.csv",
+        "status": "observed",
+        "total_quotes": total,
+        "valid_quotes": len(valid),
+        "rejects": rejects,
+        "coupon_mean": round(statistics.mean(valid), 2) if valid else None,
+        "coupon_median": round(statistics.median(valid), 2) if valid else None,
+        "coupon_std": round(statistics.pstdev(valid), 2) if len(valid) > 1 else None,
+        "coupon_min": round(min(valid), 2) if valid else None,
+        "coupon_max": round(max(valid), 2) if valid else None,
+    }
+
+
 # ═══════════════════════════════════════════════════════════════════
 # 5. MASTER PRECOMPUTE (Karpathy method — one call, flat dict output)
 # ═══════════════════════════════════════════════════════════════════
@@ -436,9 +473,8 @@ def precompute_dealer_benchmark(
     else:
         accuracy_vs_dealer = None
 
-    # 7. Summary statistics from full database
-    total_quotes = 828
-    total_rejects = 67
+    # 7. Summary statistics from the observed quote file
+    quote_summary = dealer_quote_summary()
 
     return {
         "toxicity": tox,
@@ -452,9 +488,5 @@ def precompute_dealer_benchmark(
         "accuracy_vs_dealer": round(accuracy_vs_dealer, 1) if accuracy_vs_dealer else None,
         "guard_flag": p_loss["guard_flag"],
         "guard_msg": p_loss["guard_msg"],
-        "db_stats": {
-            "total_quotes": total_quotes,
-            "total_rejects": total_rejects,
-            "reject_rate": round(total_rejects / (total_quotes + total_rejects) * 100, 1),
-        },
+        "db_stats": quote_summary,
     }
