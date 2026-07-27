@@ -1158,7 +1158,8 @@ if basket_tickers:
     with st.expander("[14] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
         try:
             _quality = load_quality_report()
-            _evaluation = build_realized_evaluation(PaperOutcomeTracker().notes)
+            _paper_notes = PaperOutcomeTracker().notes
+            _evaluation = build_realized_evaluation(_paper_notes)
             _learning_gate = assess_learning_gate(load_realized_feedback())
             _readiness = assess_commercial_readiness(
                 D.get("evidence_gate", {}),
@@ -1210,6 +1211,30 @@ if basket_tickers:
                 f'{_learning_gate.get("drift", "n/a")}</div>',
                 unsafe_allow_html=True,
             )
+            _open_notes = [
+                note for note in _paper_notes if note.get("status") == "open"
+            ]
+            _marked_notes = [
+                note.get("current_state", {})
+                for note in _open_notes
+                if note.get("current_state")
+            ]
+            if _marked_notes:
+                _avg_mark = sum(
+                    float(state.get("mark_to_market_return_pct", 0.0))
+                    for state in _marked_notes
+                ) / len(_marked_notes)
+                _mark_color = "#34c759" if _avg_mark >= 0 else "#ff3b30"
+                st.markdown(
+                    f'<div style="color:{_mark_color};font-size:9px;'
+                    f'border:1px solid #12304a;padding:5px;margin-bottom:6px">'
+                    f'PAPER NOTES: {len(_open_notes)} open · '
+                    f'{len(_marked_notes)} marked-to-market · '
+                    f'average indicative return {_avg_mark:+.2f}%<br>'
+                    'This is paper mark-to-market only; it is not realized performance.'
+                    '</div>',
+                    unsafe_allow_html=True,
+                )
             _outcomes = _pipeline["stress"]
             if _outcomes:
                 for _scenario, _report in _outcomes["scenarios"].items():
