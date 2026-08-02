@@ -37,6 +37,19 @@ class TestDatabase:
         assert result["ticker"] == "AAPL"
         assert result["price"] == 150.0
 
+    def test_calculated_note_is_idempotent_and_counted(self) -> None:
+        note = {
+            "note_id": "note-1",
+            "calculated_at": "2099-01-01T00:00:00",
+            "basket": "[\"AAPL\", \"MSFT\"]",
+            "term_months": 24,
+            "evidence_status": "incomplete",
+        }
+        self.db.record_calculated_note(note)
+        self.db.record_calculated_note(note)
+
+        assert self.db.count_calculated_notes(months=1200) == 1
+
     def test_get_open_trades(self) -> None:
         self.db.insert_trade({"id": "t1", "timestamp": "2024-01-01", "ticker": "AAPL",
                               "action": "buy", "price": 150.0, "quantity": 10, "status": "open"})

@@ -135,6 +135,14 @@ class Storage:
             return self.db.get_closed_trades(limit)
         return self.db.get_all_trades()
 
+    def record_calculated_note(self, note: dict) -> None:
+        """Persist one calculated note for later lifecycle tracking."""
+        self.db.record_calculated_note(note)
+
+    def count_calculated_notes(self, months: int = 6) -> int:
+        """Count unique calculated notes in the trailing period."""
+        return self.db.count_calculated_notes(months)
+
     def close_trade(self, trade_id: str, pnl: float, pnl_pct: float) -> None:
         """Close a trade."""
         self.db.close_trade(trade_id, pnl, pnl_pct)

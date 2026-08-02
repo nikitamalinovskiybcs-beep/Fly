@@ -2,7 +2,9 @@
 Computation stays in the domain modules; this file renders the decision workflow."""
 
 import datetime
+import hashlib
 import html
+import json
 import streamlit as st
 import plotly.graph_objects as go
 
@@ -441,6 +443,35 @@ if basket_tickers:
             active_preferences["coupon_frequency_months"],
         )
         D = _pipeline["data"]
+        note_id = hashlib.sha256(
+            json.dumps(
+                {
+                    "basket": basket_tickers,
+                    "preferences": active_preferences,
+                    "as_of": D.get("ts"),
+                },
+                sort_keys=True,
+            ).encode()
+        ).hexdigest()[:24]
+        from src.storage import Storage
+
+        Storage().record_calculated_note(
+            {
+                "note_id": note_id,
+                "calculated_at": D.get("ts", datetime.datetime.now().isoformat()),
+                "basket": json.dumps(basket_tickers),
+                "barrier": active_preferences["barrier_pct"] / 100.0,
+                "term_months": active_preferences["tenor_months"],
+                "coupon_pa": D.get("coupon_pa"),
+                "p_ki": D.get("p_ki"),
+                "verdict": D.get("decision_gate", {}).get("verdict"),
+                "evidence_status": (
+                    "verified"
+                    if D.get("evidence_gate", {}).get("passed")
+                    else "incomplete"
+                ),
+            }
+        )
         _pipeline["research_orchestrator"] = build_runtime_research_status(D, _pipeline)
 
     ch = D["ch"]
@@ -1149,6 +1180,8 @@ if basket_tickers:
 
             trade_count = len(storage.get_trades(limit=10000))
             st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-top:8px">Trades in DB: <b style="color:#ffb000">{trade_count}</b></div>', unsafe_allow_html=True)
+            note_count = storage.count_calculated_notes(months=6)
+            st.markdown(f'<div style="color:#d6a44a;font-size:10px">Calculated Phoenix notes, last 6 months: <b style="color:#ffb000">{note_count}</b></div>', unsafe_allow_html=True)
 
             if st.button("BACKUP NOW", key="backup_now"):
                 result = storage.backup()

@@ -259,6 +259,43 @@ class Database:
         """Get all trades."""
         return self.fetchall("SELECT * FROM trades ORDER BY timestamp DESC")
 
+    def record_calculated_note(self, note: dict[str, Any]) -> None:
+        """Record one calculated Phoenix note idempotently."""
+        self.execute(
+            """
+            INSERT OR IGNORE INTO calculated_notes
+            (note_id, calculated_at, basket, barrier, term_months, coupon_pa,
+             p_ki, verdict, evidence_status, lifecycle_status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                note["note_id"],
+                note["calculated_at"],
+                note["basket"],
+                note.get("barrier"),
+                note["term_months"],
+                note.get("coupon_pa"),
+                note.get("p_ki"),
+                note.get("verdict"),
+                note.get("evidence_status"),
+                note.get("lifecycle_status", "calculated"),
+            ),
+        )
+        self._conn.commit()
+
+    def count_calculated_notes(self, months: int = 6) -> int:
+        """Count unique calculated notes in the trailing period."""
+        return int(
+            self.fetchone(
+                """
+                SELECT COUNT(*) AS count
+                FROM calculated_notes
+                WHERE calculated_at >= datetime('now', ?)
+                """,
+                (f"-{int(months)} months",),
+            )["count"]
+        )
+
     def close_trade(self, trade_id: str, pnl: float, pnl_pct: float) -> None:
         """Close a trade with P&L.
 
