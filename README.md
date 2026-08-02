@@ -67,6 +67,23 @@ python scripts/ingest_ohlcv.py AAPL MSFT NVDA --period 3y
 Скрипт использует рабочий Phoenix `DataManager`/yfinance provider,
 пропускает уже загруженные даты и не загружает Monte Carlo или synthetic data.
 
+## Бесплатные локальные Redis и object storage
+
+Для локального режима без Cloudflare R2 или Redis billing:
+
+```bash
+docker compose -f docker-compose.local-services.yml up -d
+export REDIS_URL=redis://127.0.0.1:6379
+export R2_ENDPOINT=http://127.0.0.1:9100
+export R2_ACCESS_KEY=phoenix-local
+export R2_SECRET_KEY=phoenix-local-secret
+export R2_BUCKET=fly-data
+```
+
+Redis используется для cache/queue/rate limiting, а MinIO предоставляет
+S3-совместимый локальный bucket `fly-data`. Это self-hosted fallback, не
+Cloudflare R2; для Streamlit Cloud нужен отдельно доступный сервер.
+
 ## Деплой на Fly.io
 
 ```bash
