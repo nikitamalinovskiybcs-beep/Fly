@@ -36,6 +36,39 @@ OPENAI_COMPATIBLE_PROVIDERS = {
 }
 
 
+def _call_ollama(
+    prompt: str,
+    *,
+    url: str,
+    model: str,
+) -> JsonObject:
+    response = requests.post(
+        f"{url.rstrip('/')}/api/chat",
+        json={
+            "model": model,
+            "stream": False,
+            "format": "json",
+            "messages": [{"role": "user", "content": prompt}],
+        },
+        timeout=90,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    message = payload.get("message")
+    if not isinstance(message, Mapping) or not isinstance(message.get("content"), str):
+        raise ValueError("Ollama response has no text content")
+    result = _extract_json(message["content"])
+    result.update(
+        {
+            "provider": "ollama",
+            "model": model,
+            "production_weights_changed": False,
+            "verdict_mutated": False,
+        },
+    )
+    return result
+
+
 def _safe_result(provider: str, status: str, reason: str) -> JsonObject:
     return {
         "provider": provider,
@@ -139,6 +172,28 @@ def run_judge_panel(
     variables = environ or os.environ
     prompt = build_judge_prompt(report, proposal)
     reviews: list[JsonObject] = []
+
+    ollama_url = variables.get("OLLAMA_URL", "http://127.0.0.1:11434")
+    ollama_model = variables.get("OLLAMA_MODEL", "qwen2.5:7b")
+    try:
+        reviews.append(
+            {
+                "provider": "ollama",
+                "status": "completed",
+                "review": _call_ollama(
+                    prompt,
+                    url=ollama_url,
+                    model=ollama_model,
+                ),
+            },
+        )
+    except requests.ConnectionError:
+        reviews.append(_safe_result("ollama", "skipped", "Ollama is not running"))
+    except requests.HTTPError as error:
+        status = error.response.status_code if error.response is not None else 0
+        reviews.append(_safe_result("ollama", "deferred", f"HTTP {status}"))
+    except (ValueError, KeyError) as error:
+        reviews.append(_safe_result("ollama", "error", str(error)))
 
     gemini_key = variables.get("GEMINI_API_KEY", "")
     if gemini_key:

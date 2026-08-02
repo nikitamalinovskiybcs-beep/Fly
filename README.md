@@ -168,8 +168,10 @@ empirical baseline. Production promotion разрешается только е�
 иначе workflow сохраняет отчёт, но не меняет production.
 
 После benchmark workflow запускает provider-agnostic AI judge panel и сохраняет
-`ai_judge_panel.json`. Поддерживаются Gemini, OpenAI, Anthropic, Mistral,
-Groq и OpenRouter. Добавляйте только нужные репозиторные GitHub Actions secrets
+`ai_judge_panel.json`. Базовый режим поддерживает локальную Ollama без API-ключа
+и банковской карты (например, `ollama pull qwen2.5:7b`). Также поддерживаются
+Gemini, OpenAI, Anthropic, Mistral, Groq и OpenRouter. Добавляйте только нужные
+репозиторные GitHub Actions secrets
 (`GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`,
 `GROQ_API_KEY`, `OPENROUTER_API_KEY`); отсутствующий ключ получает статус
 `skipped`, временная квота — `deferred`. Модели видят только
