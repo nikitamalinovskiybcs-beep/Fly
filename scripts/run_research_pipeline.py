@@ -27,6 +27,7 @@ def _stage(path: Path):
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--records", type=Path, required=True)
+    parser.add_argument("--storage", type=Path)
     parser.add_argument("--calculation", type=Path, required=True)
     parser.add_argument("--committee", type=Path, required=True)
     parser.add_argument("--fact-check", type=Path, required=True)
@@ -36,8 +37,10 @@ def main() -> None:
     args = parser.parse_args()
 
     records = _load(args.records)
+    storage = _load(args.storage) if args.storage else {"sqlite": True}
     result = run_research_pipeline(
         records,
+        storage=storage,
         calculation=_stage(args.calculation),
         committee=_stage(args.committee),
         fact_check=_stage(args.fact_check),

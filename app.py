@@ -22,6 +22,7 @@ from src.outcome_engine import (
 )
 from src.online_learning import assess_learning_gate, load_realized_feedback
 from src.performance_metrics import build_realized_evaluation
+from src.runtime_research import build_runtime_research_status
 from src.snapshot_cache import (
     load_snapshot,
     refresh_in_background,
@@ -440,6 +441,7 @@ if basket_tickers:
             active_preferences["coupon_frequency_months"],
         )
         D = _pipeline["data"]
+        _pipeline["research_orchestrator"] = build_runtime_research_status(D, _pipeline)
 
     ch = D["ch"]
     wo = ch.get("worst_of", {})

@@ -21,6 +21,7 @@ def test_research_pipeline_preserves_stage_order_and_safety() -> None:
 
     assert result["status"] == "blocked"
     assert result["stage_order"] == [
+        "storage",
         "data_readiness",
         "calculation",
         "committee",
@@ -81,6 +82,7 @@ def test_research_pipeline_blocks_failed_fact_check() -> None:
     }
     result = run_research_pipeline(
         complete_records,
+        storage={"sqlite": True},
         calculation=_ready_stage("calculation"),
         committee=_ready_stage("committee"),
         fact_check=fact_check,

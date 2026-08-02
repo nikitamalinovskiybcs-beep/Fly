@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, Sequence
 
 from src.data_readiness import build_data_readiness_report
+from src.storage_readiness import build_storage_readiness
 
 
 Stage = Callable[[Mapping[str, object]], Mapping[str, object]]
@@ -18,6 +19,7 @@ def _stage_status(stage: Mapping[str, object], default: str = "blocked") -> str:
 def run_research_pipeline(
     records: Mapping[str, Sequence[Mapping[str, object]]],
     *,
+    storage: Mapping[str, object] | None = None,
     calculation: Stage,
     committee: Stage,
     fact_check: Stage,
@@ -30,6 +32,10 @@ def run_research_pipeline(
         "research_only": True,
     }
     stages: dict[str, object] = {}
+
+    storage_result = build_storage_readiness(storage or {"sqlite": True})
+    stages["storage"] = storage_result
+    context["storage"] = storage_result
 
     readiness = build_data_readiness_report(records)
     stages["data_readiness"] = readiness
