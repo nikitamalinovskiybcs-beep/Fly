@@ -296,6 +296,18 @@ class Database:
             )["count"]
         )
 
+    def count_calculated_baskets(self, months: int = 6) -> int:
+        """Count unique basket JSON values in the trailing period."""
+        row = self.fetchone(
+            """
+            SELECT COUNT(DISTINCT basket) AS count
+            FROM calculated_notes
+            WHERE calculated_at >= datetime('now', ?)
+            """,
+            (f"-{int(months)} months",),
+        )
+        return int(row["count"]) if row else 0
+
     def close_trade(self, trade_id: str, pnl: float, pnl_pct: float) -> None:
         """Close a trade with P&L.
 

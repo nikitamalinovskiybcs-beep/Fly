@@ -143,6 +143,10 @@ class Storage:
         """Count unique calculated notes in the trailing period."""
         return self.db.count_calculated_notes(months)
 
+    def count_calculated_baskets(self, months: int = 6) -> int:
+        """Count unique baskets represented by calculated notes."""
+        return self.db.count_calculated_baskets(months)
+
     def close_trade(self, trade_id: str, pnl: float, pnl_pct: float) -> None:
         """Close a trade."""
         self.db.close_trade(trade_id, pnl, pnl_pct)

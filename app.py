@@ -1182,6 +1182,8 @@ if basket_tickers:
             st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-top:8px">Trades in DB: <b style="color:#ffb000">{trade_count}</b></div>', unsafe_allow_html=True)
             note_count = storage.count_calculated_notes(months=6)
             st.markdown(f'<div style="color:#d6a44a;font-size:10px">Calculated Phoenix notes, last 6 months: <b style="color:#ffb000">{note_count}</b></div>', unsafe_allow_html=True)
+            basket_count = storage.count_calculated_baskets(months=6)
+            st.markdown(f'<div style="color:#d6a44a;font-size:10px">Unique calculated baskets, last 6 months: <b style="color:#ffb000">{basket_count}</b></div>', unsafe_allow_html=True)
 
             if st.button("BACKUP NOW", key="backup_now"):
                 result = storage.backup()

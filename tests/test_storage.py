@@ -49,6 +49,7 @@ class TestDatabase:
         self.db.record_calculated_note(note)
 
         assert self.db.count_calculated_notes(months=1200) == 1
+        assert self.db.count_calculated_baskets(months=1200) == 1
 
     def test_get_open_trades(self) -> None:
         self.db.insert_trade({"id": "t1", "timestamp": "2024-01-01", "ticker": "AAPL",
