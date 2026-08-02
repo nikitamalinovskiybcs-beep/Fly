@@ -155,6 +155,17 @@ python scripts/plan_improvement_cycle.py
 Цикл предлагает следующий PR, но останавливается после достижения targets
 или трёх последовательных циклов без измеримого улучшения.
 
+Пятничный multi-horizon benchmark запускается вручную или по расписанию:
+
+```bash
+python scripts/multi_horizon_benchmark.py --baskets 100 --period 5y
+```
+
+Он проверяет корзины, начатые `6`, `12`, `18` и `24` месяца назад, считает
+текущий Phoenix score и сравнивает forward outcome с empirical baseline.
+Production promotion разрешается только если все четыре anchor-теста проходят;
+иначе workflow сохраняет отчёт, но не меняет production.
+
 ## Деплой на Fly.io
 
 ```bash
