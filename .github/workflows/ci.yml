@@ -1,0 +1,93 @@
+name: Phoenix CI
+
+on:
+  push:
+    branches: [base-branch, main]
+  pull_request:
+    branches: [base-branch, main]
+
+jobs:
+  lint-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Syntax check — all Python files
+        run: python -m py_compile app.py && find src/ -name "*.py" -exec python -m py_compile {} +
+
+      - name: Import validation — precompute pipeline
+        run: |
+          python -c "
+          from src.precompute import precompute_all, compute_smart_alternatives
+          from src.backtest import precompute_backtest, PhoenixAGI
+          from src.calibration import run_pipeline
+          from src.real_data import compute_toxicity, precompute_dealer_benchmark
+          from src.phoenix_engine import simulate_basket
+          from src.gdrive_store import get_status
+          from src.data_module import fetch_ticker_data, get_data_source_status
+          print('All imports OK')
+          "
+
+      - name: Smoke test — precompute with Google Drive fallback
+        run: |
+          python -c "
+          from src.precompute import precompute_all
+          D = precompute_all(['AAPL', 'MSFT', 'NVDA', 'AMZN'])
+          assert 50 <= D['score'] <= 100, f'Score {D[\"score\"]} out of range 50-100'
+          assert 'smart_alts' in D, 'Missing smart_alts'
+          assert 'score_factors' in D, 'Missing score_factors'
+          assert D['p_ki'] >= 0, f'Invalid P(KI): {D[\"p_ki\"]}'
+          assert 'self_learning' in D, 'Missing self_learning'
+          assert 'data_source' in D, 'Missing data_source'
+          print(f'Score: {D[\"score\"]}, P(KI): {D[\"p_ki\"]}, Alts: {len(D[\"smart_alts\"])}')
+          print(f'Self-learning gen: {D[\"self_learning\"].get(\"generation\", 0)}')
+          print(f'Data source: {D[\"data_source\"]}')
+          print('Smoke test PASSED')
+          "
+
+  deploy-check:
+    runs-on: ubuntu-latest
+    needs: lint-and-check
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Streamlit app launch check
+        run: |
+          timeout 15 streamlit run app.py --server.headless true --server.port 8501 &
+          sleep 10
+          curl -f http://localhost:8501/_stcore/health || exit 1
+          echo "Streamlit app started successfully"
+          kill %1 2>/dev/null || true
+
+      - name: Self-learning calibration test
+        run: |
+          python -c "
+          from src.precompute import calibrate_scoring_on_settled
+          result = calibrate_scoring_on_settled()
+          assert result['generation'] >= 1, 'Calibration did not increment generation'
+          assert result['after_mae'] <= result['before_mae'] + 5, 'Calibration made things worse'
+          assert result['n_notes'] >= 10, f'Too few notes: {result[\"n_notes\"]}'
+          print(f'Calibration OK: gen={result[\"generation\"]}, MAE {result[\"before_mae\"]} -> {result[\"after_mae\"]}')
+          print(f'Accuracy: {result.get(\"acc_before\", 0)}% -> {result.get(\"acc_after\", 0)}%')
+          print('Self-learning test PASSED')
+          "

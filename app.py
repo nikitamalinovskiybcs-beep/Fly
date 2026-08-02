@@ -1,1343 +1,1484 @@
-"""Quant Risk Hub — Streamlit Dashboard v2.3."""
+"""Worst-of Phoenix Terminal — Bloomberg-style dashboard.
+Computation stays in the domain modules; this file renders the decision workflow."""
 
+import datetime
+import html
 import streamlit as st
-import pandas as pd
-import numpy as np
 import plotly.graph_objects as go
-import plotly.express as px
-import logging
-import requests
-import re
-from datetime import datetime, timedelta
-from io import BytesIO
-from concurrent.futures import ThreadPoolExecutor
 
-from src.assessor import StrategyRiskAssessor
-from src.core_metrics import returns_from_prices
-from src.risk_metrics import drawdown_series
-from src.data_module import DEFAULT_TICKERS
-
-try:
-    import pytesseract
-    from PIL import Image
-except ImportError:
-    pytesseract = None
-    Image = None
-
-# Логирование
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from src.precompute import precompute_all as _precompute_all, SECTOR_MAP
+from src.phoenix_engine import GDRIVE_AVAILABLE
+from src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI
+from src.real_data import precompute_dealer_benchmark as _precompute_dealer
+from src.calibration import run_pipeline as _run_calibration_pipeline
+from src.data_module import get_data_source_status
+from src.commercial_readiness import assess_commercial_readiness
+from src.full_pipeline import run_full_analysis
+from src.outcome_engine import (
+    PaperOutcomeTracker,
+    StructuredNoteSpec,
+    load_quality_report,
+    simulate_stress_suite,
+)
+from src.online_learning import assess_learning_gate, load_realized_feedback
+from src.performance_metrics import build_realized_evaluation
+from src.snapshot_cache import (
+    load_snapshot,
+    refresh_in_background,
+    save_snapshot,
+    start_periodic_refresh,
 )
 
-st.set_page_config(
-    page_title="Адаптивная крепость",
-    page_icon="🔒",
-    layout="wide",
-)
+st.set_page_config(page_title="Worst-of Phoenix | Terminal", page_icon="■", layout="wide")
 
-# ── Custom CSS (стиль из оригинального дизайна) ──
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;600;700&display=swap');
-    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-    .main { background: #080b10; }
-    .stApp { background: #080b10; }
-    .gradient-title {
-        background: linear-gradient(90deg, #f59e0b, #fbbf24);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 1.75rem;
-        font-weight: 600;
-        letter-spacing: -.04em;
-        text-align: left;
-        margin-bottom: 0.5rem;
-    }
-    .subtitle { text-align: left; color: #64748b; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; margin-bottom: 1rem; }
-    .metric-card {
-        background: rgba(15, 23, 42, 0.5);
-        border: 1px solid #334155;
-        border-radius: 12px;
-        padding: 1rem;
-        text-align: center;
-    }
-    .metric-value { font-size: 1.8rem; font-weight: 700; }
-    .metric-label { font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; }
-    .section-header {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #e2e8f0;
-        margin: 1.5rem 0 0.75rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .alert-high { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; border-radius: 8px; padding: 0.75rem; color: #fca5a5; margin-bottom: 0.5rem; }
-    .alert-medium { background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; border-radius: 8px; padding: 0.75rem; color: #fde047; margin-bottom: 0.5rem; }
-    .alert-low { background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; border-radius: 8px; padding: 0.75rem; color: #86efac; margin-bottom: 0.5rem; }
-    div[data-testid="stMetric"] { background: rgba(15, 23, 42, 0.5); border: 1px solid #334155; border-radius: 12px; padding: 1rem; }
-    .hero-panel { background: #0d1219; border: 1px solid #263241; border-radius: 4px; padding: 1.35rem 1.5rem; margin: 1rem 0 1.5rem; }
-    .hero-panel h1 { color: #f8fafc; font-family: 'IBM Plex Mono', monospace; font-size: 1.65rem; margin: .25rem 0 .5rem; }
-    .hero-panel p { color: #94a3b8; max-width: 760px; font-size: 1rem; line-height: 1.6; }
-    .eyebrow { color: #f59e0b; font-family: 'IBM Plex Mono', monospace; font-size: .66rem; font-weight: 700; letter-spacing: .14em; }
-    .insight-card, .warning-card { border-radius: 4px; padding: 1rem 1.1rem; margin-top: .75rem; }
-    .insight-card { background: #0d1a1d; border: 1px solid #155e63; }
-    .warning-card { background: #211517; border: 1px solid #7f1d1d; }
-    .insight-card strong, .warning-card strong { color: #f8fafc; }
-    .insight-card p, .warning-card p { color: #cbd5e1; margin: .5rem 0 0; line-height: 1.5; }
-    .terminal-bar { display: flex; justify-content: space-between; gap: 1rem; background: #111820; border: 1px solid #263241; border-radius: 4px; padding: .55rem .8rem; color: #94a3b8; font-family: 'IBM Plex Mono', monospace; font-size: .7rem; margin-bottom: 1rem; }
-    .terminal-bar b { color: #fbbf24; }
-    div[data-testid="stMetric"] { border-radius: 4px; }
-</style>
-""", unsafe_allow_html=True)
 
-# ── Header ──
-st.markdown('<div class="gradient-title">🔒 АДАПТИВНАЯ КРЕПОСТЬ // RISK TERMINAL</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">LIVE SCENARIO MONITOR · ЗАЩИТА КАПИТАЛА · MOEX BENCHMARKS</div>', unsafe_allow_html=True)
-if st.button("Обновить данные MOEX"):
-    st.cache_data.clear()
-    st.rerun()
-st.caption("История и бенчмарки кэшируются на 1 час; live-котировки обновляются примерно раз в минуту.")
-st.markdown(
-    '<div class="terminal-bar"><span><b>RISK</b> / PORTFOLIO HEDGE</span><span>MCFTR · RUSFAR · IMOEXF</span><span>RUB</span></div>',
-    unsafe_allow_html=True,
-)
+@st.cache_data(ttl=300, show_spinner=False)
+def cached_precompute(tickers_key: str):
+    tickers = tickers_key.split(",")
+    return _precompute_all(tickers)
 
-# ── Sidebar ──
-with st.sidebar:
-    page_mode = st.radio(
-        "Раздел",
-        ["IMOEXF Hedge Lab", "Quant Risk Hub"],
-        index=0,
+
+def cached_full_analysis(
+    tickers_key: str,
+    barrier_pct: float,
+    tenor_months: int,
+    coupon_frequency_months: int,
+):
+    tickers = tickers_key.split(",")
+    preferences = {
+        "barrier_pct": barrier_pct,
+        "tenor_months": tenor_months,
+        "coupon_frequency_months": coupon_frequency_months,
+    }
+    variant = (
+        f"barrier={barrier_pct:.1f};tenor={tenor_months};"
+        f"frequency={coupon_frequency_months}"
     )
-    st.markdown("### ⚙️ Настройки")
-    tickers_input = st.text_area(
-        "Тикеры (по одному на строку)",
-        value="\n".join(DEFAULT_TICKERS),
-        height=200,
-    )
-    tickers = [t.strip().upper() for t in tickers_input.strip().split("\n") if t.strip()]
 
-    benchmark = st.selectbox("Бенчмарк", options=tickers if tickers else ["SPY"], index=0)
-    rf_rate = st.slider("Risk-free rate", 0.0, 0.10, 0.05, 0.005, format="%.3f")
-    n_perms = st.slider("Monte Carlo перестановок", 100, 2000, 500, 100)
-    slippage = st.slider("Slippage (bps)", 0, 50, 5)
-    commission = st.slider("Комиссия (bps)", 0, 20, 2)
-    trades_day = st.slider("Сделок в день", 0.1, 10.0, 1.0, 0.1)
-    period = st.selectbox("Период данных", ["1y", "2y", "3y", "5y", "10y", "max"], index=3)
-    run_btn = st.button("🚀 Запустить анализ", use_container_width=True, type="primary")
+    def compute(requested: list[str]) -> dict:
+        return run_full_analysis(requested, preferences)
 
-# ── Plotly dark template ──
-PLOT_LAYOUT = dict(
-    template="plotly_dark",
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(family="Inter", color="#e2e8f0"),
-    margin=dict(l=40, r=20, t=40, b=40),
-)
-
-
-def color_for_level(level: str) -> str:
-    return {"LOW": "#22c55e", "MEDIUM": "#eab308", "HIGH": "#ef4444"}.get(level, "#64748b")
-
-
-def money(value: float) -> str:
-    sign = "−" if value < 0 else "+"
-    return f"{sign}{abs(value) / 1_000_000:.2f} млн ₽"
-
-
-def rubles(value: float) -> str:
-    return f"{value:,.0f} ₽".replace(",", " ")
-
-
-@st.cache_data(ttl=3600)
-def load_moex_benchmarks(start_date: str, end_date: str) -> pd.DataFrame:
-    """Load MOEX total-return and money-market benchmark history."""
-    rows: dict[str, pd.Series] = {}
-    for secid in ("MCFTR", "RUSFAR"):
-        response = requests.get(
-            f"https://iss.moex.com/iss/history/engines/stock/markets/index/securities/{secid}.json",
-            params={"from": start_date, "till": end_date, "limit": 1000},
-            timeout=20,
-        )
-        response.raise_for_status()
-        payload = response.json()["history"]
-        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
-        if frame.empty:
-            raise ValueError(f"MOEX returned no data for {secid}")
-        frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
-        frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
-        rows[secid] = frame.dropna(subset=["CLOSE"]).set_index("TRADEDATE")["CLOSE"].sort_index()
-
-    benchmark = pd.DataFrame(rows).dropna()
-    benchmark["MCFTR"] = benchmark["MCFTR"] / benchmark["MCFTR"].iloc[0]
-    money_market_daily = (1 + benchmark["RUSFAR"] / 100) ** (1 / 365) - 1
-    benchmark["RUSFAR"] = (1 + money_market_daily).cumprod()
-    return benchmark
-
-
-@st.cache_data(ttl=3600)
-def load_sector_indices(start_date: str, end_date: str) -> pd.DataFrame:
-    """Load MOEX financials and oil-and-gas total-return indices."""
-    rows = {}
-    for secid in ("MEFNTR", "MEOGTR"):
-        response = requests.get(
-            f"https://iss.moex.com/iss/history/engines/stock/markets/index/securities/{secid}.json",
-            params={"from": start_date, "till": end_date, "limit": 1000},
-            timeout=20,
-        )
-        response.raise_for_status()
-        payload = response.json()["history"]
-        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
-        if frame.empty:
-            raise ValueError(f"MOEX returned no data for {secid}")
-        frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
-        frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
-        rows[secid] = (
-            frame.dropna(subset=["CLOSE"])
-            .set_index("TRADEDATE")["CLOSE"]
-            .groupby(level=0)
-            .last()
-            .sort_index()
-        )
-    data = pd.DataFrame(rows).dropna()
-    return data / data.iloc[0]
-
-
-@st.cache_data(ttl=3600)
-def load_sector_exposures(tickers: tuple[str, ...], start_date: str, end_date: str) -> pd.DataFrame:
-    """Estimate each holding's beta to financials and oil-and-gas TR indices."""
-    def fetch_history(ticker: str) -> tuple[str, pd.Series | None]:
-        market = "index" if ticker.startswith("ME") else "shares"
-        response = requests.get(
-            f"https://iss.moex.com/iss/history/engines/stock/markets/{market}/securities/{ticker}.json",
-            params={"from": start_date, "till": end_date, "limit": 1000},
-            timeout=8,
-        )
-        response.raise_for_status()
-        payload = response.json()["history"]
-        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
-        if frame.empty:
-            return ticker, None
-        frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
-        frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
-        series = (
-            frame.dropna(subset=["CLOSE"])
-            .set_index("TRADEDATE")["CLOSE"]
-            .groupby(level=0)
-            .last()
-            .sort_index()
-        )
-        return ticker, series
-
-    histories = {}
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        for ticker, series in executor.map(fetch_history, (*tickers, "MEFNTR", "MEOGTR")):
-            if series is not None:
-                histories[ticker] = series
-    returns = pd.DataFrame(histories).pct_change().dropna()
-    result = []
-    for ticker in tickers:
-        if ticker not in returns:
-            continue
-        row = {"Бумага": ticker}
-        for sector in ("MEFNTR", "MEOGTR"):
-            if sector in returns and returns[sector].var():
-                row[f"Beta {sector}"] = returns[ticker].cov(returns[sector]) / returns[sector].var()
-        result.append(row)
-    return pd.DataFrame(result)
-
-
-@st.cache_data(ttl=60)
-def load_moex_quotes(tickers: tuple[str, ...]) -> pd.DataFrame:
-    """Load current MOEX quotes for the uploaded portfolio."""
-    def fetch_quote(ticker: str) -> dict[str, object] | None:
-        response = requests.get(
-            f"https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities/{ticker}.json",
-            params={"iss.meta": "off"},
-            timeout=8,
-        )
-        response.raise_for_status()
-        payload = response.json()["marketdata"]
-        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
-        if frame.empty:
-            return None
-        row = frame.iloc[0]
-        return {
-            "Бумага": ticker,
-            "Цена MOEX": pd.to_numeric(row.get("LAST"), errors="coerce"),
-            "Изм. дня, %": pd.to_numeric(row.get("LASTCHANGEPRCNT"), errors="coerce"),
+    snapshot = load_snapshot(tickers, variant=variant)
+    if snapshot is not None:
+        payload = dict(snapshot.payload)
+        payload["_snapshot"] = {
+            "status": "fresh" if snapshot.fresh else "stale_served_refreshing",
+            "age_seconds": round(snapshot.age_seconds, 1),
         }
-
-    with ThreadPoolExecutor(max_workers=6) as executor:
-        quotes = [quote for quote in executor.map(fetch_quote, tickers) if quote is not None]
-    return pd.DataFrame(quotes)
-
-
-@st.cache_data(ttl=3600)
-def load_moex_betas(tickers: tuple[str, ...], start_date: str, end_date: str) -> pd.DataFrame:
-    """Estimate 90-day beta versus IMOEX from MOEX daily closes."""
-    def fetch_history(ticker: str) -> tuple[str, pd.Series | None]:
-        market = "index" if ticker == "IMOEX" else "shares"
-        response = requests.get(
-            f"https://iss.moex.com/iss/history/engines/stock/markets/{market}/securities/{ticker}.json",
-            params={"from": start_date, "till": end_date, "limit": 1000},
-            timeout=8,
-        )
-        response.raise_for_status()
-        payload = response.json()["history"]
-        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
-        if frame.empty:
-            return ticker, None
-        frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
-        frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
-        series = (
-            frame.dropna(subset=["CLOSE"])
-            .set_index("TRADEDATE")["CLOSE"]
-            .groupby(level=0)
-            .last()
-            .sort_index()
-        )
-        return ticker, series
-
-    histories = {}
-    with ThreadPoolExecutor(max_workers=7) as executor:
-        for ticker, series in executor.map(fetch_history, (*tickers, "IMOEX")):
-            if series is not None:
-                histories[ticker] = series
-    prices = pd.DataFrame(histories).dropna()
-    returns = prices.pct_change().dropna()
-    if "IMOEX" not in returns:
-        raise ValueError("IMOEX history unavailable")
-    market_returns = returns["IMOEX"]
-    result = []
-    for ticker in tickers:
-        if ticker not in returns:
-            continue
-        variance = market_returns.var()
-        beta = returns[ticker].cov(market_returns) / variance if variance else np.nan
-        result.append({"Бумага": ticker, "Beta к IMOEX": beta})
-    return pd.DataFrame(result)
+        if not snapshot.fresh:
+            refresh_in_background(tickers, compute, variant=variant)
+        return payload
+    payload = compute(tickers)
+    save_snapshot(tickers, payload, variant=variant)
+    start_periodic_refresh(tickers, compute, variant=variant)
+    payload["_snapshot"] = {"status": "fresh", "age_seconds": 0.0}
+    return payload
 
 
-@st.cache_data(ttl=3600)
-def load_moex_backtest(
-    tickers: tuple[str, ...],
-    start_date: str,
-    end_date: str,
-) -> pd.DataFrame:
-    """Load daily closes for the portfolio constituents and market benchmarks."""
-    instruments = (*tickers, "IMOEX", "MCFTR", "RUSFAR")
-
-    def fetch_history(ticker: str) -> tuple[str, pd.Series | None]:
-        market = "index" if ticker in {"IMOEX", "MCFTR", "RUSFAR"} else "shares"
-        response = requests.get(
-            f"https://iss.moex.com/iss/history/engines/stock/markets/{market}/securities/{ticker}.json",
-            params={"from": start_date, "till": end_date, "limit": 1000},
-            timeout=8,
-        )
-        response.raise_for_status()
-        payload = response.json()["history"]
-        frame = pd.DataFrame(payload["data"], columns=payload["columns"])
-        if frame.empty:
-            return ticker, None
-        frame["TRADEDATE"] = pd.to_datetime(frame["TRADEDATE"])
-        frame["CLOSE"] = pd.to_numeric(frame["CLOSE"], errors="coerce")
-        series = (
-            frame.dropna(subset=["CLOSE"])
-            .set_index("TRADEDATE")["CLOSE"]
-            .groupby(level=0)
-            .last()
-            .sort_index()
-        )
-        return ticker, series
-
-    histories: dict[str, pd.Series] = {}
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        for ticker, series in executor.map(fetch_history, instruments):
-            if series is not None:
-                histories[ticker] = series
-    return pd.DataFrame(histories).sort_index()
+@st.cache_data(ttl=600, show_spinner=False)
+def cached_backtest(tickers_key: str, p_ki: float, coupon_pa: float, e_payout: float):
+    tickers = tickers_key.split(",")
+    return _precompute_backtest(tickers, p_ki, coupon_pa, e_payout)
 
 
-def parse_holdings_image(uploaded_file) -> tuple[pd.DataFrame, str]:
-    """Best-effort OCR for common broker portfolio screenshots."""
-    if pytesseract is None or Image is None:
-        raise RuntimeError("OCR dependencies are not installed")
-    image = Image.open(BytesIO(uploaded_file.getvalue()))
-    text = pytesseract.image_to_string(image, lang="rus+eng")
-    known_tickers = ("X5", "T", "NVTK", "DOMRF", "SBER", "TRNFP")
-    rows = []
-    for ticker in known_tickers:
-        match = re.search(
-            rf"\b{ticker}\b(?P<body>.{{0,180}}?)(?P<pct>-?\d+[,.]\d+)\s*%",
-            text,
-            flags=re.IGNORECASE | re.DOTALL,
-        )
-        if not match:
-            continue
-        numbers = re.findall(r"\d[\d\s]*[,.]\d{2}", match.group("body"))
-        value = float(numbers[0].replace(" ", "").replace(",", ".")) if numbers else np.nan
-        change = float(match.group("pct").replace(",", "."))
-        rows.append({"Бумага": ticker, "Стоимость, ₽": value, "Изменение, %": change})
-    return pd.DataFrame(rows), text
+@st.cache_data(ttl=600, show_spinner=False)
+def cached_dealer(tickers_key: str, coupon_pa: float, p_ki: float, score: float):
+    tickers = tickers_key.split(",")
+    return _precompute_dealer(tickers, coupon_pa, p_ki, score)
 
 
-def build_agent_reports(
-    portfolio: float,
-    stock_move: float,
-    index_move: float,
-    hedge_nominal: float,
-    beta: float,
-    margin: float,
-    tracking_error: float,
-    sector_corr_90: float,
-    sector_exposure: pd.DataFrame,
-    long_pnl: float,
-    futures_pnl: float,
-    beta_adjusted_pnl: float,
-    net_pnl: float,
-) -> list[dict[str, str]]:
-    """Run deterministic analytical agents; no order execution or broker actions."""
-    protection = futures_pnl / abs(long_pnl) if long_pnl else 0.0
-    beta_improvement = 1 - abs(beta_adjusted_pnl) / abs(long_pnl) if long_pnl else 0.0
-    residual_improvement = 1 - abs(long_pnl + futures_pnl) / abs(long_pnl) if long_pnl else 0.0
-    reports = [
-        {
-            "agent": "DATA AGENT",
-            "status": "READY",
-            "signal": "MOEX / OCR / manual inputs",
-            "effect": "Проверка данных: 100%",
-            "readout": "Проверяет наличие котировок, дату последнего обновления и согласованность введённых значений.",
-        },
-        {
-            "agent": "RISK AGENT",
-            "status": "ALERT" if abs(tracking_error) >= 0.05 else "READY",
-            "signal": f"Tracking error {tracking_error:.2%}",
-            "effect": f"Снижение остаточного риска: {residual_improvement:.1%}",
-            "readout": "Контролирует beta, относительную доходность и запас ГО; высокий tracking error требует пересмотра состава.",
-        },
-        {
-            "agent": "HEDGE AGENT",
-            "status": "ALERT" if hedge_nominal < portfolio * beta else "READY",
-            "signal": f"IMOEXF {hedge_nominal / portfolio:.0%} / beta {beta:.2f}" if portfolio else "Нет портфеля",
-            "effect": f"Компенсация падения: {protection:.1%}",
-            "readout": f"Beta-adjusted ориентир: {money(portfolio * beta)}. Агент не отправляет сделки, а показывает расхождение.",
-        },
-        {
-            "agent": "SECTOR AGENT",
-            "status": "ALERT" if pd.notna(sector_corr_90) and sector_corr_90 < 0.2 else "READY",
-            "signal": f"Corr(банки, нефть) 90д: {sector_corr_90:.2f}" if pd.notna(sector_corr_90) else "Нет sector data",
-            "effect": f"Beta-adjusted улучшение: {beta_improvement:.1%}",
-            "readout": "Сравнивает MEFNTR и MEOGTR; низкая корреляция означает, что один индексный хедж хуже описывает портфель.",
-        },
-        {
-            "agent": "REPORT AGENT",
-            "status": "READY",
-            "signal": f"ГО {money(margin)}",
-            "effect": f"Итоговый сценарий: {net_pnl / portfolio:.2%}" if portfolio else "Нет портфеля",
-            "readout": f"Сводит результат: лонг {stock_move:.2%}, IMOEX {index_move:.2%}, потребность в ликвидности {money(margin)}.",
-        },
+@st.cache_data(ttl=600, show_spinner=False)
+def cached_pipeline(tickers_key: str, p_ki: float, avg_vol: float, avg_corr: float):
+    tickers = tickers_key.split(",")
+    agi = PhoenixAGI.load_from_clickhouse() or PhoenixAGI()
+    return _run_calibration_pipeline(tickers, agi.get_params(), p_ki, avg_vol, avg_corr)
+
+
+@st.cache_data(ttl=900, show_spinner=False)
+def cached_outcome_stress(
+    tickers_key: str,
+    barrier: float,
+    coupon_rate: float,
+    term_months: int,
+    n_paths: int,
+):
+    spec = StructuredNoteSpec(
+        basket=tickers_key.split(","),
+        barrier=barrier,
+        coupon_rate=coupon_rate,
+        term_months=term_months,
+    )
+    return simulate_stress_suite(spec, n_paths=n_paths)
+
+
+def render_process_map(data: dict, pipeline: dict) -> None:
+    """Render the real decision path as a cybernetic network."""
+    gate_passed = bool(data.get("evidence_gate", {}).get("passed"))
+    quality = load_quality_report()
+    realized = int(quality.get("realized_notes", 0))
+    source = data.get("data_source", "unknown").upper()
+    colors = {
+        "active": "#46d9ff",
+        "core": "#ffb347",
+        "signal": "#8ba8ff",
+        "blocked": "#ff3b30",
+        "diagnostic": "#ffb000",
+        "waiting": "#6a5a2a",
+        "neutral": "#6d86b8",
+    }
+    stages = pipeline.get("stages", {})
+    product = pipeline.get("product", {})
+    catalog = product.get("candidate_catalog", [])
+    candidate_count = len(catalog) or int(product.get("n_evaluated", 0))
+    active_color = colors["active"] if gate_passed else colors["diagnostic"]
+    nodes = [
+        ("MARKET DATA", source, active_color, 0.3, 1.0, "INPUT"),
+        ("IV / BETA", "FEATURES", colors["signal"], 1.6, 1.7, "FEATURES"),
+        ("RETURNS", "FEATURES", colors["signal"], 1.6, 0.3, "FEATURES"),
+        ("EVIDENCE GATE", "PASSED" if gate_passed else "BLOCKED", colors["active"] if gate_passed else colors["blocked"], 3.0, 1.0, "CONTROL"),
+        ("PHOENIX", stages.get("phoenix", "UNKNOWN").upper(), colors["core"], 4.4, 1.7, "CORE"),
+        ("AGENTS", stages.get("agents", "UNKNOWN").upper(), active_color if gate_passed else colors["blocked"], 4.4, 0.3, "CASCADE"),
+        ("PRODUCT", stages.get("product", "UNKNOWN").upper(), colors["core"], 5.9, 1.0, "DECISION"),
+        ("PAPER", "TRACKING", colors["neutral"], 7.4, 1.7, "OUTCOME"),
+        ("REALIZED", f"{realized} NOTES" if realized else "WAITING", colors["active"] if realized else colors["waiting"], 7.4, 0.3, "FEEDBACK"),
     ]
-    if sector_exposure.empty:
-        reports[3]["status"] = "WAIT"
-    return reports
+    x_values = [node[3] for node in nodes]
+    y_values = [node[4] for node in nodes]
+    node_colors = [node[2] for node in nodes]
+    labels = [f"<b>{node[0]}</b><br><sup>{node[1]}</sup>" for node in nodes]
+    edges = [
+        (0, 1), (0, 2), (1, 3), (2, 3), (3, 4), (3, 5),
+        (4, 6), (5, 6), (6, 7), (6, 8),
+    ]
 
-
-def render_agent_command_center(reports: list[dict[str, str]]) -> None:
-    """Render the coordinator output for the analytical agents."""
-    st.markdown("### Agent Command Center")
-    st.caption("Пять аналитических агентов работают как прозрачные правила и метрики; торговых поручений и автосделок нет.")
-    cols = st.columns(len(reports))
-    for col, report in zip(cols, reports):
-        with col:
-            color = {"READY": "#22c55e", "ALERT": "#ef4444", "WAIT": "#eab308"}[report["status"]]
-            st.markdown(
-                f"""
-                <div class="metric-card" style="min-height: 150px; text-align: left;">
-                    <div style="color: {color}; font-family: 'IBM Plex Mono', monospace; font-size: .72rem;">
-                        {report["status"]}
-                    </div>
-                    <strong>{report["agent"]}</strong>
-                    <div style="color: #fbbf24; margin: .45rem 0;">{report["signal"]}</div>
-                    <div style="color: #34d399; font-size: .78rem; margin-bottom: .35rem;">{report["effect"]}</div>
-                    <div style="color: #94a3b8; font-size: .78rem; line-height: 1.35;">{report["readout"]}</div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-    st.markdown("#### Пошаговый аудит эффективности")
-    st.dataframe(
-        pd.DataFrame([
-            {"Шаг": index + 1, "Агент": report["agent"], "Статус": report["status"], "Процентный эффект": report["effect"]}
-            for index, report in enumerate(reports)
-        ]),
-        use_container_width=True,
-        hide_index=True,
-    )
-    alerts = [report for report in reports if report["status"] == "ALERT"]
-    if alerts:
-        st.warning(f"Координатор: активных сигналов — {len(alerts)}. Сначала проверьте Risk/Hedge/Sector Agent.")
-    else:
-        st.success("Координатор: критических сигналов нет в текущем сценарии.")
-
-
-def render_hedge_lab() -> None:
-    """Scenario dashboard for an equity portfolio hedged with IMOEXF."""
-    st.markdown(
-        """
-        <div class="hero-panel">
-            <div class="eyebrow">PORTFOLIO HEDGE CONSOLE</div>
-            <h1>Лонг акций + шорт IMOEXF</h1>
-            <p>Проверьте, что именно компенсирует фьючерс, сколько съедает tracking error
-            и какой запас живых денег нужен при резком отскоке рынка.</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("### Доходность с 1 февраля")
-    performance_inputs = st.columns(3)
-    with performance_inputs[0]:
-        start_date = st.date_input("Дата старта", value=datetime(2026, 2, 1).date())
-    with performance_inputs[1]:
-        start_value = st.number_input("Стартовая стоимость, ₽", min_value=0.0, value=50_800.0, step=100.0)
-    with performance_inputs[2]:
-        current_value = st.number_input("Текущая стоимость, ₽", min_value=0.0, value=56_000.0, step=100.0)
-    performance_pnl = current_value - start_value
-    performance_return = performance_pnl / start_value if start_value else 0.0
-    performance_cards = st.columns(3)
-    performance_cards[0].metric("Старт", rubles(start_value), "1 февраля")
-    performance_cards[1].metric("Сейчас", rubles(current_value), f"{performance_return:.2%}")
-    performance_cards[2].metric("Доходность", rubles(performance_pnl), f"{performance_return:.2%}")
-    performance_chart = go.Figure(go.Scatter(
-        x=["1 февраля", "Сейчас"],
-        y=[start_value, current_value],
-        mode="lines+markers+text",
-        text=[rubles(start_value), rubles(current_value)],
-        textposition="top center",
-        line={"color": "#34d399", "width": 3},
-        marker={"size": 10, "color": "#22d3ee"},
-    ))
-    performance_chart.update_layout(
-        title="Динамика стоимости",
-        yaxis_title="₽",
-        yaxis_tickformat=",~s",
-        **PLOT_LAYOUT,
-    )
-    st.plotly_chart(performance_chart, use_container_width=True)
-
-    st.markdown("### Сравнение с рынком")
-    st.caption("MCFTR — индекс МосБиржи полной доходности «брутто». RUSFAR — денежный рынок; доходность оценена через ежедневное начисление ставки.")
-    try:
-        benchmark_data = load_moex_benchmarks(
-            start_date.isoformat(),
-            datetime.now().date().isoformat(),
-        )
-        portfolio_curve = (
-            np.linspace(1, current_value / start_value, len(benchmark_data))
-            if start_value else np.ones(len(benchmark_data))
-        )
-        normalized = pd.DataFrame({
-            "Портфель": portfolio_curve,
-            "MCFTR / ММВБ TR": benchmark_data["MCFTR"],
-            "RUSFAR / денежный рынок": benchmark_data["RUSFAR"],
-        }, index=benchmark_data.index) * 100
-        market_chart = go.Figure()
-        for name, color in [
-            ("Портфель", "#fbbf24"),
-            ("MCFTR / ММВБ TR", "#22d3ee"),
-            ("RUSFAR / денежный рынок", "#a3e635"),
-        ]:
-            market_chart.add_trace(go.Scatter(
-                x=normalized.index,
-                y=normalized[name],
-                name=name,
-                mode="lines",
-                line={"color": color, "width": 2},
-            ))
-        market_chart.update_layout(
-            title=f"Индексировано к 100 на {start_date.strftime('%d.%m.%Y')}",
-            yaxis_title="Индекс, 100 = старт",
-            hovermode="x unified",
-            **PLOT_LAYOUT,
-        )
-        st.plotly_chart(market_chart, use_container_width=True)
-        benchmark_cards = st.columns(3)
-        benchmark_cards[0].metric("Портфель", f"{normalized['Портфель'].iloc[-1] - 100:+.2f}%", "от старта")
-        benchmark_cards[1].metric("MCFTR", f"{normalized['MCFTR / ММВБ TR'].iloc[-1] - 100:+.2f}%", "ММВБ полной доходности")
-        benchmark_cards[2].metric("RUSFAR", f"{normalized['RUSFAR / денежный рынок'].iloc[-1] - 100:+.2f}%", "денежный рынок")
-        st.caption(f"Последняя доступная дата MOEX: {benchmark_data.index[-1].strftime('%d.%m.%Y')}.")
-    except (requests.RequestException, KeyError, ValueError) as exc:
-        st.warning(f"MOEX benchmark data unavailable: {exc}. Остальные сценарии доступны вручную.")
-
-    st.markdown("### Сектора: банки против нефти")
-    st.caption("MEFNTR — финансовый сектор; MEOGTR — нефть и газ. Корреляция рассчитывается по дневным доходностям.")
-    sector_corr_90 = np.nan
-    try:
-        sector_data = load_sector_indices(
-            start_date.isoformat(),
-            datetime.now().date().isoformat(),
-        )
-        sector_returns = sector_data.pct_change().dropna()
-        sector_chart = go.Figure()
-        for name, color in [("MEFNTR · банки", "#f59e0b"), ("MEOGTR · нефть и газ", "#f43f5e")]:
-            secid = name.split(" · ")[0]
-            sector_chart.add_trace(go.Scatter(
-                x=sector_data.index,
-                y=sector_data[secid] * 100,
-                mode="lines",
-                name=name,
-                line={"color": color, "width": 2},
-            ))
-        sector_chart.update_layout(
-            title="Секторальная доходность, база 100",
-            yaxis_title="Индекс",
-            **PLOT_LAYOUT,
-        )
-        st.plotly_chart(sector_chart, use_container_width=True)
-        correlations = pd.DataFrame({
-            "30 дней": sector_returns["MEFNTR"].rolling(30).corr(sector_returns["MEOGTR"]),
-            "90 дней": sector_returns["MEFNTR"].rolling(90).corr(sector_returns["MEOGTR"]),
-            "252 дня": sector_returns["MEFNTR"].rolling(252).corr(sector_returns["MEOGTR"]),
-        }).dropna(how="all")
-        correlation_chart = go.Figure()
-        for name, color in [("30 дней", "#22d3ee"), ("90 дней", "#a3e635"), ("252 дня", "#fbbf24")]:
-            correlation_chart.add_trace(go.Scatter(
-                x=correlations.index,
-                y=correlations[name],
-                mode="lines",
-                name=name,
-                line={"color": color, "width": 2},
-            ))
-        correlation_chart.update_layout(
-            title="Rolling-корреляция банков и нефти",
-            yaxis_title="Корреляция",
-            yaxis_range=[-1, 1],
-            **PLOT_LAYOUT,
-        )
-        st.plotly_chart(correlation_chart, use_container_width=True)
-        latest_corr = correlations.iloc[-1]
-        sector_corr_90 = float(latest_corr["90 дней"])
-        corr_cards = st.columns(3)
-        corr_cards[0].metric("Корреляция 30д", f"{latest_corr['30 дней']:.2f}")
-        corr_cards[1].metric("Корреляция 90д", f"{latest_corr['90 дней']:.2f}")
-        corr_cards[2].metric("Корреляция 252д", f"{latest_corr['252 дня']:.2f}")
-        if latest_corr["90 дней"] < 0.2:
-            st.warning("ALERT: 90-дневная корреляция секторов низкая — общий IMOEX-хедж может давать высокий tracking error.")
-    except (requests.RequestException, KeyError, ValueError) as exc:
-        st.warning(f"Sector data unavailable: {exc}")
-
-    default_holdings = pd.DataFrame([
-        {"Бумага": "X5", "Стоимость, ₽": 4_982_567.50, "Изменение, %": -22.88},
-        {"Бумага": "T", "Стоимость, ₽": 5_022_652.24, "Изменение, %": -27.03},
-        {"Бумага": "NVTK", "Стоимость, ₽": 5_494_579.20, "Изменение, %": -19.53},
-        {"Бумага": "DOMRF", "Стоимость, ₽": 5_910_070.00, "Изменение, %": -6.22},
-        {"Бумага": "SBER", "Стоимость, ₽": 6_311_793.00, "Изменение, %": -7.54},
-        {"Бумага": "TRNFP", "Стоимость, ₽": 5_908_030.00, "Изменение, %": -14.39},
-    ])
-    uploaded_portfolio = st.file_uploader(
-        "Вставить скриншот портфеля",
-        type=["png", "jpg", "jpeg"],
-        help="Сайт покажет скриншот и попробует распознать тикеры, значения и доходность.",
-    )
-    if uploaded_portfolio:
-        st.image(uploaded_portfolio, caption="Загруженный скриншот", use_container_width=True)
-        try:
-            parsed_holdings, ocr_text = parse_holdings_image(uploaded_portfolio)
-            if not parsed_holdings.empty:
-                default_holdings = default_holdings.set_index("Бумага")
-                parsed_holdings = parsed_holdings.set_index("Бумага")
-                default_holdings.update(parsed_holdings)
-                default_holdings = default_holdings.reset_index()
-                st.success(f"OCR распознал {len(parsed_holdings)} позиций. Проверьте таблицу ниже.")
-            else:
-                st.warning("Тикеры не распознаны автоматически — заполните таблицу вручную.")
-            with st.expander("Текст OCR для проверки"):
-                st.code(ocr_text or "Текст не найден")
-        except RuntimeError:
-            st.info("Скриншот загружен. OCR будет доступен после установки языкового пакета; таблицу можно редактировать вручную.")
-        except (ValueError, OSError) as exc:
-            st.warning(f"Не удалось прочитать скриншот: {exc}")
-    with st.expander("Состав портфеля со скриншота", expanded=True):
-        edited_holdings = st.data_editor(
-            default_holdings,
-            use_container_width=True,
-            hide_index=True,
-            num_rows="fixed",
-            column_config={
-                "Стоимость, ₽": st.column_config.NumberColumn(format="%.2f ₽"),
-                "Изменение, %": st.column_config.NumberColumn(format="%.2f%%"),
-            },
-        )
-    try:
-        quotes = load_moex_quotes(tuple(edited_holdings["Бумага"].astype(str).str.upper()))
-        if not quotes.empty:
-            live_holdings = edited_holdings.merge(quotes, on="Бумага", how="left")
-            st.dataframe(
-                live_holdings[["Бумага", "Цена MOEX", "Изм. дня, %", "Стоимость, ₽"]],
-                use_container_width=True,
-                hide_index=True,
-            )
-            st.caption("Котировки MOEX обновляются автоматически примерно раз в минуту; стоимость портфеля берётся из таблицы.")
-    except (requests.RequestException, KeyError, ValueError) as exc:
-        st.warning(f"Live quotes unavailable: {exc}")
-    portfolio = float(edited_holdings["Стоимость, ₽"].sum())
-    weighted_move = float(
-        (edited_holdings["Стоимость, ₽"] * edited_holdings["Изменение, %"]).sum() / portfolio
-    ) if portfolio else 0.0
-    beta_estimate = 1.01
-    try:
-        beta_df = load_moex_betas(
-            tuple(edited_holdings["Бумага"].astype(str).str.upper()),
-            (datetime.now() - pd.Timedelta(days=120)).date().isoformat(),
-            datetime.now().date().isoformat(),
-        )
-        if not beta_df.empty:
-            beta_weighted = beta_df.merge(edited_holdings[["Бумага", "Стоимость, ₽"]], on="Бумага")
-            beta_estimate = float(
-                (beta_weighted["Beta к IMOEX"] * beta_weighted["Стоимость, ₽"]).sum() / portfolio
-            )
-            st.markdown("#### Beta и номинал хеджа")
-            beta_view = beta_df.copy()
-            beta_view["Beta к IMOEX"] = beta_view["Beta к IMOEX"].round(2)
-            st.dataframe(beta_view, use_container_width=True, hide_index=True)
-            beta_cards = st.columns(3)
-            beta_cards[0].metric("Beta портфеля", f"{beta_estimate:.2f}", "90 дней к IMOEX")
-            beta_cards[1].metric("Beta-adjusted hedge", money(portfolio * beta_estimate), "рекомендуемый номинал модели")
-            beta_cards[2].metric("Текущий hedge", money(33_630_000), f"{33_630_000 / (portfolio * beta_estimate):.0%} от beta-хеджа")
-    except (requests.RequestException, KeyError, ValueError, ZeroDivisionError):
-        beta_df = pd.DataFrame()
-    try:
-        sector_exposure = load_sector_exposures(
-            tuple(edited_holdings["Бумага"].astype(str).str.upper()),
-            (datetime.now() - pd.Timedelta(days=120)).date().isoformat(),
-            datetime.now().date().isoformat(),
-        )
-        if not sector_exposure.empty:
-            st.markdown("#### Экспозиция к секторам")
-            st.dataframe(
-                sector_exposure.round(2),
-                use_container_width=True,
-                hide_index=True,
-            )
-    except (requests.RequestException, KeyError, ValueError):
-        sector_exposure = pd.DataFrame()
-
-    with st.expander("Параметры позиции", expanded=True):
-        inputs = st.columns(4)
-        with inputs[0]:
-            st.metric("Лонг портфеля", money(portfolio), "сумма позиций")
-            stock_move = st.number_input(
-                "Изменение лонга из отчёта",
-                value=-16.35,
-                step=0.5,
-                format="%.2f",
-                help="Значение из сводки брокера. Можно заменить на взвешенный результат таблицы.",
-            ) / 100
-            st.caption(f"Взвешенно по строкам: {weighted_move:.2f}%")
-        with inputs[1]:
-            hedge_nominal = st.number_input("Номинал шорта IMOEXF, ₽", min_value=0.0, value=33_630_000.0, step=100_000.0)
-            index_move = st.number_input("Изменение IMOEX", value=-13.0, step=0.5, format="%.2f") / 100
-        with inputs[2]:
-            margin_rate = st.number_input("Ориентир ГО", min_value=0.01, max_value=1.0, value=0.20, step=0.01, format="%.2f")
-            funding_from_key_rate = st.checkbox(
-                "Funding шорта = ключевая ставка",
-                value=True,
-                help="Пользовательское допущение: funding считается от ключевой ставки на полный номинал и срок позиции.",
-            )
-            carry_rate = st.number_input(
-                "Ключевая ставка / funding, годовых",
-                value=14.0,
-                step=0.5,
-                format="%.1f",
-                disabled=not funding_from_key_rate,
-            ) / 100
-        with inputs[3]:
-            holding_months = st.number_input("Период, месяцев", min_value=0.0, value=6.0, step=1.0)
-            beta = st.number_input("Beta портфеля", min_value=0.0, value=float(round(beta_estimate, 2)), step=0.01, format="%.2f")
-
-    long_pnl = portfolio * stock_move
-    futures_pnl = -hedge_nominal * index_move
-    carry_pnl = hedge_nominal * carry_rate * holding_months / 12
-    net_pnl = long_pnl + futures_pnl + carry_pnl
-    margin = hedge_nominal * margin_rate
-    tracking_error = stock_move - index_move
-    net_pct = net_pnl / portfolio if portfolio else 0.0
-
-    st.markdown("### Результат сценария")
-    cards = st.columns(4)
-    cards[0].metric("Лонг", money(long_pnl), f"{stock_move:.2%}")
-    cards[1].metric("Шорт IMOEXF", money(futures_pnl), f"{-index_move:.2%} к номиналу")
-    cards[2].metric(
-        "Funding / carry",
-        money(carry_pnl),
-        "ключевая ставка" if funding_from_key_rate else "сценарный базис",
-    )
-    cards[3].metric("Итог", money(net_pnl), f"{net_pct:.2%} от лонга")
-    if abs(tracking_error) >= 0.05:
-        st.warning(f"ALERT: tracking error {tracking_error:.2%}. Портфель заметно отклоняется от IMOEX.")
-    if hedge_nominal < portfolio * beta:
-        st.info(f"Недохедж: номинал IMOEXF ниже beta-adjusted оценки примерно на {money(portfolio * beta - hedge_nominal)}.")
-    efficiency_df = pd.DataFrame([
-        {"Изменение модели": "Без хеджа", "P&L": long_pnl, "Доходность": long_pnl / portfolio if portfolio else 0.0, "Что измеряет": "Базовый риск корзины"},
-        {"Изменение модели": "+ шорт IMOEXF", "P&L": long_pnl + futures_pnl, "Доходность": (long_pnl + futures_pnl) / portfolio if portfolio else 0.0, "Что измеряет": "Защита от движения рынка"},
-        {"Изменение модели": "+ carry / базис", "P&L": net_pnl, "Доходность": net_pct, "Что измеряет": "Сценарный полный результат"},
-        {"Изменение модели": "Beta-adjusted hedge", "P&L": long_pnl - portfolio * beta * index_move, "Доходность": (long_pnl - portfolio * beta * index_move) / portfolio if portfolio else 0.0, "Что измеряет": "Хедж с учётом чувствительности"},
-    ])
-    st.markdown("### Эффективность модели")
-    st.caption(
-        "Сравнение сценарное: beta-adjusted строка показывает, как меняется результат при номинале, рассчитанном по beta. "
-        "При включённом переключателе funding шорта задан равным ключевой ставке на полный номинал и срок; "
-        "это модельное допущение, а не гарантия брокера."
-    )
-    st.dataframe(
-        efficiency_df.assign(**{
-            "P&L": efficiency_df["P&L"].map(money),
-            "Доходность": efficiency_df["Доходность"].map(lambda value: f"{value:.2%}"),
-        }),
-        use_container_width=True,
-        hide_index=True,
-    )
-    st.markdown("### Backtest и прогноз на 12 месяцев")
-    st.caption(
-        "Сплошная линия — исторический расчёт по дневным MOEX-котировкам; пунктир — сценарный прогноз. "
-        "Прогноз не является гарантией доходности."
-    )
-    backtest_frame = st.selectbox(
-        "Исторический фрейм",
-        options=("1 месяц", "3 месяца", "1 год", "3 года", "5 лет"),
-        index=2,
-    )
-    frame_months = {"1 месяц": 1, "3 месяца": 3, "1 год": 12, "3 года": 36, "5 лет": 60}
-    backtest_end = datetime.now().date()
-    backtest_start = (pd.Timestamp(backtest_end) - pd.DateOffset(months=frame_months[backtest_frame])).date()
-    try:
-        backtest_data = load_moex_backtest(
-            tuple(edited_holdings["Бумага"].astype(str).str.upper()),
-            backtest_start.isoformat(),
-            backtest_end.isoformat(),
-        )
-        portfolio_columns = [
-            ticker for ticker in edited_holdings["Бумага"].astype(str).str.upper()
-            if ticker in backtest_data.columns
-        ]
-        if "IMOEX" not in backtest_data.columns or not portfolio_columns:
-            raise ValueError("Недостаточно истории для построения backtest")
-        weights = (
-            edited_holdings.set_index("Бумага")["Стоимость, ₽"]
-            .reindex(portfolio_columns)
-            .fillna(0)
-        )
-        weights = weights / weights.sum() if weights.sum() else pd.Series(1 / len(portfolio_columns), index=portfolio_columns)
-        returns = backtest_data[portfolio_columns + ["IMOEX"]].pct_change().dropna()
-        long_returns = returns[portfolio_columns].mul(weights, axis=1).sum(axis=1)
-        hedge_ratio = hedge_nominal / portfolio if portfolio else 0.0
-        hedged_returns = long_returns - hedge_ratio * returns["IMOEX"] + carry_rate / 252
-        curves = pd.DataFrame({
-            "Без хеджа": (1 + long_returns).cumprod() * 100,
-            "IMOEXF + funding": (1 + hedged_returns).cumprod() * 100,
+    fig = go.Figure()
+    grid_shapes = []
+    for x in range(0, 9):
+        grid_shapes.append({
+            "type": "line",
+            "x0": x,
+            "x1": x,
+            "y0": 0,
+            "y1": 2.2,
+            "line": {"color": "#13233d", "width": 1},
         })
-        def max_drawdown(series: pd.Series) -> float:
-            return float((series / series.cummax() - 1).min())
-
-        stats = pd.DataFrame([
-            {
-                "Стратегия": name,
-                "Доходность": series.iloc[-1] / series.iloc[0] - 1,
-                "Годовая волатильность": series.pct_change().std() * np.sqrt(252),
-                "Max drawdown": max_drawdown(series),
-            }
-            for name, series in curves.items()
-        ])
-        stats_display = stats.copy()
-        for column in ("Доходность", "Годовая волатильность", "Max drawdown"):
-            stats_display[column] = stats_display[column].map(lambda value: f"{value:.2%}")
-        st.dataframe(stats_display, use_container_width=True, hide_index=True)
-
-        forecast_days = 252
-        recent_returns = hedged_returns.tail(min(60, len(hedged_returns)))
-        base_daily = float(recent_returns.mean()) if not recent_returns.empty else 0.0
-        daily_vol = float(recent_returns.std()) if len(recent_returns) > 1 else 0.0
-        forecast_index = pd.bdate_range(
-            start=curves.index[-1] + timedelta(days=1),
-            periods=forecast_days,
-        )
-        forecast_base = curves["IMOEXF + funding"].iloc[-1] * (1 + base_daily) ** np.arange(1, forecast_days + 1)
-        forecast_low = curves["IMOEXF + funding"].iloc[-1] * (1 + base_daily - daily_vol) ** np.arange(1, forecast_days + 1)
-        forecast_high = curves["IMOEXF + funding"].iloc[-1] * (1 + base_daily + daily_vol) ** np.arange(1, forecast_days + 1)
-        forecast_chart = go.Figure()
-        forecast_chart.add_trace(go.Scatter(x=curves.index, y=curves["Без хеджа"], name="Без хеджа", line={"color": "#fb7185"}))
-        forecast_chart.add_trace(go.Scatter(x=curves.index, y=curves["IMOEXF + funding"], name="IMOEXF + funding", line={"color": "#fbbf24"}))
-        forecast_chart.add_trace(go.Scatter(x=forecast_index, y=forecast_base, name="Прогноз базовый", line={"color": "#fbbf24", "dash": "dot"}))
-        forecast_chart.add_trace(go.Scatter(x=forecast_index, y=forecast_low, name="Прогноз стресс", line={"color": "#fb7185", "dash": "dot"}))
-        forecast_chart.add_trace(go.Scatter(x=forecast_index, y=forecast_high, name="Прогноз отскок", line={"color": "#34d399", "dash": "dot"}))
-        forecast_chart.update_layout(
-            title=f"Backtest {backtest_frame} + прогноз 12 месяцев",
-            yaxis_title="Индекс, 100 = начало истории",
-            hovermode="x unified",
-            **PLOT_LAYOUT,
-        )
-        st.plotly_chart(forecast_chart, use_container_width=True)
-        st.caption(f"История: {backtest_data.index.min():%d.%m.%Y}–{backtest_data.index.max():%d.%m.%Y}; прогноз: 252 торговых дня.")
-    except (requests.RequestException, KeyError, ValueError, ZeroDivisionError) as exc:
-        st.warning(f"Backtest недоступен для выбранного периода: {exc}")
-    protection = futures_pnl / abs(long_pnl) if long_pnl else 0.0
-    efficiency_cards = st.columns(3)
-    efficiency_cards[0].metric("Компенсация падения", f"{protection:.1%}", "шорт / убыток лонга")
-    efficiency_cards[1].metric("Снижение tracking error", money(abs(portfolio * tracking_error) - abs(long_pnl + futures_pnl)), "приближённо")
-    efficiency_cards[2].metric("Нужный cash buffer", money(stress_cash if "stress_cash" in locals() else hedge_nominal * 0.20), "стресс +20%")
-    beta_adjusted_pnl = long_pnl - portfolio * beta * index_move
-    beta_improvement = 1 - abs(beta_adjusted_pnl) / abs(long_pnl) if long_pnl else 0.0
-    st.markdown("### Оценка модели: сильные и слабые стороны")
-    assessment = pd.DataFrame([
-        {"Сторона": "Сильная", "Метрика": "Компенсация падения", "Процент": protection, "Комментарий": "Доля убытка лонга, покрытая шортом IMOEXF"},
-        {"Сторона": "Сильная", "Метрика": "Beta-adjusted улучшение", "Процент": beta_improvement, "Комментарий": "Снижение остаточного P&L против неподогнанного лонга"},
-        {"Сторона": "Слабая", "Метрика": "Остаток без компенсации", "Процент": max(0.0, 1 - protection), "Комментарий": "Tracking error, состав корзины и несовпадение beta"},
-        {"Сторона": "Слабая", "Метрика": "ГО / cash buffer", "Процент": margin_rate, "Комментарий": "Ориентир живой ликвидности под стрессовый отскок"},
-    ])
-    st.dataframe(
-        assessment.assign(Процент=assessment["Процент"].map(lambda value: f"{value:.1%}")),
-        use_container_width=True,
-        hide_index=True,
-    )
-    st.caption(
-        "Проценты — диагностические метрики текущего сценария, а не универсальный рейтинг. "
-        "Для оценки устойчивости используйте backtest по выбранному фрейму и пунктирный прогноз."
-    )
-
-    left, right = st.columns([1.45, 1])
-    with left:
-        waterfall = go.Figure(go.Waterfall(
-            orientation="v",
-            measure=["relative", "relative", "relative", "total"],
-            x=["Лонг", "Шорт IMOEXF", "Carry / базис", "Итог"],
-            y=[long_pnl, futures_pnl, carry_pnl, net_pnl],
-            text=[money(long_pnl), money(futures_pnl), money(carry_pnl), money(net_pnl)],
-            textposition="outside",
-            connector={"line": {"color": "#475569"}},
-            increasing={"marker": {"color": "#34d399"}},
-            decreasing={"marker": {"color": "#fb7185"}},
-            totals={"marker": {"color": "#38bdf8"}},
+    for y in (0, 0.5, 1, 1.5, 2):
+        grid_shapes.append({
+            "type": "line",
+            "x0": 0,
+            "x1": 8,
+            "y0": y,
+            "y1": y,
+            "line": {"color": "#13233d", "width": 1},
+        })
+    for start, end in edges:
+        edge_color = node_colors[start] if node_colors[start] == node_colors[end] else "#27345c"
+        is_live = gate_passed and start not in {7, 8}
+        fig.add_trace(go.Scatter(
+            x=[x_values[start], x_values[end]],
+            y=[y_values[start], y_values[end]],
+            mode="lines",
+            line={"color": edge_color, "width": 3 if is_live else 1},
+            hoverinfo="skip",
+            showlegend=False,
         ))
-        waterfall.update_layout(title="Декомпозиция P&L", **PLOT_LAYOUT)
-        st.plotly_chart(waterfall, use_container_width=True)
-    with right:
-        st.markdown("#### Что осталось без хеджа")
-        st.metric("Tracking error", f"{tracking_error:.2%}", "лонг относительно индекса")
-        st.metric("Ориентир ГО", money(margin), f"{margin_rate:.0%} номинала")
+        if is_live:
+            fractions = (0.24, 0.52, 0.78)
+            fig.add_trace(go.Scatter(
+                x=[x_values[start] + (x_values[end] - x_values[start]) * fraction for fraction in fractions],
+                y=[y_values[start] + (y_values[end] - y_values[start]) * fraction for fraction in fractions],
+                mode="markers",
+                marker={"size": 6, "color": colors["active"], "opacity": 0.85},
+                hoverinfo="skip",
+                showlegend=False,
+            ))
+    fig.add_trace(go.Scatter(
+        x=[value * 0.98 for value in x_values],
+        y=[value * 0.98 for value in y_values],
+        mode="markers",
+        marker={"size": 62, "color": node_colors, "opacity": 0.06},
+        hoverinfo="skip",
+        showlegend=False,
+    ))
+    fig.add_trace(go.Scatter(
+        x=x_values,
+        y=y_values,
+        mode="markers+text",
+        text=labels,
+        textposition="bottom center",
+        textfont={"family": "JetBrains Mono, monospace", "size": 9, "color": "#d9e7ff"},
+        marker={
+            "size": [26 if node[0] == "PHOENIX" else 22 for node in nodes],
+            "color": node_colors,
+            "symbol": ["hexagon" if node[0] in {"PHOENIX", "EVIDENCE GATE"} else "square" for node in nodes],
+            "line": {"color": "#d9e7ff", "width": 1},
+        },
+        hovertemplate="%{text}<extra></extra>",
+        showlegend=False,
+    ))
+    fig.update_layout(
+        height=300,
+        margin={"l": 12, "r": 12, "t": 28, "b": 18},
+        paper_bgcolor="#020711",
+        plot_bgcolor="#020711",
+        title={
+            "text": f"▣ TERMINAL MAP · {candidate_count} CANDIDATES · REAL PIPELINE STATE",
+            "font": {"family": "JetBrains Mono, monospace", "size": 11, "color": "#46d9ff"},
+            "x": 0.02,
+            "y": 0.98,
+        },
+        annotations=[
+            {
+                "x": node[3],
+                "y": 2.02,
+                "text": node[5],
+                "showarrow": False,
+                "font": {"size": 8, "color": "#6177b8"},
+            }
+            for node in nodes
+        ],
+        xaxis={"visible": False, "range": [0, 8]},
+        yaxis={"visible": False, "range": [0, 2.2]},
+        shapes=grid_shapes,
+        showlegend=False,
+    )
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    if catalog:
+        selected = product.get("best", {})
+        selected_name = " / ".join(selected.get("basket", []))
+        rows = []
+        for candidate in catalog:
+            row_color = "#ffb347" if candidate.get("selected") else "#d6a44a"
+            rows.append(
+                "<tr>"
+                f'<td style="color:{row_color}">{candidate["rank"]}</td>'
+                f'<td style="color:{row_color}">{html.escape(candidate["basket"])}</td>'
+                f'<td>{candidate["barrier_pct"]:.0f}%</td>'
+                f'<td>{candidate["tenor_months"]}m</td>'
+                f'<td>{candidate["coupon_pct"]:.1f}%</td>'
+                f'<td>{candidate["objective"]:.1f}</td>'
+                f'<td>{"AGENT" if candidate["agent_evaluated"] else "BASE"}</td>'
+                "</tr>"
+            )
         st.markdown(
-            f"""
-            <div class="insight-card">
-                <div class="eyebrow">READOUT</div>
-                <strong>Главная утечка — относительная доходность.</strong>
-                <p>Если портфель падает сильнее IMOEX, индексный шорт компенсирует рынок,
-                но не beta/состав корзины. В этом сценарии это {money(portfolio * tracking_error)}.</p>
-            </div>
-            """,
+            f'<div style="color:#46d9ff;font-size:10px;margin-top:8px">'
+            f'▣ CANDIDATE MATRIX · {len(catalog)} evaluated · SELECTED: '
+            f'{html.escape(selected_name)}</div>'
+            '<div style="max-height:220px;overflow:auto;border:1px solid #13233d">'
+            '<table style="width:100%;font-size:9px;color:#d6a44a">'
+            '<thead><tr><th>#</th><th>BASKET</th><th>BARRIER</th><th>TENOR</th>'
+            '<th>COUPON</th><th>OBJECTIVE</th><th>MODE</th></tr></thead><tbody>'
+            + "".join(rows)
+            + "</tbody></table></div>",
             unsafe_allow_html=True,
         )
 
-    st.markdown("### Где искать замену")
-    st.caption("Сайт не выносит приказов на сделки: он выделяет позиции для дополнительной проверки и сравнения.")
-    review_df = edited_holdings.copy()
-    review_df["Отклонение от IMOEX, п.п."] = review_df["Изменение, %"] - index_move * 100
-    review_df["Сигнал модели"] = np.where(
-        review_df["Отклонение от IMOEX, п.п."] <= -5,
-        "Кандидат на пересмотр",
-        "В пределах сценария",
-    )
-    st.dataframe(
-        review_df[["Бумага", "Стоимость, ₽", "Изменение, %", "Отклонение от IMOEX, п.п.", "Сигнал модели"]],
-        use_container_width=True,
-        hide_index=True,
-    )
-    replacement_df = pd.DataFrame([
-        {
-            "Роль в портфеле": "Снижение риска одной бумаги",
-            "Что сравнить": "Более широкий индексный слой",
-            "Зачем": "Меньше зависимости от X5/T и их индивидуальных новостей",
-            "Проверить": "Корреляцию с IMOEX, ликвидность, комиссии",
-        },
-        {
-            "Роль в портфеле": "Защитная акция",
-            "Что сравнить": "SBER / LKOH как альтернативы для анализа",
-            "Зачем": "Сравнить beta, просадку и дивидендный профиль",
-            "Проверить": "Долговую нагрузку, дивиденды, секторную концентрацию",
-        },
-        {
-            "Роль в портфеле": "Высокая beta",
-            "Что сравнить": "Сохранить только при наличии лимита риска",
-            "Зачем": "T и X5 дали наибольшее отставание от индекса",
-            "Проверить": "Допустимую просадку и размер позиции",
-        },
-    ])
-    st.dataframe(replacement_df, use_container_width=True, hide_index=True)
+# ═══════════════════════════════════════════════════════════════════
+# CSS — Bloomberg Terminal
+# ═══════════════════════════════════════════════════════════════════
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+:root {
+    --bg:#000; --bg2:#0a0a0a; --bg3:#141414;
+    --border:#3a2a00; --border2:#6a4a00;
+    --text:#ffb000; --fg:#ffd56a; --muted:#d6a44a; --dim:#6a5a2a;
+    --accent:#fa8000; --good:#34c759; --bad:#ff3b30; --blue:#6db6ff;
+}
+html,body,[class*="css"]{font-family:"JetBrains Mono",Consolas,monospace!important}
+.main,.stApp{background:var(--bg)!important}
+[data-testid="stSidebar"]{background:var(--bg2)!important;border-right:1px solid var(--border)!important}
+[data-testid="stSidebar"] *{color:var(--text)!important}
+div[data-testid="stMetric"]{background:var(--bg2)!important;border:1px solid var(--border)!important;border-radius:0!important;padding:.75rem!important}
+div[data-testid="stMetric"] label{color:var(--muted)!important;font-size:.7rem!important;text-transform:uppercase!important}
+div[data-testid="stMetric"] [data-testid="stMetricValue"]{color:var(--text)!important;font-weight:700!important}
+.stButton>button{background:var(--accent)!important;color:#000!important;border:2px solid var(--accent)!important;border-radius:0!important;font-family:"JetBrains Mono",monospace!important;font-weight:900!important;letter-spacing:2px!important;text-transform:uppercase!important}
+.stButton>button:hover{background:#ffd95a!important;border-color:#ffd95a!important;box-shadow:0 0 22px rgba(255,176,0,.7)!important}
+.stSelectbox>div>div{background:var(--bg2)!important;border-color:var(--border)!important;color:var(--text)!important}
+.stExpander{border:1px solid var(--border)!important;border-radius:0!important}
+hr{border-color:var(--border)!important}
+.up{color:var(--good)}.dn{color:var(--bad)}
+.hdr{padding:8px 14px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:baseline;gap:16px}
+.hdr h1{margin:0;font-size:14px;font-weight:700;letter-spacing:1px;color:var(--accent);text-transform:uppercase}.hdr h1::before{content:"■ "}.hdr .sub{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+.qc{background:var(--bg2);border:1px solid var(--border);padding:8px 12px;margin-bottom:4px}
+.sec{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border:1px solid var(--border);margin:16px 0 4px;background:var(--bg2);display:flex;justify-content:space-between;align-items:center}
+.sbar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:4px 14px;font-size:10px;color:var(--muted);display:flex;gap:20px;z-index:9999}
+.sbar .ok{color:var(--good)}.sbar .lb{color:var(--accent);font-weight:700}
+.bi input{font-family:"JetBrains Mono",monospace!important;font-size:20px!important;font-weight:700!important;letter-spacing:2px!important;text-transform:uppercase!important;background:#000!important;color:#6db6ff!important;border:2px solid #6db6ff!important;border-radius:0!important;padding:12px 16px!important}
+.bi input:focus{border-color:#9ad0ff!important;box-shadow:0 0 14px rgba(154,208,255,.35)!important}
+.bi input::placeholder{color:#355d80!important}.bi label{display:none!important}.bi .stTextInput>div{margin:0!important}
+.bar{height:14px;border-radius:1px;display:inline-block;vertical-align:middle}
+</style>
+""", unsafe_allow_html=True)
 
-    st.markdown("### Стресс-тест: рынок отскакивает на +20%")
-    stress_move = 0.20
-    stress_long = portfolio * beta * stress_move
-    stress_short = -hedge_nominal * stress_move
-    stress_net = stress_long + stress_short + carry_pnl
-    stress_cash = abs(stress_short)
-    stress_cards = st.columns(4)
-    stress_cards[0].metric("Лонг", money(stress_long), f"beta {beta:.2f}")
-    stress_cards[1].metric("Вариационная маржа шорта", money(stress_short), "ежедневный cash outflow")
-    stress_cards[2].metric("Carry / базис", money(carry_pnl), "если сценарий реализуется")
-    stress_cards[3].metric("Итог сценария", money(stress_net), "экономический P&L")
+# ═══════════════════════════════════════════════════════════════════
+# HEADER
+# ═══════════════════════════════════════════════════════════════════
+st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">ONE PIPELINE · 15 STEPS · ФЕНИКС v36.0 · 8 AGENTS · PRODUCT · OUTCOMES · API</span></div>', unsafe_allow_html=True)
 
+# ═══════════════════════════════════════════════════════════════════
+# BASKET INPUT
+# ═══════════════════════════════════════════════════════════════════
+bc = st.columns([1,5,1])
+with bc[0]:
+    st.markdown('<div style="padding:10px 0"><span style="color:#ffb000;font-size:14px;font-weight:700;letter-spacing:3px">PHOENIX</span></div>', unsafe_allow_html=True)
+with bc[1]:
+    st.markdown('<div class="bi">', unsafe_allow_html=True)
+    basket_input = st.text_input(
+        "basket",
+        value="AAPL DELL GOOG",
+        placeholder="AAPL MSFT NVDA AMD TSLA",
+        label_visibility="collapsed",
+        key="basket_input",
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+requested_tickers = [
+    t.strip().upper()
+    for t in basket_input.replace(",", " ").split()
+    if t.strip()
+]
+req_cols = st.columns([2, 1, 1, 1])
+with req_cols[0]:
     st.markdown(
-        f"""
-        <div class="warning-card">
-            <div class="eyebrow">LIQUIDITY ALERT</div>
-            <strong>Потенциальная потребность в живых деньгах: {stress_cash / 1_000_000:.2f} млн ₽.</strong>
-            <p>Прибыль по акциям может быть бумажной, а убыток по фьючерсу списывается
-            вариационной маржой. Это стресс-ориентир, а не гарантия брокерского требования.</p>
-        </div>
-        """,
+        '<div style="color:#d6a44a;font-size:9px;padding-top:8px">'
+        'REQUIREMENTS · BEST BASKET</div>',
+        unsafe_allow_html=True,
+    )
+with req_cols[1]:
+    requested_barrier = st.number_input(
+        "БАРЬЕР, %",
+        min_value=50.0,
+        max_value=90.0,
+        value=65.0,
+        step=1.0,
+        key="requested_barrier",
+    )
+with req_cols[2]:
+    requested_tenor = st.number_input(
+        "СРОК, МЕС.",
+        min_value=3,
+        max_value=60,
+        value=24,
+        step=3,
+        key="requested_tenor",
+    )
+with req_cols[3]:
+    requested_frequency = st.number_input(
+        "КУПОН, МЕС.",
+        min_value=1,
+        max_value=12,
+        value=3,
+        step=1,
+        key="requested_frequency",
+    )
+if "analysis_tickers" not in st.session_state:
+    st.session_state.analysis_tickers = requested_tickers
+if "analysis_requested" not in st.session_state:
+    st.session_state.analysis_requested = False
+requested_preferences = {
+    "barrier_pct": float(requested_barrier),
+    "tenor_months": int(requested_tenor),
+    "coupon_frequency_months": int(requested_frequency),
+}
+if "analysis_preferences" not in st.session_state:
+    st.session_state.analysis_preferences = requested_preferences
+with bc[2]:
+    if st.button("▶ RUN FULL ANALYSIS", key="run_basket", type="primary", use_container_width=True):
+        st.session_state.analysis_tickers = requested_tickers
+        st.session_state.analysis_preferences = requested_preferences
+        st.session_state.analysis_requested = True
+        st.rerun()
+
+basket_tickers = st.session_state.analysis_tickers
+active_preferences = st.session_state.analysis_preferences
+n_tickers = len(basket_tickers)
+
+basket_label = ", ".join(basket_tickers)
+st.markdown(f'<div style="color:#d6a44a;font-size:10px;padding:2px 0">КОРЗИНА: {basket_label}</div>', unsafe_allow_html=True)
+if requested_tickers != basket_tickers:
+    st.markdown(
+        '<div style="color:#ffb000;font-size:9px;padding:2px 0">'
+        'Новая корзина ожидает запуска: нажмите RUN FULL ANALYSIS.</div>',
+        unsafe_allow_html=True,
+    )
+if requested_preferences != active_preferences:
+    st.markdown(
+        '<div style="color:#ffb000;font-size:9px;padding:2px 0">'
+        'Новые требования ожидают запуска: нажмите RUN FULL ANALYSIS.</div>',
         unsafe_allow_html=True,
     )
 
-    agent_reports = build_agent_reports(
-        portfolio=portfolio,
-        stock_move=stock_move,
-        index_move=index_move,
-        hedge_nominal=hedge_nominal,
-        beta=beta,
-        margin=margin,
-        tracking_error=tracking_error,
-        sector_corr_90=sector_corr_90,
-        sector_exposure=sector_exposure,
-        long_pnl=long_pnl,
-        futures_pnl=futures_pnl,
-        beta_adjusted_pnl=long_pnl - portfolio * beta * index_move,
-        net_pnl=net_pnl,
+rc1 = st.container()
+
+# ═══════════════════════════════════════════════════════════════════
+# PRECOMPUTE ALL (Karpathy method — one call, all data)
+# ═══════════════════════════════════════════════════════════════════
+if (
+    basket_tickers
+    and (
+        not st.session_state.analysis_requested
+        or requested_tickers != basket_tickers
+        or requested_preferences != active_preferences
     )
-    render_agent_command_center(agent_reports)
-
-    tab1, tab2, tab3 = st.tabs(["Карта рисков", "Сценарии", "Как читать расчёт"])
-    with tab1:
-        risk_df = pd.DataFrame([
-            {"Риск": "Tracking error", "Статус": "Внимание", "Драйвер": f"{tracking_error:.2%} против IMOEX"},
-            {"Риск": "Вариационная маржа", "Статус": "Критично контролировать", "Драйвер": money(stress_cash) + " при +20%"},
-            {"Риск": "Carry / базис", "Статус": "Не гарантирован", "Драйвер": f"{carry_rate:.1%} годовых в модели"},
-            {"Риск": "ГО", "Статус": "Динамический", "Драйвер": money(margin) + " сейчас"},
-        ])
-        st.dataframe(risk_df, use_container_width=True, hide_index=True)
-    with tab2:
-        scenario_moves = np.linspace(-0.30, 0.30, 13)
-        scenario_df = pd.DataFrame({
-            "IMOEX": scenario_moves,
-            "Лонг": portfolio * beta * scenario_moves,
-            "Шорт IMOEXF": -hedge_nominal * scenario_moves,
-        })
-        scenario_df["Итог без carry"] = scenario_df["Лонг"] + scenario_df["Шорт IMOEXF"]
-        fig = go.Figure()
-        for column, color in [("Лонг", "#34d399"), ("Шорт IMOEXF", "#fb7185"), ("Итог без carry", "#38bdf8")]:
-            fig.add_trace(go.Scatter(
-                x=scenario_df["IMOEX"], y=scenario_df[column] / 1_000_000,
-                mode="lines+markers", name=column, line={"color": color, "width": 2},
-            ))
-        fig.update_layout(title="P&L при разных движениях IMOEX", xaxis_tickformat=".0%", yaxis_title="млн ₽", **PLOT_LAYOUT)
-        st.plotly_chart(fig, use_container_width=True)
-    with tab3:
-        st.markdown(
-            """
-            - **Шорт IMOEXF не платит фиксированный funding.** В расчёте carry / базис — отдельный
-              сценарный параметр, который может быть положительным или отрицательным.
-            - **ГО — не максимальный убыток.** Биржа меняет требования, а вариационная маржа
-              списывается ежедневно.
-            - **Полный номинальный хедж не равен beta-хеджу.** Для портфеля с beta выше единицы
-              может понадобиться больший номинал, но это увеличивает требования к ликвидности.
-            """
-        )
-        st.caption("Модель учебная и не учитывает комиссии, налоги, дивиденды, проскальзывание и изменение базиса.")
-
-
-if page_mode == "IMOEXF Hedge Lab":
-    render_hedge_lab()
+):
+    st.markdown(
+        '<div class="qc" style="border-left:3px solid #ffb000;padding:16px;margin-top:10px">'
+        '<div style="color:#ffb000;font-size:16px;font-weight:700">READY TO RUN</div>'
+        '<div style="color:#d6a44a;font-size:10px;margin-top:5px">'
+        'All calculations are waiting. Press RUN FULL ANALYSIS to fetch fresh market data '
+        'and execute the complete pipeline.</div></div>',
+        unsafe_allow_html=True,
+    )
     st.stop()
 
-
-# ── Streamlit кэширование ──
-@st.cache_data(ttl=3600)
-def load_and_analyze(tickers_tuple, benchmark, rf_rate, n_perms, slippage, commission, trades_day, period):
-    """Кэшируем данные и анализ на 1 час."""
-    try:
-        assessor = StrategyRiskAssessor(
-            tickers=list(tickers_tuple),
-            benchmark=benchmark,
-            rf_rate=rf_rate,
-            n_permutations=n_perms,
-            slippage_bps=slippage,
-            commission_bps=commission,
-            trades_per_day=trades_day,
+if basket_tickers:
+    with st.spinner("⚡ Precomputing..."):
+        _pipeline = cached_full_analysis(
+            ",".join(basket_tickers),
+            active_preferences["barrier_pct"],
+            active_preferences["tenor_months"],
+            active_preferences["coupon_frequency_months"],
         )
-        prices = assessor.update_market_data(period=period)
-        return assessor, prices
-    except Exception as e:
-        st.error(f"❌ Ошибка загрузки данных: {str(e)}")
-        return None, None
+        D = _pipeline["data"]
 
+    ch = D["ch"]
+    wo = ch.get("worst_of", {})
+    td = ch.get("tickers", {})
+    yf = D.get("yf", {})
+    corr = D.get("corr", {})
+    ind = D.get("ind", {})
+    score = D["score"]
+    p_ki = D["p_ki"]
+    p_autocall = D["p_autocall"]
 
-if run_btn:
-    if not tickers:
-        st.error("❌ Введите хотя бы один тикер")
-        st.stop()
-    
-    if benchmark not in tickers:
-        st.error(f"❌ Бенчмарк '{benchmark}' должен быть в списке тикеров")
-        st.stop()
-
-    with st.spinner("📡 Загрузка рыночных данных..."):
-        assessor, prices = load_and_analyze(
-            tuple(tickers), benchmark, rf_rate, n_perms, slippage, commission, trades_day, period
+    with rc1:
+        data_src = D.get("data_source", "yfinance")
+        st.markdown(f'<div style="color:#6a5a2a;font-size:9px;padding-top:8px">Данные: {D.get("ts", "N/A")[:19]} · {data_src} · Gen {D.get("scoring_generation", 0)}</div>', unsafe_allow_html=True)
+        gate = D.get("evidence_gate", {})
+        gate_label = (
+            "REAL MARKET DATA · GATE PASSED"
+            if gate.get("passed")
+            else "DIAGNOSTIC ONLY · REAL MARKET DATA INCOMPLETE"
+        )
+        gate_color = "#34c759" if gate.get("passed") else "#ff3b30"
+        snapshot_status = _pipeline.get("_snapshot", {}).get("status", "computed")
+        st.markdown(
+            f'<div style="color:{gate_color};font-size:9px;padding-top:2px">'
+            f'{gate_label} · {snapshot_status} · ready snapshot TTL 5 min</div>',
+            unsafe_allow_html=True,
         )
 
-    if assessor is None or prices is None or prices.empty:
-        st.error("❌ Не удалось загрузить данные. Проверьте тикеры и подключение.")
-        st.stop()
+    # ═══════════════════════════════════════════════════════════════
+    # [1] ВЕРДИКТ — Score + Recommendation
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("AUDIT MAP · data → decision → outcome", expanded=False):
+        render_process_map(D, _pipeline)
 
-    # ── Top Stats ──
-    all_perf = assessor.get_all_performance()
-    if all_perf.empty:
-        st.error("❌ Недостаточно данных для анализа")
-        st.stop()
-    
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("📈 Тикеров", len(all_perf))
-    avg_sharpe = all_perf["sharpe"].mean()
-    col2.metric("⚡ Avg Sharpe", f"{avg_sharpe:.2f}")
-    avg_dd = all_perf["max_drawdown"].mean()
-    col3.metric("📉 Avg Max DD", f"{avg_dd:.1%}")
-    col4.metric("🕐 Обновлено", assessor.last_update[:16] if assessor.last_update else "—")
+    with st.expander("[0] MODEL BASIS    Formula · assumptions · evidence", expanded=False):
+        st.markdown(
+            '<div style="color:#d6a44a;font-size:10px;line-height:1.7">'
+            '<b style="color:#ffb000">Phoenix score</b> = base score + '
+            'diversification/fundamental/trend bonuses − P(KI)/volatility/'
+            'correlation/toxicity/macro/earnings penalties. '
+            'The score is a decision-support index, not a probability of profit.<br>'
+            '<b style="color:#ffb000">P(KI)</b> uses a worst-of analytical '
+            'barrier approximation with observed volatility, correlation and '
+            'stress adjustments; it is not a dealer quote or guarantee.<br>'
+            '<b style="color:#ffb000">Agents</b> are lightweight rule-based '
+            'and ensemble components. They are not presented as a trained '
+            'deep neural network unless realized training evidence exists.<br>'
+            '<b style="color:#ffb000">Evidence rule</b>: estimated data can '
+            'support diagnostics only. Live selection requires a passed evidence gate.'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+        _confidence = D.get("score_confidence", 0)
+        _range = D.get("score_range", [])
+        st.markdown(
+            f'<div style="color:#6db6ff;font-size:10px;margin-top:6px">'
+            f'Confidence: {_confidence:.0f}% · score range: {_range or "not available"} · '
+            f'generation: {D.get("scoring_generation", 0)}</div>',
+            unsafe_allow_html=True,
+        )
 
-    st.divider()
+    rec = D.get("recommendation", {})
+    rec_action = rec.get("action", "?")
+    rec_color = rec.get("color", "#ffb000")
+    rec_reason = rec.get("reason", "")
+    rs = D["risk_score"]
+    rs_color = "#34c759" if rs >= 80 else "#ffb000" if rs >= 65 else "#ff3b30"
+    rs_grade = "A+" if rs >= 90 else "A" if rs >= 80 else "B" if rs >= 70 else "C" if rs >= 60 else "D"
+    sl = D.get("self_learning", {})
+    gen = D.get("scoring_generation", 0)
+    _gate_passed = bool(D.get("evidence_gate", {}).get("passed"))
+    _director_status = D.get("sl_agents", {}).get("director_status", "")
+    _decision_gate = D.get("decision_gate", {})
+    _verdict = _decision_gate.get("verdict") or (
+        "GOOD" if _gate_passed and rs >= 80
+        else "CAUTION" if rs >= 65
+        else "BAD"
+    )
+    _verdict_color = (
+        "#34c759" if _verdict == "GOOD"
+        else "#ffb000" if _verdict == "CAUTION"
+        else "#ff3b30"
+    )
+    _block_reasons = list(_decision_gate.get("reasons", []))
+    if not _gate_passed:
+        _block_reasons.append("evidence gate incomplete")
+    if p_ki >= 35:
+        _block_reasons.append(f"P(KI) {p_ki:.0f}% above safety threshold")
+    if _director_status in {
+        "blocked_by_guardian",
+        "blocked_by_disagreement",
+        "awaiting_guardian_calibration",
+    }:
+        _block_reasons.append(_director_status.replace("_", " "))
+    _why_blocked = (
+        " · ".join(_block_reasons)
+        if _block_reasons
+        else "no primary blocker; review quote-fit and paper evidence"
+    )
 
-    # ── Performance Table ──
-    st.markdown('<div class="section-header">📋 Сводка метрик по всем тикерам</div>', unsafe_allow_html=True)
-    display_perf = all_perf.copy()
-    for c in ["total_return", "cagr", "max_drawdown", "volatility", "win_rate"]:
-        if c in display_perf.columns:
-            display_perf[c] = display_perf[c].map(lambda x: f"{x:.2%}")
-    for c in ["sharpe", "sortino", "calmar", "profit_factor"]:
-        if c in display_perf.columns:
-            display_perf[c] = display_perf[c].map(lambda x: f"{x:.2f}")
-    st.dataframe(display_perf, use_container_width=True)
-
-    st.divider()
-
-    # ── Per-ticker Deep Dive ──
-    selected = st.selectbox("🔍 Детальный анализ тикера", tickers)
-
-    if selected and selected in assessor.returns.columns:
-        try:
-            report = assessor.generate_report(selected)
-
-            # Risk Score
-            rs = report["risk_score"]
-            score_color = color_for_level(rs["level"])
-            st.markdown(f"""
-            <div style="text-align:center; margin: 1rem 0;">
-                <div style="font-size:3rem; font-weight:700; color:{score_color};">{rs['score']}</div>
-                <div style="font-size:1rem; color:{score_color};">Risk Score — {rs['level']}</div>
+    st.markdown(f'''
+    <div class="qc" style="border-left:3px solid {_verdict_color};padding:14px;margin:8px 0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+                <span style="color:{_verdict_color};font-size:22px;font-weight:700">PHOENIX {_verdict}</span>
+                <span style="color:#d6a44a;font-size:11px;margin-left:8px">{rec_reason}</span>
             </div>
-            """, unsafe_allow_html=True)
-
-            # Alerts
-            if report["warnings"]:
-                for w in report["warnings"]:
-                    alert_class = "alert-high" if "overfitting" in w.lower() or "убыточна" in w.lower() else "alert-medium"
-                    st.markdown(f'<div class="{alert_class}">⚠️ {w}</div>', unsafe_allow_html=True)
-            else:
-                st.markdown('<div class="alert-low">✅ Критических предупреждений нет</div>', unsafe_allow_html=True)
-
-            # Key Metrics row
-            perf = report["performance"]
-            c1, c2, c3, c4, c5 = st.columns(5)
-            c1.metric("Sharpe", f"{perf['sharpe']:.2f}")
-            c2.metric("Sortino", f"{perf['sortino']:.2f}")
-            c3.metric("CAGR", f"{perf['cagr']:.2%}")
-            c4.metric("Max DD", f"{perf['max_drawdown']:.2%}")
-            c5.metric("Profit Factor", f"{perf['profit_factor']:.2f}")
-
-            tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-                "📈 Equity Curve", "📊 Risk Metrics", "🧪 Monte Carlo",
-                "🔄 Walk-Forward", "💥 Stress Tests", "🔗 Correlations"
-            ])
-
-            rets = assessor.returns[selected].dropna()
-
-            # Tab 1: Equity Curve
-            with tab1:
-                cum = (1 + rets).cumprod()
-                dd = drawdown_series(rets)
-                fig = go.Figure()
-                fig.add_trace(go.Scatter(
-                    x=cum.index, y=cum.values,
-                    name="Equity", line=dict(color="#06b6d4", width=2),
-                    fill="tozeroy", fillcolor="rgba(6,182,212,0.1)",
-                ))
-                fig.update_layout(title=f"Equity Curve — {selected}", yaxis_title="Кумулятивная доходность", **PLOT_LAYOUT)
-                st.plotly_chart(fig, use_container_width=True)
-
-                fig_dd = go.Figure()
-                fig_dd.add_trace(go.Scatter(
-                    x=dd.index, y=dd.values,
-                    name="Drawdown", line=dict(color="#ef4444", width=1.5),
-                    fill="tozeroy", fillcolor="rgba(239,68,68,0.15)",
-                ))
-                fig_dd.update_layout(title="Drawdown", yaxis_title="Drawdown", yaxis_tickformat=".0%", **PLOT_LAYOUT)
-                st.plotly_chart(fig_dd, use_container_width=True)
-
-            # Tab 2: Risk Metrics
-            with tab2:
-                risk = report["risk"]
-                rc1, rc2 = st.columns(2)
-                with rc1:
-                    st.markdown("##### VaR / CVaR")
-                    risk_df = pd.DataFrame([
-                        {"Метрика": "VaR 95%", "Значение": f"{risk['VaR_95']:.4f}"},
-                        {"Метрика": "CVaR 95%", "Значение": f"{risk['CVaR_95']:.4f}"},
-                        {"Метрика": "VaR 99%", "Значение": f"{risk['VaR_99']:.4f}"},
-                        {"Метрика": "CVaR 99%", "Значение": f"{risk['CVaR_99']:.4f}"},
-                    ])
-                    st.dataframe(risk_df, use_container_width=True, hide_index=True)
-
-                with rc2:
-                    st.markdown("##### Drawdown Distribution")
-                    dd_dist = report["drawdown_dist"]
-                    dd_df = pd.DataFrame([
-                        {"Метрика": "Mean DD", "Значение": f"{dd_dist['mean']:.4f}"},
-                        {"Метрика": "Median DD", "Значение": f"{dd_dist['median']:.4f}"},
-                        {"Метрика": "Worst DD", "Значение": f"{dd_dist['worst']:.4f}"},
-                    ])
-                    st.dataframe(dd_df, use_container_width=True, hide_index=True)
-
-                # Returns distribution
-                fig_hist = go.Figure()
-                fig_hist.add_trace(go.Histogram(
-                    x=rets.values, nbinsx=50,
-                    marker_color="#06b6d4", opacity=0.7,
-                    name="Daily Returns",
-                ))
-                fig_hist.update_layout(title="Распределение дневных доходностей", xaxis_title="Return", **PLOT_LAYOUT)
-                st.plotly_chart(fig_hist, use_container_width=True)
-
-            # Tab 3: Monte Carlo
-            with tab3:
-                with st.spinner("🎲 Monte Carlo Permutation Test..."):
-                    try:
-                        mc = assessor.run_monte_carlo_test(selected)
-                        ovf = report["overfitting"]
-                        perm = ovf["permutation_test"]
-
-                        st.markdown(f"**Observed Sharpe:** {perm['observed_sharpe']:.4f}")
-                        st.markdown(f"**p-value:** {perm['p_value']:.4f}")
-                        st.markdown(f"**Вердикт:** {perm['verdict']}")
-
-                        fig_mc = go.Figure()
-                        fig_mc.add_trace(go.Histogram(
-                            x=mc["permuted_distribution"], nbinsx=40,
-                            marker_color="#8b5cf6", opacity=0.7, name="Permuted Sharpe",
-                        ))
-                        fig_mc.add_vline(x=mc["observed"], line_dash="dash", line_color="#ef4444",
-                                        annotation_text=f"Observed: {mc['observed']:.3f}")
-                        fig_mc.update_layout(title="Monte Carlo Permutation Test", xaxis_title="Sharpe Ratio", **PLOT_LAYOUT)
-                        st.plotly_chart(fig_mc, use_container_width=True)
-                    except Exception as e:
-                        st.warning(f"⚠️ Ошибка Monte Carlo: {str(e)}")
-
-            # Tab 4: Walk-Forward
-            with tab4:
-                with st.spinner("🔄 Walk-Forward Analysis..."):
-                    try:
-                        wf = assessor.run_walk_forward(selected)
-                        if wf:
-                            wf_df = pd.DataFrame(wf)
-                            st.dataframe(wf_df, use_container_width=True, hide_index=True)
-
-                            fig_wf = go.Figure()
-                            fig_wf.add_trace(go.Bar(
-                                x=[f"Fold {r['fold']}" for r in wf],
-                                y=[r["train_metric"] for r in wf],
-                                name="Train Sharpe", marker_color="#10b981",
-                            ))
-                            fig_wf.add_trace(go.Bar(
-                                x=[f"Fold {r['fold']}" for r in wf],
-                                y=[r["test_metric"] for r in wf],
-                                name="Test Sharpe", marker_color="#06b6d4",
-                            ))
-                            fig_wf.update_layout(title="Walk-Forward: Train vs Test Sharpe", barmode="group", **PLOT_LAYOUT)
-                            st.plotly_chart(fig_wf, use_container_width=True)
-                        else:
-                            st.info("Недостаточно данных для Walk-Forward анализа.")
-                    except Exception as e:
-                        st.warning(f"⚠️ Ошибка Walk-Forward: {str(e)}")
-
-            # Tab 5: Stress Tests
-            with tab5:
-                try:
-                    stress = report["stress_tests"]
-                    if stress:
-                        stress_df = pd.DataFrame(stress)
-                        for c in ["cum_return", "max_dd"]:
-                            if c in stress_df.columns:
-                                stress_df[c] = stress_df[c].map(lambda x: f"{x:.2%}" if not pd.isna(x) else "N/A")
-                        st.dataframe(stress_df[["scenario", "period", "cum_return", "max_dd", "n_days"]],
-                                    use_container_width=True, hide_index=True)
-                except Exception as e:
-                    st.warning(f"⚠️ Ошибка Stress Tests: {str(e)}")
-
-            # Tab 6: Correlations
-            with tab6:
-                try:
-                    corr = assessor.get_correlations()
-                    fig_corr = px.imshow(
-                        corr, text_auto=".2f", color_continuous_scale="RdBu_r",
-                        zmin=-1, zmax=1, aspect="auto",
-                    )
-                    fig_corr.update_layout(title="Матрица корреляций", **PLOT_LAYOUT)
-                    st.plotly_chart(fig_corr, use_container_width=True)
-                except Exception as e:
-                    st.warning(f"⚠️ Ошибка корреляций: {str(e)}")
-        
-        except Exception as e:
-            st.error(f"❌ Ошибка анализа: {str(e)}")
-
-else:
-    # Landing page
-    st.markdown("""
-    <div style="text-align: center; padding: 3rem 1rem;">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
-        <h2 style="color: #e2e8f0;">Добро пожаловать в Quant Risk Hub</h2>
-        <p style="color: #94a3b8; max-width: 600px; margin: 0 auto 2rem;">
-            Настройте тикеры и параметры в боковой панели, затем нажмите
-            <strong style="color: #06b6d4;">🚀 Запустить анализ</strong>.
-        </p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-            <div class="metric-card">
-                <div style="font-size: 2rem;">📈</div>
-                <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">Core Metrics</div>
-                <div style="color: #64748b; font-size: 0.8rem;">Sharpe, Sortino, Calmar, Max DD</div>
-            </div>
-            <div class="metric-card">
-                <div style="font-size: 2rem;">🎲</div>
-                <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">Monte Carlo</div>
-                <div style="color: #64748b; font-size: 0.8rem;">Permutation Test (≤ 2000)</div>
-            </div>
-            <div class="metric-card">
-                <div style="font-size: 2rem;">💥</div>
-                <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">Stress Tests</div>
-                <div style="color: #64748b; font-size: 0.8rem;">GFC 2008, COVID, Rate Hike 2022</div>
-            </div>
-            <div class="metric-card">
-                <div style="font-size: 2rem;">🔍</div>
-                <div style="color: #e2e8f0; font-weight: 600; margin-top: 0.5rem;">Overfitting</div>
-                <div style="color: #64748b; font-size: 0.8rem;">OOS degradation, permutation check</div>
+            <div style="text-align:right">
+                <span style="color:{rs_color};font-size:28px;font-weight:700">{rs:.1f}</span>
+                <span style="color:#d6a44a;font-size:12px">/100</span>
+                <span style="background:#1a1400;border:1px solid #3a2a00;padding:1px 6px;color:#d6a44a;font-size:9px;border-radius:2px;margin-left:6px">{rs_grade}</span>
             </div>
         </div>
+        <div style="margin:6px 0;height:6px;background:#1a1400;border-radius:1px"><div style="height:100%;width:{max(0, (rs - 50) * 2)}%;background:{rs_color};border-radius:1px"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+            <span style="color:#6a5a2a;font-size:9px">Model action: {rec_action} · Gen {gen}</span>
+            <span style="background:{rs_color}22;border:1px solid {rs_color};padding:2px 8px;color:{rs_color};font-size:10px;font-weight:700">P(KI) {p_ki:.0f}%</span>
+        </div>
+        <div style="color:{_verdict_color};font-size:9px;margin-top:7px">
+            WHY BLOCKED / WHAT TO CHECK: {_why_blocked}
+        </div>
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
+
+    # Score factor decomposition (inline)
+    score_factors = D.get("score_factors", {})
+    with st.expander("▶ Разложение скора по факторам"):
+        for name, info in score_factors.items():
+            impact = info["impact"] if isinstance(info, dict) else info
+            raw = info.get("raw", "") if isinstance(info, dict) else ""
+            impact_c = "#34c759" if impact > 0 else "#ff3b30" if impact < 0 else "#6a5a2a"
+            bar_dir = "right" if impact >= 0 else "left"
+            bar_w = min(100, abs(impact) * 8)
+            st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:2px 0">
+                <span style="color:#d6a44a;font-size:10px;width:90px;text-align:right">{name}</span>
+                <div style="flex:1;height:8px;background:#1a1400;position:relative">
+                    <div style="position:absolute;{bar_dir}:50%;width:{bar_w}%;height:100%;background:{impact_c}"></div>
+                </div>
+                <span style="color:{impact_c};font-size:10px;width:40px;font-weight:700">{impact:+.1f}</span>
+                <span style="color:#6a5a2a;font-size:8px;width:50px">{raw}</span>
+            </div>''', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # КЛЮЧЕВЫЕ ИНДИКАТОРЫ (6 метрик)
+    # ═══════════════════════════════════════════════════════════════
+    def _mi(label, value, sub="", color="#ffb000"):
+        return f'<div style="flex:1 1 30%;min-width:140px;padding:8px 10px;border:1px solid #3a2a00;margin:2px;background:#0a0a00"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">{label}</div><div style="color:{color};font-size:16px;font-weight:700">{value}</div><div style="color:#6a5a2a;font-size:9px">{sub}</div></div>'
+
+    if ind:
+        iv30 = ind.get("iv30_avg", 40)
+        avg_c_val = corr.get("avg_corr", 0)
+        grid = _mi("P(KI)", f"{p_ki:.1f}%", "при KI=60% spot за 2Y", "#ff3b30" if p_ki > 25 else "#34c759")
+        grid += _mi("P(autocall)", f"{p_autocall:.1f}%", f"E[жизни] {D.get('e_life',1.5):.2f}г")
+        grid += _mi("IV30 (avg)", f"{iv30:.0f}%", f"min {ind.get('iv30_min',0):.0f}% · max {ind.get('iv30_max',0):.0f}%")
+        grid += _mi("Avg корреляция", f"{avg_c_val:.2f}", "sweet spot 0.45–0.65", "#34c759" if avg_c_val < 0.65 else "#ff3b30")
+        grid += _mi("β (avg)", f"{ind.get('beta_avg',1):.2f}", f"min {ind.get('beta_min',0):.2f} · max {ind.get('beta_max',0):.2f}")
+        grid += _mi("Dispersion", f"σ {D.get('dispersion',5):.1f}%", "vol-spread корзины")
+        st.markdown(f'<div style="display:flex;flex-wrap:wrap;gap:0">{grid}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # BEST BASKET REQUIREMENTS AND BROKER CALIBRATION
+    # ═══════════════════════════════════════════════════════════════
+    st.markdown(
+        '<div class="sec">CALCULATE BEST BASKET · REQUIREMENTS</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<div style="color:#d6a44a;font-size:9px;margin:4px 0 8px">'
+        f'Лучшие бумаги из universe · срок {active_preferences["tenor_months"]} мес. · '
+        f'барьер {active_preferences["barrier_pct"]:.0f}% · купон каждые '
+        f'{active_preferences["coupon_frequency_months"]} мес.'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    cp = st.columns(6)
+    cp[0].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">КУПОН P.A.</div><div style="color:#34c759;font-size:18px;font-weight:700">{D["coupon_pa"]:.2f}%</div></div>', unsafe_allow_html=True)
+    cp[1].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(АВТОКОЛЛ)</div><div style="color:#ffb000;font-size:18px;font-weight:700">{p_autocall:.1f}%</div></div>', unsafe_allow_html=True)
+    cp[2].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(ЧИСТЫЙ УБЫТОК)</div><div style="color:#ff3b30;font-size:18px;font-weight:700">{D["p_clean_loss"]:.1f}%</div></div>', unsafe_allow_html=True)
+    cp[3].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[ИТОГ. ВЫПЛАТА]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_payout"]:.1f}%</div></div>', unsafe_allow_html=True)
+    cp[4].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(KI)</div><div style="color:{"#ff3b30" if p_ki>25 else "#34c759"};font-size:18px;font-weight:700">{p_ki:.1f}%</div></div>', unsafe_allow_html=True)
+    cp[5].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[СРОК]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_life"]:.2f} лет</div></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # КАЛИБРОВКА — ввод реальной ставки от брокера
+    # ═══════════════════════════════════════════════════════════════
+    cal_col1, cal_col2, cal_col3 = st.columns([2, 2, 4])
+    with cal_col1:
+        broker_rate = st.number_input("СТАВКА БРОКЕРА, % P.A.", min_value=0.0, max_value=100.0, value=0.0, step=0.5, key="broker_rate")
+    with cal_col2:
+        broker_name = st.text_input("БРОКЕР", value="", placeholder="БКС, Тинькофф...", key="broker_name")
+    with cal_col3:
+        if broker_rate > 0:
+            our_rate = D["coupon_pa"]
+            delta = broker_rate - our_rate
+            delta_color = "#34c759" if abs(delta) < 2 else "#ff3b30" if delta > 2 else "#ffb000"
+            accuracy_pct = max(0, 100 - abs(delta) / max(our_rate, 1) * 100)
+            broker_label = f" ({broker_name})" if broker_name else ""
+            st.markdown(f'''<div style="padding:8px;border:1px solid #333;border-radius:6px;margin-top:18px">
+                <div style="color:#d6a44a;font-size:9px;text-transform:uppercase">КАЛИБРОВКА{broker_label}</div>
+                <div style="display:flex;gap:20px;align-items:center">
+                    <div><span style="color:#aaa;font-size:11px">Наша модель:</span> <span style="color:#ffb000;font-size:14px;font-weight:700">{our_rate:.2f}%</span></div>
+                    <div><span style="color:#aaa;font-size:11px">Брокер:</span> <span style="color:#34c759;font-size:14px;font-weight:700">{broker_rate:.2f}%</span></div>
+                    <div><span style="color:#aaa;font-size:11px">Δ:</span> <span style="color:{delta_color};font-size:14px;font-weight:700">{delta:+.2f}pp</span></div>
+                    <div><span style="color:#aaa;font-size:11px">Точность:</span> <span style="color:{delta_color};font-size:14px;font-weight:700">{accuracy_pct:.0f}%</span></div>
+                </div>
+                <div style="color:#6a5a2a;font-size:9px;margin-top:4px">{"Модель калибрована (Δ<2pp)" if abs(delta) < 2 else "Требуется калибровка — модель " + ("занижает" if delta > 0 else "завышает") + f" на {abs(delta):.1f}pp"}</div>
+            </div>''', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:9px;margin-top:24px">Введи ставку от брокера для калибровки модели</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [2] КОРЗИНА — Composition + Worst-of
+    # ═══════════════════════════════════════════════════════════════
+    n_sectors = len(set(SECTOR_MAP.get(t, "Unknown") for t in basket_tickers))
+    wo_analysis = D.get("worst_of_analysis", [])
+    with st.expander(f"[2] КОРЗИНА    {n_tickers} NAMES · {n_sectors} SECTORS"):
+        for t in basket_tickers:
+            if t in yf:
+                d = yf[t]
+                sector = d.get("sector", "Unknown")
+                rec_label = d.get("rec_label", "buy")
+                ema_sign = "▲" if d["ema200_above"] else "▼"
+                ema_color = "#34c759" if d["ema200_above"] else "#ff3b30"
+                st.markdown(f'''
+                <div class="qc" style="border-left:3px solid #fa8000;padding:10px 14px;margin:4px 0">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div><span style="color:#ffb000;font-size:16px;font-weight:700">{t}</span> <span style="color:#6a5a2a;font-size:10px">{sector}</span></div>
+                        <span style="color:#d6a44a;font-size:10px">{rec_label}</span>
+                    </div>
+                    <div style="display:flex;gap:12px;font-size:11px;margin-top:4px">
+                        <span style="color:#d6a44a">Spot <span style="color:#ffb000">{d["spot"]}</span></span>
+                        <span style="color:#d6a44a">IV30 <span style="color:#ffb000">{d["iv30"]}%</span></span>
+                        <span style="color:#d6a44a">β <span style="color:#ffb000">{d["beta"]}</span></span>
+                        <span style="color:#d6a44a">P/E <span style="color:#ffb000">{d["pe"]}</span></span>
+                        <span style="color:#d6a44a">EMA200 <span style="color:{ema_color}">{ema_sign} {d["ema200_pct"]:+.1f}%</span></span>
+                    </div>
+                </div>
+                ''', unsafe_allow_html=True)
+
+        # Worst-of analysis
+        if wo_analysis:
+            st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:8px 0 4px">WORST-OF RANKING</div>', unsafe_allow_html=True)
+            for i, wa in enumerate(wo_analysis):
+                bar_w = min(80, wa["p_worst"] * 2)
+                bar_c = "#ff3b30" if i == 0 else "#ffb000"
+                st.markdown(f'''<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 8px;border-bottom:1px solid #1a1400">
+                    <span style="color:#ffb000;font-size:11px;font-weight:700">{wa["ticker"]}</span>
+                    <div style="width:120px;height:14px;background:#1a1400"><div class="bar" style="width:{bar_w}%;background:{bar_c}"></div></div>
+                    <span style="color:#ffb000;font-size:11px">{wa["p_worst"]:.1f}%</span>
+                </div>''', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [3] P(KI) — Main + Consensus (4 methods)
+    # ═══════════════════════════════════════════════════════════════
+    pki_cons = D.get("pki_consensus", D.get("buyside", {}).get("pki_consensus", {}))
+    pki_per_asset = D.get("p_ki_per_asset", {})
+    with st.expander(f"[3] P(KI) АНАЛИЗ    {p_ki:.1f}% · {pki_cons.get('n_methods', 0)} методов"):
+        # Main P(KI) + per asset
+        st.markdown(f'''<div class="qc" style="border-left:3px solid {"#ff3b30" if p_ki > 25 else "#34c759"};padding:10px">
+            <span style="color:{"#ff3b30" if p_ki > 25 else "#34c759"};font-size:20px;font-weight:700">{p_ki:.1f}%</span>
+            <span style="color:#d6a44a;font-size:10px;margin-left:12px">P(KI) worst-of · Analytical GBM · 7 corrections</span>
+        </div>''', unsafe_allow_html=True)
+
+        # Per-asset breakdown
+        for t, pki_val in pki_per_asset.items():
+            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{t}</span><span style="color:#fa8000;font-size:10px;font-weight:700">{pki_val}%</span></div>', unsafe_allow_html=True)
+
+        # Consensus
+        if pki_cons and pki_cons.get("n_methods", 0) > 0:
+            methods = pki_cons.get("methods", {})
+            st.markdown(f'''<div class="qc" style="margin-top:8px;padding:8px">
+                <div style="color:#ffb000;font-size:10px;font-weight:700;margin-bottom:4px">CONSENSUS: {pki_cons.get("median", 0)}% · σ={pki_cons.get("std", 0)}pp · {pki_cons.get("agreement", "N/A")}</div>
+            </div>''', unsafe_allow_html=True)
+            for method, val in methods.items():
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:10px">{method}</span><span style="color:#fa8000;font-size:10px;font-weight:700">{val}%</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [4] СТРЕСС-ТЕСТ
+    # ═══════════════════════════════════════════════════════════════
+    stress_v2 = D.get("stress_v2", [])
+    n_critical = sum(1 for s in stress_v2 if s.get("risk_level") == "CRITICAL")
+    stress_c = "#ff3b30" if n_critical > 0 else "#34c759"
+    with st.expander(f"[4] СТРЕСС-ТЕСТ    {'⚠ ' + str(n_critical) + ' CRITICAL' if n_critical > 0 else 'ALL OK'}"):
+        if stress_v2:
+            for sc in stress_v2:
+                rc_c = "#ff3b30" if sc["risk_level"] == "CRITICAL" else ("#fa8000" if sc["risk_level"] == "WARNING" else "#34c759")
+                ki_badge = '<span style="background:#ff3b30;color:#fff;font-size:8px;padding:1px 4px;margin-left:4px">KI BREACH</span>' if sc.get("barrier_breach_65") else ""
+                st.markdown(f'''<div class="qc" style="padding:6px;margin-bottom:4px">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span style="color:{rc_c};font-size:11px;font-weight:700">{sc["name"]}</span>
+                        <span style="color:#6a5a2a;font-size:9px">SPX {sc["spx_drop"]:+d}%</span>{ki_badge}
+                    </div>
+                    <div style="display:flex;gap:12px;margin-top:2px">
+                        <span style="color:#ffb000;font-size:10px">Корзина: {sc["basket_drop"]:+.1f}%</span>
+                        <span style="color:#ff3b30;font-size:10px">Worst: {sc["worst_ticker_drop"]:+.1f}%</span>
+                    </div>
+                </div>''', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:11px">Данные загружаются...</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [5] БЭКТЕСТ — Historical win rate
+    # ═══════════════════════════════════════════════════════════════
+    with st.spinner("⚡ Бэктест..."):
+        BT = cached_backtest(",".join(basket_tickers), D["p_ki"], D["coupon_pa"], D["e_payout"])
+
+    bt_stats = BT.get("bt_stats", {})
+    with st.expander(f"[5] БЭКТЕСТ    {BT['n_backtests']} WINDOWS · WIN {bt_stats.get('win_rate',0):.0f}%"):
+        if bt_stats:
+            st.markdown(f'''
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">AVG PAYOFF</div><div style="color:#34c759;font-size:16px;font-weight:700">{bt_stats["avg_payoff"]:.1f}%</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">WIN RATE</div><div style="color:#ffb000;font-size:16px;font-weight:700">{bt_stats["win_rate"]:.0f}%</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">P(KI) ACTUAL</div><div style="color:{"#ff3b30" if bt_stats["p_ki_actual"]>25 else "#34c759"};font-size:16px;font-weight:700">{bt_stats["p_ki_actual"]:.1f}%</div></div>
+                <div class="qc" style="flex:1;min-width:100px;padding:8px;text-align:center"><div style="color:#d6a44a;font-size:9px">MAX LOSS</div><div style="color:#ff3b30;font-size:16px;font-weight:700">{bt_stats["max_loss"]:.1f}%</div></div>
+            </div>''', unsafe_allow_html=True)
+
+            for bt in BT.get("backtest", [])[:10]:
+                pnl_c = "#34c759" if bt["pnl_pct"] >= 0 else "#ff3b30"
+                ki_badge = '<span style="color:#ff3b30;font-size:9px;margin-left:4px">KI</span>' if bt["ki_hit"] else ""
+                ac_badge = '<span style="color:#34c759;font-size:9px;margin-left:4px">AC Q{}</span>'.format(bt["autocall_quarter"]) if bt["autocalled"] else ""
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:9px">{bt["start_date"]} → {bt["end_date"]}</span>{ki_badge}{ac_badge}<span style="color:{pnl_c};font-size:10px;font-weight:700">{bt["pnl_pct"]:+.1f}%</span></div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:11px">Недостаточно данных</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [6] САМООБУЧЕНИЕ — Model accuracy + calibration
+    # ═══════════════════════════════════════════════════════════════
+    avg_vol_val = ind.get("iv30_avg", 35) if ind else 35
+    avg_corr_val = corr.get("avg_corr", 0.5)
+    with st.spinner("⚡ Калибровка..."):
+        PL = cached_pipeline(",".join(basket_tickers), p_ki, avg_vol_val, avg_corr_val)
+
+    pl_bt = PL.get("backtest", {})
+    pl_cal = PL.get("calibration", {})
+    cal_after = pl_cal.get("after", {})
+    sl_gen = sl.get("generation", 0)
+    sl_acc = sl.get("scoring_acc_after", 0)
+    sl_wr = sl.get("win_rate", 0)
+    sl_val = sl.get("val_acc", 0)
+    sl_status = sl.get("status", "unknown")
+    acc_color = "#34c759" if cal_after.get("test_acc", 0) >= 70 else "#ffb000"
+
+    with st.expander(f"[6] САМООБУЧЕНИЕ    Gen {sl_gen} · ACC {cal_after.get('test_acc',0):.0f}% · Win {sl_wr}% · {sl_status}"):
+        st.caption(
+            "Metrics are historical/replay calibration only; realized-note "
+            "evidence is not available yet."
+        )
+        if sl_status != "calibrated":
+            st.markdown(
+                f'<div style="color:#ff3b30;font-size:10px">Self-learning unavailable: {sl.get("error", "insufficient evidence")}</div>',
+                unsafe_allow_html=True,
+            )
+        st.markdown(f'''
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">ACCURACY</div><div style="color:{acc_color};font-size:16px;font-weight:700">{pl_bt.get("loss_accuracy",0):.0f}%</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">WIN RATE</div><div style="color:#ffb000;font-size:16px;font-weight:700">{sl_wr}%</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">VAL ACC</div><div style="color:#6db6ff;font-size:16px;font-weight:700">{sl_val}%</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">GENERATION</div><div style="color:#fa8000;font-size:16px;font-weight:700">{sl_gen}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">F1</div><div style="color:#ffb000;font-size:16px;font-weight:700">{pl_bt.get("f1",0):.0f}%</div></div>
+        </div>''', unsafe_allow_html=True)
+
+        # Weak/strong features
+        weak = sl.get("weak_features", [])
+        if weak:
+            st.markdown(f'<div style="color:#ff3b30;font-size:9px;margin-top:4px">Слабые факторы (отключены): {", ".join(weak)}</div>', unsafe_allow_html=True)
+
+        weights = sl.get("weights", {})
+        if weights:
+            st.markdown('<div style="color:#d6a44a;font-size:9px;margin-top:6px;font-weight:700">Веса модели:</div>', unsafe_allow_html=True)
+            for k, v in sorted(weights.items(), key=lambda x: abs(x[1]) if isinstance(x[1], (int, float)) else 0, reverse=True):
+                if isinstance(v, (int, float)) and k not in ("base", "generation"):
+                    st.markdown(f'<div style="display:flex;justify-content:space-between;padding:1px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:9px">{k}</span><span style="color:#d6a44a;font-size:9px">{v}</span></div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [7] АЛЬТЕРНАТИВЫ — Smart replacement
+    # ═══════════════════════════════════════════════════════════════
+    smart_alts = D.get("smart_alts", [])
+    with st.expander(f"[7] АЛЬТЕРНАТИВЫ    {len(smart_alts)} вариантов"):
+        if smart_alts:
+            worst_replaced = smart_alts[0].get("replaced", "?")
+            st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:6px">Замена <b style="color:#ff3b30">{worst_replaced}</b> на лучшие альтернативы:</div>', unsafe_allow_html=True)
+            for alt in smart_alts:
+                alt_score = alt["est_score"]
+                alt_c = "#34c759" if alt_score > rs else "#ffb000"
+                delta = alt_score - rs
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{" · ".join(alt["basket"])}</span><span style="color:{alt_c};font-size:10px;font-weight:700">{alt_score:.0f} ({delta:+.0f})</span></div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div style="color:#6a5a2a;font-size:10px">Недостаточно данных</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [8] СРАВНЕНИЕ С РЫНКОМ — Toxicity + Dealer benchmark
+    # ═══════════════════════════════════════════════════════════════
+    DL = cached_dealer(",".join(basket_tickers), D["coupon_pa"], D["p_ki"], D["score"])
+    tox_data = DL.get("toxicity", {})
+    p_loss_data = DL.get("p_loss", {})
+    cpn_pred = DL.get("coupon_prediction", {})
+    guard = DL.get("guard_flag", False)
+
+    with st.expander("[8] РЫНОК    Токсичность · Дилер · P(loss)"):
+        if guard:
+            st.markdown(f'<div style="background:#3a0000;border:1px solid #ff3b30;padding:6px;margin-bottom:6px;color:#ff3b30;font-size:11px;font-weight:700">GUARD: P(убыток) = {p_loss_data.get("p_loss_pct",0):.0f}%</div>', unsafe_allow_html=True)
+
+        # Toxicity
+        per_ticker = tox_data.get("per_ticker", {})
+        tox_html = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">'
+        for ticker, info in per_ticker.items():
+            label = info.get("label", "?")
+            tc = "#ff3b30" if label == "TOXIC" else "#fa8000" if label == "RISKY" else "#34c759" if label == "SAFE" else "#6a5a2a"
+            tox_html += f'<span style="background:#1a1400;border:1px solid {tc};padding:2px 8px;color:{tc};font-size:9px">{ticker} {info.get("tox",0.5):.2f} {label}</span>'
+        tox_html += '</div>'
+        st.markdown(tox_html, unsafe_allow_html=True)
+
+        # Dealer comparison
+        dealer_cpn = cpn_pred.get("predicted_coupon", 0)
+        delta_cpn = DL.get("delta_coupon_vs_model", 0)
+        st.markdown(f'''
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+            <div class="qc" style="flex:1;min-width:110px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">P(УБЫТОК)</div><div style="color:{"#ff3b30" if p_loss_data.get("p_loss_pct",0)>25 else "#34c759"};font-size:14px;font-weight:700">{p_loss_data.get("p_loss_pct",0):.0f}%</div></div>
+            <div class="qc" style="flex:1;min-width:110px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">КУПОН ДИЛЕР</div><div style="color:#6db6ff;font-size:14px;font-weight:700">{dealer_cpn:.1f}%</div></div>
+            <div class="qc" style="flex:1;min-width:110px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">КУПОН НАШ</div><div style="color:#ffb000;font-size:14px;font-weight:700">{D["coupon_pa"]:.1f}%</div></div>
+            <div class="qc" style="flex:1;min-width:110px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">Δ</div><div style="color:{"#34c759" if abs(delta_cpn)<3 else "#ff3b30"};font-size:14px;font-weight:700">{delta_cpn:+.1f}%</div></div>
+        </div>''', unsafe_allow_html=True)
+        quote_stats = DL.get("db_stats", {})
+        st.markdown(
+            f'<div style="color:#6db6ff;font-size:9px;margin-top:6px;'
+            f'border:1px solid #12304a;padding:5px">'
+            f'EMPIRICAL DEALER SAMPLE · valid {quote_stats.get("valid_quotes", 0)} '
+            f'/ total {quote_stats.get("total_quotes", 0)} · '
+            f'coupon median {quote_stats.get("coupon_median", "n/a")}% · '
+            f'std {quote_stats.get("coupon_std", "n/a")}pp · '
+            f'range {quote_stats.get("coupon_min", "n/a")}–'
+            f'{quote_stats.get("coupon_max", "n/a")}%<br>'
+            'Monte Carlo is stress only; it is not included in this empirical sample.'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+
+    # ═══════════════════════════════════════════════════════════════
+    # [9] АГЕНТЫ — 8 Self-Learning Agents
+    # ═══════════════════════════════════════════════════════════════
+    sla = D.get("sl_agents", {})
+    sla_ok = sla.get("agents_ok", 0)
+    sla_total = sla.get("agents_run", 0)
+    sla_decision = sla.get("decision", "N/A")
+    sla_confidence = sla.get("confidence", 0)
+    sla_regime = sla.get("regime", "N/A")
+    sla_sentiment = sla.get("sentiment", "N/A")
+    sla_director = sla.get("director_status", "legacy")
+    sla_adj = D.get("sl_agents_adj", 0)
+    sla_dec_c = "#34c759" if sla_decision == "BUY" else "#ff3b30" if sla_decision == "AVOID" else "#ffb000"
+
+    with st.expander(f"[9] АГЕНТЫ    {sla_ok}/{sla_total} OK · {sla_decision} · {sla_director} · Conf {sla_confidence:.0%}"):
+        # Summary metrics
+        st.markdown(f'''
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">РЕШЕНИЕ</div><div style="color:{sla_dec_c};font-size:14px;font-weight:700">{sla_decision}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">УВЕРЕННОСТЬ</div><div style="color:#ffb000;font-size:14px;font-weight:700">{sla_confidence:.0%}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">РЕЖИМ</div><div style="color:{"#34c759" if sla_regime == "BULL" else "#ff3b30" if sla_regime == "BEAR" else "#ffb000"};font-size:14px;font-weight:700">{sla_regime}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">SENTIMENT</div><div style="color:{"#34c759" if sla_sentiment == "BULLISH" else "#ff3b30" if sla_sentiment == "BEARISH" else "#ffb000"};font-size:14px;font-weight:700">{sla_sentiment}</div></div>
+            <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">СКОР ADJ</div><div style="color:{"#34c759" if sla_adj > 0 else "#ff3b30" if sla_adj < 0 else "#ffb000"};font-size:14px;font-weight:700">{sla_adj:+.1f}</div></div>
+        </div>''', unsafe_allow_html=True)
+
+        cascade_levels = sla.get("cascade_levels", [])
+        if cascade_levels:
+            st.markdown(
+                '<div style="color:#d6a44a;font-size:9px;font-weight:700;'
+                'margin:6px 0 3px">MULTI-LEVEL CASCADE</div>',
+                unsafe_allow_html=True,
+            )
+            for level in cascade_levels:
+                level_color = "#34c759" if level["status"] == "complete" else "#ffb000"
+                st.markdown(
+                    f'<div style="display:flex;gap:8px;padding:2px 8px;'
+                    f'border-bottom:1px solid #1a1400;color:#d6a44a;font-size:9px">'
+                    f'<span style="color:{level_color};font-weight:700">'
+                    f'L{level["level"]} {level["status"].upper()}</span>'
+                    f'<span>{level["name"]}: {", ".join(level["agents"])}</span></div>',
+                    unsafe_allow_html=True,
+                )
+
+        # Per-agent details
+        agent_results = sla.get("results", {})
+        agent_labels = {
+            "sentiment": "Sentiment",
+            "regime": "Regime (HMM)",
+            "alpha": "Alpha Discovery",
+            "risk": "Risk/VaR",
+            "timing": "Timing",
+            "correlation": "Correlation",
+            "overfit_guardian": "Overfit Guard",
+            "meta": "Meta Ensemble",
+        }
+        for agent_key, label in agent_labels.items():
+            ar = agent_results.get(agent_key, {})
+            if "error" in ar:
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#ff3b30;font-size:9px">{label}</span><span style="color:#ff3b30;font-size:9px">ERROR</span></div>', unsafe_allow_html=True)
+                continue
+            adj = ar.get("scoring_adj", 0)
+            adj_c = "#34c759" if adj > 0 else "#ff3b30" if adj < 0 else "#6a5a2a"
+            # Extra info per agent
+            extra = ""
+            if agent_key == "sentiment":
+                extra = ar.get("label", "")
+            elif agent_key == "regime":
+                extra = f"{ar.get('regime', '')} ({ar.get('confidence', 0):.0%})"
+            elif agent_key == "alpha":
+                extra = f"{ar.get('signals_found', 0)} signals"
+            elif agent_key == "risk":
+                extra = f"alloc {ar.get('final_allocation', 0):.0%}"
+            elif agent_key == "timing":
+                extra = ar.get("basket_signal", "")
+            elif agent_key == "correlation":
+                extra = f"avg {ar.get('avg_correlation', 0):.2f}"
+            elif agent_key == "overfit_guardian":
+                extra = ar.get("recommendation", "OK")
+            elif agent_key == "meta":
+                extra = f"score {ar.get('final_score', 0):.0f}"
+            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:9px">{label}</span><span style="color:#6a5a2a;font-size:9px">{extra}</span><span style="color:{adj_c};font-size:9px;font-weight:700">{adj:+.1f}</span></div>', unsafe_allow_html=True)
+
+        active_agents = sla.get("agents_with_signal", [])
+        active_label = " / ".join(active_agents) if active_agents else "нет"
+        st.markdown(
+            f'<div style="color:#6a5a2a;font-size:9px;margin-top:6px">'
+            f'Агенты с измеримым вкладом: {len(active_agents)}/{max(1, sla_total - 2)}'
+            f' · {active_label}</div>',
+            unsafe_allow_html=True,
+        )
+
+        # Guardian status
+        guardian = agent_results.get("overfit_guardian", {})
+        if guardian.get("safety_ok") is False:
+            st.markdown(f'<div style="background:#3a0000;border:1px solid #ff3b30;padding:6px;margin-top:6px;color:#ff3b30;font-size:10px;font-weight:700">GUARDIAN ALERT: {", ".join(guardian.get("safety_issues", []))}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [10] BASKET SCORING — Bank-grade 8-criterion analysis
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[10] BASKET SCORING    Bank-grade analysis"):
+        try:
+            from src.basket.scorer import SAMPLE_BASKETS, BasketScorer
+            from src.basket.worst_of import WorstOfPredictor
+            bs = BasketScorer()
+
+            preset = st.selectbox(
+                "Test basket", ["(current basket)"] + list(SAMPLE_BASKETS),
+                key="basket_preset",
+            )
+            scored_tickers = (
+                basket_tickers if preset == "(current basket)"
+                else SAMPLE_BASKETS[preset]
+            )
+            st.caption("Underlyings: " + ", ".join(scored_tickers))
+            report = bs.score_basket(scored_tickers)
+
+            canonical_score = (
+                float(score) if preset == "(current basket)" else report.total_score
+            )
+            canonical_grade = (
+                "A+" if canonical_score >= 90
+                else "A" if canonical_score >= 80
+                else "B+" if canonical_score >= 70
+                else "B" if canonical_score >= 60
+                else "C" if canonical_score >= 50
+                else "D"
+            )
+            grade_c = "#34c759" if canonical_score >= 70 else "#ffb000" if canonical_score >= 50 else "#ff3b30"
+            score_label = (
+                "Phoenix score (canonical)"
+                if preset == "(current basket)"
+                else "Diagnostic basket score"
+            )
+            st.markdown(f'''
+            <div class="qc" style="border-left:3px solid {grade_c};padding:10px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div><span style="color:{grade_c};font-size:22px;font-weight:700">{canonical_grade}</span>
+                    <span style="color:#d6a44a;font-size:11px;margin-left:8px">{score_label}</span></div>
+                    <span style="color:{grade_c};font-size:20px;font-weight:700">{canonical_score:.1f}/100</span>
+                </div>
+            </div>''', unsafe_allow_html=True)
+            if preset == "(current basket)":
+                st.caption(
+                    "The eight criteria below are diagnostics; the displayed "
+                    "Phoenix score is the single score used by the verdict."
+                )
+            else:
+                st.caption(report.recommendation)
+
+            for criterion in report.criteria:
+                raw_c = "#34c759" if criterion.raw_score >= 70 else "#ffb000" if criterion.raw_score >= 50 else "#ff3b30"
+                bar_w = min(100, criterion.raw_score)
+                st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:2px 0">
+                    <span style="color:#d6a44a;font-size:10px;width:130px;text-align:right">{criterion.name}</span>
+                    <div style="flex:1;height:8px;background:#1a1400"><div style="width:{bar_w}%;height:100%;background:{raw_c}"></div></div>
+                    <span style="color:{raw_c};font-size:10px;width:30px;font-weight:700">{criterion.raw_score:.0f}</span>
+                    <span style="color:#6a5a2a;font-size:8px;width:40px">w={criterion.weight:.2f}</span>
+                </div>''', unsafe_allow_html=True)
+
+            if report.red_flags:
+                st.markdown(f'<div style="color:#ff3b30;font-size:10px;font-weight:700;margin-top:8px">RED FLAGS ({len(report.red_flags)})</div>', unsafe_allow_html=True)
+                for flag in report.red_flags:
+                    fc = "#ff3b30" if flag.severity == "critical" else "#fa8000"
+                    st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:{fc};font-size:9px">{flag.asset} — {flag.flag_type}</span><span style="color:#6a5a2a;font-size:9px">{flag.description}</span></div>', unsafe_allow_html=True)
+
+            if report.worst_of_asset:
+                st.markdown(f'<div style="color:#fa8000;font-size:10px;margin-top:6px">Worst-of: <b style="color:#ff3b30">{report.worst_of_asset}</b> — {report.worst_of_reason}</div>', unsafe_allow_html=True)
+
+            wo_pred = WorstOfPredictor().predict(report.assets)
+            if wo_pred:
+                st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin-top:8px">WORST-OF PROBABILITY</div>', unsafe_allow_html=True)
+                for t, prob in sorted(wo_pred.items(), key=lambda x: -x[1]):
+                    bar_w2 = prob * 100
+                    st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:1px 0">
+                        <span style="color:#d6a44a;font-size:10px;width:50px">{t}</span>
+                        <div style="flex:1;height:10px;background:#1a1400"><div style="width:{bar_w2:.0f}%;height:100%;background:#fa8000"></div></div>
+                        <span style="color:#ffb000;font-size:10px;width:40px">{prob:.1%}</span>
+                    </div>''', unsafe_allow_html=True)
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Basket scoring error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [12] PAPER TRADING — Agent signals + portfolio
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[11] PAPER TRADING    Agent · Portfolio · Signals"):
+        try:
+            from src.agents.paper_trader import PaperTradingAgent
+            from src.agents.models import TradeAction
+
+            agent = PaperTradingAgent(tickers=basket_tickers)
+            portfolio = agent.get_portfolio()
+            stats = agent.get_stats()
+
+            st.markdown(f'''
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">CASH</div><div style="color:#34c759;font-size:14px;font-weight:700">${portfolio.cash:,.0f}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">TOTAL VALUE</div><div style="color:#ffb000;font-size:14px;font-weight:700">${portfolio.total_value:,.0f}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">TRADES</div><div style="color:#ffb000;font-size:14px;font-weight:700">{stats.total_trades}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">WIN RATE</div><div style="color:{"#34c759" if stats.win_rate > 0.5 else "#ff3b30"};font-size:14px;font-weight:700">{stats.win_rate:.0%}</div></div>
+                <div class="qc" style="flex:1;min-width:80px;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">SHARPE</div><div style="color:#ffb000;font-size:14px;font-weight:700">{stats.sharpe_ratio:.2f}</div></div>
+            </div>''', unsafe_allow_html=True)
+
+            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:6px 0 4px">SIGNAL WEIGHTS</div>', unsafe_allow_html=True)
+            for sig_name, sig_weight in sorted(agent._signal_weights.items(), key=lambda x: -x[1]):
+                bar_w3 = sig_weight * 300
+                st.markdown(f'''<div style="display:flex;align-items:center;gap:6px;margin:1px 0">
+                    <span style="color:#d6a44a;font-size:9px;width:100px;text-align:right">{sig_name}</span>
+                    <div style="flex:1;height:8px;background:#1a1400"><div style="width:{bar_w3:.0f}%;height:100%;background:#fa8000"></div></div>
+                    <span style="color:#ffb000;font-size:9px;width:30px">{sig_weight:.0%}</span>
+                </div>''', unsafe_allow_html=True)
+
+            if portfolio.positions:
+                st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">OPEN POSITIONS</div>', unsafe_allow_html=True)
+                for pos in portfolio.positions:
+                    pnl_c = "#34c759" if pos.unrealized_pnl >= 0 else "#ff3b30"
+                    st.markdown(f'''<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400">
+                        <span style="color:#ffb000;font-size:10px;font-weight:700">{pos.ticker}</span>
+                        <span style="color:#d6a44a;font-size:10px">Qty: {pos.quantity:.0f}</span>
+                        <span style="color:#d6a44a;font-size:10px">Avg: ${pos.avg_entry_price:.2f}</span>
+                        <span style="color:{pnl_c};font-size:10px;font-weight:700">P&L: ${pos.unrealized_pnl:+,.2f}</span>
+                    </div>''', unsafe_allow_html=True)
+            else:
+                st.markdown('<div style="color:#6a5a2a;font-size:10px">No open positions. Click "Generate Signal" to start.</div>', unsafe_allow_html=True)
+
+            sig_col1, sig_col2 = st.columns(2)
+            with sig_col1:
+                if st.button("GENERATE SIGNAL", key="gen_signal", use_container_width=True):
+                    for t in basket_tickers[:3]:
+                        try:
+                            import yfinance as _yf
+                            hist = _yf.Ticker(t).history(period="3mo")
+                            if not hist.empty:
+                                prices = hist["Close"]
+                                signals = agent._collect_signals(t, prices)
+                                action, confidence = agent._make_decision(signals)
+                                ac = "#34c759" if action == TradeAction.BUY else "#ff3b30" if action == TradeAction.SELL else "#ffb000"
+                                st.markdown(f'<div style="padding:4px 8px;border:1px solid {ac}"><span style="color:{ac};font-size:12px;font-weight:700">{t}: {action.value.upper()}</span> <span style="color:#d6a44a;font-size:10px">conf={confidence:.2f}</span></div>', unsafe_allow_html=True)
+                        except Exception:
+                            st.markdown(f'<div style="color:#6a5a2a;font-size:10px">{t}: no data</div>', unsafe_allow_html=True)
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Paper trading error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [13] DATA & STORAGE — Database status + backup
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[12] DATA & STORAGE    Database · Cloud · Backup"):
+        try:
+            from src.storage import Storage
+            storage = Storage()
+            status = storage.status()
+
+            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin-bottom:4px">BACKEND STATUS</div>', unsafe_allow_html=True)
+            backends = [
+                ("SQLite", status.get("sqlite", False)),
+                ("DuckDB", status.get("duckdb", False)),
+                ("Supabase", status.get("supabase", False)),
+                ("Firebase", status.get("firebase", False)),
+                ("ClickHouse", status.get("clickhouse", False)),
+                ("R2", status.get("r2", False)),
+                ("Redis", status.get("redis", False)),
+            ]
+            for name, enabled in backends:
+                dot = '<span style="color:#34c759">●</span>' if enabled else '<span style="color:#ff3b30">○</span>'
+                st.markdown(f'<div style="display:flex;gap:8px;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="font-size:10px">{dot}</span><span style="color:#d6a44a;font-size:10px">{name}</span><span style="color:#6a5a2a;font-size:10px">{"connected" if enabled else "disabled"}</span></div>', unsafe_allow_html=True)
+
+            trade_count = len(storage.get_trades(limit=10000))
+            st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-top:8px">Trades in DB: <b style="color:#ffb000">{trade_count}</b></div>', unsafe_allow_html=True)
+
+            if st.button("BACKUP NOW", key="backup_now"):
+                result = storage.backup()
+                if result:
+                    st.markdown('<div style="color:#34c759;font-size:10px">Backup created successfully</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown('<div style="color:#ff3b30;font-size:10px">Backup failed</div>', unsafe_allow_html=True)
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Storage error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [18] BEST STRUCTURED PRODUCT — agent-driven product search
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[13] BEST STRUCTURED PRODUCT    Universe search · Barrier/Tenor grid"):
+        try:
+            _res = _pipeline["product"]
+            _universe = list(dict.fromkeys(list(basket_tickers) + [
+                "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "JPM", "XOM",
+            ]))
+            st.markdown(
+                f'<div style="color:#d6a44a;font-size:9px;margin-bottom:4px">'
+                f'Pipeline universe: {len(_universe)} tickers · basket size 3 · '
+                f'barrier×tenor grid · stage: {_pipeline["stages"]["product"]}</div>',
+                unsafe_allow_html=True)
+            if "best" in _res:
+                _b = _res["best"]
+                _active_product_agents = len(_b.get("agents_with_signal", []))
+                st.markdown(f'''<div style="color:#34c759;font-size:11px;padding:4px;border:1px solid #1a3a1a;border-radius:4px">
+                    <b>{' / '.join(_b["basket"])}</b><br>
+                    Barrier {_b["barrier"]}% · Tenor {_b["tenor_months"]}mo ·
+                    Coupon ~{_b["coupon"]:.0f}% · P(loss) {_b["p_loss_pct"]:.0f}% ·
+                    Tox {_b["avg_tox"]:.2f}<br>
+                    Objective {_b["final_objective"]:.1f}
+                    (agent adj {_b["agent_adjustment"]:+.1f}) ·
+                    agents {_active_product_agents}/8 ·
+                    evaluated {_res["n_evaluated"]} baskets</div>''',
+                    unsafe_allow_html=True)
+                st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:8px 0 4px">LEADERBOARD</div>', unsafe_allow_html=True)
+                for _c in _res["leaderboard"]:
+                    st.markdown(
+                        f'<div style="color:#d6a44a;font-size:9px;border-bottom:1px solid #1a1400;padding:2px 0">'
+                        f'{" / ".join(_c["basket"])} — obj {_c["final_objective"]:.1f} · '
+                        f'{_c["barrier"]}%/{_c["tenor_months"]}mo · cpn {_c["coupon"]:.0f}%</div>',
+                        unsafe_allow_html=True)
+                _catalog = _res.get("candidate_catalog", [])
+                if _catalog:
+                    _fig = go.Figure()
+                    _fig.add_trace(go.Scatter(
+                        x=[item.get("expected_return_pct", 0) for item in _catalog],
+                        y=[item.get("reliability_pct", 0) for item in _catalog],
+                        mode="markers",
+                        text=[
+                            f'{item["basket"]}<br>volatility proxy '
+                            f'{item.get("volatility_pct", 0):.1f}%'
+                            for item in _catalog
+                        ],
+                        marker={
+                            "size": [
+                                max(8, min(28, item.get("volatility_pct", 0) / 2))
+                                for item in _catalog
+                            ],
+                            "color": [
+                                "#34c759" if item.get("selected") else "#6db6ff"
+                                for item in _catalog
+                            ],
+                            "opacity": 0.8,
+                        },
+                        hovertemplate="%{text}<br>return %{x:.1f}%"
+                        "<br>reliability %{y:.1f}%<extra></extra>",
+                    ))
+                    _fig.update_layout(
+                        height=280,
+                        margin={"l": 8, "r": 8, "t": 24, "b": 8},
+                        paper_bgcolor="#020711",
+                        plot_bgcolor="#020711",
+                        font={"color": "#d6a44a", "size": 9},
+                        title="SLOW MAP · return × reliability · size = volatility",
+                        xaxis={"title": "Expected return %", "gridcolor": "#142033"},
+                        yaxis={"title": "Reliability %", "gridcolor": "#142033"},
+                        showlegend=False,
+                    )
+                    st.plotly_chart(
+                        _fig,
+                        use_container_width=True,
+                        config={"displayModeBar": False},
+                    )
+            else:
+                st.markdown(
+                    f'<div style="color:#ff9500;font-size:10px">No product: '
+                    f'{_res.get("error", "unknown")}</div>',
+                    unsafe_allow_html=True,
+                )
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Product search error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [19] STRUCTURED NOTE OUTCOMES — explicit simulated/replay/realized states
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[14] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
+        try:
+            _quality = load_quality_report()
+            _paper_notes = PaperOutcomeTracker().notes
+            _evaluation = build_realized_evaluation(_paper_notes)
+            _learning_gate = assess_learning_gate(load_realized_feedback())
+            _readiness = assess_commercial_readiness(
+                D.get("evidence_gate", {}),
+                _quality,
+            )
+            _readiness_color = (
+                "#34c759" if _readiness["status"] == "production_review"
+                else "#ffb000" if _readiness["status"] == "pilot_ready"
+                else "#ff3b30"
+            )
+            st.markdown(
+                f'<div style="border:1px solid {_readiness_color};padding:6px;margin-bottom:6px">'
+                f'<div style="color:{_readiness_color};font-size:11px;font-weight:700">'
+                f'COMMERCIAL STATUS: {_readiness["label"]}</div>'
+                f'<div style="color:#d6a44a;font-size:9px">'
+                f'{_readiness["allowed_claim"]} '
+                f'Realized notes: {_readiness["realized_notes"]}; '
+                f'historical windows: {_readiness["historical_windows"]}.</div>'
+                f'<div style="color:#ff3b30;font-size:9px">'
+                f'{_readiness["blocked_claim"]}</div></div>',
+                unsafe_allow_html=True,
+            )
+            if _quality.get("status") != "not_available":
+                st.markdown(
+                    f'<div style="color:#d6a44a;font-size:9px;margin-bottom:6px">'
+                    f'Quality confidence: <b>{_quality.get("confidence_pct", 0):.1f}%</b> · '
+                    f'historical windows: {_quality.get("historical_windows", 0)} · '
+                    f'realized notes: {_quality.get("realized_notes", 0)} · '
+                    f'status: {_quality.get("status")}</div>',
+                    unsafe_allow_html=True,
+                )
+            st.markdown(
+                '<div style="color:#d6a44a;font-size:9px;margin-bottom:6px">'
+                'Simulation is diagnostic only. It never trains agents; only '
+                'a resolved paper note is marked realized.</div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f'<div style="color:#6db6ff;font-size:9px;border:1px solid #12304a;'
+                f'padding:5px;margin-bottom:6px">'
+                f'REALIZED BASELINE: {_evaluation["realized_notes"]}/'
+                f'{_evaluation["target_notes"]} notes '
+                f'({_evaluation["progress_pct"]:.1f}%) · '
+                f'win {_evaluation["win_rate_pct"]:.1f}% · '
+                f'mean return {_evaluation["mean_return_pct"] if _evaluation["mean_return_pct"] is not None else "n/a"}% · '
+                f'Brier {_evaluation["brier_autocall"] if _evaluation["brier_autocall"] is not None else "n/a"}<br>'
+                f'LEARNING GATE: {_learning_gate["status"].upper()} · '
+                f'{_learning_gate["reason"]} · drift '
+                f'{_learning_gate.get("drift", "n/a")}</div>',
+                unsafe_allow_html=True,
+            )
+            _open_notes = [
+                note for note in _paper_notes if note.get("status") == "open"
+            ]
+            _marked_notes = [
+                note.get("current_state", {})
+                for note in _open_notes
+                if note.get("current_state")
+            ]
+            if _marked_notes:
+                _avg_mark = sum(
+                    float(state.get("mark_to_market_return_pct", 0.0))
+                    for state in _marked_notes
+                ) / len(_marked_notes)
+                _mark_color = "#34c759" if _avg_mark >= 0 else "#ff3b30"
+                st.markdown(
+                    f'<div style="color:{_mark_color};font-size:9px;'
+                    f'border:1px solid #12304a;padding:5px;margin-bottom:6px">'
+                    f'PAPER NOTES: {len(_open_notes)} open · '
+                    f'{len(_marked_notes)} marked-to-market · '
+                    f'average indicative return {_avg_mark:+.2f}%<br>'
+                    'This is paper mark-to-market only; it is not realized performance.'
+                    '</div>',
+                    unsafe_allow_html=True,
+                )
+            _outcomes = _pipeline["stress"]
+            if _outcomes:
+                for _scenario, _report in _outcomes["scenarios"].items():
+                    st.markdown(
+                        f'<div style="color:#d6a44a;font-size:9px;border-bottom:1px solid #1a1400;padding:3px 0">'
+                        f'<b>{_scenario}</b> · source={_report["source"]} · '
+                        f'P(loss) {_report["p_loss"]:.1%} · '
+                        f'P(KI) {_report["p_barrier_breach"]:.1%} · '
+                        f'P(autocall) {_report["p_autocall"]:.1%} · '
+                        f'E[return] {_report["mean_return_pct"]:+.2f}% · '
+                        f'CVaR95 {_report["cvar_95"]:.3f}</div>',
+                        unsafe_allow_html=True,
+                    )
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">Outcome engine error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # [15] API & CONNECTIONS — Setup · Keys · Health Check
+    # ═══════════════════════════════════════════════════════════════
+    with st.expander("[15] API & CONNECTIONS    Setup · Keys · Health Check"):
+        try:
+            from src.api_manager import APIManager, SERVICES, mask_key
+            api_mgr = APIManager(load_env=True)
+            api_status = api_mgr.get_status()
+            cached_probe = api_mgr.get_cached_probe()
+
+            connected_count = api_status["connected"]
+            total_count = api_status["total"]
+            configured_count = api_status.get("configured", 0)
+            st.markdown(f'''
+            <div style="display:flex;gap:4px;margin-bottom:8px">
+                <div class="qc" style="flex:1;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">LOCAL (always on)</div><div style="color:#34c759;font-size:12px;font-weight:700">SQLite + DuckDB</div></div>
+                <div class="qc" style="flex:1;padding:6px;text-align:center"><div style="color:#d6a44a;font-size:8px">CLOUD VERIFIED</div><div style="color:#ffb000;font-size:14px;font-weight:700">{connected_count}/{total_count}</div><div style="color:#6a5a2a;font-size:8px">{configured_count} configured</div></div>
+            </div>''', unsafe_allow_html=True)
+
+            if cached_probe.get("cached"):
+                probe_age = cached_probe.get("age_s")
+                probe_label = (
+                    "stale cache"
+                    if cached_probe.get("stale")
+                    else f'live probe {probe_age:.0f}s ago'
+                )
+                probe_color = "#ff9500" if cached_probe.get("stale") else "#34c759"
+                st.markdown(
+                    f'<div style="color:{probe_color};font-size:9px;margin-bottom:6px">'
+                    f'Connectivity: {probe_label} · '
+                    f'{cached_probe.get("connected", 0)} services reachable'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(
+                    '<div style="color:#6a5a2a;font-size:9px;margin-bottom:6px">'
+                    f'Connectivity: not probed yet · {configured_count} service(s) configured'
+                    '</div>',
+                    unsafe_allow_html=True,
+                )
+
+            for svc_id, svc_info in SERVICES.items():
+                svc_status = api_status["services"][svc_id]
+                has_keys = svc_status["has_keys"]
+                is_connected = svc_status.get("connected", False)
+                dot = '<span style="color:#34c759">●</span>' if is_connected else '<span style="color:#ffb000">○</span>' if has_keys else '<span style="color:#ff3b30">○</span>'
+                status_text = (
+                    "live verified" if is_connected
+                    else "keys saved; not probed" if has_keys
+                    else "not configured"
+                )
+
+                st.markdown(f'''<div style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-bottom:1px solid #1a1400">
+                    <span style="font-size:10px">{dot}</span>
+                    <span style="color:#ffb000;font-size:10px;font-weight:700;width:100px">{svc_info["name"]}</span>
+                    <span style="color:#6a5a2a;font-size:9px;flex:1">{svc_info["description"]}</span>
+                    <span style="color:#d6a44a;font-size:9px">{status_text}</span>
+                </div>''', unsafe_allow_html=True)
+
+            st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700;margin:12px 0 6px">CONFIGURE SERVICE</div>', unsafe_allow_html=True)
+            selected_svc = st.selectbox(
+                "Select service to configure:",
+                options=list(SERVICES.keys()),
+                format_func=lambda x: f"{SERVICES[x]['name']} — {SERVICES[x]['description']}",
+                key="api_service_select",
+                label_visibility="collapsed",
+            )
+
+            if selected_svc:
+                svc = SERVICES[selected_svc]
+                st.markdown(f'<div style="color:#d6a44a;font-size:9px;margin-bottom:4px"><b>Setup:</b> <a href="{svc["signup_url"]}" target="_blank" style="color:#fa8000">{svc["signup_url"]}</a></div>', unsafe_allow_html=True)
+                for step in svc["setup_steps"]:
+                    st.markdown(f'<div style="color:#6a5a2a;font-size:9px;padding-left:8px">{step}</div>', unsafe_allow_html=True)
+
+                current_keys = api_mgr.get_saved_keys(selected_svc)
+                key_inputs = {}
+                for key_name in svc["keys"]:
+                    label = svc["key_labels"][key_name]
+                    current_val = current_keys.get(key_name, "")
+                    masked = mask_key(current_val) if current_val else ""
+                    key_inputs[key_name] = st.text_input(
+                        label,
+                        value="",
+                        placeholder=masked or f"Enter {key_name}",
+                        key=f"api_key_{key_name}",
+                        type="password",
+                    )
+
+                save_col, test_col = st.columns(2)
+                with save_col:
+                    if st.button("SAVE KEYS", key=f"save_{selected_svc}", use_container_width=True):
+                        non_empty = {k: v for k, v in key_inputs.items() if v.strip()}
+                        if non_empty:
+                            if api_mgr.save_keys(selected_svc, non_empty):
+                                st.markdown('<div style="color:#34c759;font-size:10px">Keys saved to .env</div>', unsafe_allow_html=True)
+                            else:
+                                st.markdown('<div style="color:#ff3b30;font-size:10px">Save failed</div>', unsafe_allow_html=True)
+                        else:
+                            st.markdown('<div style="color:#6a5a2a;font-size:10px">Enter at least one key</div>', unsafe_allow_html=True)
+
+                with test_col:
+                    if st.button("TEST CONNECTION", key=f"test_{selected_svc}", use_container_width=True):
+                        test_result = api_mgr.test_connection(selected_svc)
+                        if test_result["connected"]:
+                            st.markdown(f'<div style="color:#34c759;font-size:10px">{test_result["message"]}</div>', unsafe_allow_html=True)
+                        else:
+                            st.markdown(f'<div style="color:#ff3b30;font-size:10px">{test_result["message"]}</div>', unsafe_allow_html=True)
+
+            if st.button("TEST ALL CONNECTIONS", key="test_all_api", use_container_width=True):
+                all_results = api_mgr.probe_connectivity(force=True)["results"]
+                for svc_id_r, result in all_results.items():
+                    c = "#34c759" if result["connected"] else "#ff3b30"
+                    icon = "●" if result["connected"] else "○"
+                    st.markdown(f'<div style="color:{c};font-size:10px">{icon} {SERVICES[svc_id_r]["name"]}: {result["message"]}</div>', unsafe_allow_html=True)
+
+        except Exception as exc:
+            st.markdown(f'<div style="color:#ff3b30;font-size:10px">API Manager error: {exc}</div>', unsafe_allow_html=True)
+
+    # ═══════════════════════════════════════════════════════════════
+    # FOOTER
+    # ═══════════════════════════════════════════════════════════════
+    st.markdown('''
+    <div style="margin-top:16px;padding:8px 14px;border-top:1px solid #3a2a00">
+        <small style="color:#3a2a00;font-size:9px;line-height:1.4">
+            P(KI): four model methods. Scoring: 12-factor Phoenix score + eight agents.
+            Model performance is shown only when the relevant replay, paper, or realized evidence exists.
+        </small>
+    </div>
+    ''', unsafe_allow_html=True)
+
+now_utc = datetime.datetime.now(datetime.timezone.utc)
+gdrive_st = "G-DRIVE" if GDRIVE_AVAILABLE else "LOCAL"
+data_src_lbl = get_data_source_status().upper()
+st.markdown(f'''
+<div class="sbar">
+    <span>NY {now_utc.strftime("%H:%M:%S")}</span>
+    <span>ФЕНИКС <span class="ok">v36.0</span></span>
+    <span>{data_src_lbl} <span class="ok">OK</span></span>
+    <span>{gdrive_st} <span class="ok">OK</span></span>
+    <span style="margin-left:auto"><span class="lb">PHOENIX TERMINAL</span></span>
+</div>
+''', unsafe_allow_html=True)

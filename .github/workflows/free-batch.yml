@@ -1,0 +1,45 @@
+name: Free Batch Snapshot
+
+on:
+  schedule:
+    - cron: "30 6 * * *"
+  workflow_dispatch:
+    inputs:
+      tickers:
+        description: "Comma-separated basket"
+        required: false
+        default: "AAPL,MSFT,GOOGL,AMZN,NVDA"
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Generate observed-data snapshot
+        env:
+          TICKERS: ${{ inputs.tickers || 'AAPL,MSFT,GOOGL,AMZN,NVDA' }}
+        run: |
+          python -m src.scheduler --snapshot --tickers "$TICKERS"
+
+      - name: Upload batch outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: phoenix-free-batch-${{ github.run_number }}
+          retention-days: 7
+          path: |
+            data/runtime/full_analysis_snapshot.pkl
+            data/scheduler_log.json

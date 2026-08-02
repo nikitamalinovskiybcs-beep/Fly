@@ -1,0 +1,119 @@
+name: Auto-Improve Model
+
+on:
+  schedule:
+    # Run every Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: 'Force run even if no new data'
+        required: false
+        default: 'false'
+
+jobs:
+  auto-improve:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: base-branch
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run research improvement cycle + committee inputs
+        run: |
+          python -c "
+          import json
+          from src.auto_improve import run_full_improvement_cycle
+          from src.agents import run_all_agents
+
+          # Phase 1: Core improvement (3 strategies)
+          report = run_full_improvement_cycle()
+
+          print('=== AUTO-IMPROVE REPORT ===')
+          print(f'Improved: {report[\"improved\"]}')
+          print(f'Before: acc={report[\"before\"][\"accuracy\"]}%, wr={report[\"before\"][\"win_rate\"]}%')
+          print(f'After:  acc={report[\"after\"][\"accuracy\"]}%, wr={report[\"after\"][\"win_rate\"]}%')
+
+          for name, result in report['strategies'].items():
+              if 'error' in result:
+                  print(f'{name}: ERROR - {result[\"error\"]}')
+              else:
+                  print(f'{name}: OK')
+
+          if report.get('rollback'):
+              print(f'ROLLBACK: {report[\"rollback_reason\"]}')
+
+          # Phase 2: Run 5 specialized agents
+          print()
+          print('=== 5 AGENTS REPORT ===')
+          agents_report = run_all_agents()
+          print(f'Agents: {agents_report[\"agents_success\"]}/{agents_report[\"agents_run\"]} success')
+          for name, result in agents_report['results'].items():
+              if 'error' in result:
+                  print(f'  {name}: ERROR')
+              else:
+                  print(f'  {name}: OK')
+
+          report['agents'] = agents_report
+
+          # Phase 3: Run 8 self-learning agents (test run)
+          print()
+          print('=== 8 SELF-LEARNING AGENTS TEST ===')
+          try:
+              from src.self_learning_agents import run_all_self_learning_agents
+              sl_report = run_all_self_learning_agents(
+                  tickers=['MSFT', 'GOOGL', 'JNJ', 'PG'],
+                  yf_data={},
+                  features={'pki_norm': 0.5, 'vol_norm': 0.4, 'corr_norm': 0.5, 'tox_norm': 0.3, 'fund_norm': 0.6},
+                  base_score=75.0,
+              )
+              print(f'SL Agents: {sl_report[\"agents_ok\"]}/{sl_report[\"agents_run\"]} OK')
+              print(f'Decision: {sl_report[\"decision\"]} (conf {sl_report[\"confidence\"]:.0%})')
+              print(f'Score adj: {sl_report[\"total_adjustment\"]:+.1f}')
+              report['self_learning_agents'] = sl_report
+          except Exception as e:
+              print(f'SL Agents ERROR: {e}')
+
+          # Save combined report as artifact
+          with open('improvement_report.json', 'w') as f:
+              json.dump(report, f, indent=2, default=str)
+
+          " 2>&1
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: improvement-report
+          path: improvement_report.json
+
+      - name: Publish immutable safety record
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          Path("automation_safety.json").write_text(json.dumps({
+              "mode": "research_only",
+              "production_weights_changed": False,
+              "verdict_mutated": False,
+              "trades_created": False,
+              "requires_human_review_for_merge": True,
+          }, indent=2))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: automation-safety
+          path: automation_safety.json

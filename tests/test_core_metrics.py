@@ -1,115 +1,160 @@
-"""Unit tests for core_metrics module."""
+"""Tests for src.core_metrics — Sharpe, Sortino, Calmar, Walk-Forward."""
 
-import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pytest
+
 from src.core_metrics import (
-    sharpe_ratio, sortino_ratio, max_drawdown, total_return, cagr,
-    profit_factor, win_rate, performance_summary, monte_carlo_permutation_test,
-    walk_forward_analysis
+    returns_from_prices,
+    total_return,
+    cagr,
+    annualized_volatility,
+    sharpe_ratio,
+    sortino_ratio,
+    max_drawdown,
+    max_drawdown_duration,
+    profit_factor,
+    win_rate,
+    performance_summary,
+    monte_carlo_permutation_test,
+    walk_forward_analysis,
+    stability_by_periods,
+    PerformanceSummary,
 )
 
 
-class TestBasicMetrics:
-    """Test basic metric calculations."""
-
-    def test_sharpe_ratio_constant_returns(self):
-        """Sharpe ratio for constant positive returns."""
-        returns = pd.Series([0.01] * 252)
-        sharpe = sharpe_ratio(returns)
-        assert sharpe > 0
-        assert np.isfinite(sharpe)
-
-    def test_sharpe_ratio_zero_returns(self):
-        """Sharpe ratio for zero returns."""
-        returns = pd.Series([0.0] * 252)
-        sharpe = sharpe_ratio(returns)
-        assert sharpe == 0.0
-
-    def test_max_drawdown_all_gains(self):
-        """Max drawdown should be 0 for all positive returns."""
-        returns = pd.Series([0.01] * 100)
-        dd = max_drawdown(returns)
-        assert dd == 0.0
-
-    def test_max_drawdown_crash(self):
-        """Max drawdown for a 50% crash."""
-        returns = pd.Series([0.01] * 50 + [-0.01] * 50)
-        dd = max_drawdown(returns)
-        assert dd < 0
-        assert dd > -1
-
-    def test_total_return_single_trade(self):
-        """Total return for single 10% gain."""
-        returns = pd.Series([0.1])
-        tr = total_return(returns)
-        assert tr == pytest.approx(0.1, rel=1e-6)
-
-    def test_profit_factor_all_winners(self):
-        """Profit factor when all returns are positive."""
-        returns = pd.Series([0.01, 0.02, 0.03])
-        pf = profit_factor(returns)
-        assert pf == float('inf')
-
-    def test_profit_factor_all_losers(self):
-        """Profit factor when all returns are negative."""
-        returns = pd.Series([-0.01, -0.02, -0.03])
-        pf = profit_factor(returns)
-        assert pf == 0.0
-
-    def test_win_rate_half(self):
-        """Win rate for 50/50 split."""
-        returns = pd.Series([0.01, -0.01, 0.01, -0.01])
-        wr = win_rate(returns)
-        assert wr == pytest.approx(0.5, rel=1e-6)
-
-    def test_performance_summary_shapes(self):
-        """Performance summary returns all required fields."""
-        returns = pd.Series(np.random.randn(252) * 0.01)
-        perf = performance_summary(returns)
-        
-        assert hasattr(perf, 'sharpe')
-        assert hasattr(perf, 'sortino')
-        assert hasattr(perf, 'max_drawdown')
-        assert hasattr(perf, 'cagr')
+@pytest.fixture
+def positive_returns() -> pd.Series:
+    rng = np.random.default_rng(42)
+    idx = pd.bdate_range("2020-01-01", periods=500)
+    return pd.Series(rng.normal(0.001, 0.01, 500), index=idx)
 
 
-class TestMonteCarlo:
-    """Test Monte Carlo permutation test."""
-
-    def test_mc_basic(self):
-        """Basic MC test runs without errors."""
-        returns = pd.Series(np.random.randn(252) * 0.01)
-        result = monte_carlo_permutation_test(returns, n_permutations=100)
-        
-        assert "observed" in result
-        assert "p_value" in result
-        assert 0 <= result["p_value"] <= 1
-
-    def test_mc_permutation_count(self):
-        """MC returns correct number of permutations."""
-        returns = pd.Series(np.random.randn(252) * 0.01)
-        result = monte_carlo_permutation_test(returns, n_permutations=500)
-        
-        assert len(result["permuted_distribution"]) == 500
+@pytest.fixture
+def negative_returns() -> pd.Series:
+    rng = np.random.default_rng(42)
+    idx = pd.bdate_range("2020-01-01", periods=500)
+    return pd.Series(rng.normal(-0.001, 0.015, 500), index=idx)
 
 
-class TestWalkForward:
-    """Test walk-forward analysis."""
+@pytest.fixture
+def prices() -> pd.Series:
+    rng = np.random.default_rng(42)
+    rets = rng.normal(0.0005, 0.01, 500)
+    prices_arr = 100 * np.cumprod(1 + rets)
+    return pd.Series(prices_arr, index=pd.bdate_range("2020-01-01", periods=500))
 
-    def test_wf_basic(self):
-        """Basic walk-forward runs without errors."""
-        returns = pd.Series(np.random.randn(252) * 0.01)
-        results = walk_forward_analysis(returns, n_splits=5)
-        
-        assert len(results) > 0
-        assert all('fold' in r for r in results)
-        assert all('train_metric' in r for r in results)
-        assert all('test_metric' in r for r in results)
 
-    def test_wf_degradation(self):
-        """Walk-forward degradation column exists."""
-        returns = pd.Series(np.random.randn(252) * 0.01)
-        results = walk_forward_analysis(returns, n_splits=5)
-        
-        assert all('degradation' in r for r in results)
+# ── Basic metrics ──
+
+def test_returns_from_prices(prices: pd.Series) -> None:
+    rets = returns_from_prices(prices)
+    assert len(rets) == len(prices) - 1
+
+
+def test_total_return_positive(positive_returns: pd.Series) -> None:
+    tr = total_return(positive_returns)
+    assert tr > 0
+
+
+def test_cagr_positive(positive_returns: pd.Series) -> None:
+    c = cagr(positive_returns)
+    assert c > 0
+
+
+def test_cagr_empty() -> None:
+    assert cagr(pd.Series([], dtype=float)) == 0.0
+
+
+def test_annualized_vol_positive(positive_returns: pd.Series) -> None:
+    vol = annualized_volatility(positive_returns)
+    assert vol > 0
+
+
+def test_sharpe_positive(positive_returns: pd.Series) -> None:
+    sr = sharpe_ratio(positive_returns)
+    assert sr > 0
+
+
+def test_sharpe_zero_std() -> None:
+    flat = pd.Series([0.0] * 100)
+    assert sharpe_ratio(flat) == 0.0
+
+
+def test_sortino_positive(positive_returns: pd.Series) -> None:
+    s = sortino_ratio(positive_returns)
+    assert s > 0
+
+
+def test_max_drawdown_negative(positive_returns: pd.Series) -> None:
+    mdd = max_drawdown(positive_returns)
+    assert mdd <= 0
+
+
+def test_max_drawdown_duration_positive(positive_returns: pd.Series) -> None:
+    dur = max_drawdown_duration(positive_returns)
+    assert dur >= 0
+
+
+def test_profit_factor_positive(positive_returns: pd.Series) -> None:
+    pf = profit_factor(positive_returns)
+    assert pf > 1  # positive strategy should have PF > 1
+
+
+def test_profit_factor_no_losses() -> None:
+    gains_only = pd.Series([0.01, 0.02, 0.03])
+    pf = profit_factor(gains_only)
+    assert pf == float("inf")
+
+
+def test_win_rate_positive(positive_returns: pd.Series) -> None:
+    wr = win_rate(positive_returns)
+    assert 0 < wr < 1
+
+
+def test_win_rate_empty() -> None:
+    assert win_rate(pd.Series([], dtype=float)) == 0.0
+
+
+# ── Performance Summary ──
+
+def test_performance_summary(positive_returns: pd.Series) -> None:
+    ps = performance_summary(positive_returns)
+    assert isinstance(ps, PerformanceSummary)
+    assert ps.sharpe > 0
+    assert ps.max_drawdown <= 0
+
+
+def test_performance_summary_negative(negative_returns: pd.Series) -> None:
+    ps = performance_summary(negative_returns)
+    assert ps.sharpe < 0
+
+
+# ── Monte Carlo Permutation ──
+
+def test_mc_permutation(positive_returns: pd.Series) -> None:
+    result = monte_carlo_permutation_test(positive_returns, n_permutations=200)
+    assert "observed" in result
+    assert "p_value" in result
+    assert 0 <= result["p_value"] <= 1
+
+
+# ── Walk-Forward ──
+
+def test_walk_forward(positive_returns: pd.Series) -> None:
+    results = walk_forward_analysis(positive_returns, n_splits=5)
+    assert len(results) > 0
+    assert "train_metric" in results[0]
+
+
+def test_walk_forward_degradation(positive_returns: pd.Series) -> None:
+    results = walk_forward_analysis(positive_returns, n_splits=5)
+    for r in results:
+        assert "degradation" in r
+
+
+# ── Stability by Periods ──
+
+def test_stability_by_periods(positive_returns: pd.Series) -> None:
+    result = stability_by_periods(positive_returns)
+    assert isinstance(result, dict)

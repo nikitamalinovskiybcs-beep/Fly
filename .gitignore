@@ -1,1 +1,17 @@
 __pycache__/
+.env
+data/backups/
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.duckdb
+data/*.duckdb.wal
+data/numerai/
+data/*.parquet
+data/feature_cache.duckdb
+data/scheduler_log.json
+data/numerai_submissions.json
+data/paper_trading/
+data/connectivity_probe.json
+data/runtime/
+data/calibration_agent/
