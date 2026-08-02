@@ -13,6 +13,11 @@ from src.gemini_judge import _extract_json, build_judge_prompt, judge_report
 JsonObject = dict[str, object]
 
 OPENAI_COMPATIBLE_PROVIDERS = {
+    "cerebras": {
+        "key": "CEREBRAS_API_KEY",
+        "url": "https://api.cerebras.ai/v1/chat/completions",
+        "model": "llama-3.3-70b",
+    },
     "nvidia": {
         "key": "NVIDIA_API_KEY",
         "url": "https://integrate.api.nvidia.com/v1/chat/completions",

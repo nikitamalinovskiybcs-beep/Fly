@@ -23,8 +23,10 @@ jobs:
           python scripts/plan_quant_improvement.py \
             multi_horizon_benchmark.json \
             --output quant_improvement_proposal.json
+          python scripts/build_formula_review_packet.py \
+            --output formula_review_packet.json
           python scripts/run_judge_panel.py \
-            multi_horizon_benchmark.json \
+            formula_review_packet.json \
             quant_improvement_proposal.json \
             --output ai_judge_panel.json
           python scripts/plan_screening_targets.py \
@@ -42,6 +44,11 @@ jobs:
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
+          name: friday-formula-review-packet
+          path: formula_review_packet.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
           name: friday-ai-judge-panel
           path: ai_judge_panel.json
           retention-days: 30
@@ -52,6 +59,7 @@ jobs:
           retention-days: 30
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
       NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

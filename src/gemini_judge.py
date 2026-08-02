@@ -20,6 +20,9 @@ def build_judge_prompt(
     report: Mapping[str, object],
     proposal: Mapping[str, object],
 ) -> str:
+    formula_review = report.get("review_type") == (
+        "phoenix_formula_and_risk_code_review"
+    )
     evidence = {
         "benchmark": report,
         "improvement_proposal": proposal,
@@ -39,10 +42,24 @@ def build_judge_prompt(
             ],
         },
     }
+    if formula_review:
+        evidence["instructions"]["formula_review"] = (
+            "For every material component, return KEEP, REMOVE, or REPLACE. "
+            "Cite the supplied file/line range, explain any double counting or "
+            "unsupported proxy, and give a fixed-24-month OOS metric gate."
+        )
     return (
         "Evaluate Phoenix using only this JSON evidence. Do not invent results. "
         "Return valid JSON with keys verdict, summary, top_technical_reasons, "
         "candidate_safety, next_experiments, and data_or_label_risks. "
+        + (
+            "Because this is a formula/code review, also return findings with "
+            "action KEEP, REMOVE, or REPLACE, component, reason, replacement, "
+            "and metric_gate. "
+            if formula_review
+            else ""
+        )
+        + " "
         "Each next_experiment must include hypothesis, change, metric_gate, "
         "and why_it_is_informative. Treat replay as replay, not realized trading. "
         "Keep production_weights_changed and verdict_mutated false.\n\n"

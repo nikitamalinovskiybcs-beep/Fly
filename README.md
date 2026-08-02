@@ -170,14 +170,14 @@ empirical baseline. Production promotion разрешается только е�
 После benchmark workflow запускает provider-agnostic AI judge panel и сохраняет
 `ai_judge_panel.json`. Базовый режим поддерживает локальную Ollama без API-ключа
 и банковской карты (например, `ollama pull qwen2.5:7b` и
-`ollama pull deepseek-r1:7b`). Также поддерживаются
-Gemini, OpenAI, Anthropic, Mistral, Groq и OpenRouter. Добавляйте только нужные
-NVIDIA NIM также поддерживается через `NVIDIA_API_KEY`; его бесплатный доступ
-имеет лимиты провайдера.
-Добавляйте только нужные
+`ollama pull deepseek-r1:7b`). Также поддерживаются Gemini, OpenAI,
+Anthropic, Mistral, Groq, OpenRouter, NVIDIA NIM и Cerebras. Для Ollama можно
+добавить Gemma или любую другую совместимую модель через `OLLAMA_MODELS`.
+Облачные бесплатные тарифы имеют лимиты провайдера. Добавляйте только нужные
 репозиторные GitHub Actions secrets
-(`GEMINI_API_KEY`, `NVIDIA_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`,
-`GROQ_API_KEY`, `OPENROUTER_API_KEY`); отсутствующий ключ получает статус
+(`GEMINI_API_KEY`, `CEREBRAS_API_KEY`, `NVIDIA_API_KEY`, `OPENAI_API_KEY`,
+`ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`);
+отсутствующий ключ получает статус
 `skipped`, временная квота — `deferred`. Модели видят только
 benchmark/proposal evidence и не могут изменить production weights, verdict или
 создать сделки. Завершённые reviews превращаются максимум в три
