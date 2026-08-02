@@ -127,6 +127,15 @@ Fed funds, yield-curve slope, credit spread, dollar index и oil. Stress suite
 содержит восемь deterministic-seed сценариев, но каждый результат помечен
 `source="simulated"` и не может использоваться как realized/OOS label.
 
+Проверка расхождения бесплатных OHLCV-источников:
+
+```bash
+python scripts/check_market_sources.py AAPL MSFT NVDA
+```
+
+Команда сравнивает основной источник с Stooq и только выдаёт quality report;
+она не подменяет observed data автоматически и не меняет веса модели.
+
 ## Деплой на Fly.io
 
 ```bash

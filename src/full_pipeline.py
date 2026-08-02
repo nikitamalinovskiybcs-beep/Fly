@@ -112,6 +112,7 @@ def run_full_analysis(
         "evidence_gate": evidence_gate,
         "product": product,
         "stress": stress,
+        "macro_data": data.get("macro", {}),
         "stages": stages,
         "decision_gate": decision_gate,
     }

@@ -80,7 +80,7 @@ def get_fred_data() -> Dict:
             result["fred_regime"] = "normal"
 
         result["available"] = bool(observed_keys)
-        result["source"] = "fred_live" if len(observed_keys) == 4 else "fred_partial"
+        result["source"] = "fred_live" if len(observed_keys) >= 8 else "fred_partial"
         if not observed_keys:
             result["warning"] = "FRED unavailable; defaults used"
         _cache["fred"] = result

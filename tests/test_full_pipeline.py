@@ -47,3 +47,4 @@ def test_full_analysis_runs_stages_in_order(monkeypatch) -> None:
     assert calls == ["market", "phoenix", "product", "stress"]
     assert result["stages"]["product"] == "complete"
     assert result["stages"]["outcomes"] == "stress_complete"
+    assert result["stress"]["source"] == "simulated"

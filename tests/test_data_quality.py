@@ -15,3 +15,16 @@ def test_validate_macro_snapshot_rejects_invalid_vix() -> None:
     result = validate_macro_snapshot({"vix": 250})
     assert result["passed"] is False
     assert "vix_out_of_range" in result["issues"]
+
+
+def test_macro_snapshot_accepts_free_source_metadata() -> None:
+    result = validate_macro_snapshot(
+        {
+            "vix": 18,
+            "rate_10y": 4.2,
+            "rate_2y": 4.0,
+            "fed_rate": 4.5,
+            "source": "fred_partial",
+        }
+    )
+    assert result["passed"] is True
