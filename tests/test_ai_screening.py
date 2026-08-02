@@ -22,3 +22,30 @@ def test_screening_plan_extracts_bounded_targets() -> None:
     assert result["target_count"] == 3
     assert result["action"] == "run_research_benchmark"
     assert result["production_weights_changed"] is False
+
+
+def test_formula_findings_become_bounded_targets() -> None:
+    result = build_screening_target_plan(
+        {
+            "reviews": [
+                {
+                    "provider": "groq",
+                    "status": "completed",
+                    "review": {
+                        "findings": [
+                            {
+                                "action": "REPLACE",
+                                "component": "p_loss",
+                                "replacement": "calibrated p_loss",
+                                "reason": "not calibrated",
+                                "metric_gate": "fixed-24m OOS gate",
+                            },
+                            {"action": "KEEP", "component": "audit trail"},
+                        ],
+                    },
+                },
+            ],
+        },
+    )
+    assert result["target_count"] == 1
+    assert result["targets"][0]["change"] == "calibrated p_loss"
