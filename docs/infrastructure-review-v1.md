@@ -19,19 +19,24 @@ is separate from the quantitative model review.
 | Rollback controls | PASS | autopilot snapshots, trial mode, and rollback thresholds exist |
 | Data freshness/provenance | PASS | market snapshot gate and lineage helpers exist |
 | Full production evidence gate | BLOCKED | current fixed-24m benchmark gate is false |
-| Dependency reproducibility | ATTENTION | requirements use broad minimum versions |
-| Runtime hardening | ATTENTION | container runs as root and has no explicit healthcheck |
+| Dependency reproducibility | PASS | locked requirements and CI `pip check` |
+| Runtime hardening | PASS | non-root image, healthcheck, and built-image smoke test |
 | CI coverage | IMPROVED | Ruff and full pytest were added to the workflow |
 
 ## Committee result
 
 Two providers completed an infrastructure review: Groq and OpenRouter. The
-committee verdict is **REJECT for production promotion**, not a rejection of
-the engineering work. Both providers agree that:
+initial verdict was **REJECT for production promotion**. After the
+infrastructure fixes, the fresh committee result is **REVISE**, not a
+production approval. Both providers agree that:
 
 - the fixed-24m promotion gate remains blocked;
-- dependency reproducibility and container hardening need work;
+- dependency reproducibility, container hardening, release artifacts, and
+  unified health are now addressed;
 - production weights, verdict, and trades must remain unchanged.
+
+Next experiments are larger paper/realized samples, calibration candidates,
+and a measured BCS Capital quote-fit tolerance.
 
 The remaining configured providers were deferred, skipped, or unavailable; the
 artifact preserves those statuses rather than treating them as votes.
