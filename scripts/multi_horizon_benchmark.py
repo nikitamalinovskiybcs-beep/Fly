@@ -16,6 +16,7 @@ from scripts.replay_80_baskets import DEFAULT_UNIVERSE, _download_prices, _build
 from src.outcome_engine import StructuredNoteSpec, replay_historical_windows
 from src.real_data import compute_p_loss
 from src.replay_calibration import apply_histogram_calibrator, fit_histogram_calibrator
+from src.math_evaluation import expected_calibration_error, log_loss
 from src.quant_benchmarks import (
     analytical_worst_of_probability,
     historical_barrier_probability,
@@ -33,15 +34,30 @@ PRODUCT_TERM_MONTHS = 24
 
 def _metrics(predicted: list[float], observed: list[float]) -> dict[str, float | None]:
     if not observed:
-        return {"brier": None, "mean_predicted_loss": None, "mean_observed_loss": None}
+        return {
+            "brier": None,
+            "log_loss": None,
+            "ece": None,
+            "mean_predicted_loss": None,
+            "mean_observed_loss": None,
+        }
     p = np.asarray(predicted, dtype=float)
     y = np.asarray(observed, dtype=float)
     baseline = float(np.mean(y))
     brier = float(np.mean((p - y) ** 2))
     baseline_brier = float(np.mean((baseline - y) ** 2))
+    baseline_predictions = [baseline] * len(observed)
     return {
         "brier": round(brier, 6),
+        "log_loss": round(log_loss(predicted, observed), 6),
+        "ece": round(expected_calibration_error(predicted, observed), 6),
         "empirical_baseline_brier": round(baseline_brier, 6),
+        "empirical_baseline_log_loss": round(
+            log_loss(baseline_predictions, observed), 6,
+        ),
+        "empirical_baseline_ece": round(
+            expected_calibration_error(baseline_predictions, observed), 6,
+        ),
         "brier_vs_baseline_pct": round(
             (baseline_brier - brier) / baseline_brier * 100, 2,
         ) if baseline_brier else None,
@@ -208,6 +224,9 @@ def build_multi_horizon_report(
     candidate_gates = {
         candidate: all(
             value[metric_key].get("brier_vs_baseline_pct", -100.0) > 0
+            and value[metric_key].get("log_loss", float("inf"))
+            <= value[metric_key].get("empirical_baseline_log_loss", float("-inf"))
+            and value[metric_key].get("ece", float("inf")) <= 0.05
             for value in anchors.values()
         )
         for candidate, metric_key in candidate_metric_keys.items()
@@ -233,7 +252,10 @@ def build_multi_horizon_report(
         },
         "promotion_gate": {
             "eligible": any(candidate_gates.values()),
-            "required": "one candidate must beat baseline at all four anchors",
+            "required": (
+                "one candidate must beat baseline on Brier and log-loss at "
+                "all four anchors with ECE <= 0.05"
+            ),
             "reason": (
                 "promotion blocked until one candidate passes all anchors"
                 if not any(candidate_gates.values())
