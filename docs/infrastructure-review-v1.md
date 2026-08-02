@@ -23,6 +23,19 @@ is separate from the quantitative model review.
 | Runtime hardening | ATTENTION | container runs as root and has no explicit healthcheck |
 | CI coverage | IMPROVED | Ruff and full pytest were added to the workflow |
 
+## Committee result
+
+Two providers completed an infrastructure review: Groq and OpenRouter. The
+committee verdict is **REJECT for production promotion**, not a rejection of
+the engineering work. Both providers agree that:
+
+- the fixed-24m promotion gate remains blocked;
+- dependency reproducibility and container hardening need work;
+- production weights, verdict, and trades must remain unchanged.
+
+The remaining configured providers were deferred, skipped, or unavailable; the
+artifact preserves those statuses rather than treating them as votes.
+
 ## Changes made in this review
 
 1. CI now runs Ruff and the full pytest suite before compile/import checks.

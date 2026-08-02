@@ -1,5 +1,20 @@
 {
-  "status": "pre_committee_vote",
+  "status": "committee_reviewed",
+  "committee_verdict": "reject_for_production_promotion",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "deferred_or_skipped_providers": [
+    "ollama:qwen2.5:7b",
+    "ollama:deepseek-r1:7b",
+    "google_gemini",
+    "anthropic",
+    "cerebras",
+    "nvidia",
+    "openai",
+    "mistral"
+  ],
   "scope": "code, process, deployment, storage, observability and safety infrastructure",
   "checks": {
     "syntax_imports": "pass",
