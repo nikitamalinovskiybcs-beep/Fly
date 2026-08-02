@@ -898,7 +898,9 @@ class MetaAgent:
         # Normalize weights
         total = sum(self.weights.values())
         if total > 0:
-            self.weights = {k: round(v / total, 3) for k, v in self.weights.items()}
+            self.weights = {
+                k: round(v / total, 6) for k, v in self.weights.items()
+            }
 
         _save_agent_state(self.NAME, {
             "weights": self.weights,
