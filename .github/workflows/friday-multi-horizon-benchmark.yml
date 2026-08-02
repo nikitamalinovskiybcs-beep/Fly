@@ -20,8 +20,16 @@ jobs:
             --baskets 100 \
             --period 5y \
             --output multi_horizon_benchmark.json
+          python scripts/plan_quant_improvement.py \
+            multi_horizon_benchmark.json \
+            --output quant_improvement_proposal.json
       - uses: actions/upload-artifact@v4
         with:
           name: friday-multi-horizon-benchmark
           path: multi_horizon_benchmark.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-quant-improvement-proposal
+          path: quant_improvement_proposal.json
           retention-days: 30
