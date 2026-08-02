@@ -97,3 +97,57 @@ def analytical_worst_of_probability(
         "annualized_vol_mean": round(float(np.mean(vols)), 6),
         "correlation_mean": round(float(np.mean(correlation[np.triu_indices(len(basket), 1)])), 6),
     }
+
+
+def historical_barrier_probability(
+    prices: Mapping[str, Sequence[float]],
+    basket: Sequence[str],
+    window_days: int,
+    barrier: float = 0.65,
+) -> dict:
+    """Estimate path-dependent barrier risk from rolling observed windows."""
+    if any(len(prices[ticker]) < window_days for ticker in basket):
+        return {"status": "insufficient_data", "source": "historical_path_quant"}
+    frame = np.column_stack(
+        [np.asarray(prices[ticker], dtype=float) for ticker in basket],
+    )
+    outcomes: list[int] = []
+    step = max(1, window_days // 12)
+    for start in range(0, len(frame) - window_days + 1, step):
+        window = frame[start:start + window_days]
+        relative = window / window[0]
+        outcomes.append(int(np.min(relative) < barrier))
+    probability = float(np.mean(outcomes)) if outcomes else 0.0
+    return {
+        "status": "research_estimate",
+        "source": "historical_path_quant",
+        "method": "rolling_worst_of_barrier_frequency",
+        "p_loss": round(probability, 6),
+        "windows": len(outcomes),
+    }
+
+
+def regime_adjusted_probability(
+    prices: Mapping[str, Sequence[float]],
+    basket: Sequence[str],
+    base_probability: float,
+) -> dict:
+    """Adjust a probability using recent-versus-long-run volatility regime."""
+    returns = []
+    for ticker in basket:
+        values = np.asarray(prices[ticker], dtype=float)
+        if len(values) < 64:
+            return {"status": "insufficient_data", "source": "regime_quant"}
+        returns.append(np.diff(np.log(values)))
+    matrix = np.asarray(returns, dtype=float)
+    recent = float(np.mean(np.std(matrix[:, -63:], axis=1)))
+    long_run = float(np.mean(np.std(matrix, axis=1)))
+    ratio = recent / long_run if long_run > 0 else 1.0
+    adjusted = float(np.clip(base_probability * np.clip(ratio, 0.75, 1.5), 0.0, 1.0))
+    return {
+        "status": "research_estimate",
+        "source": "regime_quant",
+        "method": "recent_to_long_run_volatility_ratio",
+        "p_loss": round(adjusted, 6),
+        "volatility_ratio": round(ratio, 6),
+    }
