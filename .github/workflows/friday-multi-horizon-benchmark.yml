@@ -46,6 +46,11 @@ jobs:
             --benchmark multi_horizon_benchmark.json \
             --structure structure_audit.json \
             --output system_health.json
+          python scripts/build_committee_progress.py \
+            --benchmark multi_horizon_benchmark.json \
+            --health system_health.json \
+            --structure structure_audit.json \
+            --output committee_progress.json
           python scripts/plan_screening_targets.py \
             ai_judge_panel.json \
             --output ai_screening_targets.json
@@ -98,6 +103,11 @@ jobs:
         with:
           name: friday-system-health
           path: system_health.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-committee-progress
+          path: committee_progress.json
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
