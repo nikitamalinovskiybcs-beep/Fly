@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.replay_80_baskets import DEFAULT_UNIVERSE, _download_prices, _build_baskets
 from src.outcome_engine import StructuredNoteSpec, replay_historical_windows
 from src.real_data import compute_p_loss
+from src.replay_calibration import apply_histogram_calibrator, fit_histogram_calibrator
 
 
 EXTRA_UNIVERSE = [
@@ -51,8 +52,11 @@ def build_multi_horizon_report(
     for months_ago in ANCHOR_MONTHS:
         forward_days = months_ago * 21
         predictions: list[float] = []
+        calibrated_predictions: list[float] = []
         observed: list[float] = []
         rows: list[dict] = []
+        calibration_predictions: list[float] = []
+        calibration_outcomes: list[int] = []
         for basket in baskets:
             if any(len(prices.get(ticker, [])) < forward_days for ticker in basket):
                 continue
@@ -60,6 +64,29 @@ def build_multi_horizon_report(
             prediction = float(compute_p_loss(basket, term_months=months_ago)["p_loss"])
             if prediction > 1:
                 prediction /= 100
+            historical = {
+                ticker: prices[ticker][:-forward_days]
+                for ticker in basket
+            }
+            train_replay = replay_historical_windows(
+                historical,
+                StructuredNoteSpec(
+                    basket=basket,
+                    barrier=0.65,
+                    coupon_barrier=0.65,
+                    term_months=months_ago,
+                ),
+                window_days=forward_days,
+                step_days=forward_days,
+                max_windows=5,
+                predicted_p_loss=prediction,
+            )
+            if train_replay.get("status") == "historical_replay":
+                for window in train_replay["windows"]:
+                    calibration_predictions.append(prediction)
+                    calibration_outcomes.append(
+                        int(window["outcome_type"] == "knock_in_loss")
+                    )
             replay = replay_historical_windows(
                 forward,
                 StructuredNoteSpec(
@@ -87,17 +114,32 @@ def build_multi_horizon_report(
                     "simulated_rows": 0,
                 }
             )
+        calibration_rates = fit_histogram_calibrator(
+            calibration_predictions,
+            calibration_outcomes,
+            bins=5,
+        )
+        calibrated_predictions = apply_histogram_calibrator(
+            predictions,
+            calibration_rates,
+        )
+        for row, calibrated in zip(rows, calibrated_predictions):
+            row["calibrated_p_loss"] = round(calibrated, 6)
         anchors[str(months_ago)] = {
             "months_ago": months_ago,
             "forward_days": forward_days,
             "baskets_replayed": len(rows),
             "metrics": _metrics(predictions, observed),
+            "calibrated_metrics": _metrics(calibrated_predictions, observed),
+            "calibration_train_observations": len(calibration_outcomes),
+            "calibration_bins": 5,
+            "calibration_rates": [round(rate, 6) for rate in calibration_rates],
             "phoenix_score_today": round(float(np.mean(1 - np.asarray(predictions)) * 100), 2)
             if predictions else None,
             "rows": rows,
         }
     passing_anchors = [
-        value["metrics"].get("brier_vs_baseline_pct", -100.0) > 0
+        value["calibrated_metrics"].get("brier_vs_baseline_pct", -100.0) > 0
         for value in anchors.values()
     ]
     return {
