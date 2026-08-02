@@ -806,19 +806,15 @@ if basket_tickers:
         with quote_col:
             st.markdown('<div style="color:#ffb000;font-size:10px;font-weight:700">BKS QUOTE CALIBRATION</div>', unsafe_allow_html=True)
             broker_rate = st.number_input(
-                "СТАВКА БРОКЕРА, % P.A.",
+                "СТАВКА BCS CAPITAL, % P.A.",
                 min_value=0.0,
                 max_value=100.0,
                 value=0.0,
                 step=0.5,
                 key="broker_rate",
             )
-            broker_name = st.text_input(
-                "БРОКЕР",
-                value="",
-                placeholder="БКС, Тинькофф...",
-                key="broker_name",
-            )
+            broker_name = "BCS Capital"
+            st.caption("Единственный dealer quote source для этой калибровки")
             if broker_rate > 0:
                 model_rate = float(D["coupon_pa"])
                 delta = broker_rate - model_rate
