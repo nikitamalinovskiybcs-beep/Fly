@@ -167,6 +167,15 @@ empirical baseline. Production promotion разрешается только е�
 проходит все четыре anchor-теста;
 иначе workflow сохраняет отчёт, но не меняет production.
 
+После benchmark workflow запускает provider-agnostic AI judge panel и сохраняет
+`ai_judge_panel.json`. Поддерживаются Gemini, OpenAI, Anthropic, Mistral,
+Groq и OpenRouter. Добавляйте только нужные репозиторные GitHub Actions secrets
+(`GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`,
+`GROQ_API_KEY`, `OPENROUTER_API_KEY`); отсутствующий ключ получает статус
+`skipped`, временная квота — `deferred`. Модели видят только
+benchmark/proposal evidence и не могут изменить production weights, verdict или
+создать сделки.
+
 ## Деплой на Fly.io
 
 ```bash

@@ -23,6 +23,10 @@ jobs:
           python scripts/plan_quant_improvement.py \
             multi_horizon_benchmark.json \
             --output quant_improvement_proposal.json
+          python scripts/run_judge_panel.py \
+            multi_horizon_benchmark.json \
+            quant_improvement_proposal.json \
+            --output ai_judge_panel.json
       - uses: actions/upload-artifact@v4
         with:
           name: friday-multi-horizon-benchmark
@@ -33,3 +37,15 @@ jobs:
           name: friday-quant-improvement-proposal
           path: quant_improvement_proposal.json
           retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-ai-judge-panel
+          path: ai_judge_panel.json
+          retention-days: 30
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
