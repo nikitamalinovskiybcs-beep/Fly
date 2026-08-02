@@ -146,6 +146,15 @@ python scripts/plan_improvements.py
 size и data coverage. Planner создаёт только proposal; production weights и
 verdict не изменяются.
 
+Безопасный continuous cycle:
+
+```bash
+python scripts/plan_improvement_cycle.py
+```
+
+Цикл предлагает следующий PR, но останавливается после достижения targets
+или трёх последовательных циклов без измеримого улучшения.
+
 ## Деплой на Fly.io
 
 ```bash
