@@ -26,6 +26,9 @@ def build_judge_prompt(
     system_review = report.get("review_type") == (
         "phoenix_whole_system_architecture_audit"
     )
+    brainstorm_review = report.get("review_type") == (
+        "phoenix_improvement_brainstorm"
+    )
     evidence = {
         "benchmark": report,
         "improvement_proposal": proposal,
@@ -57,6 +60,13 @@ def build_judge_prompt(
             "overall_score_0_to_100, architecture_risks, and findings whose "
             "action is KEEP, REMOVE, REPLACE, or ADD_TEST with priority P0/P1/P2."
         )
+    if brainstorm_review:
+        evidence["instructions"]["brainstorm_review"] = (
+            "Do not answer with only yes/no. Return at least five independent "
+            "proposals. Each proposal must include title, component, concrete "
+            "change, rationale, implementation sketch, risk, and metric_gate. "
+            "Challenge the current design and propose alternatives."
+        )
     return (
         "Evaluate Phoenix using only this JSON evidence. Do not invent results. "
         "Return valid JSON with keys verdict, summary, top_technical_reasons, "
@@ -73,6 +83,13 @@ def build_judge_prompt(
             "overall_score_0_to_100, architecture_risks, and prioritized "
             "findings with action KEEP, REMOVE, REPLACE, or ADD_TEST. "
             if system_review
+            else ""
+        )
+        + (
+            "Because this is a brainstorm, return proposals (at least five) "
+            "with title, component, change, rationale, implementation_sketch, "
+            "risk, and metric_gate; do not just return yes/no. "
+            if brainstorm_review
             else ""
         )
         + " "

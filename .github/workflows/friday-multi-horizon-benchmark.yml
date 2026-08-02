@@ -53,6 +53,10 @@ jobs:
             --output committee_progress.json
           python scripts/build_phoenix_improvement_catalog.py \
             --output phoenix_improvement_catalog.json
+          python scripts/run_judge_panel.py \
+            phoenix_improvement_catalog.json \
+            quant_improvement_proposal.json \
+            --output phoenix_external_proposals.json
           python scripts/plan_screening_targets.py \
             ai_judge_panel.json \
             --output ai_screening_targets.json
@@ -115,6 +119,11 @@ jobs:
         with:
           name: friday-phoenix-improvement-catalog
           path: phoenix_improvement_catalog.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-external-proposals
+          path: phoenix_external_proposals.json
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:

@@ -153,6 +153,11 @@ def build_catalog() -> dict[str, object]:
             index += 1
     return {
         "status": "catalog",
+        "review_type": "phoenix_improvement_brainstorm",
+        "objective": (
+            "Generate independent, technically specific proposals to improve "
+            "the Phoenix calculator; do not merely approve or reject."
+        ),
         "count": len(proposals),
         "categories": {name: len(items) for name, items in CATEGORIES.items()},
         "proposals": proposals,

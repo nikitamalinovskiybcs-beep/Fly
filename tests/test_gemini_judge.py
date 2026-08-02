@@ -19,6 +19,19 @@ def test_prompt_includes_evidence_and_safety_rule() -> None:
     assert "No candidate may be promoted" in prompt
 
 
+def test_prompt_requests_independent_brainstorm_proposals() -> None:
+    prompt = build_judge_prompt(
+        {
+            "review_type": "phoenix_improvement_brainstorm",
+            "count": 100,
+            "proposals": [],
+        },
+        {},
+    )
+    assert "at least five independent proposals" in prompt
+    assert "do not just return yes/no" in prompt
+
+
 def test_judge_report_is_production_safe(monkeypatch: pytest.MonkeyPatch) -> None:
     class Response:
         def raise_for_status(self) -> None:
