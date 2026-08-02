@@ -5,6 +5,16 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 
+def _metric_gate(value: object) -> str:
+    text = str(value or "").strip()
+    if "24" in text.lower() and ("oos" in text.lower() or "anchor" in text.lower()):
+        return text
+    return (
+        "fixed-24m OOS Brier and log-loss beat empirical baseline at "
+        "all 6/12/18/24-month anchors; ECE and monotonicity must not worsen"
+    )
+
+
 def build_screening_target_plan(panel: Mapping[str, object]) -> dict[str, object]:
     targets: list[dict[str, object]] = []
     for item in panel.get("reviews", []):
@@ -14,7 +24,7 @@ def build_screening_target_plan(panel: Mapping[str, object]) -> dict[str, object
         if not isinstance(review, Mapping):
             continue
         review_targets: list[dict[str, object]] = []
-        findings = review.get("findings", [])
+        findings = review.get("findings", review.get("prioritized_findings", []))
         if isinstance(findings, list):
             for finding in findings[:3]:
                 if not isinstance(finding, Mapping):
@@ -28,10 +38,7 @@ def build_screening_target_plan(panel: Mapping[str, object]) -> dict[str, object
                     "provider": item.get("provider", "unknown"),
                     "hypothesis": f"{action} {component} improves fixed-24m KPI",
                     "change": replacement or f"remove {component} from candidate",
-                    "metric_gate": finding.get(
-                        "metric_gate",
-                        "fixed-24m OOS Brier and log-loss beat baseline",
-                    ),
+                    "metric_gate": _metric_gate(finding.get("metric_gate")),
                     "why_it_is_informative": finding.get("reason", ""),
                 }
                 review_targets.append(target)
@@ -45,7 +52,7 @@ def build_screening_target_plan(panel: Mapping[str, object]) -> dict[str, object
                         "provider": item.get("provider", "unknown"),
                         "hypothesis": experiment.get("hypothesis", ""),
                         "change": experiment.get("change", ""),
-                        "metric_gate": experiment.get("metric_gate", ""),
+                        "metric_gate": _metric_gate(experiment.get("metric_gate")),
                         "why_it_is_informative": experiment.get(
                             "why_it_is_informative",
                             "",

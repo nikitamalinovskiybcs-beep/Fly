@@ -23,6 +23,9 @@ def build_judge_prompt(
     formula_review = report.get("review_type") == (
         "phoenix_formula_and_risk_code_review"
     )
+    system_review = report.get("review_type") == (
+        "phoenix_whole_system_architecture_audit"
+    )
     evidence = {
         "benchmark": report,
         "improvement_proposal": proposal,
@@ -48,6 +51,12 @@ def build_judge_prompt(
             "Cite the supplied file/line range, explain any double counting or "
             "unsupported proxy, and give a fixed-24-month OOS metric gate."
         )
+    if system_review:
+        evidence["instructions"]["system_review"] = (
+            "Audit all supplied modules and key files. Return strengths, an "
+            "overall_score_0_to_100, architecture_risks, and findings whose "
+            "action is KEEP, REMOVE, REPLACE, or ADD_TEST with priority P0/P1/P2."
+        )
     return (
         "Evaluate Phoenix using only this JSON evidence. Do not invent results. "
         "Return valid JSON with keys verdict, summary, top_technical_reasons, "
@@ -57,6 +66,13 @@ def build_judge_prompt(
             "action KEEP, REMOVE, or REPLACE, component, reason, replacement, "
             "and metric_gate. "
             if formula_review
+            else ""
+        )
+        + (
+            "Because this is a whole-system audit, also return strengths, "
+            "overall_score_0_to_100, architecture_risks, and prioritized "
+            "findings with action KEEP, REMOVE, REPLACE, or ADD_TEST. "
+            if system_review
             else ""
         )
         + " "

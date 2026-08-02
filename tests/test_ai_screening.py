@@ -49,3 +49,28 @@ def test_formula_findings_become_bounded_targets() -> None:
     )
     assert result["target_count"] == 1
     assert result["targets"][0]["change"] == "calibrated p_loss"
+
+
+def test_system_prioritized_findings_use_fixed_anchor_gate() -> None:
+    result = build_screening_target_plan(
+        {
+            "reviews": [
+                {
+                    "provider": "openrouter",
+                    "status": "completed",
+                    "review": {
+                        "prioritized_findings": [
+                            {
+                                "action": "REPLACE",
+                                "component": "calibration",
+                                "replacement": "walk-forward calibration",
+                                "metric_gate": "accuracy above 75%",
+                            },
+                        ],
+                    },
+                },
+            ],
+        },
+    )
+    assert result["target_count"] == 1
+    assert "fixed-24m OOS" in result["targets"][0]["metric_gate"]

@@ -25,8 +25,10 @@ jobs:
             --output quant_improvement_proposal.json
           python scripts/build_formula_review_packet.py \
             --output formula_review_packet.json
+          python scripts/build_system_audit_packet.py \
+            --output system_audit_packet.json
           python scripts/run_judge_panel.py \
-            formula_review_packet.json \
+            system_audit_packet.json \
             quant_improvement_proposal.json \
             --output ai_judge_panel.json
           python scripts/plan_screening_targets.py \
@@ -46,6 +48,11 @@ jobs:
         with:
           name: friday-formula-review-packet
           path: formula_review_packet.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-system-audit-packet
+          path: system_audit_packet.json
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
