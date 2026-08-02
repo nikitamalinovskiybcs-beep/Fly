@@ -53,16 +53,24 @@ def _call_ollama(
     url: str,
     model: str,
 ) -> JsonObject:
+    request = {
+        "model": model,
+        "stream": False,
+        "format": "json",
+        "messages": [{"role": "user", "content": prompt}],
+    }
     response = requests.post(
         f"{url.rstrip('/')}/api/chat",
-        json={
-            "model": model,
-            "stream": False,
-            "format": "json",
-            "messages": [{"role": "user", "content": prompt}],
-        },
+        json=request,
         timeout=90,
     )
+    if response.status_code == 400:
+        request.pop("format")
+        response = requests.post(
+            f"{url.rstrip('/')}/api/chat",
+            json=request,
+            timeout=90,
+        )
     response.raise_for_status()
     payload = response.json()
     message = payload.get("message")
