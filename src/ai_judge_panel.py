@@ -13,6 +13,11 @@ from src.gemini_judge import _extract_json, build_judge_prompt, judge_report
 JsonObject = dict[str, object]
 
 OPENAI_COMPATIBLE_PROVIDERS = {
+    "nvidia": {
+        "key": "NVIDIA_API_KEY",
+        "url": "https://integrate.api.nvidia.com/v1/chat/completions",
+        "model": "meta/llama-3.1-8b-instruct",
+    },
     "openai": {
         "key": "OPENAI_API_KEY",
         "url": "https://api.openai.com/v1/chat/completions",

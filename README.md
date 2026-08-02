@@ -172,8 +172,11 @@ empirical baseline. Production promotion разрешается только е�
 и банковской карты (например, `ollama pull qwen2.5:7b` и
 `ollama pull deepseek-r1:7b`). Также поддерживаются
 Gemini, OpenAI, Anthropic, Mistral, Groq и OpenRouter. Добавляйте только нужные
+NVIDIA NIM также поддерживается через `NVIDIA_API_KEY`; его бесплатный доступ
+имеет лимиты провайдера.
+Добавляйте только нужные
 репозиторные GitHub Actions secrets
-(`GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`,
+(`GEMINI_API_KEY`, `NVIDIA_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`,
 `GROQ_API_KEY`, `OPENROUTER_API_KEY`); отсутствующий ключ получает статус
 `skipped`, временная квота — `deferred`. Модели видят только
 benchmark/proposal evidence и не могут изменить production weights, verdict или
