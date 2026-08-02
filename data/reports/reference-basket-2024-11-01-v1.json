@@ -160,5 +160,23 @@
   ],
   "production_weights_changed": false,
   "verdict_mutated": false,
-  "trades_created": false
+  "trades_created": false,
+  "strike_date": "2024-11-01",
+  "strike_definition": "official close on strike date; each asset normalized to 100%",
+  "strike_levels": {
+    "DAL": 58.389999,
+    "META": 567.159973,
+    "DELL": 130.869995,
+    "BA": 154.589996,
+    "RCL": 202.059998,
+    "SBUX": 98.870003
+  },
+  "strike_normalized_levels": {
+    "DAL": 1.0,
+    "META": 1.0,
+    "DELL": 1.0,
+    "BA": 1.0,
+    "RCL": 1.0,
+    "SBUX": 1.0
+  }
 }
