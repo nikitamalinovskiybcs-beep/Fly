@@ -92,6 +92,16 @@ credentials и сохраняет результат как artifact на 7 дн
 корзину через `AAPL,MSFT,GOOGL,AMZN,NVDA`. Это batch/research output, а не
 постоянный backend и не подтверждение реальной сделки.
 
+Математическая проверка структурных продуктов запускается так:
+
+```bash
+python scripts/evaluate_structured_products.py
+```
+
+Она считает Brier score, log-loss, ECE на `SETTLED_NOTES` и проверяет
+структурное свойство: при прочих равных более высокий barrier не должен
+уменьшать модельную вероятность knock-in.
+
 ## Деплой на Fly.io
 
 ```bash

@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from src.data_module import fetch_ticker_data
+from src.decision_gate import build_decision_gate
 from src.outcome_engine import StructuredNoteSpec, simulate_stress_suite
 from src.precompute import precompute_all
 from src.structured_product import find_best_structured_product
@@ -24,9 +25,9 @@ def run_full_analysis(
     target_tenor = preferences.get("tenor_months")
     coupon_frequency = int(preferences.get("coupon_frequency_months", 3))
     basket = list(dict.fromkeys(tickers))
-    data = precompute_all(basket)
     universe = list(dict.fromkeys(basket + DEFAULT_PRODUCT_UNIVERSE))
     market_data = fetch_ticker_data(universe, period="2y")
+    data = precompute_all(basket)
     evidence_gate = {
         "passed": all(
             market_data.get(ticker, {}).get("is_real") is True
@@ -82,6 +83,28 @@ def run_full_analysis(
         stages["outcomes"] = "stress_complete"
     else:
         stages["outcomes"] = "waiting_for_product"
+    decision_gate = build_decision_gate(data, product, evidence_gate)
+    data["decision_gate"] = decision_gate
+    data["recommendation"] = {
+        **data.get("recommendation", {}),
+        "action": decision_gate["verdict"],
+        "reason": " · ".join(decision_gate["reasons"])
+        or "all required evidence checks passed",
+        "decision_gate": decision_gate,
+    }
+    if isinstance(data.get("executive_summary"), dict):
+        data["executive_summary"] = {
+            **data["executive_summary"],
+            "verdict": decision_gate["verdict"],
+            "color": (
+                "green"
+                if decision_gate["verdict"] == "GOOD"
+                else "orange"
+                if decision_gate["verdict"] == "CAUTION"
+                else "red"
+            ),
+            "reasons": decision_gate["reasons"],
+        }
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "data": data,
@@ -90,4 +113,5 @@ def run_full_analysis(
         "product": product,
         "stress": stress,
         "stages": stages,
+        "decision_gate": decision_gate,
     }
