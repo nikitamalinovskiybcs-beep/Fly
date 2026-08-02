@@ -39,6 +39,9 @@ jobs:
             formula_ai_judge_panel.json \
             ai_judge_panel.json \
             --output ai_consensus_action_plan.json
+          python scripts/build_structural_cleanup_plan.py \
+            --output structural_cleanup_plan.json
+          python -c "import json; from pathlib import Path; from src.structure_audit import audit_python_tree; Path('structure_audit.json').write_text(json.dumps(audit_python_tree(Path('src')), indent=2))"
           python scripts/plan_screening_targets.py \
             ai_judge_panel.json \
             --output ai_screening_targets.json
@@ -76,6 +79,16 @@ jobs:
         with:
           name: friday-ai-consensus-action-plan
           path: ai_consensus_action_plan.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-structural-cleanup-plan
+          path: structural_cleanup_plan.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-structure-audit
+          path: structure_audit.json
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
