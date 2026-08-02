@@ -122,6 +122,11 @@ python scripts/run_calibration_agent.py
 кандидата с baseline и сохраняет audit proposal. Production weights не меняются
 автоматически: успешный кандидат только предлагает PR для review.
 
+Macro features используют бесплатный FRED fallback: VIX, 2Y/10Y ставки,
+Fed funds, yield-curve slope, credit spread, dollar index и oil. Stress suite
+содержит восемь deterministic-seed сценариев, но каждый результат помечен
+`source="simulated"` и не может использоваться как realized/OOS label.
+
 ## Деплой на Fly.io
 
 ```bash

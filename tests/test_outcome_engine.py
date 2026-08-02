@@ -13,6 +13,7 @@ from src.outcome_engine import (
     replay_historical,
     replay_historical_windows,
     simulate_monte_carlo,
+    simulate_stress_suite,
 )
 
 
@@ -102,6 +103,17 @@ def test_monte_carlo_is_reproducible_and_simulated() -> None:
     assert first == second
     assert first["source"] == "simulated"
     assert 0 <= first["p_loss"] <= 1
+
+
+def test_stress_suite_has_expanded_simulated_scenarios() -> None:
+    report = simulate_stress_suite(
+        StructuredNoteSpec(basket=["AAPL", "MSFT"]),
+        n_paths=100,
+    )
+    assert report["source"] == "simulated"
+    assert report["scenario_count"] == 8
+    assert "combined_stress" in report["scenarios"]
+    assert "realized market evidence" in report["warning"]
 
 
 def test_paper_resolution_is_the_only_learning_eligible_outcome(tmp_path) -> None:
