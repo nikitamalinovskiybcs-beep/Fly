@@ -11,6 +11,7 @@ from src.overfitting import (
     permutation_test_vs_random,
     out_of_sample_degradation,
     _split_returns_into_subsets,
+    white_reality_check,
 )
 
 
@@ -164,6 +165,22 @@ def test_permutation_test_nonempty(strategy_returns: pd.Series) -> None:
     result = permutation_test_vs_random(strategy_returns, n_permutations=50)
     assert "p_value" in result
     assert 0 <= result["p_value"] <= 1
+
+
+def test_white_reality_check_is_deterministic() -> None:
+    strategies = np.array(
+        [
+            [0.02, 0.00],
+            [0.01, 0.00],
+            [0.03, 0.00],
+            [0.02, 0.00],
+        ]
+    )
+    benchmark = np.zeros(4)
+    first = white_reality_check(strategies, benchmark, n_bootstrap=100)
+    second = white_reality_check(strategies, benchmark, n_bootstrap=100)
+    assert first == second
+    assert first["n_strategies"] == 2
 
 
 # ── Legacy: OOS Degradation ──

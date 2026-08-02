@@ -102,6 +102,16 @@ python scripts/evaluate_structured_products.py
 структурное свойство: при прочих равных более высокий barrier не должен
 уменьшать модельную вероятность knock-in.
 
+Для сравнения с прозрачными baseline-моделями:
+
+```bash
+python scripts/benchmark_structured_models.py
+```
+
+Отчёт явно помечает оценку на `SETTLED_NOTES` как in-sample research,
+потому что текущая модель обучается на этом наборе. Это не заменяет OOS
+сравнение с независимыми поставщиками или дилерскими котировками.
+
 ## Деплой на Fly.io
 
 ```bash
