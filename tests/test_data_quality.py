@@ -1,6 +1,7 @@
 from src.data_quality import (
     compare_price_sources,
     validate_learning_provenance,
+    validate_market_snapshot,
     validate_macro_snapshot,
 )
 
@@ -47,3 +48,12 @@ def test_learning_provenance_blocks_replay_rows() -> None:
     )
     assert result["passed"] is False
     assert "row_0_non_independent_source" in result["issues"]
+
+
+def test_market_snapshot_requires_fresh_positive_prices() -> None:
+    result = validate_market_snapshot(
+        {"prices": {"AAPL": 100, "MSFT": -1}, "as_of": "not-a-date"},
+    )
+    assert result["passed"] is False
+    assert "MSFT_non_positive_price" in result["issues"]
+    assert "invalid_as_of" in result["issues"]

@@ -88,3 +88,42 @@ def validate_learning_provenance(rows: Sequence[Mapping]) -> dict:
         "learning_eligible_rows": eligible,
         "rows": len(rows),
     }
+
+
+def validate_market_snapshot(
+    snapshot: Mapping,
+    *,
+    max_age_hours: int = 48,
+) -> dict:
+    """Reject incomplete, impossible or stale market snapshots."""
+    issues: list[str] = []
+    prices = snapshot.get("prices", {})
+    if not isinstance(prices, Mapping) or not prices:
+        issues.append("missing_prices")
+    else:
+        for ticker, value in prices.items():
+            try:
+                if float(value) <= 0:
+                    issues.append(f"{ticker}_non_positive_price")
+            except (TypeError, ValueError):
+                issues.append(f"{ticker}_invalid_price")
+    as_of = snapshot.get("as_of")
+    if not as_of:
+        issues.append("missing_as_of")
+    else:
+        try:
+            age_hours = (
+                datetime.utcnow() - datetime.fromisoformat(str(as_of))
+            ).total_seconds() / 3600
+            if age_hours < -1:
+                issues.append("as_of_in_future")
+            elif age_hours > max_age_hours:
+                issues.append("market_snapshot_stale")
+        except ValueError:
+            issues.append("invalid_as_of")
+    return {
+        "source": "market_snapshot_gate",
+        "passed": not issues,
+        "issues": issues,
+        "max_age_hours": max_age_hours,
+    }
