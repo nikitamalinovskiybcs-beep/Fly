@@ -200,7 +200,7 @@ def run_judge_panel(
     ollama_url = variables.get("OLLAMA_URL", "http://127.0.0.1:11434")
     ollama_models = variables.get(
         "OLLAMA_MODELS",
-        variables.get("OLLAMA_MODEL", "qwen2.5:7b,deepseek-r1:7b"),
+        variables.get("OLLAMA_MODEL", "qwen2.5:1.5b,deepseek-r1:1.5b"),
     )
     for ollama_model in (
         model.strip() for model in ollama_models.split(",") if model.strip()
