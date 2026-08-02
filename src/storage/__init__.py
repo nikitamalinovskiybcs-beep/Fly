@@ -63,7 +63,10 @@ class Storage:
         if self.config.supabase_available:
             try:
                 from src.storage.cloud_sync import CloudSync
-                self.cloud = CloudSync()
+                self.cloud = CloudSync(
+                    url=self.config.supabase_url,
+                    key=self.config.supabase_key,
+                )
             except Exception as exc:
                 logger.info("Supabase unavailable: %s", exc)
 
@@ -260,6 +263,13 @@ class Storage:
             "status": "ready" if not missing_required else "blocked",
             "configured": configured,
             "active": active,
+            "diagnostics": {
+                "supabase": (
+                    getattr(self.cloud, "last_error", None)
+                    if self.cloud is not None
+                    else None
+                )
+            },
             "missing_required": missing_required,
             "optional_unavailable": [
                 name

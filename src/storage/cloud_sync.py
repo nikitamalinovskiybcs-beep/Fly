@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 class CloudSync:
     """Sync critical data to Supabase PostgreSQL."""
 
-    def __init__(self) -> None:
-        self._url = os.getenv("SUPABASE_URL", "")
-        self._key = os.getenv("SUPABASE_KEY", "")
+    def __init__(self, url: str | None = None, key: str | None = None) -> None:
+        self._url = url if url is not None else os.getenv("SUPABASE_URL", "")
+        self._key = key if key is not None else os.getenv("SUPABASE_KEY", "")
         self._client = None
         self._enabled = False
         self._write_ready = False
