@@ -7,8 +7,6 @@ backtest overfitting via Combinatorially Symmetric Cross-Validation.
 import logging
 import math
 from itertools import combinations
-from typing import Optional
-
 import numpy as np
 import pandas as pd
 
@@ -17,6 +15,51 @@ from src.core_metrics import sharpe_ratio, performance_summary
 logger = logging.getLogger(__name__)
 
 EULER_MASCHERONI = 0.5772156649
+
+
+def white_reality_check(
+    strategy_returns: np.ndarray,
+    benchmark_returns: np.ndarray,
+    n_bootstrap: int = 2000,
+    seed: int = 42,
+) -> dict:
+    """Bootstrap White's Reality Check for multiple strategy candidates.
+
+    The null is that no candidate has positive mean return over the benchmark.
+    This iid bootstrap is a research diagnostic; use block bootstrap for
+    strongly autocorrelated returns.
+    """
+    strategies = np.asarray(strategy_returns, dtype=float)
+    benchmark = np.asarray(benchmark_returns, dtype=float)
+    if strategies.ndim == 1:
+        strategies = strategies[:, None]
+    if strategies.ndim != 2 or benchmark.ndim != 1:
+        raise ValueError("strategy_returns must be 1D/2D and benchmark 1D")
+    if strategies.shape[0] != benchmark.shape[0] or strategies.shape[0] < 2:
+        raise ValueError("returns must have equal length >= 2")
+    if n_bootstrap < 1:
+        raise ValueError("n_bootstrap must be positive")
+
+    differentials = strategies - benchmark[:, None]
+    observed = differentials.mean(axis=0)
+    observed_max = float(max(0.0, observed.max()))
+    centered = differentials - observed
+    rng = np.random.default_rng(seed)
+    bootstrap_max = np.empty(n_bootstrap)
+    for index in range(n_bootstrap):
+        sample = rng.integers(0, len(centered), size=len(centered))
+        bootstrap_max[index] = max(0.0, centered[sample].mean(axis=0).max())
+
+    p_value = float((bootstrap_max >= observed_max).mean())
+    return {
+        "observed_max_excess_return": round(observed_max, 8),
+        "p_value": round(p_value, 6),
+        "n_strategies": int(strategies.shape[1]),
+        "n_observations": int(strategies.shape[0]),
+        "n_bootstrap": n_bootstrap,
+        "significant": p_value < 0.05,
+        "method": "white_reality_check_iid_bootstrap",
+    }
 
 
 # ═══════════════════════════════════════════════════════════════

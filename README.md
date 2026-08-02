@@ -58,6 +58,134 @@ CLICKHOUSE_SECURE=false python -m src.scheduler --snapshot --tickers AAPL,DELL,G
 Self-hosted контейнер доступен только там, где запущен
 Docker; для Streamlit Cloud нужен отдельно доступный сервер.
 
+Загрузка наблюдаемой исторической OHLCV-истории в ClickHouse:
+
+```bash
+python scripts/ingest_ohlcv.py AAPL MSFT NVDA --period 3y
+```
+
+Скрипт использует рабочий Phoenix `DataManager`/yfinance provider,
+пропускает уже загруженные даты и не загружает Monte Carlo или synthetic data.
+
+## Бесплатные локальные Redis и object storage
+
+Для локального режима без Cloudflare R2 или Redis billing:
+
+```bash
+docker compose -f docker-compose.local-services.yml up -d
+export REDIS_URL=redis://127.0.0.1:6379
+export R2_ENDPOINT=http://127.0.0.1:9100
+export R2_ACCESS_KEY=phoenix-local
+export R2_SECRET_KEY=phoenix-local-secret
+export R2_BUCKET=fly-data
+```
+
+Redis используется для cache/queue/rate limiting, а MinIO предоставляет
+S3-совместимый локальный bucket `fly-data`. Это self-hosted fallback, не
+Cloudflare R2; для Streamlit Cloud нужен отдельно доступный сервер.
+
+## Batch-расчёты без billing
+
+GitHub Actions запускает бесплатный daily batch snapshot без cloud
+credentials и сохраняет результат как artifact на 7 дней. Запустить его
+вручную можно через `Actions → Free Batch Snapshot → Run workflow`, указав
+корзину через `AAPL,MSFT,GOOGL,AMZN,NVDA`. Это batch/research output, а не
+постоянный backend и не подтверждение реальной сделки.
+
+Математическая проверка структурных продуктов запускается так:
+
+```bash
+python scripts/evaluate_structured_products.py
+```
+
+Она считает Brier score, log-loss, ECE на `SETTLED_NOTES` и проверяет
+структурное свойство: при прочих равных более высокий barrier не должен
+уменьшать модельную вероятность knock-in.
+
+Для сравнения с прозрачными baseline-моделями:
+
+```bash
+python scripts/benchmark_structured_models.py
+```
+
+Отчёт явно помечает оценку на `SETTLED_NOTES` как in-sample research,
+потому что текущая модель обучается на этом наборе. Это не заменяет OOS
+сравнение с независимыми поставщиками или дилерскими котировками.
+
+Evidence-gated calibration agent запускается так:
+
+```bash
+python scripts/run_calibration_agent.py
+```
+
+Агент использует только realized notes, разделяет train/OOS, сравнивает
+кандидата с baseline и сохраняет audit proposal. Production weights не меняются
+автоматически: успешный кандидат только предлагает PR для review.
+
+Macro features используют бесплатный FRED fallback: VIX, 2Y/10Y ставки,
+Fed funds, yield-curve slope, credit spread, dollar index и oil. Stress suite
+содержит восемь deterministic-seed сценариев, но каждый результат помечен
+`source="simulated"` и не может использоваться как realized/OOS label.
+
+Проверка расхождения бесплатных OHLCV-источников:
+
+```bash
+python scripts/check_market_sources.py AAPL MSFT NVDA
+```
+
+Команда сравнивает основной источник с Stooq и только выдаёт quality report;
+она не подменяет observed data автоматически и не меняет веса модели.
+
+Автоматический planner целей улучшения:
+
+```bash
+python scripts/plan_improvements.py
+```
+
+Он ранжирует targets по Brier-vs-baseline, probability gap, ECE, OOS sample
+size и data coverage. Planner создаёт только proposal; production weights и
+verdict не изменяются.
+
+Безопасный continuous cycle:
+
+```bash
+python scripts/plan_improvement_cycle.py
+```
+
+Цикл предлагает следующий PR, но останавливается после достижения targets
+или трёх последовательных циклов без измеримого улучшения.
+
+Пятничный 24-month anchor benchmark запускается вручную или по расписанию:
+
+```bash
+python scripts/multi_horizon_benchmark.py --baskets 100 --period 5y
+```
+
+Он проверяет стандартный **24-месячный** Phoenix-продукт на maturity anchors
+`6`, `12`, `18` и `24` месяца назад, считает score и сравнивает outcome с
+empirical baseline. Production promotion разрешается только если один кандидат
+проходит все четыре anchor-теста;
+иначе workflow сохраняет отчёт, но не меняет production.
+
+После benchmark workflow запускает provider-agnostic AI judge panel и сохраняет
+`ai_judge_panel.json`. Базовый режим поддерживает локальную Ollama без API-ключа
+и банковской карты (например, `ollama pull qwen2.5:7b` и
+`ollama pull deepseek-r1:7b`). Также поддерживаются Gemini, OpenAI,
+Anthropic, Mistral, Groq, OpenRouter, NVIDIA NIM и Cerebras. Для Ollama можно
+добавить Gemma или любую другую совместимую модель через `OLLAMA_MODELS`.
+Облачные бесплатные тарифы имеют лимиты провайдера; Cerebras может требовать
+активированный trial balance и возвращает `deferred` без доступных кредитов.
+Добавляйте только нужные
+репозиторные GitHub Actions secrets
+(`GEMINI_API_KEY`, `CEREBRAS_API_KEY`, `NVIDIA_API_KEY`, `OPENAI_API_KEY`,
+`ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`);
+отсутствующий ключ получает статус
+`skipped`, временная квота — `deferred`. Модели видят только
+benchmark/proposal evidence и не могут изменить production weights, verdict или
+создать сделки. Завершённые reviews превращаются максимум в три
+`ai_screening_targets.json` research-targets; они направляют следующий
+benchmark, но не применяют формулу или веса автоматически.
+
 ## Деплой на Fly.io
 
 ```bash

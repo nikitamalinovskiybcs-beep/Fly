@@ -1,7 +1,5 @@
 """Tests for src.phoenix — models, barrier risk, pricing, greeks."""
 
-import numpy as np
-import pandas as pd
 import pytest
 
 
@@ -94,6 +92,16 @@ class TestPhoenixPricing:
         engine = PhoenixPricingEngine()
         result = engine.price(tickers=[], strikes={}, observation_dates=[])
         assert result.fair_value_pct == 0.0
+
+    def test_price_rejects_non_monotonic_observations(self) -> None:
+        from src.phoenix.pricing import PhoenixPricingEngine
+        with pytest.raises(ValueError, match="strictly increasing"):
+            PhoenixPricingEngine().price(
+                tickers=["AAPL"],
+                strikes={"AAPL": 150.0},
+                observation_dates=["2027-06-01", "2027-03-01"],
+                n_simulations=100,
+            )
 
 
 class TestPhoenixGreeks:

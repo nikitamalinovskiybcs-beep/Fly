@@ -512,7 +512,8 @@ if basket_tickers:
     gen = D.get("scoring_generation", 0)
     _gate_passed = bool(D.get("evidence_gate", {}).get("passed"))
     _director_status = D.get("sl_agents", {}).get("director_status", "")
-    _verdict = (
+    _decision_gate = D.get("decision_gate", {})
+    _verdict = _decision_gate.get("verdict") or (
         "GOOD" if _gate_passed and rs >= 80
         else "CAUTION" if rs >= 65
         else "BAD"
@@ -522,7 +523,7 @@ if basket_tickers:
         else "#ffb000" if _verdict == "CAUTION"
         else "#ff3b30"
     )
-    _block_reasons = []
+    _block_reasons = list(_decision_gate.get("reasons", []))
     if not _gate_passed:
         _block_reasons.append("evidence gate incomplete")
     if p_ki >= 35:
@@ -590,12 +591,12 @@ if basket_tickers:
     if ind:
         iv30 = ind.get("iv30_avg", 40)
         avg_c_val = corr.get("avg_corr", 0)
-        grid = _mi("P(KI)", f"{p_ki:.1f}%", f"при KI=60% spot за 2Y", "#ff3b30" if p_ki > 25 else "#34c759")
+        grid = _mi("P(KI)", f"{p_ki:.1f}%", "при KI=60% spot за 2Y", "#ff3b30" if p_ki > 25 else "#34c759")
         grid += _mi("P(autocall)", f"{p_autocall:.1f}%", f"E[жизни] {D.get('e_life',1.5):.2f}г")
         grid += _mi("IV30 (avg)", f"{iv30:.0f}%", f"min {ind.get('iv30_min',0):.0f}% · max {ind.get('iv30_max',0):.0f}%")
-        grid += _mi("Avg корреляция", f"{avg_c_val:.2f}", f"sweet spot 0.45–0.65", "#34c759" if avg_c_val < 0.65 else "#ff3b30")
+        grid += _mi("Avg корреляция", f"{avg_c_val:.2f}", "sweet spot 0.45–0.65", "#34c759" if avg_c_val < 0.65 else "#ff3b30")
         grid += _mi("β (avg)", f"{ind.get('beta_avg',1):.2f}", f"min {ind.get('beta_min',0):.2f} · max {ind.get('beta_max',0):.2f}")
-        grid += _mi("Dispersion", f"σ {D.get('dispersion',5):.1f}%", f"vol-spread корзины")
+        grid += _mi("Dispersion", f"σ {D.get('dispersion',5):.1f}%", "vol-spread корзины")
         st.markdown(f'<div style="display:flex;flex-wrap:wrap;gap:0">{grid}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════

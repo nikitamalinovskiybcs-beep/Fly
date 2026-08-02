@@ -31,12 +31,15 @@ class CloudSync:
             try:
                 from supabase import create_client
                 self._client = create_client(self._url, self._key)
+                self._client.table("trades").select("id").limit(1).execute()
                 self._enabled = True
                 logger.info("Supabase cloud sync enabled")
             except ImportError:
                 logger.info("supabase package not installed, cloud sync disabled")
             except Exception as exc:
-                logger.warning("Supabase init failed: %s", exc)
+                self._client = None
+                self._last_error = str(exc)
+                logger.warning("Supabase health check failed: %s", exc)
 
     @property
     def enabled(self) -> bool:

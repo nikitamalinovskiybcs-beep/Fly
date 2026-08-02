@@ -132,3 +132,13 @@ class TestSchedulerWiring:
         scheduler = sched_mod.FlyScheduler()
         result = scheduler._run_autopilot()
         assert result["status"] in {"ran", "kill_switch_engaged", "error"}
+
+
+def test_loss_probability_increases_with_higher_barrier() -> None:
+    from src.structured_product import score_product
+
+    values = [
+        score_product(["AAPL", "MSFT", "NVDA"], barrier, 12)["p_loss_pct"]
+        for barrier in [0.55, 0.60, 0.65, 0.70, 0.75]
+    ]
+    assert values == sorted(values)

@@ -15,7 +15,7 @@ jobs:
   auto-improve:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -32,8 +32,7 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run auto-improvement cycle + 5 agents + 8 self-learning agents
-        id: improve
+      - name: Run research improvement cycle + committee inputs
         run: |
           python -c "
           import json
@@ -92,10 +91,7 @@ jobs:
           with open('improvement_report.json', 'w') as f:
               json.dump(report, f, indent=2, default=str)
 
-          # Set output for conditional commit
-          improved = 'true' if report['improved'] and not report.get('rollback') else 'false'
           " 2>&1
-          echo "improved=$([[ -f improvement_report.json ]] && python -c "import json; r=json.load(open('improvement_report.json')); print('true' if r['improved'] and not r.get('rollback') else 'false')" || echo 'false')" >> $GITHUB_OUTPUT
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -103,21 +99,21 @@ jobs:
           name: improvement-report
           path: improvement_report.json
 
-      - name: Commit improved weights (if accuracy increased)
-        if: steps.improve.outputs.improved == 'true'
+      - name: Publish immutable safety record
         run: |
-          # Check if scoring weights file was updated
-          if [ -f ~/phoenix_data/agi_params.json ]; then
-            mkdir -p phoenix_data
-            cp ~/phoenix_data/agi_params.json phoenix_data/ 2>/dev/null || true
-            git config user.name "Phoenix Auto-Improve Bot"
-            git config user.email "bot@phoenix-terminal.ai"
-            git add -A
-            if git diff --cached --quiet; then
-              echo "No weight changes to commit"
-            else
-              REPORT=$(python -c "import json; r=json.load(open('improvement_report.json')); print(f'acc {r[\"before\"][\"accuracy\"]}% -> {r[\"after\"][\"accuracy\"]}%, wr {r[\"after\"][\"win_rate\"]}%')")
-              git commit -m "auto-improve: $REPORT"
-              git push
-            fi
-          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          Path("automation_safety.json").write_text(json.dumps({
+              "mode": "research_only",
+              "production_weights_changed": False,
+              "verdict_mutated": False,
+              "trades_created": False,
+              "requires_human_review_for_merge": True,
+          }, indent=2))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: automation-safety
+          path: automation_safety.json

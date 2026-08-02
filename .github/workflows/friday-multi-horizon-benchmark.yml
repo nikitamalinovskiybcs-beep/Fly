@@ -1,0 +1,173 @@
+name: Friday multi-horizon benchmark
+
+on:
+  schedule:
+    - cron: "0 17 * * 5"
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: |
+          python scripts/multi_horizon_benchmark.py \
+            --baskets 100 \
+            --period 5y \
+            --output multi_horizon_benchmark.json
+          python scripts/plan_quant_improvement.py \
+            multi_horizon_benchmark.json \
+            --output quant_improvement_proposal.json
+          python scripts/build_formula_review_packet.py \
+            --output formula_review_packet.json
+          python scripts/build_system_audit_packet.py \
+            --output system_audit_packet.json
+          python scripts/run_judge_panel.py \
+            formula_review_packet.json \
+            quant_improvement_proposal.json \
+            --output formula_ai_judge_panel.json
+          python scripts/run_judge_panel.py \
+            system_audit_packet.json \
+            quant_improvement_proposal.json \
+            --output ai_judge_panel.json
+          python -m src.ai_consensus_plan \
+            formula_ai_judge_panel.json \
+            ai_judge_panel.json \
+            --output ai_consensus_action_plan.json
+          python scripts/build_structural_cleanup_plan.py \
+            --output structural_cleanup_plan.json
+          python -c "import json; from pathlib import Path; from src.structure_audit import audit_python_tree; Path('structure_audit.json').write_text(json.dumps(audit_python_tree(Path('src')), indent=2))"
+          python scripts/build_system_health.py \
+            --benchmark multi_horizon_benchmark.json \
+            --structure structure_audit.json \
+            --output system_health.json
+          python scripts/build_committee_progress.py \
+            --benchmark multi_horizon_benchmark.json \
+            --health system_health.json \
+            --structure structure_audit.json \
+            --output committee_progress.json
+          python scripts/build_phoenix_improvement_catalog.py \
+            --output phoenix_improvement_catalog.json
+          python scripts/run_judge_panel.py \
+            phoenix_improvement_catalog.json \
+            quant_improvement_proposal.json \
+            --output phoenix_external_proposals.json
+          python scripts/run_ai_committee.py \
+            phoenix_external_proposals.json \
+            --output phoenix_ai_committee_decision.json
+          python scripts/build_phoenix_improvement_catalog_v2.py \
+            --output phoenix_improvement_catalog_v2.json
+          python scripts/run_judge_panel.py \
+            phoenix_improvement_catalog_v2.json \
+            quant_improvement_proposal.json \
+            --output phoenix_external_proposals_v2.json
+          python scripts/run_ai_committee.py \
+            phoenix_external_proposals_v2.json \
+            --output phoenix_ai_committee_decision_v2.json
+          python scripts/plan_screening_targets.py \
+            ai_judge_panel.json \
+            --output ai_screening_targets.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-multi-horizon-benchmark
+          path: multi_horizon_benchmark.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-quant-improvement-proposal
+          path: quant_improvement_proposal.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-formula-review-packet
+          path: formula_review_packet.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-system-audit-packet
+          path: system_audit_packet.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-ai-judge-panel
+          path: ai_judge_panel.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-formula-ai-judge-panel
+          path: formula_ai_judge_panel.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-ai-consensus-action-plan
+          path: ai_consensus_action_plan.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-structural-cleanup-plan
+          path: structural_cleanup_plan.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-structure-audit
+          path: structure_audit.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-system-health
+          path: system_health.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-committee-progress
+          path: committee_progress.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-improvement-catalog
+          path: phoenix_improvement_catalog.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-external-proposals
+          path: phoenix_external_proposals.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-ai-committee
+          path: phoenix_ai_committee_decision.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-improvement-catalog-v2
+          path: phoenix_improvement_catalog_v2.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-external-proposals-v2
+          path: phoenix_external_proposals_v2.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-ai-committee-v2
+          path: phoenix_ai_committee_decision_v2.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-ai-screening-targets
+          path: ai_screening_targets.json
+          retention-days: 30
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

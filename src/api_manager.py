@@ -385,7 +385,10 @@ class APIManager:
                     "write_ready": False,
                     "message": "Connected; operation denied by policy",
                 }
-            return {"connected": False, "message": f"Error: {err[:100]}"}
+            return {
+                "connected": False,
+                "message": f"Missing or unreachable Supabase endpoint: {err[:100]}",
+            }
 
     def _test_firebase(self) -> dict:
         creds = os.getenv("FIREBASE_CREDENTIALS", "")
