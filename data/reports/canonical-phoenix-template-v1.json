@@ -1,0 +1,48 @@
+{
+  "schema_version": "canonical-phoenix-template-v1",
+  "status": "research_target_template",
+  "purpose": "Normalize future Phoenix candidates to one comparable payoff structure.",
+  "product_type": "worst_of_phoenix",
+  "reference_basket": [
+    "DAL",
+    "FB",
+    "CRWD",
+    "BA",
+    "RCL",
+    "SBUX"
+  ],
+  "ticker_normalization": {
+    "FB": "META"
+  },
+  "terms": {
+    "strike_pct": 0.85,
+    "knock_in_barrier_pct": 0.6,
+    "conditional_protection_pct": 0.6,
+    "fixed_coupon_pa_pct": 0.049,
+    "upside_participation_pct": 0.5,
+    "upside_reference_level_pct": 0.85,
+    "currency": "USD",
+    "worst_of": true,
+    "term_months": 84
+  },
+  "required_before_comparison": [
+    "coupon_frequency",
+    "memory_coupon",
+    "autocall_schedule",
+    "observation_dates",
+    "settlement_definition",
+    "issuer/dealer_provenance",
+    "strike_levels_by_ticker",
+    "barrier_monitoring_method"
+  ],
+  "comparison_rules": [
+    "same terms across baskets",
+    "report fixed-24m auxiliary comparison separately",
+    "no production verdict or trade mutation from template matching alone",
+    "missing terms produce CAUTION/blocker"
+  ],
+  "evidence_status": "partially_verified_screenshot_terms_remaining_unverified",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}
