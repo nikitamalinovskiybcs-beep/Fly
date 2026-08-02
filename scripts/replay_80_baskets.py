@@ -66,6 +66,20 @@ def _build_baskets(tickers: list[str], count: int, seed: int) -> list[list[str]]
     return [basket for basket in baskets if len(basket) == 3]
 
 
+def _binary_metrics(probabilities: list[float], outcomes: list[int]) -> dict[str, float]:
+    if not outcomes:
+        return {"brier": 0.0, "log_loss": 0.0}
+    clipped = np.clip(probabilities, 1e-12, 1 - 1e-12)
+    values = np.asarray(outcomes, dtype=float)
+    return {
+        "brier": round(float(np.mean((clipped - values) ** 2)), 6),
+        "log_loss": round(
+            float(np.mean(-(values * np.log(clipped) + (1 - values) * np.log(1 - clipped)))),
+            6,
+        ),
+    }
+
+
 def build_report(
     tickers: list[str] | None = None,
     basket_count: int = 80,
@@ -77,6 +91,7 @@ def build_report(
     usable = [ticker for ticker in universe if ticker in prices and len(prices[ticker]) >= 150]
     baskets = _build_baskets(usable, basket_count, seed)
     rows: list[dict] = []
+    observations: list[tuple[int, float, int]] = []
     for basket in baskets:
         aligned = {ticker: prices[ticker] for ticker in basket}
         prediction = compute_p_loss(basket, term_months=6)["p_loss"]
@@ -107,6 +122,14 @@ def build_report(
                 "loss_rate_error": replay.get("loss_rate_error"),
             }
         )
+        for window in replay["windows"]:
+            observations.append(
+                (
+                    int(window["window_index"]),
+                    float(prediction),
+                    int(window["outcome_type"] == "knock_in_loss"),
+                )
+            )
     observed = [row["observed_loss_rate"] for row in rows]
     predicted = [row["predicted_p_loss"] for row in rows]
     empirical_rate = float(np.mean(observed)) if observed else 0.0
@@ -123,6 +146,36 @@ def build_report(
     baseline_brier = float(np.mean((empirical_rate - np.asarray(observed)) ** 2))
     phoenix_log_loss = log_loss(predicted, observed)
     baseline_log_loss = log_loss([empirical_rate] * len(observed), observed)
+    observations.sort(key=lambda item: item[0])
+    split = int(len(observations) * 0.6)
+    train = observations[:split]
+    test = observations[split:]
+    train_prior = float(np.mean([item[2] for item in train])) if train else 0.0
+    candidate_metrics = []
+    for strength in (0.5, 0.6, 0.7, 0.8, 0.9, 1.0):
+        candidate_probabilities = [
+            strength * item[1] + (1 - strength) * train_prior
+            for item in test
+        ]
+        candidate_metrics.append(
+            (
+                strength,
+                _binary_metrics(candidate_probabilities, [item[2] for item in test]),
+            )
+        )
+    best_strength, best_metrics = min(
+        candidate_metrics,
+        key=lambda item: item[1]["brier"],
+        default=(None, {"brier": 0.0, "log_loss": 0.0}),
+    )
+    oos_baseline = _binary_metrics(
+        [train_prior] * len(test),
+        [item[2] for item in test],
+    )
+    oos_phoenix = _binary_metrics(
+        [item[1] for item in test],
+        [item[2] for item in test],
+    )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "scope": "six_month_historical_replay",
@@ -155,6 +208,18 @@ def build_report(
                 round((baseline_log_loss - phoenix_log_loss) / baseline_log_loss * 100, 2)
                 if baseline_log_loss else None
             ),
+        },
+        "oos_calibration_research": {
+            "source": "historical_replay",
+            "status": "research_only",
+            "train_observations": len(train),
+            "oos_observations": len(test),
+            "train_prior": round(train_prior, 6),
+            "phoenix": oos_phoenix,
+            "empirical_baseline": oos_baseline,
+            "best_shrinkage_strength": best_strength,
+            "candidate": best_metrics,
+            "production_weights_changed": False,
         },
         "rows": rows,
     }
