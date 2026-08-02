@@ -7,7 +7,7 @@ def test_panel_skips_unconfigured_providers() -> None:
     result = run_judge_panel({}, {}, environ={})
     assert result["status"] == "deferred"
     assert result["consensus_verdict"] == "unavailable"
-    assert len(result["reviews"]) == 7
+    assert len(result["reviews"]) == 8
     assert result["production_weights_changed"] is False
 
 

@@ -169,14 +169,17 @@ empirical baseline. Production promotion разрешается только е�
 
 После benchmark workflow запускает provider-agnostic AI judge panel и сохраняет
 `ai_judge_panel.json`. Базовый режим поддерживает локальную Ollama без API-ключа
-и банковской карты (например, `ollama pull qwen2.5:7b`). Также поддерживаются
+и банковской карты (например, `ollama pull qwen2.5:7b` и
+`ollama pull deepseek-r1:7b`). Также поддерживаются
 Gemini, OpenAI, Anthropic, Mistral, Groq и OpenRouter. Добавляйте только нужные
 репозиторные GitHub Actions secrets
 (`GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`,
 `GROQ_API_KEY`, `OPENROUTER_API_KEY`); отсутствующий ключ получает статус
 `skipped`, временная квота — `deferred`. Модели видят только
 benchmark/proposal evidence и не могут изменить production weights, verdict или
-создать сделки.
+создать сделки. Завершённые reviews превращаются максимум в три
+`ai_screening_targets.json` research-targets; они направляют следующий
+benchmark, но не применяют формулу или веса автоматически.
 
 ## Деплой на Fly.io
 
