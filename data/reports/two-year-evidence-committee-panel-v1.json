@@ -1,0 +1,145 @@
+{
+  "status": "completed",
+  "consensus_verdict": "reject",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:7b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:deepseek-r1:7b",
+      "status": "skipped",
+      "reason": "Ollama is not running",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "The current evidence does not qualify as real model validation due to several reasons, including the lack of settled note outcomes, unverified dealer identity, and missing timestamped observation paths.",
+        "top_technical_reasons": [
+          "24m quote rows are offers, not settled note outcomes",
+          "dealer identity is not verified as BCS Capital",
+          "paper trades are equity trades, not structured-note payoff records",
+          "no timestamped observation paths linked to note ids"
+        ],
+        "candidate_safety": "low",
+        "next_experiments": [
+          {
+            "hypothesis": "Collecting settled note outcomes will improve model validation",
+            "change": "Add settled note outcomes to the dataset",
+            "metric_gate": "Increase in realized 24m Phoenix notes",
+            "why_it_is_informative": "To determine if the model can be validated with actual note outcomes"
+          },
+          {
+            "hypothesis": "Verifying dealer identity will improve data quality",
+            "change": "Verify dealer identity as BCS Capital",
+            "metric_gate": "Increase in verified quote records",
+            "why_it_is_informative": "To determine if verifying dealer identity improves data quality"
+          }
+        ],
+        "data_or_label_risks": [
+          "Risk of biased data due to unverified dealer identity",
+          "Risk of incomplete data due to missing timestamped observation paths"
+        ],
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "The current evidence does not qualify as real model validation due to insufficient proof status and missing critical data fields. The 24-month quote rows are offers rather than settled outcomes, and there is no verified dealer identity or timestamped observation paths linked to note IDs.",
+        "top_technical_reasons": [
+          "Insufficient proof status for model validation.",
+          "24-month quote rows are offers, not settled note outcomes.",
+          "Dealer identity is not verified as BCS Capital.",
+          "No timestamped observation paths linked to note IDs."
+        ],
+        "candidate_safety": "High risk due to lack of verified data and insufficient evidence for model validation.",
+        "next_experiments": [
+          {
+            "hypothesis": "Linking quote outcomes to verified dealer identities will improve model validation.",
+            "change": "Collect and verify dealer identities for all quote records.",
+            "metric_gate": "Verification of dealer identities for at least 80% of quote records.",
+            "why_it_is_informative": "This will help establish the credibility of the data and ensure that the model is based on reliable sources."
+          },
+          {
+            "hypothesis": "Settling note outcomes will provide necessary data for model validation.",
+            "change": "Implement a process to settle note outcomes and link them to the existing quote records.",
+            "metric_gate": "At least 50 settled note outcomes linked to quote records.",
+            "why_it_is_informative": "This will provide the necessary evidence to validate the model and assess its performance."
+          },
+          {
+            "hypothesis": "Timestamped observation paths will enhance the linkage between quotes and outcomes.",
+            "change": "Introduce a system for capturing timestamped observation paths for all trades.",
+            "metric_gate": "Capture timestamped observation paths for 100% of trades.",
+            "why_it_is_informative": "This will allow for better tracking of trades and outcomes, improving the overall validation process."
+          }
+        ],
+        "data_or_label_risks": "High risk due to the unknown verification status of the quote source and the lack of settled outcomes, which may lead to unreliable model predictions.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}
