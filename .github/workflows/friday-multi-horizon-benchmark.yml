@@ -60,6 +60,15 @@ jobs:
           python scripts/run_ai_committee.py \
             phoenix_external_proposals.json \
             --output phoenix_ai_committee_decision.json
+          python scripts/build_phoenix_improvement_catalog_v2.py \
+            --output phoenix_improvement_catalog_v2.json
+          python scripts/run_judge_panel.py \
+            phoenix_improvement_catalog_v2.json \
+            quant_improvement_proposal.json \
+            --output phoenix_external_proposals_v2.json
+          python scripts/run_ai_committee.py \
+            phoenix_external_proposals_v2.json \
+            --output phoenix_ai_committee_decision_v2.json
           python scripts/plan_screening_targets.py \
             ai_judge_panel.json \
             --output ai_screening_targets.json
@@ -132,6 +141,21 @@ jobs:
         with:
           name: friday-phoenix-ai-committee
           path: phoenix_ai_committee_decision.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-improvement-catalog-v2
+          path: phoenix_improvement_catalog_v2.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-external-proposals-v2
+          path: phoenix_external_proposals_v2.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-ai-committee-v2
+          path: phoenix_ai_committee_decision_v2.json
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
