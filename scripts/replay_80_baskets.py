@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.outcome_engine import StructuredNoteSpec, replay_historical_windows
 from src.real_data import compute_p_loss
+from src.replay_calibration import apply_histogram_calibrator, fit_histogram_calibrator
 
 
 DEFAULT_UNIVERSE = [
@@ -151,22 +152,17 @@ def build_report(
     train = observations[:split]
     test = observations[split:]
     train_prior = float(np.mean([item[2] for item in train])) if train else 0.0
-    candidate_metrics = []
-    for strength in (0.5, 0.6, 0.7, 0.8, 0.9, 1.0):
-        candidate_probabilities = [
-            strength * item[1] + (1 - strength) * train_prior
+    train_predictions = [item[1] for item in train]
+    train_outcomes = [item[2] for item in train]
+    test_predictions = [item[1] for item in test]
+    test_outcomes = [item[2] for item in test]
+    shrinkage_strength = 0.5
+    shrinkage_candidate = _binary_metrics(
+        [
+            shrinkage_strength * item[1] + (1 - shrinkage_strength) * train_prior
             for item in test
-        ]
-        candidate_metrics.append(
-            (
-                strength,
-                _binary_metrics(candidate_probabilities, [item[2] for item in test]),
-            )
-        )
-    best_strength, best_metrics = min(
-        candidate_metrics,
-        key=lambda item: item[1]["brier"],
-        default=(None, {"brier": 0.0, "log_loss": 0.0}),
+        ],
+        test_outcomes,
     )
     oos_baseline = _binary_metrics(
         [train_prior] * len(test),
@@ -175,6 +171,29 @@ def build_report(
     oos_phoenix = _binary_metrics(
         [item[1] for item in test],
         [item[2] for item in test],
+    )
+    histogram_rates = fit_histogram_calibrator(
+        train_predictions,
+        train_outcomes,
+        bins=5,
+    )
+    histogram_candidate = _binary_metrics(
+        apply_histogram_calibrator(test_predictions, histogram_rates),
+        test_outcomes,
+    )
+    histogram_brier_improvement = (
+        (oos_baseline["brier"] - histogram_candidate["brier"])
+        / oos_baseline["brier"]
+        * 100
+        if oos_baseline["brier"]
+        else None
+    )
+    histogram_log_loss_improvement = (
+        (oos_baseline["log_loss"] - histogram_candidate["log_loss"])
+        / oos_baseline["log_loss"]
+        * 100
+        if oos_baseline["log_loss"]
+        else None
     )
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -217,8 +236,18 @@ def build_report(
             "train_prior": round(train_prior, 6),
             "phoenix": oos_phoenix,
             "empirical_baseline": oos_baseline,
-            "best_shrinkage_strength": best_strength,
-            "candidate": best_metrics,
+            "predeclared_shrinkage_strength": shrinkage_strength,
+            "shrinkage_candidate": shrinkage_candidate,
+            "histogram_bins": 5,
+            "histogram_rates": [round(rate, 6) for rate in histogram_rates],
+            "histogram_candidate": histogram_candidate,
+            "histogram_brier_improvement_pct": round(histogram_brier_improvement, 2),
+            "histogram_log_loss_improvement_pct": round(histogram_log_loss_improvement, 2),
+            "oos_baseline_gate_passed": (
+                histogram_candidate["brier"] < oos_baseline["brier"]
+                and histogram_candidate["log_loss"] < oos_baseline["log_loss"]
+            ),
+            "accepted_candidate": "fixed_width_histogram_5_bins",
             "production_weights_changed": False,
         },
         "rows": rows,
