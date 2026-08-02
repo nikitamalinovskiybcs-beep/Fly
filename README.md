@@ -112,6 +112,16 @@ python scripts/benchmark_structured_models.py
 потому что текущая модель обучается на этом наборе. Это не заменяет OOS
 сравнение с независимыми поставщиками или дилерскими котировками.
 
+Evidence-gated calibration agent запускается так:
+
+```bash
+python scripts/run_calibration_agent.py
+```
+
+Агент использует только realized notes, разделяет train/OOS, сравнивает
+кандидата с baseline и сохраняет audit proposal. Production weights не меняются
+автоматически: успешный кандидат только предлагает PR для review.
+
 ## Деплой на Fly.io
 
 ```bash
