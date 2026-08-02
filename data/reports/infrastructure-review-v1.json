@@ -1,0 +1,32 @@
+{
+  "status": "pre_committee_vote",
+  "scope": "code, process, deployment, storage, observability and safety infrastructure",
+  "checks": {
+    "syntax_imports": "pass",
+    "ruff": "pass",
+    "pytest_isolated": "pass",
+    "streamlit_health_check": "configured",
+    "deployment_port_alignment": "pass",
+    "research_only_automation": "pass",
+    "rollback_controls": "pass",
+    "data_provenance": "pass",
+    "fixed_24m_promotion_gate": "blocked",
+    "dependency_reproducibility": "attention",
+    "container_hardening": "attention"
+  },
+  "committee_questions": [
+    "pin runtime dependencies",
+    "add non-root Docker user and healthcheck",
+    "version the unified health schema",
+    "persist code, data and configuration hashes",
+    "require CI health and safety artifacts for deployment",
+    "test stale and partial cache invalidation",
+    "define artifact retention and rollback policy",
+    "add dependency vulnerability scanning",
+    "smoke test the built image",
+    "define external-provider cost and latency budgets"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}
