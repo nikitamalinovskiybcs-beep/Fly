@@ -57,11 +57,15 @@ def _call_ollama(
     *,
     url: str,
     model: str,
+    num_ctx: int = 4096,
+    keep_alive: str = "0",
 ) -> JsonObject:
     request = {
         "model": model,
         "stream": False,
         "format": "json",
+        "keep_alive": keep_alive,
+        "options": {"num_ctx": num_ctx},
         "messages": [{"role": "user", "content": prompt}],
     }
     response = requests.post(
@@ -200,8 +204,13 @@ def run_judge_panel(
     ollama_url = variables.get("OLLAMA_URL", "http://127.0.0.1:11434")
     ollama_models = variables.get(
         "OLLAMA_MODELS",
-        variables.get("OLLAMA_MODEL", "qwen2.5:1.5b,deepseek-r1:1.5b"),
+        variables.get(
+            "OLLAMA_MODEL",
+            "qwen2.5:1.5b,deepseek-r1:1.5b,llama3.2:1b,gemma3:1b",
+        ),
     )
+    ollama_num_ctx = int(variables.get("OLLAMA_NUM_CTX", "4096"))
+    ollama_keep_alive = variables.get("OLLAMA_KEEP_ALIVE", "0")
     for ollama_model in (
         model.strip() for model in ollama_models.split(",") if model.strip()
     ):
@@ -215,6 +224,8 @@ def run_judge_panel(
                         prompt,
                         url=ollama_url,
                         model=ollama_model,
+                        num_ctx=ollama_num_ctx,
+                        keep_alive=ollama_keep_alive,
                     ),
                 },
             )
