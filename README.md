@@ -84,6 +84,14 @@ Redis используется для cache/queue/rate limiting, а MinIO пре
 S3-совместимый локальный bucket `fly-data`. Это self-hosted fallback, не
 Cloudflare R2; для Streamlit Cloud нужен отдельно доступный сервер.
 
+## Batch-расчёты без billing
+
+GitHub Actions запускает бесплатный daily batch snapshot без cloud
+credentials и сохраняет результат как artifact на 7 дней. Запустить его
+вручную можно через `Actions → Free Batch Snapshot → Run workflow`, указав
+корзину через `AAPL,MSFT,GOOGL,AMZN,NVDA`. Это batch/research output, а не
+постоянный backend и не подтверждение реальной сделки.
+
 ## Деплой на Fly.io
 
 ```bash
