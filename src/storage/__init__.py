@@ -217,6 +217,7 @@ class Storage:
     def status(self) -> dict:
         """Get storage system status."""
         result = self.config.status_report()
+        result["integration"] = self.integration_status()
         result["sqlite_tables"] = self.db.table_stats()
         result["sqlite_size_mb"] = round(self.db.db_size_bytes() / 1024 / 1024, 2)
         if self.analytics and self.analytics.available:
@@ -226,3 +227,34 @@ class Storage:
         if self.backup_manager:
             result["backup_status"] = self.backup_manager.get_backup_status()
         return result
+
+    def integration_status(self) -> dict[str, object]:
+        """Report configured versus initialized backends."""
+        configured = self.config.status_report()
+        active = {
+            "sqlite": self.db is not None,
+            "duckdb": bool(self.analytics and self.analytics.available),
+            "supabase": bool(self.cloud and getattr(self.cloud, "enabled", False)),
+            "firebase": bool(self.firebase and getattr(self.firebase, "enabled", False)),
+            "clickhouse": bool(
+                self.clickhouse and getattr(self.clickhouse, "enabled", False)
+            ),
+            "r2": bool(self.r2 and getattr(self.r2, "enabled", False)),
+            "redis": bool(self.redis and getattr(self.redis, "enabled", False)),
+        }
+        required = ("sqlite", "duckdb")
+        missing_required = [name for name in required if not active[name]]
+        return {
+            "status": "ready" if not missing_required else "blocked",
+            "configured": configured,
+            "active": active,
+            "missing_required": missing_required,
+            "optional_unavailable": [
+                name
+                for name in active
+                if name not in required and not active[name]
+            ],
+            "production_weights_changed": False,
+            "verdict_mutated": False,
+            "trades_created": False,
+        }

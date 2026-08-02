@@ -6,7 +6,7 @@ from collections.abc import Mapping
 
 from src.fact_check import build_fact_check_report
 from src.research_orchestrator import run_research_pipeline
-from src.storage.config import StorageConfig
+from src.storage import Storage
 
 
 def build_runtime_research_status(
@@ -32,7 +32,7 @@ def build_runtime_research_status(
     )
     return run_research_pipeline(
         pipeline.get("evidence_records", {}),
-        storage=StorageConfig().status_report(),
+        storage=Storage().integration_status()["active"],
         calculation=lambda _context: {"status": "completed", "source": "live_analysis"},
         committee=lambda _context: {
             "status": "completed"

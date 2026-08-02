@@ -217,6 +217,16 @@ class TestStorageConfig:
         assert status["duckdb"] is True
         assert status["supabase"] is False
 
+    def test_storage_integration_status_has_configured_and_active(self) -> None:
+        from src.storage import Storage
+
+        storage = Storage()
+        result = storage.integration_status()
+
+        assert result["status"] == "ready"
+        assert result["active"]["sqlite"] is True
+        assert result["production_weights_changed"] is False
+
     @patch.dict(os.environ, {"SUPABASE_URL": "https://x.supabase.co", "SUPABASE_KEY": "key123"})
     def test_supabase_available_with_env(self) -> None:
         from src.storage.config import StorageConfig
