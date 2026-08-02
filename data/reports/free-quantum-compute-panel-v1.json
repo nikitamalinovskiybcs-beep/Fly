@@ -1,0 +1,201 @@
+{
+  "status": "completed",
+  "consensus_verdict": "reject",
+  "completed_providers": [
+    "ollama:qwen2.5:1.5b",
+    "ollama:gemma3:1b",
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:1.5b",
+      "status": "completed",
+      "review": {
+        "verdict": "revise",
+        "summary": "Phoenix needs to improve the quantum candidate 'duration_transfer' by beating a benchmark at every fixed-24-month maturity anchor.",
+        "top_technical_reasons": [
+          "The quantified improvement in duration transfer is not robust enough across all stages of Q0-Q3, with performance fluctuating and not matching the baseline consistently.",
+          "Quantum candidate 'duration_transfer' needs to perform equally or better than the classical optimizer on OOS instances without experiencing regression."
+        ],
+        "candidate_safety": false,
+        "next_experiments": [
+          {
+            "hypothesis": "The best approach for improvement is through further optimization of the existing quantum candidates, rather than adding new ones.",
+            "change": "Addition of a new quantum candidate 'regime_quant' to evaluate in addition to duration_transfer and path_quant. This can be done by comparing performance on OOS instances, ensuring no regression compared to classical optimization, as well as improving upon it with higher precision.",
+            "metric_gate": "If not improved by this change, the next step could be a qualitative review of the entire process and potential adjustments in strategy or candidate evaluation parameters.",
+            "why_it_is_informative": "This experiment aims to validate whether additional quantum improvement can further enhance performance without overcomplicating the process. By comparing with an optimized version of 'path_quant', it tests the effectiveness and robustness of adding a new candidate, ensuring that no false progress is made through unnecessary changes.",
+            "candidate_safety": {
+              "production_weights_changed": true,
+              "trades_created": false,
+              "verdict_mutated": false
+            },
+            "next_experiments": [
+              {
+                "id": "Q5",
+                "name": "quantum candidate optimization iteration 2",
+                "work": [
+                  "refine and optimize 'duration_transfer' and 'regime_quant' candidates using a systematic approach that includes fine-tuning parameters, retraining with higher data fidelity, or incorporating new quantum simulation methods.",
+                  "evaluate performance on additional OOS instances to ensure consistency and no regression compared to classical optimization."
+                ]
+              },
+              "data_or_label_risks"
+            ]
+          }
+        ],
+        "provider": "ollama",
+        "model": "qwen2.5:1.5b",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "ollama:deepseek-r1:1.5b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:llama3.2:1b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:gemma3:1b",
+      "status": "completed",
+      "review": {
+        "verdict": "recommendation",
+        "provider": "ollama",
+        "model": "gemma3:1b",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "The candidate did not pass all 24-month anchors and did not beat the empirical baseline.",
+        "top_technical_reasons": [
+          "No candidate passed all 24-month anchors",
+          "Candidate scores were lower than the empirical baseline"
+        ],
+        "candidate_safety": "The candidate did not meet the safety criteria as it did not pass all 24-month anchors and did not beat the empirical baseline.",
+        "next_experiments": [
+          {
+            "hypothesis": "Improving the candidate's performance by optimizing the QUBO-like constrained objective",
+            "change": "Optimize the QUBO-like constrained objective using a different classical local search algorithm",
+            "metric_gate": "Beat the empirical baseline at every fixed-24-month maturity anchor",
+            "why_it_is_informative": "This experiment will help determine if optimizing the QUBO-like constrained objective can improve the candidate's performance"
+          },
+          {
+            "hypothesis": "Improving the candidate's performance by using a different quantum-inspired algorithm",
+            "change": "Use a different quantum-inspired algorithm, such as QAOA or VQE",
+            "metric_gate": "Beat the empirical baseline at every fixed-24-month maturity anchor",
+            "why_it_is_informative": "This experiment will help determine if using a different quantum-inspired algorithm can improve the candidate's performance"
+          }
+        ],
+        "data_or_label_risks": "The data used for the experiment may not be of high quality, and the labels may not be accurate, which could affect the results of the experiment.",
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "No candidate passed the required benchmarks for promotion, as all candidates failed to beat the empirical baseline at every fixed-24-month maturity anchor.",
+        "top_technical_reasons": [
+          "All candidates scored below the baseline, indicating insufficient performance.",
+          "The selected candidate, duration_transfer, had a calibrated score of -153.53, which is not competitive.",
+          "No candidate demonstrated the ability to meet the zero-cost policy requirements while achieving the necessary performance metrics."
+        ],
+        "candidate_safety": {
+          "production_weights_changed": false,
+          "trades_created": false,
+          "verdict_mutated": false
+        },
+        "next_experiments": [
+          {
+            "hypothesis": "A different approach to basket selection may yield better performance.",
+            "change": "Explore alternative optimization techniques beyond QUBO-like formulations.",
+            "metric_gate": "Achieve a calibrated score above the empirical baseline.",
+            "why_it_is_informative": "This could reveal whether the current optimization method is limiting performance."
+          },
+          {
+            "hypothesis": "Increasing the problem size in local quantum simulations may improve results.",
+            "change": "Test larger instances in Qiskit Aer while monitoring resource usage.",
+            "metric_gate": "Demonstrate improved performance metrics without exceeding resource limits.",
+            "why_it_is_informative": "This will help assess the scalability of quantum-inspired methods."
+          },
+          {
+            "hypothesis": "Refining the risk and payoff verification process could enhance model reliability.",
+            "change": "Implement more rigorous property tests and sensitivity analyses.",
+            "metric_gate": "Pass all safety and recalculation contracts.",
+            "why_it_is_informative": "Improved verification may lead to more robust models and better performance."
+          }
+        ],
+        "data_or_label_risks": [
+          "Reliance on free data sources may introduce biases or inaccuracies.",
+          "The lack of dealer-quality evidence could undermine the validity of the results.",
+          "Historical replay methods are not settled, which may affect the reliability of backtesting outcomes."
+        ],
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}
