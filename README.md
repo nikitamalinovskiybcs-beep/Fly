@@ -173,7 +173,9 @@ empirical baseline. Production promotion разрешается только е�
 `ollama pull deepseek-r1:7b`). Также поддерживаются Gemini, OpenAI,
 Anthropic, Mistral, Groq, OpenRouter, NVIDIA NIM и Cerebras. Для Ollama можно
 добавить Gemma или любую другую совместимую модель через `OLLAMA_MODELS`.
-Облачные бесплатные тарифы имеют лимиты провайдера. Добавляйте только нужные
+Облачные бесплатные тарифы имеют лимиты провайдера; Cerebras может требовать
+активированный trial balance и возвращает `deferred` без доступных кредитов.
+Добавляйте только нужные
 репозиторные GitHub Actions secrets
 (`GEMINI_API_KEY`, `CEREBRAS_API_KEY`, `NVIDIA_API_KEY`, `OPENAI_API_KEY`,
 `ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`);

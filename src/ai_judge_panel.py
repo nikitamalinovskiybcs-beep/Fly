@@ -16,7 +16,7 @@ OPENAI_COMPATIBLE_PROVIDERS = {
     "cerebras": {
         "key": "CEREBRAS_API_KEY",
         "url": "https://api.cerebras.ai/v1/chat/completions",
-        "model": "llama-3.3-70b",
+        "model": "gpt-oss-120b",
     },
     "nvidia": {
         "key": "NVIDIA_API_KEY",
