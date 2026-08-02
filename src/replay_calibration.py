@@ -92,3 +92,33 @@ def walk_forward_histogram_calibration(
         "production_weights_changed": False,
         "verdict_mutated": False,
     }
+
+
+def diagnose_calibration_bottleneck(result: dict[str, object]) -> dict[str, object]:
+    """Rank the dominant calibration failure for the next research run."""
+    raw = result.get("raw", {})
+    calibrated = result.get("calibrated", {})
+    ece = float(calibrated.get("ece", 1.0))
+    log_loss_change = float(calibrated.get("log_loss", 1.0)) - float(
+        raw.get("log_loss", 0.0),
+    )
+    if ece > 0.05:
+        priority = "reduce_calibration_error"
+    elif log_loss_change >= 0:
+        priority = "improve_log_loss"
+    else:
+        priority = "expand_fixed_24m_sample"
+    return {
+        "priority": priority,
+        "calibrated_ece": ece,
+        "log_loss_change": round(log_loss_change, 8),
+        "action": {
+            "reduce_calibration_error": "add leakage-safe labels and regime features",
+            "improve_log_loss": "test regularized calibration candidates",
+            "expand_fixed_24m_sample": "collect more settled 24m outcomes",
+        }[priority],
+        "research_only": True,
+        "production_weights_changed": False,
+        "verdict_mutated": False,
+        "trades_created": False,
+    }
