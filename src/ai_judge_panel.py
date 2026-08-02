@@ -41,6 +41,12 @@ OPENAI_COMPATIBLE_PROVIDERS = {
 }
 
 
+def _validated_review(result: JsonObject) -> JsonObject:
+    if not isinstance(result.get("verdict"), str):
+        raise ValueError("review is missing a verdict")
+    return result
+
+
 def _call_ollama(
     prompt: str,
     *,
@@ -71,7 +77,7 @@ def _call_ollama(
             "verdict_mutated": False,
         },
     )
-    return result
+    return _validated_review(result)
 
 
 def _safe_result(provider: str, status: str, reason: str) -> JsonObject:
@@ -126,7 +132,7 @@ def _call_openai_compatible(
             "verdict_mutated": False,
         },
     )
-    return result
+    return _validated_review(result)
 
 
 def _call_anthropic(
@@ -166,7 +172,7 @@ def _call_anthropic(
             "verdict_mutated": False,
         },
     )
-    return result
+    return _validated_review(result)
 
 
 def run_judge_panel(
@@ -201,6 +207,8 @@ def run_judge_panel(
             )
         except requests.ConnectionError:
             reviews.append(_safe_result(provider, "skipped", "Ollama is not running"))
+        except requests.Timeout:
+            reviews.append(_safe_result(provider, "deferred", "Ollama timed out"))
         except requests.HTTPError as error:
             status = error.response.status_code if error.response is not None else 0
             reviews.append(_safe_result(provider, "deferred", f"HTTP {status}"))
@@ -214,7 +222,9 @@ def run_judge_panel(
                 {
                     "provider": "google_gemini",
                     "status": "completed",
-                    "review": judge_report(report, proposal, gemini_key),
+                    "review": _validated_review(
+                        judge_report(report, proposal, gemini_key),
+                    ),
                 },
             )
         except requests.HTTPError as error:
