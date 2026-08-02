@@ -28,9 +28,17 @@ jobs:
           python scripts/build_system_audit_packet.py \
             --output system_audit_packet.json
           python scripts/run_judge_panel.py \
+            formula_review_packet.json \
+            quant_improvement_proposal.json \
+            --output formula_ai_judge_panel.json
+          python scripts/run_judge_panel.py \
             system_audit_packet.json \
             quant_improvement_proposal.json \
             --output ai_judge_panel.json
+          python -m src.ai_consensus_plan \
+            formula_ai_judge_panel.json \
+            ai_judge_panel.json \
+            --output ai_consensus_action_plan.json
           python scripts/plan_screening_targets.py \
             ai_judge_panel.json \
             --output ai_screening_targets.json
@@ -58,6 +66,16 @@ jobs:
         with:
           name: friday-ai-judge-panel
           path: ai_judge_panel.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-formula-ai-judge-panel
+          path: formula_ai_judge_panel.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-ai-consensus-action-plan
+          path: ai_consensus_action_plan.json
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:

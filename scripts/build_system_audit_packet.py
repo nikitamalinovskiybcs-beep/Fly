@@ -57,12 +57,11 @@ def _module_inventory() -> list[dict[str, object]]:
     return modules
 
 
-def _file_summary(relative_path: str) -> dict[str, object]:
+def _file_summary(relative_path: str, limit: int) -> dict[str, object]:
     path = ROOT / relative_path
     if not path.exists():
         return {"file": relative_path, "status": "missing"}
     text = path.read_text(encoding="utf-8")
-    limit = 1800 if relative_path.endswith(".py") else 1200
     return {
         "file": relative_path,
         "status": "present",
@@ -72,7 +71,8 @@ def _file_summary(relative_path: str) -> dict[str, object]:
     }
 
 
-def build_packet() -> dict[str, object]:
+def build_packet(minimal: bool = False) -> dict[str, object]:
+    files = KEY_FILES[:6] if minimal else KEY_FILES
     return {
         "review_type": "phoenix_whole_system_architecture_audit",
         "objective": (
@@ -121,16 +121,20 @@ def build_packet() -> dict[str, object]:
             "verdict_mutated": False,
         },
         "module_inventory": _module_inventory(),
-        "key_files": [_file_summary(path) for path in KEY_FILES],
+        "key_files": [
+            _file_summary(path, 500 if minimal else (900 if path.endswith(".py") else 600))
+            for path in files
+        ],
     }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True)
+    parser.add_argument("--minimal", action="store_true")
     args = parser.parse_args()
     Path(args.output).write_text(
-        json.dumps(build_packet(), indent=2, ensure_ascii=False),
+        json.dumps(build_packet(args.minimal), indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
 
