@@ -16,6 +16,7 @@ from scripts.replay_80_baskets import DEFAULT_UNIVERSE, _download_prices, _build
 from src.outcome_engine import StructuredNoteSpec, replay_historical_windows
 from src.real_data import compute_p_loss
 from src.replay_calibration import apply_histogram_calibrator, fit_histogram_calibrator
+from src.quant_benchmarks import analytical_worst_of_probability
 
 
 EXTRA_UNIVERSE = [
@@ -53,6 +54,7 @@ def build_multi_horizon_report(
         forward_days = months_ago * 21
         predictions: list[float] = []
         calibrated_predictions: list[float] = []
+        quant_predictions: list[float] = []
         observed: list[float] = []
         rows: list[dict] = []
         calibration_predictions: list[float] = []
@@ -68,6 +70,12 @@ def build_multi_horizon_report(
                 ticker: prices[ticker][:-forward_days]
                 for ticker in basket
             }
+            quant = analytical_worst_of_probability(
+                historical,
+                basket,
+                barrier=0.65,
+                term_months=months_ago,
+            )
             train_replay = replay_historical_windows(
                 historical,
                 StructuredNoteSpec(
@@ -103,6 +111,7 @@ def build_multi_horizon_report(
             if replay.get("status") != "historical_replay":
                 continue
             predictions.append(prediction)
+            quant_predictions.append(float(quant.get("p_loss", 0.0)))
             observed.append(float(replay["realized_replay_loss_rate"]))
             rows.append(
                 {
@@ -131,9 +140,11 @@ def build_multi_horizon_report(
             "baskets_replayed": len(rows),
             "metrics": _metrics(predictions, observed),
             "calibrated_metrics": _metrics(calibrated_predictions, observed),
+            "quant_metrics": _metrics(quant_predictions, observed),
             "calibration_train_observations": len(calibration_outcomes),
             "calibration_bins": 5,
             "calibration_rates": [round(rate, 6) for rate in calibration_rates],
+            "quant_method": "gaussian_copula_terminal_worst_of",
             "phoenix_score_today": round(float(np.mean(1 - np.asarray(predictions)) * 100), 2)
             if predictions else None,
             "rows": rows,
