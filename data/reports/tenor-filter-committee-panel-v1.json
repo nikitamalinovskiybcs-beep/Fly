@@ -1,0 +1,123 @@
+{
+  "status": "completed",
+  "consensus_verdict": "reject",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "Insufficient evidence to support removing the fixed-24-month filter",
+        "top_technical_reasons": [
+          "No settled 24m notes",
+          "No verified BCS observations",
+          "Quote rows 24m is low at 107"
+        ],
+        "candidate_safety": "low",
+        "next_experiments": [
+          {
+            "hypothesis": "Removing the fixed-24-month filter will improve model quality",
+            "change": "Remove the fixed-24-month filter and mix tenors",
+            "metric_gate": "Empirical baseline at every fixed-24-month maturity anchor",
+            "why_it_is_informative": "To test the impact of removing the filter on model performance"
+          },
+          {
+            "hypothesis": "Mixed-tenor metrics will provide more accurate results",
+            "change": "Test mixed-tenor metrics as auxiliary research",
+            "metric_gate": "Comparison to fixed-24-month metrics",
+            "why_it_is_informative": "To evaluate the effectiveness of mixed-tenor metrics"
+          }
+        ],
+        "data_or_label_risks": [
+          "Low quote rows 24m may lead to biased results",
+          "Lack of verified BCS observations may impact model accuracy"
+        ],
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "Phoenix cannot be approved as it does not meet the empirical baseline at every fixed-24-month maturity anchor, and there are no settled notes or verified observations to support its efficacy.",
+        "top_technical_reasons": [
+          "No settled notes in the last 24 months.",
+          "No verified BCS observations.",
+          "The fixed-24-month benchmark gate is not met."
+        ],
+        "candidate_safety": "The safety rule prohibits replacing fixed-24-month validation with mixed-tenor metrics, ensuring that the integrity of the model is maintained.",
+        "next_experiments": [
+          {
+            "hypothesis": "Removing the fixed-24-month filter will improve model quality.",
+            "change": "Test the model without the fixed-24-month filter.",
+            "metric_gate": "Evaluate performance against the empirical baseline.",
+            "why_it_is_informative": "This will help determine if flexibility in the filter leads to better model performance."
+          },
+          {
+            "hypothesis": "Using mixed-tenor metrics can provide valuable insights.",
+            "change": "Conduct auxiliary research using mixed-tenor metrics.",
+            "metric_gate": "Analyze the impact on model predictions and stability.",
+            "why_it_is_informative": "Understanding the effects of mixed-tenor metrics could inform future model adjustments."
+          }
+        ],
+        "data_or_label_risks": "There is a risk of relying on unverified data sources, as evidenced by the lack of settled notes and verified observations.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}
