@@ -1,4 +1,8 @@
-from src.data_quality import compare_price_sources, validate_macro_snapshot
+from src.data_quality import (
+    compare_price_sources,
+    validate_learning_provenance,
+    validate_macro_snapshot,
+)
 
 
 def test_compare_price_sources_flags_large_gap() -> None:
@@ -28,3 +32,18 @@ def test_macro_snapshot_accepts_free_source_metadata() -> None:
         }
     )
     assert result["passed"] is True
+
+
+def test_learning_provenance_blocks_replay_rows() -> None:
+    result = validate_learning_provenance(
+        [
+            {
+                "source": "historical_replay",
+                "as_of": "2025-01-01",
+                "status": "realized",
+                "learning_eligible": True,
+            },
+        ],
+    )
+    assert result["passed"] is False
+    assert "row_0_non_independent_source" in result["issues"]

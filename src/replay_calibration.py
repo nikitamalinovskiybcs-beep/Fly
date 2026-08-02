@@ -6,6 +6,8 @@ from collections.abc import Sequence
 
 import numpy as np
 
+from src.math_evaluation import brier_score, expected_calibration_error, log_loss
+
 
 def fit_histogram_calibrator(
     predictions: Sequence[float],
@@ -41,3 +43,52 @@ def apply_histogram_calibrator(
         float(rates[min(bins - 1, int(np.clip(prediction, 0.0, 1.0) * bins))])
         for prediction in predictions
     ]
+
+
+def walk_forward_histogram_calibration(
+    predictions: Sequence[float],
+    outcomes: Sequence[int],
+    *,
+    initial_train: int = 20,
+    bins: int = 5,
+) -> dict[str, object]:
+    """Evaluate train-only calibration on chronological observations.
+
+    Each test observation is calibrated only with outcomes strictly before it.
+    The result is a research candidate and never changes production parameters.
+    """
+    if len(predictions) != len(outcomes) or len(predictions) <= initial_train:
+        raise ValueError("predictions must contain more than initial_train rows")
+    if initial_train < bins:
+        raise ValueError("initial_train must be at least bins")
+
+    raw = [float(value) for value in predictions[initial_train:]]
+    actual = [int(value) for value in outcomes[initial_train:]]
+    calibrated: list[float] = []
+    for index, prediction in enumerate(raw):
+        train_end = initial_train + index
+        rates = fit_histogram_calibrator(
+            predictions[:train_end],
+            outcomes[:train_end],
+            bins=bins,
+        )
+        calibrated.extend(apply_histogram_calibrator([prediction], rates))
+
+    return {
+        "status": "research_only",
+        "initial_train": initial_train,
+        "bins": bins,
+        "oos_observations": len(actual),
+        "raw": {
+            "brier": brier_score(raw, actual),
+            "log_loss": log_loss(raw, actual),
+            "ece": expected_calibration_error(raw, actual),
+        },
+        "calibrated": {
+            "brier": brier_score(calibrated, actual),
+            "log_loss": log_loss(calibrated, actual),
+            "ece": expected_calibration_error(calibrated, actual),
+        },
+        "production_weights_changed": False,
+        "verdict_mutated": False,
+    }

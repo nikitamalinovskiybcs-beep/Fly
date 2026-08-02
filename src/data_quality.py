@@ -64,3 +64,27 @@ def validate_macro_snapshot(snapshot: Mapping) -> dict:
         "passed": not issues,
         "issues": issues,
     }
+
+
+def validate_learning_provenance(rows: Sequence[Mapping]) -> dict:
+    """Validate that learning rows have auditable, non-replay provenance."""
+    issues: list[str] = []
+    eligible = 0
+    for index, row in enumerate(rows):
+        source = str(row.get("source", ""))
+        status = str(row.get("status", ""))
+        if not source:
+            issues.append(f"row_{index}_missing_source")
+        if not row.get("as_of") and not row.get("generated_at"):
+            issues.append(f"row_{index}_missing_timestamp")
+        if source in {"simulated", "historical_replay", "replay"}:
+            issues.append(f"row_{index}_non_independent_source")
+        if status == "realized" and row.get("learning_eligible") is True:
+            eligible += 1
+    return {
+        "source": "provenance_gate",
+        "passed": not issues,
+        "issues": issues,
+        "learning_eligible_rows": eligible,
+        "rows": len(rows),
+    }
