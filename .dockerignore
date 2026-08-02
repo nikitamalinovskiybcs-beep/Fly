@@ -1,0 +1,16 @@
+.git
+.github
+.pytest_cache
+.ruff_cache
+__pycache__
+**/__pycache__
+.env
+.env.*
+data/runtime
+data/reports
+*.pyc
+*.pkl
+*.log
+docs
+tests
+README_BASE.md
