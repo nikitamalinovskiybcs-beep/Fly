@@ -11,12 +11,11 @@ All agents have safety guards: never degrade accuracy below 75%.
 """
 
 import json
-import math
 import os
 import time
 import numpy as np
-from typing import Dict, List, Tuple, Optional
-from datetime import datetime, timedelta
+from typing import Dict, List, Tuple
+from datetime import datetime
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -237,8 +236,7 @@ class FeatureDiscoveryAgent:
     def run(self) -> Dict:
         """Main feature discovery cycle."""
         from src.precompute import (
-            _load_scoring_weights, _score_one_note,
-            _compute_accuracy, _compute_precision_at_threshold,
+            _load_scoring_weights, _compute_accuracy, _compute_precision_at_threshold,
         )
         from src.real_data import SETTLED_NOTES
 
@@ -261,7 +259,6 @@ class FeatureDiscoveryAgent:
             return report
 
         base_acc = _compute_accuracy(w, data)
-        base_wr = _compute_precision_at_threshold(w, data, threshold=70.0)
 
         # Test new feature candidates
         candidates = self._generate_candidates(w)
@@ -351,9 +348,8 @@ class HyperparamTunerAgent:
         """Main Bayesian optimization cycle."""
         from src.precompute import (
             _load_scoring_weights, _save_scoring_weights,
-            _score_one_note, _compute_accuracy,
+            _compute_accuracy,
             _compute_precision_at_threshold, _run_momentum_sgd,
-            _DEFAULT_SCORING_WEIGHTS,
         )
         from src.real_data import SETTLED_NOTES
 
@@ -382,7 +378,6 @@ class HyperparamTunerAgent:
 
         w_current = _load_scoring_weights()
         current_acc = _compute_accuracy(w_current, val)
-        current_wr = _compute_precision_at_threshold(w_current, val, threshold=70.0)
 
         # Bayesian optimization: sample configs, evaluate, update surrogate
         search_space = {

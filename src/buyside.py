@@ -112,8 +112,6 @@ def trinomial_tree_pki(vol: float, barrier: float = 0.65,
     pd = max(0.001, min(0.998, pd))
     total = pu + pm + pd
     pu, pm, pd = pu / total, pm / total, pd / total
-    u = math.exp(dx)
-    d = math.exp(-dx)
     V = np.zeros(2 * n_steps + 1)
     for j in range(2 * n_steps + 1):
         S_T = math.exp((j - n_steps) * dx)
@@ -226,13 +224,10 @@ def compute_options_sentiment(yf_data: Dict, tickers: List[str]) -> Dict:
         iv_premium = iv30 - hist_vol
         if iv_premium > 10:
             sentiment = "BEARISH"
-            adj = -0.5
         elif iv_premium < -5:
             sentiment = "BULLISH"
-            adj = 0.3
         else:
             sentiment = "NEUTRAL"
-            adj = 0
         sentiments[t] = {"sentiment": sentiment, "iv_premium": round(iv_premium, 1)}
     avg_adj = float(np.mean([0.3 if s["sentiment"] == "BULLISH" else -0.5 if s["sentiment"] == "BEARISH" else 0 for s in sentiments.values()])) if sentiments else 0
     return {"per_ticker": sentiments, "scoring_adj": round(avg_adj, 2)}

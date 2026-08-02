@@ -1,6 +1,5 @@
 """StrategyRiskAssessor — главный класс фреймворка v2.3."""
 
-import json
 import datetime as dt
 import logging
 from dataclasses import asdict
@@ -8,20 +7,17 @@ from typing import Optional
 
 import pandas as pd
 
-from src.data_module import fetch_prices, fetch_ohlcv, DEFAULT_TICKERS
+from src.data_module import fetch_prices, DEFAULT_TICKERS
 from src.core_metrics import (
-    returns_from_prices,
     performance_summary,
     monte_carlo_permutation_test,
     walk_forward_analysis,
     stability_by_periods,
-    sharpe_ratio,
 )
 from src.risk_metrics import risk_summary, stress_test, drawdown_distribution
 from src.overfitting import permutation_test_vs_random, out_of_sample_degradation
 from src.portfolio import (
     correlation_matrix,
-    apply_slippage,
     slippage_impact_analysis,
 )
 

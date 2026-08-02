@@ -4,21 +4,17 @@ All heavy computation happens here ONCE, result is a flat dict for rendering.
 Streamlit app only does st.markdown() calls — zero compute in render loop.
 """
 
-import numpy as np
 import math
+import importlib.util
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
-try:
-    import yfinance as yf
-    YF_AVAILABLE = True
-except ImportError:
-    YF_AVAILABLE = False
+import numpy as np
 
 from src.clickhouse_data import fetch_quantum_risk_stats
 from src.real_data import compute_toxicity
-from src.colab_engine import get_colab_status, local_sobol_mc
+from src.colab_engine import get_colab_status
 from src.data_module import (fetch_ticker_data, get_data_source_status, XFL_AVAILABLE,
                              fetch_iv_percentile, compute_rolling_correlations, check_earnings_risk,
                              fetch_implied_vol_surface, compute_dcc_correlations, fetch_macro_factors,
@@ -26,6 +22,8 @@ from src.data_module import (fetch_ticker_data, get_data_source_status, XFL_AVAI
 from src.gdrive_store import get_status as gdrive_status
 from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
 from src.buyside import compute_buyside_analytics
+
+YF_AVAILABLE = importlib.util.find_spec("yfinance") is not None
 
 
 # ── Self-learning scoring weights ──
@@ -252,7 +250,7 @@ def calibrate_scoring_on_settled() -> Dict:
     Train on 70% of settled notes, validate on 30%.
     Ensemble: 3 models with different LR → median weights → robust scoring.
     Features: momentum (0.9), L2, feature selection, best-checkpoint."""
-    from src.real_data import SETTLED_NOTES, compute_p_loss
+    from src.real_data import SETTLED_NOTES
 
     w = _load_scoring_weights()
 
@@ -781,7 +779,7 @@ def rank_best_phoenix(basket: List[str], yf_data: Dict, tox_info: Dict,
 def empirical_p_ki(basket: List[str], term_months: int = 24) -> Dict:
     """P(KI) calibrated on real settled notes outcomes.
     Uses logistic-style model: high tox + long term → high P(KI)."""
-    from src.real_data import SETTLED_NOTES, TOX_EXPERIENCE
+    from src.real_data import SETTLED_NOTES
     tox = compute_toxicity(basket)
     avg_tox = tox["avg_tox"]
 
@@ -835,8 +833,8 @@ def _note_avg_tox(basket_str: str) -> float:
     scores = []
     for t in tickers:
         if t in TOX_EXPERIENCE:
-            l, w = TOX_EXPERIENCE[t]
-            scores.append(l / (l + w + 1))
+            losses, wins = TOX_EXPERIENCE[t]
+            scores.append(losses / (losses + wins + 1))
     return float(np.mean(scores)) if scores else 0.5
 
 
@@ -1058,7 +1056,7 @@ def compute_sector_concentration(basket: List[str]) -> Dict:
         "sectors": sectors,
         "penalty": penalty,
         "label": "CONCENTRATED" if hhi > 0.5 else "DIVERSIFIED",
-        "recommendation": f"Добавьте тикер из другого сектора" if hhi > 0.5 else f"{n_sectors} секторов — хорошая диверсификация",
+        "recommendation": "Добавьте тикер из другого сектора" if hhi > 0.5 else f"{n_sectors} секторов — хорошая диверсификация",
     }
 
 
@@ -1082,8 +1080,6 @@ def generate_top_baskets(n_tickers: int = 4, n_results: int = 3) -> List[Dict]:
     safe_tickers = [s[0] for s in scored[:20]]
 
     # Build baskets with sector diversity
-    baskets = []
-
     # Basket 1: Safest — lowest tox from different sectors
     b1 = []
     b1_sectors = set()
@@ -1303,7 +1299,6 @@ def _compute_stress_scenarios(yf_data: Dict, tickers: List[str], beta_avg: float
         {"name": "TradeWar_2025", "spy_drop": -27.1, "days": 90},
     ]
     results = []
-    ki_level = 0.60
     for sc in scenarios:
         basket_total = sc["spy_drop"] * beta_avg
         max_dd = basket_total * 1.15 if sc["spy_drop"] < 0 else basket_total * 0.35
@@ -1477,13 +1472,12 @@ def _compute_aladdin_metrics(yf_data: Dict, tickers: List[str], rf: float = 0.05
 def _compute_earnings_calendar(yf_data: Dict, tickers: List[str]) -> Dict:
     """Build earnings calendar for 2Y horizon (8 quarters)."""
     # Use approximate quarterly dates based on typical reporting
-    from datetime import datetime, timedelta
+    from datetime import datetime
     now = datetime.now()
     events = []
     per_ticker = {}
 
     # Standard quarterly offsets (approximate)
-    q_offsets = [0, 90, 180, 270, 365, 455, 545, 635]
     for t in tickers:
         if t not in yf_data:
             continue
@@ -1692,7 +1686,6 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     dcc = result.get("dcc_corr", {})
     stress_corr = dcc.get("stress_corr", 0.75)
     corr_multiplier = dcc.get("corr_multiplier", 1.0)
-    dcc_regime = dcc.get("regime", "normal")
 
     # [IMP-3] IV surface → use implied vol (more accurate than historical)
     iv_surf = result.get("iv_surface", {})
@@ -1757,7 +1750,6 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # [IMP-2] Bayesian confidence: how certain is the score?
     # Confidence based on: data quality, ensemble spread, macro stability
     data_quality = 1.0 if result["evidence_gate"]["passed"] else 0.6
-    ensemble_conf = 1.0  # will be updated from self_learning later
     macro_conf = 0.7 if macro_regime == "stress" else 1.0
     confidence = round(data_quality * macro_conf * 100, 0)
 
@@ -2274,7 +2266,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     try:
         from src.accuracy_boost import (
             apply_all_improvements, k_fold_cross_validation,
-            generate_synthetic_baskets, adversarial_validation,
+            adversarial_validation,
             backtest_model, platt_scaling, calibrate_score_to_probability,
         )
         from src.real_data import SETTLED_NOTES
