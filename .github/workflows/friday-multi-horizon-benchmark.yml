@@ -51,6 +51,8 @@ jobs:
             --health system_health.json \
             --structure structure_audit.json \
             --output committee_progress.json
+          python scripts/build_phoenix_improvement_catalog.py \
+            --output phoenix_improvement_catalog.json
           python scripts/plan_screening_targets.py \
             ai_judge_panel.json \
             --output ai_screening_targets.json
@@ -108,6 +110,11 @@ jobs:
         with:
           name: friday-committee-progress
           path: committee_progress.json
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friday-phoenix-improvement-catalog
+          path: phoenix_improvement_catalog.json
           retention-days: 30
       - uses: actions/upload-artifact@v4
         with:
