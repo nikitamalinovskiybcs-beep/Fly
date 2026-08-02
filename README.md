@@ -136,6 +136,16 @@ python scripts/check_market_sources.py AAPL MSFT NVDA
 Команда сравнивает основной источник с Stooq и только выдаёт quality report;
 она не подменяет observed data автоматически и не меняет веса модели.
 
+Автоматический planner целей улучшения:
+
+```bash
+python scripts/plan_improvements.py
+```
+
+Он ранжирует targets по Brier-vs-baseline, probability gap, ECE, OOS sample
+size и data coverage. Planner создаёт только proposal; production weights и
+verdict не изменяются.
+
 ## Деплой на Fly.io
 
 ```bash
