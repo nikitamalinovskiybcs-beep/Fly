@@ -5,11 +5,9 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import numpy as np
 import pandas as pd
-import pytest
 
 
 # ── SQLite Database Tests ──
@@ -279,6 +277,19 @@ class TestCloudSync:
         sync = CloudSync()
         assert sync.restore_from_cloud("trades") == []
 
+    def test_invalid_endpoint_is_rejected_without_network_call(self) -> None:
+        from src.storage.cloud_sync import CloudSync
+        sync = CloudSync(url="ftp://supabase.example", key="test-key")
+        assert not sync.enabled
+        assert sync.last_error == "invalid_endpoint_scheme"
+
+    def test_unresolvable_endpoint_has_sanitized_diagnostic(self) -> None:
+        from src.storage.cloud_sync import CloudSync
+        with patch("supabase.create_client", side_effect=OSError("Name or service not known")):
+            sync = CloudSync(url="https://project.supabase.co", key="test-key")
+        assert not sync.enabled
+        assert sync.last_error == "endpoint_dns_resolution_failed"
+
 
 # ── Firebase Tests (Graceful Degradation) ──
 
@@ -411,7 +422,7 @@ class TestBackupManager:
         mgr.BACKUP_DIR = Path(self.tmp) / "backups"
         with patch("src.storage.backup.Path") as mock_path:
             mock_path.return_value = self.data_dir
-            path = mgr.local_backup()
+            mgr.local_backup()
         # Since we mocked Path, just check the method doesn't crash
         assert True
 
