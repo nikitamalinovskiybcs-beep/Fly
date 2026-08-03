@@ -32,12 +32,15 @@ class AgentCoordinator:
 
     def run_once(self, cycle_input: CycleInput) -> dict[str, object]:
         tickers, yf_data, features, base_score, evidence_gate = cycle_input
+        gate = dict(evidence_gate) if evidence_gate else {}
         report = run_all_self_learning_agents(
             tickers=tickers,
             yf_data=yf_data,
             features=features,
             base_score=base_score,
-            evidence_gate=dict(evidence_gate) if evidence_gate else None,
+            current_accuracy=float(gate.get("current_accuracy", 0.0)),
+            current_win_rate=float(gate.get("current_win_rate", 0.0)),
+            evidence_gate=gate or None,
             event_bus=self.event_bus,
         )
         if self.memory is not None:
