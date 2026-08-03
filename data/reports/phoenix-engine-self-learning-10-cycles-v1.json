@@ -1,0 +1,302 @@
+{
+  "proposal_id": "phoenix-engine-self-learning-10-cycles-v1",
+  "status": "research_only",
+  "baseline": {
+    "cycle": 1,
+    "engine_p_loss_pct": 18.3,
+    "engine_confidence": "LOW",
+    "engine_data_quality": "incomplete",
+    "engine_unknown_tickers": [
+      "CRWD",
+      "BA",
+      "RCL"
+    ],
+    "engine_warnings": [
+      "unknown ticker toxicity is a research proxy",
+      "ticker history is too small for stable standalone calibration"
+    ],
+    "agent_score": 70.0,
+    "agent_decision": "HOLD",
+    "agent_disagreement": 0.895,
+    "director_status": "blocked_by_guardian",
+    "agents_run": 8,
+    "agents_ok": 7,
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "engine_p_loss_pct": 18.3,
+      "engine_confidence": "LOW",
+      "engine_data_quality": "incomplete",
+      "engine_unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "engine_warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_decision": "HOLD",
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_run": 8,
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 2,
+      "engine_p_loss_pct": 18.3,
+      "engine_confidence": "LOW",
+      "engine_data_quality": "incomplete",
+      "engine_unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "engine_warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_decision": "HOLD",
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_run": 8,
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 3,
+      "engine_p_loss_pct": 18.3,
+      "engine_confidence": "LOW",
+      "engine_data_quality": "incomplete",
+      "engine_unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "engine_warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_decision": "HOLD",
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_run": 8,
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 4,
+      "engine_p_loss_pct": 18.3,
+      "engine_confidence": "LOW",
+      "engine_data_quality": "incomplete",
+      "engine_unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "engine_warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_decision": "HOLD",
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_run": 8,
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 5,
+      "engine_p_loss_pct": 18.3,
+      "engine_confidence": "LOW",
+      "engine_data_quality": "incomplete",
+      "engine_unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "engine_warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_decision": "HOLD",
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_run": 8,
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 6,
+      "engine_p_loss_pct": 18.3,
+      "engine_confidence": "LOW",
+      "engine_data_quality": "incomplete",
+      "engine_unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "engine_warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_decision": "HOLD",
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_run": 8,
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 7,
+      "engine_p_loss_pct": 18.3,
+      "engine_confidence": "LOW",
+      "engine_data_quality": "incomplete",
+      "engine_unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "engine_warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_decision": "HOLD",
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_run": 8,
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 8,
+      "engine_p_loss_pct": 18.3,
+      "engine_confidence": "LOW",
+      "engine_data_quality": "incomplete",
+      "engine_unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "engine_warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_decision": "HOLD",
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_run": 8,
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 9,
+      "engine_p_loss_pct": 18.3,
+      "engine_confidence": "LOW",
+      "engine_data_quality": "incomplete",
+      "engine_unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "engine_warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_decision": "HOLD",
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_run": 8,
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 10,
+      "engine_p_loss_pct": 18.3,
+      "engine_confidence": "LOW",
+      "engine_data_quality": "incomplete",
+      "engine_unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "engine_warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_decision": "HOLD",
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_run": 8,
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    }
+  ],
+  "impact": {
+    "engine_p_loss_delta_pct": 0.0,
+    "engine_weights_changed": false,
+    "canonical_verdict_changed": false,
+    "trades_created": false,
+    "interpretation": "Agent cycles do not change the canonical loss engine; they only produce research signals and diagnostics."
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "decision": "REJECT",
+    "interpretation": "The fixed replay demonstrates stability, not predictive performance. The unchanged engine output is expected because no canonical weights or market inputs were changed, while high disagreement and guardian blocking remain diagnostics.",
+    "blockers": [
+      "CRWD, BA and RCL have unknown toxicity history",
+      "SBUX has insufficient standalone observations",
+      "Fixed fixture cannot test sensitivity or generalization",
+      "No OOS or market-evidence conclusion follows from these cycles"
+    ],
+    "next_experiment": "Use a documented variable research fixture and a basket with complete histories, then compare sensitivity and held-out metrics without promoting any result.",
+    "acceptance_tests": [
+      "Input perturbations produce explainable engine sensitivity",
+      "Agent score and disagreement are reported separately",
+      "OOS metrics remain separate from in-sample metrics",
+      "Safety flags remain false unless a real threshold is breached"
+    ]
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}
