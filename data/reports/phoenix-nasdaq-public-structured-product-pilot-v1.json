@@ -1,0 +1,63 @@
+{
+  "dataset_id": "phoenix-nasdaq-public-structured-product-pilot-v1",
+  "generated_at": "2026-08-03T23:05:41.445305+00:00",
+  "status": "research_only",
+  "records": [
+    {
+      "symbol": "NBDIMXX",
+      "source_url": "https://www.nasdaq.com/market-activity/mutual-fund/nbdimxx",
+      "issuer": "NBC",
+      "product_description": "Auto Callable Note Securities (Maturity-Monitored Barrier)",
+      "underlying": "Sol US Big Bk Hdg to CAD Ind 3.25% AR Cl F",
+      "maturity": "2031-12-23",
+      "identifier": "839254A2",
+      "market_data_status": "not_observed_in_public_page",
+      "source_class": "Nasdaq public security page"
+    },
+    {
+      "symbol": "BMCVQXX",
+      "source_url": "https://www.nasdaq.com/market-activity/mutual-fund/bmcvqxx/historical",
+      "issuer": "BMO",
+      "product_description": "AutoCallable Barrier Notes, Series 134 (CAD)",
+      "underlying": "Solactive Canada Telecommunications 145 AR Index DSC",
+      "maturity": "2029-01-16",
+      "identifier": "785230A2",
+      "market_data_status": "data_not_available; bid/ask x",
+      "source_class": "Nasdaq public historical page"
+    },
+    {
+      "symbol": "ACFCGXX",
+      "source_url": "https://www.nasdaq.com/market-activity/mutual-fund/acfcgxx/historical",
+      "issuer": "UBS AG London Branch",
+      "product_description": "Autocallable Contingent Interest Barrier Note",
+      "underlying": null,
+      "maturity": null,
+      "identifier": null,
+      "market_data_status": "data_not_available; bid/ask x",
+      "source_class": "Nasdaq public historical page"
+    }
+  ],
+  "methodology_reference": {
+    "url": "https://www.nasdaq.com/articles/autocallables-dialing-into-the-details",
+    "use": "educational/autocall mechanics reference, not note-level outcome data"
+  },
+  "findings": [
+    "Nasdaq exposes discoverable listed autocallable note securities and identifiers.",
+    "The sampled pages did not provide usable bid/ask or historical time series; displayed status was data not available.",
+    "Nasdaq sample is complementary to Leonteq terms pages but not a replacement for termsheets or verified settlements."
+  ],
+  "join_to_leonteq": {
+    "shared_isin": 0,
+    "decision": "keep_separate_sources"
+  },
+  "join_to_sec_2000": {
+    "shared_isin": 0,
+    "decision": "keep_separate_sources"
+  },
+  "next_experiment": "Use Nasdaq identifiers to search issuer prospectus/SEC filings and exchange notices, then require independent settlement evidence before labels.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}
