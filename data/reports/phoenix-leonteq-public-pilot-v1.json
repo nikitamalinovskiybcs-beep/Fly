@@ -170,5 +170,44 @@
     "production_weights_changed": false,
     "verdict_mutated": false,
     "trades_created": false
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "review": {
+      "decision": "suitable_for_research",
+      "objections": [
+        "No Xfinlink data inclusion may limit cross-referencing capabilities",
+        "Separate public reference dataset may not align with SEC labels for direct comparison",
+        "Limited sample size (5 certificates) may affect statistical significance"
+      ],
+      "acceptance_tests": [
+        "Verify data completeness and accuracy for all 5 certificates",
+        "Cross-check public bid/ask prices with market data sources",
+        "Validate redemption observation against issuer announcements",
+        "Ensure no overlap with proprietary datasets"
+      ],
+      "next_experiment": "Expand dataset to include more certificates and compare with SEC filings",
+      "safety_flags": [
+        "Ensure no personally identifiable information is included",
+        "Confirm data licensing allows for research use",
+        "Validate that expired certificate data is properly archived"
+      ]
+    }
+  },
+  "committee_packet": {
+    "proposal_id": "phoenix-leonteq-public-pilot-v1",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-leonteq-public-pilot-v1.json"
+    ],
+    "acceptance_tests": [
+      "five source URLs preserved",
+      "ISIN and issuer fields preserved",
+      "active/expired status separated",
+      "page-observed outcome not called verified settlement",
+      "safety flags false"
+    ]
   }
 }
