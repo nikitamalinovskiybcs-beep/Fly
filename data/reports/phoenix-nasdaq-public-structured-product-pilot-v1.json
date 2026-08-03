@@ -59,5 +59,45 @@
     "production_weights_changed": false,
     "verdict_mutated": false,
     "trades_created": false
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "review": {
+      "decision": "insufficient_evidence",
+      "objections": [
+        "No verifiable market data (bid/ask x or 'data not available')",
+        "No shared ISINs with known issuers (Leonteq/SEC) for cross-verification",
+        "Pilot pages lack production labels or usage context",
+        "Educational article alone does not validate structured-product mechanics"
+      ],
+      "acceptance_tests": [
+        "Verify bid/ask spreads via alternative data sources (e.g., Bloomberg, Reuters)",
+        "Cross-check ISINs against Nasdaq\u2019s official structured-products registry",
+        "Confirm pilot pages are non-production (e.g., test environment flags)",
+        "Replicate autocall mechanics using the Nasdaq article\u2019s formulas"
+      ],
+      "next_experiment": "Query Nasdaq directly for pilot metadata (e.g., ISINs, issuance dates) and request sample trade data",
+      "safety_flags": [
+        "No regulatory disclosures (SEC/Prospectus) linked to ISINs",
+        "Pilot pages may be placeholder templates without live pricing",
+        "Educational content does not substitute for actual product terms"
+      ]
+    }
+  },
+  "committee_packet": {
+    "proposal_id": "phoenix-nasdaq-public-structured-product-pilot-v1",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-nasdaq-public-structured-product-pilot-v1.json"
+    ],
+    "acceptance_tests": [
+      "identifiers and URLs preserved",
+      "data unavailable explicit",
+      "educational source separated from note outcomes",
+      "no cross-source label join",
+      "safety flags false"
+    ]
   }
 }
