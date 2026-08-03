@@ -260,5 +260,7 @@
       "decision": "RESEARCH",
       "response_excerpt": "The list is **plausibly Leonteq-related**, but only a subset is directly evidenced by the rendered product page or by a Leonteq document; the rest should remain **unverified** until you capture each product\u2019s rendered page, KID, or termsheet. The safest dataset treatment is to deduplicate by **ISIN exactly as written**, mark the already-captured items as **page-confirmed**, and keep all product attributes except the ISIN itself as **pending verification**.[6][5]\n\n### Deduplication advice\n- **No "
     }
-  ]
+  ],
+  "next_step_status": "rendered_capture_pending",
+  "rendered_capture_policy": "Use browser-rendered pages or issuer KID/final terms only; search snippets remain discovery evidence."
 }
