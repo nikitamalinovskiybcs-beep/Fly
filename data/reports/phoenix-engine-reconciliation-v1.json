@@ -1,0 +1,75 @@
+{
+  "proposal_id": "phoenix-engine-reconciliation-v1",
+  "status": "research_only",
+  "inputs": {
+    "basket": [
+      "DAL",
+      "META",
+      "CRWD",
+      "BA",
+      "RCL",
+      "SBUX"
+    ],
+    "term_months": 24,
+    "barrier": 0.65,
+    "coupon": 0.065,
+    "mc_seed": 20260524,
+    "mc_n_sims": 2000,
+    "price_fixture": "deterministic research fixture"
+  },
+  "loss_model": {
+    "p_loss": 0.1829,
+    "p_loss_pct": 18.3,
+    "guard_flag": 0.0,
+    "guard_msg": "\u0420\u0438\u0441\u043a \u043f\u0440\u0438\u0435\u043c\u043b\u0435\u043c\u044b\u0439",
+    "toxic_tickers": [],
+    "confidence": "LOW",
+    "data_quality": "incomplete",
+    "unknown_tickers": [
+      "CRWD",
+      "BA",
+      "RCL"
+    ],
+    "insufficient_observation_tickers": [
+      "SBUX"
+    ],
+    "warnings": [
+      "unknown ticker toxicity is a research proxy",
+      "ticker history is too small for stable standalone calibration"
+    ],
+    "model_metrics": {
+      "accuracy": 90.0,
+      "precision": 86.7,
+      "recall": 96.3,
+      "f1": 91.2,
+      "loss": 0.3598,
+      "validation_type": "in_sample",
+      "confusion": {
+        "tp": 26,
+        "fp": 4,
+        "tn": 19,
+        "fn": 1
+      },
+      "n_samples": 50
+    }
+  },
+  "monte_carlo": {
+    "p_loss": 0.0,
+    "p_loss_ci_low": 0,
+    "p_loss_ci_high": 0.0,
+    "n_sims": 2000,
+    "barrier": 0.65,
+    "coupon_rate": 0.065,
+    "from_cache": false
+  },
+  "reconciliation": {
+    "comparable": false,
+    "reason": "Loss model estimates a supervised logistic probability from settled-note features; Monte Carlo estimates payoff loss from a deterministic price-path fixture. They do not share labels, path distribution, calibration, or coupon/barrier semantics.",
+    "delta_not_promoted": true
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}
