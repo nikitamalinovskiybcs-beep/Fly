@@ -13,6 +13,7 @@ from src.real_data import precompute_dealer_benchmark as _precompute_dealer
 from src.calibration import run_pipeline as _run_calibration_pipeline
 from src.data_module import get_data_source_status
 from src.commercial_readiness import assess_commercial_readiness
+from src.quote_fit import evaluate_quote_fit
 from src.full_pipeline import run_full_analysis
 from src.outcome_engine import (
     PaperOutcomeTracker,
@@ -512,8 +513,13 @@ if basket_tickers:
     gen = D.get("scoring_generation", 0)
     _gate_passed = bool(D.get("evidence_gate", {}).get("passed"))
     _director_status = D.get("sl_agents", {}).get("director_status", "")
+    _quote_fit = evaluate_quote_fit(
+        D["coupon_pa"],
+        st.session_state.get("broker_rate"),
+        st.session_state.get("broker_name", ""),
+    )
     _verdict = (
-        "GOOD" if _gate_passed and rs >= 80
+        "GOOD" if _gate_passed and rs >= 80 and _quote_fit["fit"] != "mismatch"
         else "CAUTION" if rs >= 65
         else "BAD"
     )
@@ -527,6 +533,8 @@ if basket_tickers:
         _block_reasons.append("evidence gate incomplete")
     if p_ki >= 35:
         _block_reasons.append(f"P(KI) {p_ki:.0f}% above safety threshold")
+    if _quote_fit["blocker"]:
+        _block_reasons.append(_quote_fit["blocker"])
     if _director_status in {
         "blocked_by_guardian",
         "blocked_by_disagreement",
@@ -559,6 +567,9 @@ if basket_tickers:
         </div>
         <div style="color:{_verdict_color};font-size:9px;margin-top:7px">
             WHY BLOCKED / WHAT TO CHECK: {_why_blocked}
+        </div>
+        <div style="color:#6a5a2a;font-size:9px;margin-top:3px">
+            QUOTE-FIT: {_quote_fit["status"]} · {_quote_fit["fit"]} · delta {_quote_fit["delta_pp"] if _quote_fit["delta_pp"] is not None else "n/a"}pp
         </div>
     </div>
     ''', unsafe_allow_html=True)
@@ -626,14 +637,15 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     cal_col1, cal_col2, cal_col3 = st.columns([2, 2, 4])
     with cal_col1:
-        broker_rate = st.number_input("СТАВКА БРОКЕРА, % P.A.", min_value=0.0, max_value=100.0, value=0.0, step=0.5, key="broker_rate")
+        broker_rate = st.number_input("СТАВКА БРОКЕРА, % P.A.", min_value=0.0, max_value=100.0, value=None, step=0.5, placeholder="нет котировки", key="broker_rate")
     with cal_col2:
         broker_name = st.text_input("БРОКЕР", value="", placeholder="БКС, Тинькофф...", key="broker_name")
     with cal_col3:
-        if broker_rate > 0:
+        quote_fit = evaluate_quote_fit(D["coupon_pa"], broker_rate, broker_name)
+        if quote_fit["status"] != "missing":
             our_rate = D["coupon_pa"]
-            delta = broker_rate - our_rate
-            delta_color = "#34c759" if abs(delta) < 2 else "#ff3b30" if delta > 2 else "#ffb000"
+            delta = quote_fit["delta_pp"]
+            delta_color = "#34c759" if quote_fit["fit"] == "aligned" else "#ffb000" if quote_fit["fit"] == "drift" else "#ff3b30"
             accuracy_pct = max(0, 100 - abs(delta) / max(our_rate, 1) * 100)
             broker_label = f" ({broker_name})" if broker_name else ""
             st.markdown(f'''<div style="padding:8px;border:1px solid #333;border-radius:6px;margin-top:18px">
@@ -644,7 +656,8 @@ if basket_tickers:
                     <div><span style="color:#aaa;font-size:11px">Δ:</span> <span style="color:{delta_color};font-size:14px;font-weight:700">{delta:+.2f}pp</span></div>
                     <div><span style="color:#aaa;font-size:11px">Точность:</span> <span style="color:{delta_color};font-size:14px;font-weight:700">{accuracy_pct:.0f}%</span></div>
                 </div>
-                <div style="color:#6a5a2a;font-size:9px;margin-top:4px">{"Модель калибрована (Δ<2pp)" if abs(delta) < 2 else "Требуется калибровка — модель " + ("занижает" if delta > 0 else "завышает") + f" на {abs(delta):.1f}pp"}</div>
+                <div style="color:#6a5a2a;font-size:9px;margin-top:4px">{"Модель калибрована (Δ<2pp)" if quote_fit["fit"] == "aligned" else "Требуется калибровка — модель " + ("занижает" if delta > 0 else "завышает") + f" на {abs(delta):.1f}pp"} · quote status: {quote_fit["status"]} · штраф {quote_fit["score_penalty"]:.1f}</div>
+                <div style="color:#6a5a2a;font-size:9px">{quote_fit["note"]}</div>
             </div>''', unsafe_allow_html=True)
         else:
             st.markdown('<div style="color:#6a5a2a;font-size:9px;margin-top:24px">Введи ставку от брокера для калибровки модели</div>', unsafe_allow_html=True)

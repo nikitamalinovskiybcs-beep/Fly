@@ -460,14 +460,14 @@ def precompute_dealer_benchmark(
     # 5. Comparison metrics
     delta_coupon = our_coupon_pa - coupon_pred["predicted_coupon"]
     if similar:
-        avg_similar_coupon = np.mean([q["coupon"] for q in similar])
+        avg_similar_coupon = float(np.mean([q["coupon"] for q in similar]))
         delta_vs_similar = our_coupon_pa - avg_similar_coupon
     else:
         avg_similar_coupon = None
         delta_vs_similar = None
 
     # 6. Overall accuracy vs dealer
-    if avg_similar_coupon and avg_similar_coupon > 0:
+    if avg_similar_coupon is not None and avg_similar_coupon > 0:
         accuracy_vs_dealer = max(0, min(100,
             100 - abs(delta_vs_similar) / avg_similar_coupon * 100))
     else:
@@ -482,10 +482,10 @@ def precompute_dealer_benchmark(
         "coupon_prediction": coupon_pred,
         "similar_quotes": similar,
         "n_similar": len(similar),
-        "avg_similar_coupon": round(avg_similar_coupon, 1) if avg_similar_coupon else None,
+        "avg_similar_coupon": round(avg_similar_coupon, 1) if avg_similar_coupon is not None else None,
         "delta_coupon_vs_model": round(delta_coupon, 1),
-        "delta_coupon_vs_similar": round(delta_vs_similar, 1) if delta_vs_similar else None,
-        "accuracy_vs_dealer": round(accuracy_vs_dealer, 1) if accuracy_vs_dealer else None,
+        "delta_coupon_vs_similar": round(delta_vs_similar, 1) if delta_vs_similar is not None else None,
+        "accuracy_vs_dealer": round(accuracy_vs_dealer, 1) if accuracy_vs_dealer is not None else None,
         "guard_flag": p_loss["guard_flag"],
         "guard_msg": p_loss["guard_msg"],
         "db_stats": quote_summary,
