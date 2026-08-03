@@ -1288,6 +1288,9 @@ if basket_tickers:
                 f'{_readiness["allowed_claim"]} '
                 f'Realized notes: {_readiness["realized_notes"]}; '
                 f'historical windows: {_readiness["historical_windows"]}.</div>'
+                f'<div style="color:#ffb000;font-size:9px">'
+                'Human review required; this is not legal, regulatory, suitability '
+                'or compliance approval.</div>'
                 f'<div style="color:#ff3b30;font-size:9px">'
                 f'{_readiness["blocked_claim"]}</div></div>',
                 unsafe_allow_html=True,

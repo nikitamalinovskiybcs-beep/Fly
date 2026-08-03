@@ -149,6 +149,13 @@ Mistral получил rate limit (`HTTP 429`), Ollama дал advisory approval,
 independent model validation остаются обязательными условиями. Ни один AI vote
 не является юридическим, regulatory, suitability или compliance approval.
 
+В самой машине readiness-контракт теперь явно возвращает
+`human_review_required=true`, а также отдельные флаги
+`legal_or_regulatory_approval=false` и `compliance_approval=false`. Список
+запрещённых claims и conditions precedent доступен как структурированные поля,
+а UI показывает оператору, что readiness не является юридическим,
+регуляторным, suitability или compliance approval.
+
 ## Compliance и due-diligence checklist
 
 ### Product и conduct

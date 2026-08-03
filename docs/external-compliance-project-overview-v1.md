@@ -149,6 +149,12 @@ that fixed-24m OOS evidence, realized-note quality, quote provenance, and
 independent model validation remain conditions precedent. No AI vote is a legal,
 regulatory, suitability, or compliance approval.
 
+The readiness contract now exposes `human_review_required=true`,
+`legal_or_regulatory_approval=false`, and `compliance_approval=false` as
+machine-readable fields. Blocked claims and conditions precedent are also
+structured fields, and the UI states that readiness is not legal, regulatory,
+suitability, or compliance approval.
+
 ## Compliance and due-diligence checklist
 
 ### Product and conduct
