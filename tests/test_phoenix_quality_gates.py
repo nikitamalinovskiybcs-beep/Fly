@@ -15,6 +15,7 @@ from src.phoenix_quality_gates import (
     sensitivity_grid,
     validate_basket_symbols,
     validate_correlation_matrix,
+    validate_chronological_oos,
     validate_market_observations,
     validate_observation_schedule,
     validate_payoff_bounds,
@@ -71,6 +72,17 @@ def test_fixed_24m_gate_requires_all_anchors() -> None:
         {"6": {}, "12": {}, "18": {}, "24": {}}
     )["passed"]
     assert require_fixed_24m_anchors({"6": {}})["passed"] is False
+
+
+def test_chronological_oos_gate_rejects_missing_or_reordered_anchors() -> None:
+    assert validate_chronological_oos(
+        [{"anchor_months": month} for month in [6, 12, 18, 24]]
+    )["passed"]
+    result = validate_chronological_oos(
+        [{"anchor_months": month} for month in [12, 6, 18, 24]]
+    )
+    assert result["passed"] is False
+    assert "not_chronological" in result["errors"]
 
 
 def test_correlation_quote_and_worst_of_gates() -> None:

@@ -1,0 +1,20 @@
+{
+  "proposal_id": "phoenix-stage4-memory-backup-v1",
+  "decision": "RESEARCH",
+  "implementation": [
+    "Encrypted Fernet bundle export/import",
+    "Hash-chain and manifest validation before restore",
+    "Wrong-key rejection test"
+  ],
+  "observed": {
+    "focused_memory_tests": "5 passed",
+    "safety_flags": {
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    }
+  },
+  "blockers": [
+    "Key custody, rotation, remote storage, retention, and restore drill need human/platform policy"
+  ]
+}

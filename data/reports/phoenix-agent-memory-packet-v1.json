@@ -1,0 +1,28 @@
+{
+  "proposal_id": "phoenix-agent-memory-v1",
+  "scope": "persistent research-only memory and replay for agent communication",
+  "current_behavior": [
+    "AgentEventBus stores hash-linked snapshots and signals in JSONL",
+    "AgentCoordinator runs bounded local cycles",
+    "No manifest indexes the 50 improvement items",
+    "No typed memory records or deterministic replay contract exists"
+  ],
+  "constraints": [
+    "Do not mutate production weights, verdicts, or trades",
+    "Missing, malformed, and unavailable provider outputs remain non-approval",
+    "Memory records must be append-only, hash-linked, versioned, and replayable",
+    "External AI output is research input, not market evidence"
+  ],
+  "success_criteria": [
+    "Persist a versioned manifest and typed memory records",
+    "Verify chain integrity and reject tampering",
+    "Replay records deterministically by snapshot and agent",
+    "Preserve provider, model, status, dissent, and evidence lineage",
+    "Add focused tests and explicit false safety flags"
+  ],
+  "candidate_files": [
+    "src/agent_event_bus.py",
+    "src/agent_memory.py",
+    "tests/test_agent_memory.py"
+  ]
+}

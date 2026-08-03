@@ -1,0 +1,28 @@
+{
+  "proposal_id": "phoenix-deploy-human-review-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "decision": "NO_GO",
+  "blockers": [
+    "Fly.io app creation remains blocked by billing constraints",
+    "PR #38 agent-memory changes are not deployed to Streamlit Community Cloud",
+    "Rollback procedure has not been live-drilled",
+    "Model-risk, compliance, and suitability reviewer fields are blank",
+    "Fixed-24m OOS anchors and baseline metrics are missing",
+    "Field provenance, settled evidence, payoff disclosures, committee availability handling, and key custody evidence are incomplete"
+  ],
+  "required_actions": [
+    "Deploy PR #38 changes to the free Streamlit app or document an approved release boundary",
+    "Conduct and document a live rollback test",
+    "Populate human reviewer fields and obtain human sign-off",
+    "Provide verified fixed-24m OOS anchors 6/12/18/24 and baseline metrics",
+    "Complete provenance, settled-evidence, disclosure, committee, and key-custody packets"
+  ],
+  "rationale": "The existing Streamlit deployment proves reachability but not release parity or rollback readiness. Human review and external evidence gates remain open, so production approval is not justified.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

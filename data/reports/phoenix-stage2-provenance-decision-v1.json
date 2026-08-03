@@ -1,0 +1,21 @@
+{
+  "proposal_id": "phoenix-stage2-provenance-v1",
+  "decision": "NOW",
+  "mistral_gate": "RESEARCH",
+  "implementation_files": [
+    "src/provenance_contract.py",
+    "tests/test_provenance_contract.py"
+  ],
+  "acceptance": [
+    "Every evidence field has source, source_id, observed_at, dataset_version, and evidence_class",
+    "Only verified, realized, or dealer_verified classes can pass",
+    "Missing, estimated, and invalid freshness values block",
+    "Safety flags remain false"
+  ],
+  "observed": {
+    "focused_tests": "3 passed",
+    "ruff": "passed",
+    "compileall": "passed"
+  },
+  "blocker_remaining": "The contract validates provenance but does not create missing real-world evidence."
+}
