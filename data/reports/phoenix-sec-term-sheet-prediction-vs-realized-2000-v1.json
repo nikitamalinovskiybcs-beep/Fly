@@ -1,0 +1,28 @@
+{
+  "evaluation_id": "phoenix-sec-term-sheet-prediction-vs-realized-2000-v1",
+  "generated_at": "2026-08-03T22:15:42.058986+00:00",
+  "status": "research_only",
+  "prediction_run": "phoenix-sec-term-sheet-predictions-2000-v2",
+  "n_predictions": 10,
+  "n_verified_outcomes": 0,
+  "n_comparable": 0,
+  "metrics": {
+    "brier": null,
+    "log_loss": null,
+    "accuracy": null,
+    "ece": null
+  },
+  "reason_metrics_null": "No verified lifecycle/autocall/coupon/maturity outcomes are linked to the 2,000 SEC records. Derived scenarios remain separate from realized labels.",
+  "calibration_decision": "BLOCKED",
+  "next_required": [
+    "issuer/exchange lifecycle notices or verified settlement evidence",
+    "human validation of underlyings/dates/barriers",
+    "chronological fixed-24m OOS split",
+    "independent baseline"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}
