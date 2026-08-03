@@ -56,5 +56,45 @@
     "production_weights_changed": false,
     "verdict_mutated": false,
     "trades_created": false
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "review": {
+      "decision": "proceed_with_caution",
+      "objections": [
+        "Taxonomy alignment risks: Public termsheet sample may not fully represent the 465,721 product universe; potential misclassification in Product Map taxonomy.",
+        "Aggregate market data (74bn EUR sales, 508bn EUR open interest) lacks granularity on product complexity distribution (e.g., autocallables, barriers), which could skew governance assumptions.",
+        "Governance page review not provided; cannot assess alignment with EUSIPA's risk management frameworks or regulatory compliance gaps.",
+        "Termsheet sample (XS2011028805) is pre-2026; may not reflect current market practices or ESG-related risks in Q1 2026 report."
+      ],
+      "acceptance_tests": [
+        "Validate Product Map taxonomy against a stratified sample of 1,000+ products from the 465,721 list to ensure <5% misclassification rate.",
+        "Cross-reference Q1 2026 market report data with ESMA/ECB disclosures to confirm sales/open interest figures and identify outliers.",
+        "Audit governance page against EUSIPA\u2019s 2025 risk management guidelines for completeness and alignment with PRIIPs/KID requirements.",
+        "Test termsheet schema against EUSIPA\u2019s 2026 autocallable/barrier product standards to ensure consistency in key terms (e.g., memory coupon mechanics, barrier levels)."
+      ],
+      "next_experiment": "Conduct a pilot taxonomy alignment exercise using a random 1% sample of the 465,721 products, focusing on autocallables and barriers, to quantify misclassification risks and refine governance criteria.",
+      "safety_flags": [
+        "High: Potential systemic misclassification in Product Map taxonomy could lead to incorrect risk assessments for 465,721 products.",
+        "Medium: Aggregate market data may obscure concentration risks in specific product types (e.g., autocallables with memory coupons).",
+        "Low: Termsheet sample is outdated; may not reflect current market practices or regulatory changes."
+      ]
+    }
+  },
+  "committee_packet": {
+    "proposal_id": "phoenix-eusipa-public-research-v1",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-eusipa-public-research-v1.json"
+    ],
+    "acceptance_tests": [
+      "taxonomy source URL preserved",
+      "aggregate stats separated from note-level outcomes",
+      "sample termsheet source preserved",
+      "no labels/weights/trades changed",
+      "safety flags false"
+    ]
   }
 }
