@@ -1,0 +1,174 @@
+{
+  "dataset_id": "phoenix-leonteq-public-pilot-v1",
+  "generated_at": "2026-08-03T23:04:53.133378+00:00",
+  "status": "research_only",
+  "source": "Leonteq public certificate pages",
+  "records": [
+    {
+      "isin": "CH1571714935",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571714935",
+      "status": "active_public_page",
+      "underlyings": [
+        "AMD",
+        "INTC"
+      ],
+      "tenor_years": 4,
+      "issue_price": 1000,
+      "currency": "EUR Quanto",
+      "barrier_pct": 50,
+      "barrier_observation": "maturity_only",
+      "memory_effect": true,
+      "initial_fixing": "2026-06-17",
+      "issue_date": "2026-06-23",
+      "expiry": "2030-06-16",
+      "next_early_redemption": "2026-12-17",
+      "coupon_amount_eur": 20,
+      "coupon_frequency": "monthly",
+      "coupon_trigger_pct": 60,
+      "bid": 921.09,
+      "ask": 930.35,
+      "worst_performer": "INTC",
+      "source_class": "public_product_page",
+      "outcome_status": "not_verified_settlement"
+    },
+    {
+      "isin": "CH1571715296",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571715296",
+      "status": "active_public_page",
+      "underlyings": [
+        "AMD",
+        "INTC",
+        "ORCL"
+      ],
+      "tenor_years": 2,
+      "issue_price": 1000,
+      "currency": "EUR Quanto",
+      "barrier_pct": 50,
+      "barrier_observation": "maturity_only",
+      "memory_effect": true,
+      "initial_fixing": "2026-06-16",
+      "issue_date": "2026-06-21",
+      "expiry": "2028-06-14",
+      "next_early_redemption": "2026-12-15",
+      "coupon_amount_eur": 33.33,
+      "coupon_frequency": "monthly",
+      "coupon_trigger_pct": 60,
+      "bid": 827.25,
+      "ask": 835.56,
+      "worst_performer": "ORCL",
+      "source_class": "public_product_page",
+      "outcome_status": "not_verified_settlement"
+    },
+    {
+      "isin": "CH1571715981",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571715981",
+      "status": "active_public_page",
+      "underlyings": [
+        "C",
+        "GS",
+        "MA",
+        "V"
+      ],
+      "tenor_years": 2,
+      "issue_price": 1000,
+      "currency": "EUR Quanto",
+      "barrier_pct": 50,
+      "barrier_observation": "maturity_only",
+      "memory_effect": true,
+      "initial_fixing": "2026-06-17",
+      "issue_date": "2026-06-22",
+      "expiry": "2028-06-15",
+      "next_early_redemption": "2026-09-16",
+      "coupon_amount_eur": 10,
+      "coupon_frequency": "monthly",
+      "coupon_trigger_pct": 50,
+      "bid": 1001.91,
+      "ask": 1011.98,
+      "worst_performer": "C",
+      "source_class": "public_product_page",
+      "outcome_status": "not_verified_settlement"
+    },
+    {
+      "isin": "CH1484591107",
+      "source_url": "https://certificati.leonteq.com/isin/CH1484591107",
+      "status": "active_public_page",
+      "underlyings": [
+        "AMD",
+        "MSFT",
+        "NVDA",
+        "PLTR"
+      ],
+      "tenor_years": 1,
+      "issue_price": 1000,
+      "currency": "EUR Quanto",
+      "barrier_pct": 50,
+      "barrier_observation": "maturity_only",
+      "memory_effect": true,
+      "initial_fixing": "2026-03-05",
+      "issue_date": "2026-02-26",
+      "expiry": "2027-02-19",
+      "next_early_redemption": "2026-07-20",
+      "coupon_amount_eur": 60,
+      "coupon_frequency": "monthly",
+      "coupon_trigger_pct": 50,
+      "bid": 984.18,
+      "ask": 994.07,
+      "worst_performer": "PLTR",
+      "source_class": "public_product_page",
+      "outcome_status": "not_verified_settlement"
+    },
+    {
+      "isin": "CH1491781253",
+      "source_url": "https://certificati.leonteq.com/isin/CH1491781253?language_id=1",
+      "status": "expired_public_page",
+      "underlyings": [
+        "GOOGL",
+        "AMZN",
+        "NVDA"
+      ],
+      "tenor_years": 2,
+      "issue_price": 1000,
+      "currency": "EUR Quanto",
+      "barrier_pct": 50,
+      "barrier_observation": "maturity_only",
+      "memory_effect": true,
+      "initial_fixing": "2025-11-05",
+      "issue_date": "2025-11-10",
+      "expiry": "2027-11-03",
+      "early_redemption": "2026-05-11",
+      "redemption_cash_eur": 1000,
+      "observed_coupon_eur": 10,
+      "coupon_frequency": "monthly",
+      "coupon_trigger_pct": 50,
+      "source_class": "public_product_page",
+      "outcome_status": "public_page_observed_lifecycle_pending_independent_settlement"
+    }
+  ],
+  "counts": {
+    "records": 5,
+    "active_public_pages": 4,
+    "expired_public_pages": 1,
+    "public_page_lifecycle_observations": 1
+  },
+  "allowed_use": [
+    "terms schema reference",
+    "public quote snapshot",
+    "lifecycle candidate extraction",
+    "challenger fixture construction"
+  ],
+  "blocked_use": [
+    "do not treat page quote as independent settlement confirmation",
+    "do not merge into SEC realized labels by default",
+    "do not claim Xfinlink supplied underlying prices"
+  ],
+  "limitations": [
+    "small discovery sample, not representative population",
+    "public pages may update and are not immutable exchange settlement files",
+    "one expired record has page-observed redemption but needs independent settlement confirmation"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}
