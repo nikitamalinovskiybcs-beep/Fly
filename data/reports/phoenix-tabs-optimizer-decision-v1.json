@@ -1,0 +1,54 @@
+{
+  "proposal_id": "phoenix-tabs-optimizer-v1",
+  "decision": "NOW",
+  "committee_verdict": "REVISE",
+  "committee_basis": {
+    "available_reviews": [
+      "groq",
+      "openrouter"
+    ],
+    "quorum": false,
+    "unavailable_or_deferred": [
+      "ollama local models: timeout",
+      "google_gemini: HTTP 429",
+      "anthropic: HTTP 400",
+      "cerebras: HTTP 402",
+      "nvidia/openai/mistral: key unavailable"
+    ],
+    "interpretation": "Advisory only; unavailable votes are not approval."
+  },
+  "selected_change": {
+    "remove_section": "[7] АЛЬТЕРНАТИВЫ",
+    "reason": "Its basket replacement display duplicates the dedicated BEST STRUCTURED PRODUCT search and leaderboard.",
+    "preserved": [
+      "smart_alternatives function remains available for direct tests/research",
+      "verified BCS quote-fit input moved into РЫНОК",
+      "all payoff/risk/OOS/provenance/outcome sections remain"
+    ],
+    "optimizer_effect": "The precompute pipeline no longer performs the unused smart_alts calculation, reducing redundant work."
+  },
+  "not_removed": [
+    {
+      "section": "[6] САМООБУЧЕНИЕ",
+      "reason": "Distinct replay/calibration evidence."
+    },
+    {
+      "section": "[9] BASKET SCORING",
+      "reason": "Distinct criteria, red flags, presets, and worst-of diagnostics."
+    },
+    {
+      "section": "[11] DATA & STORAGE / [14] API & CONNECTIONS",
+      "reason": "Persistence/backup and connectivity/key operations have different safety roles."
+    }
+  ],
+  "validation": {
+    "targeted_tests": "19 passed",
+    "full_suite": "559 passed",
+    "ruff": "passed",
+    "compileall": "passed",
+    "git_diff_check": "passed"
+  },
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

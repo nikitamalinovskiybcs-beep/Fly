@@ -2003,10 +2003,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
         "note": "Our product targets 26% p.a. vs market ~10% → 2.7x risk premium justified by higher P(KI) acceptance",
     }
 
-    # 20. Smart alternatives (replace worst ticker with better options)
-    result["smart_alts"] = compute_smart_alternatives(basket_tickers, yf_data, tox_info)
-
-    # 21. Self-learning: calibrate scoring + P(loss) model metrics
+    # 20. Self-learning: calibrate scoring + P(loss) model metrics
     try:
         from src.real_data import get_p_loss_model_metrics
         p_loss_metrics = get_p_loss_model_metrics()
