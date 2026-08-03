@@ -12,7 +12,6 @@ All agents have safety guards: never degrade accuracy below 75%.
 
 import json
 import os
-import time
 import numpy as np
 from typing import Dict, List, Tuple
 from datetime import datetime
@@ -44,116 +43,20 @@ class DataCollectorAgent:
 
         existing = self._load_collected()
 
-        # Source 1: Generate historical worst-of baskets from market data
-        historical = self._generate_historical_baskets()
-        report["sources"]["historical_generation"] = len(historical)
-
-        # Source 2: Cross-reference with known structured product databases
-        cross_ref = self._cross_reference_products()
-        report["sources"]["cross_reference"] = len(cross_ref)
-
-        # Source 3: Validate existing settled notes for consistency
+        # Only validate externally sourced settled notes; synthetic generation
+        # is not eligible training evidence.
         validated = self._validate_existing_notes()
         report["sources"]["validation"] = validated
-
-        # Deduplicate and merge
-        new_notes = []
-        existing_keys = {self._note_key(n) for n in existing}
-        for note in historical + cross_ref:
-            key = self._note_key(note)
-            if key not in existing_keys:
-                new_notes.append(note)
-                existing_keys.add(key)
-
-        existing.extend(new_notes)
-        self._save_collected(existing)
-
-        report["new_notes"] = len(new_notes)
+        report["sources"]["synthetic_generation"] = {
+            "status": "disabled",
+            "reason": "synthetic baskets are not settled-note evidence",
+        }
+        report["new_notes"] = 0
         report["total_notes"] = len(existing)
         report["quality_score"] = validated.get("quality_pct", 100)
 
         self._save_report(report)
         return report
-
-    def _generate_historical_baskets(self) -> List[Dict]:
-        """Generate training data from historical price data.
-        Creates synthetic settled notes based on actual stock performance."""
-        notes = []
-        try:
-            import yfinance as yf
-
-            # Blue-chip universe for basket generation
-            universe = ["AAPL", "MSFT", "GOOGL", "AMZN", "JNJ", "PG", "JPM",
-                         "V", "UNH", "HD", "MA", "DIS", "NFLX", "NVDA", "AMD",
-                         "CRM", "ADBE", "PYPL", "INTC", "CSCO"]
-
-            # Generate baskets of 3-5 tickers
-            np.random.seed(int(time.time()) % 1000)
-            for _ in range(20):
-                n_tickers = np.random.choice([3, 4, 5])
-                tickers = list(np.random.choice(universe, size=n_tickers, replace=False))
-                term_y = round(np.random.uniform(0.5, 3.0), 1)
-
-                # Check if any ticker dropped >35% in the last term_y years
-                barrier = 0.65
-                knocked_in = False
-                try:
-                    period = f"{max(1, int(term_y))}y"
-                    data = yf.download(tickers, period=period, progress=False, timeout=5)
-                    if data is not None and not data.empty:
-                        close = data.get("Close", data)
-                        if close is not None and not close.empty:
-                            for t in tickers:
-                                if t in close.columns:
-                                    prices = close[t].dropna()
-                                    if len(prices) > 20:
-                                        initial = float(prices.iloc[0])
-                                        min_price = float(prices.min())
-                                        if min_price / initial < barrier:
-                                            knocked_in = True
-                                            break
-                except Exception:
-                    continue
-
-                notes.append({
-                    "tickers": "/".join(tickers),
-                    "term_y": term_y,
-                    "bad": 1 if knocked_in else 0,
-                    "source": "historical_generation",
-                    "generated_at": datetime.utcnow().isoformat(),
-                })
-
-        except Exception:
-            pass
-
-        return notes
-
-    def _cross_reference_products(self) -> List[Dict]:
-        """Cross-reference with known structured product patterns.
-        Uses heuristics from real market data."""
-        notes = []
-        # Common Phoenix basket patterns from the structured products market
-        known_patterns = [
-            (["AAPL", "MSFT", "GOOGL", "AMZN"], 2.0, 0),  # FAANG-like, usually safe
-            (["TSLA", "NIO", "RIVN", "LCID"], 2.0, 1),     # EV basket, high risk
-            (["JPM", "GS", "MS", "BAC"], 1.5, 0),           # Bank basket, moderate
-            (["XOM", "CVX", "COP", "SLB"], 2.0, 0),         # Energy, cyclical
-            (["PFE", "MRNA", "BNTX", "JNJ"], 1.0, 0),       # Pharma, defensive
-            (["META", "SNAP", "PINS", "TWTR"], 3.0, 1),      # Social media, volatile
-            (["NVDA", "AMD", "INTC", "TSM"], 2.0, 0),        # Semiconductors
-            (["WMT", "COST", "TGT", "KR"], 1.5, 0),          # Retail, defensive
-        ]
-
-        for tickers, term_y, bad in known_patterns:
-            notes.append({
-                "tickers": "/".join(tickers),
-                "term_y": term_y,
-                "bad": bad,
-                "source": "cross_reference",
-                "generated_at": datetime.utcnow().isoformat(),
-            })
-
-        return notes
 
     def _validate_existing_notes(self) -> Dict:
         """Validate existing settled notes for data quality."""
