@@ -1,0 +1,25 @@
+{
+  "proposal_id": "phoenix-top10-rerun-v4",
+  "decision": "RESEARCH_ONLY_UNTIL_COMMITTEE_RECHECK",
+  "selected_ids": [
+    "phoenix-201",
+    "phoenix-202",
+    "phoenix-203",
+    "phoenix-204",
+    "phoenix-213",
+    "phoenix-231",
+    "phoenix-251",
+    "phoenix-261",
+    "phoenix-271",
+    "phoenix-281"
+  ],
+  "acceptance_tests": [
+    "Rank all ten by value, risk, cost, and evidence impact.",
+    "Select a bounded batch that is safe to implement now.",
+    "Identify proposals that should remain research-only.",
+    "Provide acceptance tests, rollback conditions, and objections."
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}
