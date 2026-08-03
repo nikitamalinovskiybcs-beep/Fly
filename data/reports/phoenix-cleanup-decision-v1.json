@@ -1,0 +1,50 @@
+{
+  "proposal_id": "phoenix-cleanup-v1",
+  "decision": "RESEARCH",
+  "committee_verdict": "revise",
+  "committee_status": "quorum_unavailable",
+  "completed_providers": [
+    "openrouter"
+  ],
+  "scope": "15 numbered Phoenix sections plus audit/model-basis sections and their computation modules",
+  "committee_findings": {
+    "keep": [
+      "self-learning and agent interfaces until marginal contribution is measured",
+      "public parameters whose removal could break external callers"
+    ],
+    "remove_or_replace_now": [
+      "unused private executive-summary argument",
+      "unused internal computation parameters with no caller dependency",
+      "dead n_results parameter behavior"
+    ],
+    "add_tests": [
+      "frozen output regression for precompute and full pipeline",
+      "API usage search before future signature cleanup"
+    ]
+  },
+  "implemented_files": [
+    "src/buyside.py",
+    "src/precompute.py"
+  ],
+  "implemented_changes": [
+    "removed unused private buyside adjustment argument",
+    "removed unused internal ranker/stress/barrier/comparison/A-B-test arguments",
+    "made generate_top_baskets honor n_results",
+    "removed unused corr_matrix parameter from buy-side analytics"
+  ],
+  "validation": {
+    "targeted_tests": "42 passed",
+    "compileall": "passed",
+    "git_diff_check": "passed",
+    "ruff_cleanup_scope": "19 findings reduced to 4 remaining self-learning interface findings",
+    "remaining_findings": [
+      "RegimeAgent returns_60d interface",
+      "AlphaAgent tickers/yf_data interface",
+      "AlphaAgent _estimate_signal_quality name parameter"
+    ]
+  },
+  "blocker": "Remaining self-learning interface arguments are high-risk and require agent ablation and contract tests before removal.",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

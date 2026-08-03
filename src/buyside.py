@@ -7,7 +7,7 @@ Karpathy method: all computation here, app.py is pure render.
 import math
 import cmath
 import numpy as np
-from typing import Dict, List, Optional
+from typing import Dict, List
 from scipy.stats import norm
 
 
@@ -253,7 +253,7 @@ def credit_adjusted_coupon(coupon_pa: float, issuer_spread: float = 0.01,
 # ═══════════════════════════════════════════════════════════════
 
 def _executive_summary(score: float, p_ki: float, coupon: float,
-                       pki_consensus: Dict, buyside_adj: Dict) -> Dict:
+                       pki_consensus: Dict) -> Dict:
     """3-line verdict: BUY / HOLD / AVOID."""
     if score >= 70 and p_ki < 85:
         verdict = "BUY"
@@ -300,9 +300,7 @@ def _executive_summary(score: float, p_ki: float, coupon: float,
 
 def compute_buyside_analytics(basket: List[str], yf_data: Dict,
                               score: float, weights: Dict,
-                              features: Dict[str, float],
-                              corr_matrix: Optional[np.ndarray] = None,
-                              universe: Optional[Dict] = None) -> Dict:
+                              features: Dict[str, float]) -> Dict:
     """Compute buy-side analytics — only what improves prediction accuracy."""
     result = {}
 
@@ -409,7 +407,6 @@ def compute_buyside_analytics(basket: List[str], yf_data: Dict,
         result["executive_summary"] = _executive_summary(
             score, p_ki, coupon,
             result.get("pki_consensus", {}),
-            result.get("buyside_adjustments", {}),
         )
     except Exception:
         result["executive_summary"] = {"verdict": "N/A", "reasons": []}

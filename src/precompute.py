@@ -714,8 +714,7 @@ def compute_smart_alternatives(basket: List[str], yf_data: Dict,
 # IMPROVEMENT 1: Best Phoenix Ranker — score ALL possible baskets
 # ═══════════════════════════════════════════════════════════════
 
-def rank_best_phoenix(basket: List[str], yf_data: Dict, tox_info: Dict,
-                      ch_data: Dict) -> Dict:
+def rank_best_phoenix(basket: List[str], yf_data: Dict, tox_info: Dict) -> Dict:
     """Find the best Phoenix product configuration for this basket.
     Tests different barriers, tenors, and swap options."""
     from src.real_data import compute_p_loss, COUPON_BY_TERM, COUPON_COEFS
@@ -881,8 +880,7 @@ def calibrated_coupon(basket: List[str], term_months: int = 24,
 # IMPROVEMENT 5: Stress test — historical drawdown scenarios
 # ═══════════════════════════════════════════════════════════════
 
-def compute_stress_scenarios_v2(yf_data: Dict, basket: List[str],
-                                 beta_avg: float) -> List[Dict]:
+def compute_stress_scenarios_v2(beta_avg: float) -> List[Dict]:
     """Enhanced stress test with real historical drawdown scenarios."""
     scenarios = [
         {"name": "COVID Mar 2020", "spx_drop": -34, "vol_spike": 82,
@@ -951,8 +949,7 @@ def compute_dispersion_signal(yf_data: Dict, basket: List[str]) -> Dict:
 # IMPROVEMENT 7: Optimal barrier selection
 # ═══════════════════════════════════════════════════════════════
 
-def find_optimal_barrier(basket: List[str], avg_vol: float,
-                         avg_tox: float) -> Dict:
+def find_optimal_barrier(avg_vol: float, avg_tox: float) -> Dict:
     """Find optimal KI barrier level (55-75%) for best risk/return."""
     results = []
     for bar_pct in range(55, 76, 5):
@@ -1116,7 +1113,7 @@ def generate_top_baskets(n_tickers: int = 4, n_results: int = 3) -> List[Dict]:
             })
 
     result.sort(key=lambda x: x["est_score"], reverse=True)
-    return result
+    return result[:max(1, n_results)]
 
 
 def _safe_vols(td: Dict, tickers: List[str]) -> List[float]:
@@ -1288,7 +1285,7 @@ def _compute_correlation_matrix(yf_data: Dict, tickers: List[str]) -> Dict:
     }
 
 
-def _compute_stress_scenarios(yf_data: Dict, tickers: List[str], beta_avg: float) -> List[Dict]:
+def _compute_stress_scenarios(beta_avg: float) -> List[Dict]:
     """Historical stress scenarios replicated via beta."""
     scenarios = [
         {"name": "COVID_2020", "spy_drop": -32.0, "days": 22},
@@ -1611,7 +1608,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     result["aladdin"] = _compute_aladdin_metrics(yf_data, basket_tickers)
 
     # 8. Stress scenarios
-    result["stress"] = _compute_stress_scenarios(yf_data, basket_tickers, beta_avg)
+    result["stress"] = _compute_stress_scenarios(beta_avg)
 
     # 9. Tail risk
     result["tail"] = _compute_tail_risk(yf_data, basket_tickers)
@@ -1955,8 +1952,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     result["e_payout"] = e_payout
 
     # Model comparison vs industry benchmarks
-    result["model_comparison"] = _compare_vs_industry(
-        p_ki, avg_vol, avg_corr, len(basket_tickers), T, barrier)
+    result["model_comparison"] = _compare_vs_industry(avg_vol, len(basket_tickers))
 
     # 16. Risk score — unified with main score (50-100 scale)
     # Uses same learned weights, same direction: higher = safer
@@ -2055,7 +2051,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # ── 10 IMPROVEMENTS ──
 
     # IMP-1: Best Phoenix ranker
-    result["phoenix_ranker"] = rank_best_phoenix(basket_tickers, yf_data, tox_info, ch_data)
+    result["phoenix_ranker"] = rank_best_phoenix(basket_tickers, yf_data, tox_info)
 
     # IMP-2: Real correlations from yfinance (already in result["corr"])
     # Enhanced: add pairwise detail
@@ -2079,13 +2075,13 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     result["calibrated_coupon"] = calibrated_coupon(basket_tickers, term_months=24, barrier=0.65)
 
     # IMP-5: Enhanced stress scenarios
-    result["stress_v2"] = compute_stress_scenarios_v2(yf_data, basket_tickers, beta_avg)
+    result["stress_v2"] = compute_stress_scenarios_v2(beta_avg)
 
     # IMP-6: Dispersion signal
     result["dispersion_signal"] = compute_dispersion_signal(yf_data, basket_tickers)
 
     # IMP-7: Optimal barrier
-    result["optimal_barrier"] = find_optimal_barrier(basket_tickers, avg_vol, avg_tox)
+    result["optimal_barrier"] = find_optimal_barrier(avg_vol, avg_tox)
 
     # IMP-8: Earnings risk
     result["earnings_risk"] = compute_earnings_risk(yf_data, basket_tickers)
@@ -2099,7 +2095,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # ── ACCURACY IMPROVEMENTS (new) ──
 
     # [IMP-A7] A/B testing: compare current model vs baseline
-    result["ab_test"] = _ab_test_weights(result.get("self_learning", {}))
+    result["ab_test"] = _ab_test_weights()
 
     # [IMP-A8] Scheduled retraining status
     result["retraining_status"] = _get_retraining_status(result.get("self_learning", {}))
@@ -2213,7 +2209,6 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             score=result["score"],
             weights=w,
             features=score_features,
-            corr_matrix=corr_mat,
         )
         result["buyside"] = buyside
 
@@ -2319,7 +2314,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     return result
 
 
-def _ab_test_weights(self_learning: Dict) -> Dict:
+def _ab_test_weights() -> Dict:
     """A/B test: compare current learned weights vs default baseline.
     Returns which model performs better on last 10 settled notes."""
     from src.real_data import SETTLED_NOTES
@@ -2405,8 +2400,7 @@ def _get_improvement_history() -> List[Dict]:
     return []
 
 
-def _compare_vs_industry(p_ki: float, avg_vol: float, avg_corr: float,
-                         n_assets: int, T: float, barrier: float) -> Dict:
+def _compare_vs_industry(avg_vol: float, n_assets: int) -> Dict:
     """Compare our model vs industry-standard pricing tools.
     Returns gap analysis with specific metrics."""
 
