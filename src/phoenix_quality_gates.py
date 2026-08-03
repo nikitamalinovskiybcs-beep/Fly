@@ -143,6 +143,29 @@ def require_fixed_24m_anchors(anchors: Mapping[str, object]) -> dict[str, object
     }
 
 
+def validate_chronological_oos(
+    observations: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
+    """Require ordered, complete research anchors without claiming evidence."""
+    required = {6, 12, 18, 24}
+    anchors = [int(row["anchor_months"]) for row in observations if "anchor_months" in row]
+    errors: list[str] = []
+    missing = sorted(required - set(anchors))
+    if missing:
+        errors.append("missing_anchors")
+    if anchors != sorted(anchors) or len(anchors) != len(set(anchors)):
+        errors.append("not_chronological")
+    return {
+        "passed": not errors,
+        "required_anchors": sorted(required),
+        "missing_anchors": missing,
+        "observed_anchors": anchors,
+        "errors": errors,
+        "evidence_status": "research_oos_gate",
+        **immutable_safety_flags(),
+    }
+
+
 def validate_correlation_matrix(matrix: Sequence[Sequence[float]]) -> dict[str, object]:
     values = np.asarray(matrix, dtype=float)
     errors: list[str] = []
