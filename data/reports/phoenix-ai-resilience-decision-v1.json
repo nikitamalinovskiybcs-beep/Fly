@@ -1,0 +1,48 @@
+{
+  "proposal_id": "phoenix-ai-resilience-v1",
+  "decision": "NOW",
+  "committee_verdict": "APPROVE_WITH_RESEARCH_ONLY_SCOPE",
+  "provider_reviews": [
+    {
+      "provider": "mistral",
+      "model": "mistral-small-latest",
+      "status": "completed",
+      "verdict": "pass"
+    },
+    {
+      "provider": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "status": "completed",
+      "verdict": "revise"
+    },
+    {
+      "provider": "openrouter",
+      "model": "openai/gpt-4o-mini",
+      "status": "completed",
+      "verdict": "approve"
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen2.5:1.5b",
+      "status": "completed",
+      "verdict": "approved"
+    }
+  ],
+  "implementation_files": [
+    "src/ai_resilience.py",
+    "tests/test_ai_resilience.py"
+  ],
+  "observed_metrics": {
+    "timeout_excluded_from_quorum": true,
+    "short_retry_preserves_lineage": true,
+    "malformed_review_excluded": true,
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "blockers": [
+    "This router does not approve market evidence or production promotion.",
+    "Human review and fixed-24m OOS remain required."
+  ],
+  "next_experiment": "Integrate provider routing into the committee panel only after compatibility review."
+}

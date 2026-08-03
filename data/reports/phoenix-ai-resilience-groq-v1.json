@@ -1,0 +1,28 @@
+{
+  "verdict": "revise",
+  "summary": "The proposal aims to improve committee AI routing resilience but lacks concrete evidence of its effectiveness.",
+  "top_technical_reasons": [
+    "The proposal does not provide any new technical insights or innovations.",
+    "The current behavior and bounded design are not significantly different from the benchmark."
+  ],
+  "candidate_safety": "The candidate does not introduce any new safety risks, but its effectiveness is unclear.",
+  "next_experiments": [
+    {
+      "hypothesis": "Implementing a retry mechanism with a short prompt before fallback provider will improve the resilience of committee AI routing.",
+      "change": "Add a retry mechanism with a short prompt before fallback provider.",
+      "metric_gate": "Measure the reduction in timeouts and errors.",
+      "why_it_is_informative": "This experiment will help determine if the proposed change improves the resilience of committee AI routing."
+    },
+    {
+      "hypothesis": "Using typed provider attempt records will improve the accuracy of quorum computation.",
+      "change": "Implement typed provider attempt records.",
+      "metric_gate": "Measure the improvement in quorum computation accuracy.",
+      "why_it_is_informative": "This experiment will help determine if the proposed change improves the accuracy of quorum computation."
+    }
+  ],
+  "data_or_label_risks": "There are no apparent data or label risks associated with this proposal.",
+  "provider": "groq",
+  "model": "llama-3.3-70b-versatile",
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}
