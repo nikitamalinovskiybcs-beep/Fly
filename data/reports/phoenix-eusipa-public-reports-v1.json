@@ -653,5 +653,42 @@
     "status": "not_run",
     "reason": "pdftotext and Python PDF parsers are not installed in the environment",
     "next_step": "install/use a permitted PDF parser before extracting tables; raw PDFs are preserved unchanged"
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "review": {
+      "decision": "accept",
+      "objections": [],
+      "acceptance_tests": [
+        "Verify manifest completeness (all 58 posts + 24 PDFs present with correct metadata)",
+        "Confirm SHA-256 integrity of all preserved PDFs",
+        "Validate byte counts match actual file sizes",
+        "Check source URLs are accessible and point to correct 2020-2026 EUSIPA reports"
+      ],
+      "next_experiment": "Install PDF parser and run table extraction to enrich dataset",
+      "safety_flags": [
+        "No production data or labels included",
+        "Dataset is read-only market evidence",
+        "No modifications to original PDFs"
+      ]
+    }
+  },
+  "committee_packet": {
+    "proposal_id": "phoenix-eusipa-public-reports-v1",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-eusipa-public-reports-v1.json",
+      "data/reports/eusipa_public/*.pdf"
+    ],
+    "acceptance_tests": [
+      "58 posts catalogued",
+      "24 PDFs downloaded",
+      "SHA-256 hashes recorded",
+      "raw files preserved",
+      "parser limitation explicit",
+      "safety flags false"
+    ]
   }
 }
