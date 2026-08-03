@@ -1,0 +1,53 @@
+{
+  "audit_id": "phoenix-xfinlink-leonteq-join-v1",
+  "generated_at": "2026-08-03T23:02:34.558881+00:00",
+  "status": "research_only",
+  "provider": "xfinlink",
+  "requests": [
+    {
+      "ticker": "AMD",
+      "source": "xfinlink",
+      "start": "2026-06-01",
+      "end": "2026-07-21",
+      "status": "error",
+      "error": "XfinlinkError: xfinlink: Rate limit reached (Daily limit reached (100 requests/day). Resets at midnight UTC.). Fix: wait 3445s, or reduce requests by adding start/end date filters and using max_rows parameter."
+    },
+    {
+      "ticker": "INTC",
+      "source": "xfinlink",
+      "start": "2026-06-01",
+      "end": "2026-07-21",
+      "status": "error",
+      "error": "XfinlinkError: xfinlink: Rate limit reached (Daily limit reached (100 requests/day). Resets at midnight UTC.). Fix: wait 3444s, or reduce requests by adding start/end date filters and using max_rows parameter."
+    },
+    {
+      "ticker": "SPY",
+      "source": "xfinlink",
+      "start": "2026-06-01",
+      "end": "2026-07-21",
+      "status": "error",
+      "error": "XfinlinkError: xfinlink: Rate limit reached (Daily limit reached (100 requests/day). Resets at midnight UTC.). Fix: wait 3444s, or reduce requests by adding start/end date filters and using max_rows parameter."
+    },
+    {
+      "ticker": "QQQ",
+      "source": "xfinlink",
+      "start": "2026-06-01",
+      "end": "2026-07-21",
+      "status": "error",
+      "error": "XfinlinkError: xfinlink: Rate limit reached (Daily limit reached (100 requests/day). Resets at midnight UTC.). Fix: wait 3443s, or reduce requests by adding start/end date filters and using max_rows parameter."
+    },
+    {
+      "ticker": "IWM",
+      "source": "xfinlink",
+      "start": "2026-06-01",
+      "end": "2026-07-21",
+      "status": "error",
+      "error": "XfinlinkError: xfinlink: Rate limit reached (Daily limit reached (100 requests/day). Resets at midnight UTC.). Fix: wait 3442s, or reduce requests by adding start/end date filters and using max_rows parameter."
+    }
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

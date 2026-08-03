@@ -1,0 +1,72 @@
+{
+  "audit_id": "phoenix-leonteq-xfinlink-join-v1",
+  "generated_at": "2026-08-03T23:02:49.235031+00:00",
+  "status": "research_only",
+  "leonteq_source": {
+    "url": "https://certificati.leonteq.com/isin/CH1571714935",
+    "retrieved_via": "public web content fetch",
+    "isin": "CH1571714935",
+    "product_type": "Phoenix Autocallable / Multi Express Certificate with Barrier",
+    "issuer": "Leonteq Securities AG, Guernsey Branch",
+    "underlyings": [
+      "AMD",
+      "INTC"
+    ],
+    "currency": "EUR Quanto",
+    "issue_price": 1000.0,
+    "barrier_pct": 50.0,
+    "barrier_observation": "maturity only",
+    "memory_effect": true,
+    "settlement": "cash",
+    "initial_fixing": "2026-06-17",
+    "issue_date": "2026-06-23",
+    "expiry": "2030-06-16",
+    "next_early_redemption": "2026-12-17",
+    "coupon_amount_eur": 20.0,
+    "coupon_frequency": "monthly",
+    "coupon_trigger_pct": 60.0,
+    "market_quote_observed": {
+      "price_update": "2026-07-20 20:00:01",
+      "bid_eur": 921.09,
+      "ask_eur": 930.35
+    },
+    "worst_performer_at_retrieval": "INTC",
+    "source_class": "public_product_page_and_market_quote",
+    "not_verified_settlement_outcome": true
+  },
+  "xfinlink_probe": {
+    "requested": [
+      "AMD",
+      "INTC",
+      "SPY",
+      "QQQ",
+      "IWM"
+    ],
+    "status": "rate_limited",
+    "error": "Daily limit reached (100 requests/day)",
+    "retry_after_seconds": 3445,
+    "source_observed_this_run": false,
+    "fallback_policy": "use yfinance only with explicit fallback label"
+  },
+  "join_to_sec_2000": {
+    "shared_isin_rows": 0,
+    "leonteq_issuer_rows": 0,
+    "decision": "do_not_join_as_realized_outcome",
+    "reason": "SEC 2,000 corpus contains no Leonteq issuer rows or shared ISINs; Leonteq sample is a separate public terms/quote reference"
+  },
+  "allowed_use": [
+    "schema and lifecycle reference",
+    "public quote provenance example",
+    "underlying market-data enrichment after provider access succeeds"
+  ],
+  "blocked_use": [
+    "do not treat public page quote as settled lifecycle outcome",
+    "do not claim Xfinlink supplied data during rate-limit window",
+    "do not use Leonteq sample as label for SEC notes"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}
