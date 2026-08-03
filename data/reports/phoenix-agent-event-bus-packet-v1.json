@@ -1,0 +1,32 @@
+{
+  "proposal_id": "phoenix-agent-event-bus-v1",
+  "scope": [
+    "src/self_learning_agents.py",
+    "src/agent_event_bus.py",
+    "tests/test_agent_event_bus.py"
+  ],
+  "objective": "Allow local agents to exchange immutable snapshots and typed research signals continuously without mutating production weights, verdicts, or trades.",
+  "current_behavior": [
+    "AgentDirector runs a three-level cascade synchronously.",
+    "Agents return untyped dictionaries.",
+    "Evidence failure blocks the cascade.",
+    "Agent state is persisted independently by individual agents."
+  ],
+  "constraints": [
+    "Local-first; no required cloud service.",
+    "Append-only and hash-linked event records.",
+    "Research-only signals; no automatic production mutation.",
+    "Preserve evidence class, timestamp, provider/model lineage, and dissent.",
+    "Fixed-24m OOS and human review remain promotion gates."
+  ],
+  "success_metrics": [
+    "Events can be appended and replayed deterministically.",
+    "Each event has an immutable hash chain and safety flags.",
+    "Agent Director can publish one snapshot and typed signals without changing its existing return contract.",
+    "Invalid or unsafe events are rejected.",
+    "Focused and full regression tests remain green apart from documented pre-existing state-dependent failures."
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

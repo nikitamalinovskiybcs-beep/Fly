@@ -1,0 +1,20 @@
+{
+  "proposal_id": "phoenix-agent-event-bus-v1",
+  "decision": "NOW",
+  "implementation_files": [
+    "src/agent_event_bus.py",
+    "src/self_learning_agents.py",
+    "tests/test_agent_event_bus.py"
+  ],
+  "acceptance_tests": [
+    "Append-only events are hash-linked and replayable.",
+    "Events with unsafe safety flags are rejected.",
+    "Agent signals include evidence class, confidence, snapshot hash, and research-only status.",
+    "The existing AgentDirector output remains backward compatible.",
+    "No production weights, verdicts, or trades are changed."
+  ],
+  "metric_gate": "local deterministic event replay and fixed-24m/human-review promotion gate",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}
