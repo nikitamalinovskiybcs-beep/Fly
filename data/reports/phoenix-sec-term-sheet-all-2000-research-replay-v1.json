@@ -19308,5 +19308,50 @@
     "production_weights_changed": false,
     "verdict_mutated": false,
     "trades_created": false
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "review": {
+      "decision": "unacceptable",
+      "interpretation": "The replay shows critical data pipeline failures: 877 rows blocked due to unrecoverable pricing dates and 1,029 due to unmapped underlyings, indicating systemic data ingestion issues rather than isolated edge cases. While the 86 completed predictions show technically correct simulation execution (mean p_loss=0.0, avg_payoff=1.2619), the high block rates invalidate the statistical representativeness of these results. The absence of verification outcomes (Verified outcomes=0) and null performance metrics (Brier/log-loss/ECE/accuracy) further confirm that no meaningful validation was possible.",
+      "objections": [
+        "Critical data pipeline failures (877 + 1,029 blocked rows) invalidate the sample size and representativeness",
+        "No verification outcomes (Verified outcomes=0) means no ground truth comparison was performed",
+        "Performance metrics are null (Brier/log-loss/ECE/accuracy=null), indicating no proper evaluation",
+        "Production flags are false, suggesting the system is not ready for deployment",
+        "The 8 blocked rows for missing market history are acceptable, but the other block rates are not"
+      ],
+      "acceptance_tests": [
+        "Verify that all 2,000 rows can be processed without blocking (target: 0 blocked rows)",
+        "Confirm that pricing dates and underlyings are properly mapped for all securities",
+        "Establish a minimum threshold for completed predictions (e.g., >95% of total rows)",
+        "Implement verification mechanisms to ensure Verified outcomes > 0",
+        "Define and compute performance metrics (Brier score, log-loss, ECE, accuracy) on verified outcomes"
+      ],
+      "next_experiment": "Fix data pipeline issues to eliminate blocking, then rerun the replay with the same 2,000 rows to verify that all rows are processed and metrics can be computed. Focus on mapping underlyings and recovering pricing dates before proceeding with further analysis.",
+      "safety_flags": [
+        "data_pipeline_failure",
+        "no_verification_outcomes",
+        "null_performance_metrics",
+        "high_block_rate"
+      ]
+    }
+  },
+  "committee_packet": {
+    "proposal_id": "phoenix-sec-term-sheet-all-2000-replay-v1",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-sec-term-sheet-all-2000-research-replay-v1.json",
+      "data/reports/phoenix-sec-term-sheet-all-2000-prediction-vs-realized-v1.json"
+    ],
+    "acceptance_tests": [
+      "all 2000 rows preserved",
+      "no-look-ahead cap applied",
+      "blocked rows retain explicit reason",
+      "verified outcomes remain separate",
+      "safety flags false"
+    ]
   }
 }
