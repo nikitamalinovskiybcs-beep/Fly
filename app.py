@@ -504,10 +504,10 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [1] ВЕРДИКТ — Score + Recommendation
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("AUDIT MAP · data → decision → outcome", expanded=False):
+    if False:
         render_process_map(D, _pipeline)
 
-    with st.expander("[0] MODEL BASIS    Formula · assumptions · evidence", expanded=False):
+    if False:
         st.markdown(
             '<div style="color:#d6a44a;font-size:10px;line-height:1.7">'
             '<b style="color:#ffb000">Phoenix score</b> = base score + '
@@ -1141,7 +1141,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [11] DATA & STORAGE — Database status + backup
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[11] DATA & STORAGE    Database · Cloud · Backup"):
+    if False:
         try:
             from src.storage import Storage
             storage = Storage()
@@ -1180,7 +1180,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [12] BEST STRUCTURED PRODUCT — agent-driven product search
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[12] BEST STRUCTURED PRODUCT    Universe search · Barrier/Tenor grid"):
+    if False:
         try:
             _res = _pipeline["product"]
             _universe = list(dict.fromkeys(list(basket_tickers) + [
@@ -1265,7 +1265,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [13] STRUCTURED NOTE OUTCOMES — explicit simulated/replay/realized states
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[13] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
+    if False:
         try:
             _quality = load_quality_report()
             _paper_notes = PaperOutcomeTracker().notes
@@ -1367,7 +1367,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [14] API & CONNECTIONS — Setup · Keys · Health Check
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[14] API & CONNECTIONS    Setup · Keys · Health Check"):
+    if False:
         try:
             from src.api_manager import APIManager, SERVICES, mask_key
             api_mgr = APIManager(load_env=True)
