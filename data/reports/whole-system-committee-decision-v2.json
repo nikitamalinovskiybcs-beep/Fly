@@ -1,0 +1,39 @@
+{
+  "proposal_id": "phoenix-whole-system-improvement-v1",
+  "decision": "RESEARCH",
+  "committee_verdict": "revise",
+  "committee_status": "quorum_unavailable",
+  "completed_providers": [
+    "openrouter"
+  ],
+  "unavailable_or_deferred_providers": [
+    "ollama:qwen2.5:1.5b",
+    "ollama:deepseek-r1:1.5b",
+    "ollama:llama3.2:1b",
+    "ollama:gemma3:1b",
+    "google_gemini",
+    "anthropic",
+    "cerebras",
+    "groq"
+  ],
+  "implemented_slice": [
+    "add explicit production-readiness gates for all Phoenix blocks",
+    "surface the whole-system production gate through system health",
+    "add tests for missing evidence and safety invariants"
+  ],
+  "observed_evidence": {
+    "data_readiness": "blocked",
+    "fixed_24m_benchmark_gate": "failed",
+    "supabase_health_check": "enabled",
+    "production_safety_flags": {
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    }
+  },
+  "blocker": "Only one provider completed; no committee quorum and no consensus proposal vote.",
+  "next_experiment": "Collect validated settled 24m notes and rerun the whole-system panel with at least two independent completed reviewers.",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

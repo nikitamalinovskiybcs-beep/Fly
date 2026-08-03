@@ -13,6 +13,7 @@ def build_system_health(
     structure_audit: Mapping,
     benchmark: Mapping,
     safety: Mapping | None = None,
+    production_readiness: Mapping | None = None,
 ) -> dict[str, object]:
     """Aggregate independent health checks without changing any decision."""
     safety = safety or {}
@@ -30,6 +31,8 @@ def build_system_health(
             if flag in safety
         ),
     }
+    if production_readiness is not None:
+        checks["production_readiness"] = production_readiness.get("status") == "ready"
     infrastructure = build_infrastructure_health(
         data={"passed": checks["data_quality"]},
         cache={"healthy": True},
