@@ -1,0 +1,657 @@
+{
+  "dataset_id": "phoenix-eusipa-public-reports-v1",
+  "generated_at": "2026-08-03T23:09:59.894758+00:00",
+  "source": "EUSIPA WordPress public API category 33",
+  "category_url": "https://eusipa.org/category/market-reports/",
+  "posts": [
+    {
+      "post_id": 9348,
+      "date": "2026-06-23T08:03:54",
+      "title": "EUSIPA publishes Q1 2026 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2026-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/Eusipa_Report_Q1_2026_EN.pdf"
+      ]
+    },
+    {
+      "post_id": 9329,
+      "date": "2026-03-17T10:20:41",
+      "title": "EUSIPA publishes Q4 2025 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q4-2025-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA_Q4.pdf"
+      ]
+    },
+    {
+      "post_id": 9320,
+      "date": "2025-12-22T01:43:52",
+      "title": "EUSIPA publishes Q3 2025 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q3-2025-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA_Q3_2025_EN.pdf"
+      ]
+    },
+    {
+      "post_id": 9309,
+      "date": "2025-09-19T08:18:55",
+      "title": "EUSIPA publishes Q2 2025 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q2-2025-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA_Q2_2025_REPORT_EN.pdf"
+      ]
+    },
+    {
+      "post_id": 9273,
+      "date": "2025-06-23T08:55:34",
+      "title": "EUSIPA publishes Q1 2025 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2025-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-Q12025.pdf"
+      ]
+    },
+    {
+      "post_id": 9229,
+      "date": "2025-03-24T09:35:27",
+      "title": "EUSIPA publishes Q4 2024 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q4-2024-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-Q4-2024_REPORT_EN.pdf"
+      ]
+    },
+    {
+      "post_id": 9210,
+      "date": "2024-12-12T11:49:26",
+      "title": "EUSIPA publishes Q3 2024 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q3-2024-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/Eusipa-Report-Q3-2024_EN.pdf"
+      ]
+    },
+    {
+      "post_id": 9186,
+      "date": "2024-09-26T09:20:32",
+      "title": "EUSIPA publishes Q2 2024 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q2-2024-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA_Market_Report_Q2_2024_EN_final.pdf"
+      ]
+    },
+    {
+      "post_id": 9166,
+      "date": "2024-06-21T09:11:14",
+      "title": "EUSIPA publishes Q1 2024 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2024-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA_Market_Report_Q1_2024_EN.pdf"
+      ]
+    },
+    {
+      "post_id": 9145,
+      "date": "2024-04-10T08:13:24",
+      "title": "EUSIPA publishes Q4 2023 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q4-2023-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-report-Q4-2023_EN-press-release.pdf"
+      ]
+    },
+    {
+      "post_id": 9107,
+      "date": "2023-12-11T10:15:40",
+      "title": "EUSIPA publishes Q3 2023 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q3-2023-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/Eusipa-Report-Q3-2023.pdf"
+      ]
+    },
+    {
+      "post_id": 9093,
+      "date": "2023-09-27T09:55:50",
+      "title": "EUSIPA publishes Q2 2023 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q2-2023-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-Market-Report-Q2-2023-incl-media-release.pdf"
+      ]
+    },
+    {
+      "post_id": 9051,
+      "date": "2023-06-23T09:22:03",
+      "title": "EUSIPA publishes Q1 2023 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2023-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-Report-Q1-2023-EN-FINAL-MERGED.pdf"
+      ]
+    },
+    {
+      "post_id": 9024,
+      "date": "2023-03-24T12:50:44",
+      "title": "EUSIPA publishes Q4 2022 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q4-2022-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA_Market_Report_Q4-2022.pdf"
+      ]
+    },
+    {
+      "post_id": 8945,
+      "date": "2022-12-16T00:43:17",
+      "title": "EUSIPA publishes Q3 2022 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q3-2022-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/Eusipa-Q3-2022-Report.pdf"
+      ]
+    },
+    {
+      "post_id": 8932,
+      "date": "2022-09-16T09:32:39",
+      "title": "EUSIPA publishes Q2 2022 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q2-2022-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/Q2-2022-market-report-EUSIPA-media-release-FINAL-ENG.pdf"
+      ]
+    },
+    {
+      "post_id": 8924,
+      "date": "2022-06-24T09:36:43",
+      "title": "EUSIPA publishes Q1 2022 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2022-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-Q1-2022-Report.pdf"
+      ]
+    },
+    {
+      "post_id": 8871,
+      "date": "2022-03-11T13:36:01",
+      "title": "EUSIPA publishes Q4 2021 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q4-2021-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-Market-Report-and-Release-Q4-2021.pdf"
+      ]
+    },
+    {
+      "post_id": 8852,
+      "date": "2021-12-13T10:49:07",
+      "title": "EUSIPA publishes Q3 2021 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q3-2021-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA_Market_Report_Press_Final.pdf"
+      ]
+    },
+    {
+      "post_id": 8823,
+      "date": "2021-09-09T07:24:30",
+      "title": "EUSIPA publishes Q2 2021 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q2-2021-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-Q2-2021-report-and-release.pdf"
+      ]
+    },
+    {
+      "post_id": 8780,
+      "date": "2021-06-10T12:28:46",
+      "title": "EUSIPA publishes Q1 2021 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2021-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-Market-Report-Q1-2021.pdf"
+      ]
+    },
+    {
+      "post_id": 8718,
+      "date": "2021-03-11T10:36:21",
+      "title": "EUSIPA publishes Q4 2020 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q4-2020-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA_Market_Report_DATEN_Q4_2020_incl-press-release.pdf"
+      ]
+    },
+    {
+      "post_id": 8672,
+      "date": "2020-12-11T08:49:24",
+      "title": "EUSIPA publishes Q3 2020 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q3-2020-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-Market-Report-Press-release-Q3-2020.pdf"
+      ]
+    },
+    {
+      "post_id": 8654,
+      "date": "2020-09-07T09:40:33",
+      "title": "EUSIPA publishes Q2 2020 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q2-2020-market-report-update/",
+      "pdf_urls": [
+        "https://eusipa.org/wp-content/uploads/EUSIPA-Market-Report-Q2.pdf"
+      ]
+    },
+    {
+      "post_id": 8553,
+      "date": "2020-06-10T09:36:55",
+      "title": "EUSIPA publishes Q1 2020 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2020-market-report-update/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 8431,
+      "date": "2020-03-04T17:41:27",
+      "title": "EUSIPA publishes Q4 2019 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q4-2019-market-report-update/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 8399,
+      "date": "2019-12-04T16:22:58",
+      "title": "EUSIPA publishes Q3 2019 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q3-2019-market-report-update/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 8343,
+      "date": "2019-09-03T14:26:58",
+      "title": "EUSIPA publishes Q2 2019 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q2-2019-market-report-update/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 8326,
+      "date": "2019-05-29T12:38:27",
+      "title": "EUSIPA publishes Q1 2019 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2019-market-report-update/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 8319,
+      "date": "2019-03-08T09:46:38",
+      "title": "EUSIPA publishes Q4 2018 report showing strong turnover growth",
+      "post_url": "https://eusipa.org/eusipa-publishes-q4-2018-report-showing-strong-turnover-growth/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 8273,
+      "date": "2018-11-30T08:26:43",
+      "title": "EUSIPA publishes Q3 2018 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q3-2018-market-report-update/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 8215,
+      "date": "2018-08-30T10:23:29",
+      "title": "EUSIPA publishes Q2 2018 market report update",
+      "post_url": "https://eusipa.org/eusipa-published-q2-update-of-market-report/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 8196,
+      "date": "2018-06-12T08:50:50",
+      "title": "EUSIPA publishes Q1 2018 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2018-market-report-update/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 8119,
+      "date": "2018-03-08T10:00:06",
+      "title": "EUSIPA publishes Q4 2017 update to market report",
+      "post_url": "https://eusipa.org/eusipa-publishes-q4-2017-update-to-market-report/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7944,
+      "date": "2017-11-30T21:07:37",
+      "title": "EUSIPA publishes Q3 2017 update of market report",
+      "post_url": "https://eusipa.org/eusipa-publishes-q3-2017-update-of-market-report/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7469,
+      "date": "2017-08-31T00:07:32",
+      "title": "EUSIPA publishes Q2 2017 update of market report",
+      "post_url": "https://eusipa.org/eusipa-publishes-q2-update-of-market-report-2/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7341,
+      "date": "2017-06-02T11:43:19",
+      "title": "EUSIPA publishes Q1 2017 update of quarterly market reports",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2017-update-of-quarterly-market-reports-2/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7347,
+      "date": "2017-03-20T12:04:38",
+      "title": "EUSIPA publishes Q4 2016 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q4-2016-market-report-update/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7355,
+      "date": "2016-12-07T12:20:44",
+      "title": "EUSIPA publishes Q3 2016 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q3-2016-market-report-update/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7358,
+      "date": "2016-09-09T12:27:47",
+      "title": "EUSIPA publishes Q2 update of 2016 market report",
+      "post_url": "https://eusipa.org/eusipa-publishes-q2-update-of-2016-market-report/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7366,
+      "date": "2016-06-03T13:19:34",
+      "title": "EUSIPA market report Q1 2016",
+      "post_url": "https://eusipa.org/eusipa-market-report-q1-2016/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7492,
+      "date": "2016-06-03T00:46:46",
+      "title": "EUSIPA publishes Q1 2016 market report update",
+      "post_url": "https://eusipa.org/eusipa-publishes-q1-2016-market-report-update/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7388,
+      "date": "2016-03-04T13:41:15",
+      "title": "EUSIPA market report Q4 2015",
+      "post_url": "https://eusipa.org/eusipa-market-report-q4-2015/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7391,
+      "date": "2015-12-09T13:57:51",
+      "title": "EUSIPA market report Q3 2015",
+      "post_url": "https://eusipa.org/eusipa-market-report-q3-2015/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7406,
+      "date": "2015-09-08T14:36:32",
+      "title": "EUSIPA market report Q2 2015",
+      "post_url": "https://eusipa.org/eusipa-market-report-q2-2015/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7411,
+      "date": "2015-06-10T14:56:30",
+      "title": "EUSIPA market report Q1 2015",
+      "post_url": "https://eusipa.org/eusipa-market-report-q1-2015/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7435,
+      "date": "2015-03-12T15:10:07",
+      "title": "EUSIPA market report Q4 2014",
+      "post_url": "https://eusipa.org/eusipa-market-report-q4-2014/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7439,
+      "date": "2014-12-09T15:19:38",
+      "title": "EUSIPA market report Q3 2014",
+      "post_url": "https://eusipa.org/eusipa-market-report-q3-2014/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7448,
+      "date": "2014-09-04T15:30:00",
+      "title": "EUSIPA market report Q2 2014",
+      "post_url": "https://eusipa.org/eusipa-market-report-q2-2014/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7456,
+      "date": "2014-07-11T15:41:53",
+      "title": "EUSIPA market report Q1 2014",
+      "post_url": "https://eusipa.org/eusipa-market-report-q1-2014/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7461,
+      "date": "2014-03-04T15:55:21",
+      "title": "EUSIPA market report Q4 2013",
+      "post_url": "https://eusipa.org/eusipa-market-report-q4-2013/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7466,
+      "date": "2013-12-04T16:14:44",
+      "title": "EUSIPA market report Q3 2013",
+      "post_url": "https://eusipa.org/eusipa-market-report-q3-2013/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7282,
+      "date": "2013-09-02T00:00:41",
+      "title": "EUSIPA market report Q2 2013",
+      "post_url": "https://eusipa.org/eusipa-market-report-q2-2013/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7277,
+      "date": "2013-03-31T00:00:18",
+      "title": "EUSIPA market report Q1 2013",
+      "post_url": "https://eusipa.org/eusipa-market-report-q1-2013/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7272,
+      "date": "2013-02-18T00:00:13",
+      "title": "EUSIPA market report Q4 2012",
+      "post_url": "https://eusipa.org/eusipa-market-report-q4-2012/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7266,
+      "date": "2012-12-15T00:00:35",
+      "title": "EUSIPA market report Q3 2012",
+      "post_url": "https://eusipa.org/eusipa-market-report-q3-2012/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7259,
+      "date": "2012-08-22T00:00:30",
+      "title": "EUSIPA market report Q2 2012",
+      "post_url": "https://eusipa.org/eusipa-market-report-q2-2012/",
+      "pdf_urls": []
+    },
+    {
+      "post_id": 7055,
+      "date": "2012-05-15T00:00:15",
+      "title": "EUSIPA market report Q1 2012",
+      "post_url": "https://eusipa.org/eusipa-market-report-q1-2012/",
+      "pdf_urls": []
+    }
+  ],
+  "files": [
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-Market-Report-Press-release-Q3-2020.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-Market-Report-Press-release-Q3-2020.pdf",
+      "bytes": 1552491,
+      "sha256": "d32aee09bb91c7184834d0f44565a42148613d862f67d2bf485a198543a589ac"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-Market-Report-Q1-2021.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-Market-Report-Q1-2021.pdf",
+      "bytes": 1533941,
+      "sha256": "c201340d88a416b514518289af3e6625c385e7a865e5449b20ba4180ecbd5fb4"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-Market-Report-Q2-2023-incl-media-release.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-Market-Report-Q2-2023-incl-media-release.pdf",
+      "bytes": 705578,
+      "sha256": "6d3c8597c2ad587252455e4a989a617837c7376f805dd0a6be7c8b9c530bf0a5"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-Market-Report-Q2.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-Market-Report-Q2.pdf",
+      "bytes": 1962952,
+      "sha256": "0fb1a037471b76f4fd71ad14babe1fb2639120332135105f465a4af1d5b88cd4"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-Market-Report-and-Release-Q4-2021.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-Market-Report-and-Release-Q4-2021.pdf",
+      "bytes": 1525777,
+      "sha256": "cb8b11057d1d88277dc9449897620912314de158c55eb4ce97fc714df91c030c"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-Q1-2022-Report.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-Q1-2022-Report.pdf",
+      "bytes": 1189207,
+      "sha256": "e97aa431686efa8028160c2170227e7fb08257e3bbf6c996e589ab240e480046"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-Q12025.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-Q12025.pdf",
+      "bytes": 1152548,
+      "sha256": "b88cf965f062aca464bbe6688ad788872a26526d691d8378a3c0454a628bd1d0"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-Q2-2021-report-and-release.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-Q2-2021-report-and-release.pdf",
+      "bytes": 1105284,
+      "sha256": "527dad433bfea2eeeacf96ba288a82f1aafca6ae37624056b5d10c61fa0381ac"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-Q4-2024_REPORT_EN.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-Q4-2024_REPORT_EN.pdf",
+      "bytes": 2379314,
+      "sha256": "b71d55d53f45afc90a69e89d1d051a88208ce30b7f592af50bca1bc357303118"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-Report-Q1-2023-EN-FINAL-MERGED.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-Report-Q1-2023-EN-FINAL-MERGED.pdf",
+      "bytes": 1230254,
+      "sha256": "b7f0bf3a840e6ae0549952f5c965a83e2cbeafc9e709962c68c7dd5ce5f88d3a"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA-report-Q4-2023_EN-press-release.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA-report-Q4-2023_EN-press-release.pdf",
+      "bytes": 713456,
+      "sha256": "585546f395c39990c118cc95fe0b09b4227c4e59233a323ae3175fea9a764896"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA_Market_Report_DATEN_Q4_2020_incl-press-release.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA_Market_Report_DATEN_Q4_2020_incl-press-release.pdf",
+      "bytes": 1792587,
+      "sha256": "3ebe3702e8c8e735f1c283372557faf0a028f3d92e1f96f2fdd3b666e7db11d0"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA_Market_Report_Press_Final.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA_Market_Report_Press_Final.pdf",
+      "bytes": 1507711,
+      "sha256": "656e7b96368c438b7d2df225bd41021ad36a4ed19d49053d8e1bc01b96fee5fa"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA_Market_Report_Q1_2024_EN.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA_Market_Report_Q1_2024_EN.pdf",
+      "bytes": 746020,
+      "sha256": "d85852663c3b30b33b61d88e337658eecdd814e051c2cc5d683278a02ea8e2fa"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA_Market_Report_Q2_2024_EN_final.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA_Market_Report_Q2_2024_EN_final.pdf",
+      "bytes": 731649,
+      "sha256": "8d422de00fa04791677ecd1ffcfc2a0c8eb4245e591ad9600c8a8aeb9533c3e0"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA_Market_Report_Q4-2022.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA_Market_Report_Q4-2022.pdf",
+      "bytes": 539104,
+      "sha256": "c21d2e9370dd3039aa296ea1a9c3dbc9cce6e3e4e4a0c3c61ece7ccd3810abd0"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA_Q2_2025_REPORT_EN.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA_Q2_2025_REPORT_EN.pdf",
+      "bytes": 1673436,
+      "sha256": "c26ee72f03c7598ed37709bd5c914e0b4fabac6ad2474b21861c95d329c19497"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA_Q3_2025_EN.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA_Q3_2025_EN.pdf",
+      "bytes": 1923591,
+      "sha256": "2c05b2881afce9fad5fd65b68604b4bcc2a19752878d41c0bfa3d4bd054951c5"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/EUSIPA_Q4.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/EUSIPA_Q4.pdf",
+      "bytes": 593753,
+      "sha256": "66d1ef2c7d7999bfaa1f831922762018ebc717c969cccc746ab518d866ad89a2"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/Eusipa-Q3-2022-Report.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/Eusipa-Q3-2022-Report.pdf",
+      "bytes": 1213565,
+      "sha256": "7ae78d0c6c435ae9793b028217dd2a7dea21036f19a1bc2c1217928d6f1c7977"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/Eusipa-Report-Q3-2023.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/Eusipa-Report-Q3-2023.pdf",
+      "bytes": 1129915,
+      "sha256": "41200ad34ed1e653221fa0f6846d7a93c3b371f5c2fbde2e6f25578857d3d01f"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/Eusipa-Report-Q3-2024_EN.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/Eusipa-Report-Q3-2024_EN.pdf",
+      "bytes": 729925,
+      "sha256": "abaf56b0f5ddcb1440f20a37b4b82c3463c025f1e39e190e09bdb48766db24c2"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/Eusipa_Report_Q1_2026_EN.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/Eusipa_Report_Q1_2026_EN.pdf",
+      "bytes": 794401,
+      "sha256": "f58976bf416a70d104b288bc41d3f44a33fb56781e300ceb3a0efec54209e9ef"
+    },
+    {
+      "url": "https://eusipa.org/wp-content/uploads/Q2-2022-market-report-EUSIPA-media-release-FINAL-ENG.pdf",
+      "status": "downloaded",
+      "path": "data/reports/eusipa_public/Q2-2022-market-report-EUSIPA-media-release-FINAL-ENG.pdf",
+      "bytes": 1194457,
+      "sha256": "8de65309fa1c1d3748f720e73ec744d93bb5eaefd190dcdc294973626ac368a7"
+    }
+  ],
+  "counts": {
+    "posts": 58,
+    "pdf_urls": 24,
+    "downloaded_pdfs": 24
+  },
+  "limitations": [
+    "public reports are aggregate market evidence, not note-level outcomes",
+    "some posts may contain press releases without a PDF",
+    "access and naming may change"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "download_manifest": {
+    "total_bytes": 29620916,
+    "sha256_algorithm": "SHA-256",
+    "retrieval_timestamp": "2026-08-03T23:09:59.894758+00:00"
+  },
+  "parser_status": {
+    "status": "not_run",
+    "reason": "pdftotext and Python PDF parsers are not installed in the environment",
+    "next_step": "install/use a permitted PDF parser before extracting tables; raw PDFs are preserved unchanged"
+  }
+}
