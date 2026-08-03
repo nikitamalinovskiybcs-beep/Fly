@@ -701,7 +701,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     pki_cons = D.get("pki_consensus", D.get("buyside", {}).get("pki_consensus", {}))
     pki_per_asset = D.get("p_ki_per_asset", {})
-    with st.expander(f"[3] P(KI) АНАЛИЗ    {p_ki:.1f}% · {pki_cons.get('n_methods', 0)} методов"):
+    if False:
         # Main P(KI) + per asset
         st.markdown(f'''<div class="qc" style="border-left:3px solid {"#ff3b30" if p_ki > 25 else "#34c759"};padding:10px">
             <span style="color:{"#ff3b30" if p_ki > 25 else "#34c759"};font-size:20px;font-weight:700">{p_ki:.1f}%</span>
@@ -1080,7 +1080,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [10] PAPER TRADING — Agent signals + portfolio
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[10] PAPER TRADING    Agent · Portfolio · Signals"):
+    if False:
         try:
             from src.agents.paper_trader import PaperTradingAgent
             from src.agents.models import TradeAction
