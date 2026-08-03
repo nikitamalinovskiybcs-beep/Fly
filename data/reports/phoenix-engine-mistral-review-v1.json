@@ -1,0 +1,63 @@
+{
+  "proposal_id": "phoenix-engine-mistral-review-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "decision": "REJECTED_FOR_PRODUCTION_CALIBRATION",
+  "question": "Why does the current engine estimate 18.3% for the full basket and 9.8% for SBUX alone?",
+  "observed_results": {
+    "full_basket": {
+      "basket": ["DAL", "META", "CRWD", "BA", "RCL", "SBUX"],
+      "term_months": 24,
+      "p_loss_pct": 18.3
+    },
+    "sbux_only": {
+      "basket": ["SBUX"],
+      "term_months": 24,
+      "p_loss_pct": 9.8
+    },
+    "alternate_monte_carlo_estimate_pct": 16.2
+  },
+  "explanation": [
+    "SBUX has low observed toxicity in the current table: 0 losses and 1 win.",
+    "The full basket aggregates other names, term, basket size, average toxicity and maximum toxicity.",
+    "The two estimates use different engines and are not directly comparable."
+  ],
+  "findings": {
+    "formula": [
+      "The toxicity denominator smoothing term makes the estimate sensitive for tiny samples.",
+      "Unknown tickers default to toxicity 0.5 without validated uncertainty handling.",
+      "The barrier scaling and objective penalty in structured_product.py are heuristic."
+    ],
+    "data": [
+      "The 50 settled observations and ticker counts require provenance verification.",
+      "SBUX's 0/1 history is too small to support a high-confidence standalone estimate.",
+      "The 828 quote summary also requires source and quote-fit validation."
+    ],
+    "calibration": [
+      "Reported 90% accuracy, 86.7% precision, 96.3% recall and 91.2% F1 are in-sample.",
+      "No fixed-24m held-out/OOS metrics were supplied for this calculation.",
+      "The 18.3% and 16.2% outputs need one canonical reconciliation path."
+    ]
+  },
+  "bounded_next_slice": {
+    "decision": "RESEARCH",
+    "changes": [
+      "Freeze the current engine outputs as a labeled research snapshot.",
+      "Add an engine-comparison report with identical basket, barrier, tenor and seed.",
+      "Run held-out/OOS evaluation before changing weights or formulas.",
+      "Add uncertainty intervals and minimum-observation warnings for ticker toxicity."
+    ],
+    "acceptance_tests": [
+      "Held-out evaluation is separate from training observations.",
+      "Phoenix and Monte Carlo inputs are aligned and delta is explained.",
+      "SBUX output includes a small-sample warning.",
+      "No production weight, verdict or trade changes occur."
+    ]
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}
