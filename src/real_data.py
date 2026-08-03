@@ -132,6 +132,7 @@ def compute_toxicity(tickers: List[str]) -> Dict[str, Any]:
     """Compute basket toxicity from real settled note experience."""
     scores = []
     per_ticker = {}
+    unknown_tickers = []
     for t in tickers:
         if t in TOX_EXPERIENCE:
             losses, wins = TOX_EXPERIENCE[t]
@@ -145,6 +146,7 @@ def compute_toxicity(tickers: List[str]) -> Dict[str, Any]:
             }
         else:
             per_ticker[t] = {"tox": 0.5, "losses": 0, "wins": 0, "label": "UNKNOWN"}
+            unknown_tickers.append(t)
 
     avg_tox = float(np.mean(scores)) if scores else 0.5
     max_tox_ticker = max(per_ticker.items(), key=lambda x: x[1]["tox"])[0] if per_ticker else None
@@ -155,6 +157,8 @@ def compute_toxicity(tickers: List[str]) -> Dict[str, Any]:
         "max_tox_ticker": max_tox_ticker,
         "known_count": len(scores),
         "total_count": len(tickers),
+        "unknown_tickers": unknown_tickers,
+        "data_quality": "complete" if not unknown_tickers else "incomplete",
         "risk_level": "HIGH" if avg_tox > 0.5 else ("MEDIUM" if avg_tox > 0.3 else "LOW"),
     }
 
@@ -263,6 +267,7 @@ def _train_p_loss_model() -> tuple:
         "recall": round(float(recall) * 100, 1),
         "f1": round(float(f1) * 100, 1),
         "loss": round(float(best_loss), 4),
+        "validation_type": "in_sample",
         "confusion": {"tp": int(tp), "fp": int(fp), "tn": int(tn), "fn": int(fn)},
         "n_samples": n_samples,
     }
@@ -289,6 +294,11 @@ def compute_p_loss(tickers: List[str], term_months: int = 24) -> Dict[str, Any]:
     tox_info = compute_toxicity(tickers)
     toxic_tickers = [t for t in tickers if t in TOX_EXPERIENCE
                      and TOX_EXPERIENCE[t][0] > TOX_EXPERIENCE[t][1]]
+    unknown_tickers = tox_info["unknown_tickers"]
+    insufficient_observation_tickers = [
+        t for t in tickers
+        if t in TOX_EXPERIENCE and sum(TOX_EXPERIENCE[t]) < 5
+    ]
 
     guard_flag = p_loss > 0.25
 
@@ -298,7 +308,21 @@ def compute_p_loss(tickers: List[str], term_months: int = 24) -> Dict[str, Any]:
         "guard_flag": guard_flag,
         "guard_msg": f"P(убыток)={p_loss*100:.0f}% > 25%. Toxic: {toxic_tickers}" if guard_flag else "Риск приемлемый",
         "toxic_tickers": toxic_tickers,
-        "confidence": "HIGH" if len(tox_info.get("per_ticker", {})) > 0 else "LOW",
+        "confidence": (
+            "LOW"
+            if unknown_tickers or insufficient_observation_tickers
+            else "HIGH"
+        ),
+        "data_quality": tox_info["data_quality"],
+        "unknown_tickers": unknown_tickers,
+        "insufficient_observation_tickers": insufficient_observation_tickers,
+        "warnings": (
+            (["unknown ticker toxicity is a research proxy"] if unknown_tickers else [])
+            + (
+                ["ticker history is too small for stable standalone calibration"]
+                if insufficient_observation_tickers else []
+            )
+        ),
         "model_metrics": _P_LOSS_TRAIN_METRICS,
     }
 
