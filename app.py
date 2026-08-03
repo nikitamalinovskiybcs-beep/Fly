@@ -504,10 +504,10 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [1] ВЕРДИКТ — Score + Recommendation
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("AUDIT MAP · data → decision → outcome", expanded=False):
+    if False:
         render_process_map(D, _pipeline)
 
-    with st.expander("[0] MODEL BASIS    Formula · assumptions · evidence", expanded=False):
+    if False:
         st.markdown(
             '<div style="color:#d6a44a;font-size:10px;line-height:1.7">'
             '<b style="color:#ffb000">Phoenix score</b> = base score + '
