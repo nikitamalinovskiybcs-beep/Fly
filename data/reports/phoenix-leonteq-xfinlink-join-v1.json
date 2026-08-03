@@ -68,5 +68,41 @@
     "production_weights_changed": false,
     "verdict_mutated": false,
     "trades_created": false
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "review": {
+      "decision": "safe",
+      "objections": [],
+      "acceptance_tests": [
+        "Verify Leonteq public terms/quote is used as reference only (not realized outcome)",
+        "Confirm Xfinlink rate limit prevents observation claim (no data loss)",
+        "Validate SEC 2,000 corpus contains no Leonteq issuer rows/shared ISINs",
+        "Ensure yfinance remains labeled as fallback (not primary data source)"
+      ],
+      "next_experiment": "Monitor Leonteq public page for term updates and quote changes to validate consistency",
+      "safety_flags": [
+        "No reliance on Xfinlink due to rate limits",
+        "Leonteq treated as public reference (not internal data)",
+        "SEC corpus confirms no conflicting issuer/ISIN data"
+      ]
+    }
+  },
+  "committee_packet": {
+    "proposal_id": "phoenix-leonteq-xfinlink-join-v1",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-leonteq-xfinlink-join-v1.json",
+      "data/reports/phoenix-xfinlink-leonteq-join-v1.json"
+    ],
+    "acceptance_tests": [
+      "source and retrieval timestamp preserved",
+      "Xfinlink rate-limit status explicit",
+      "Leonteq not used as SEC realized label",
+      "fallback source labeled",
+      "safety flags false"
+    ]
   }
 }
