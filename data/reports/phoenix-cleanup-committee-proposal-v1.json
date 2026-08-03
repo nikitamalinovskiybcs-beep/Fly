@@ -1,0 +1,17 @@
+{
+  "proposal_id": "phoenix-cleanup-v1",
+  "decision": "RESEARCH",
+  "task": "Identify genuinely redundant or result-neutral code and propose a minimal cleanup batch.",
+  "required_output": [
+    "KEEP",
+    "REMOVE",
+    "REPLACE",
+    "ADD_TEST",
+    "risk",
+    "usage_evidence",
+    "acceptance_test"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

@@ -1,0 +1,28 @@
+{
+  "proposal_id": "phoenix-100-improvements-v3",
+  "decision": "RESEARCH",
+  "task": "Rank 100 additional proposals and select exactly 10 for bounded implementation.",
+  "selection_rules": [
+    "maximize expected information gain and user value",
+    "prefer low-risk, testable, cross-block improvements",
+    "reject proposals requiring fabricated or unavailable evidence",
+    "preserve fixed-24m OOS gate",
+    "no production mutation or trades"
+  ],
+  "required_output": [
+    "top_10",
+    "rejected_or_deferred_reasons",
+    "objections",
+    "acceptance_tests",
+    "provider_status"
+  ],
+  "baseline": {
+    "data_readiness": "blocked",
+    "benchmark_gate": "failed",
+    "production_readiness": "blocked",
+    "supabase": "connected"
+  },
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

@@ -7,7 +7,6 @@ Zero external dependencies. Graceful fallback on any error.
 
 import json
 import os
-from typing import Dict, Optional
 
 # ── Storage path (shared with gdrive_store.py) ──
 try:

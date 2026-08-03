@@ -11,10 +11,8 @@ Zero cost: Google Colab free tier provides T4 GPU.
 """
 
 import hashlib
-import json
 import os
 import time
-from datetime import datetime
 from typing import Dict, List, Optional, Any
 
 try:
@@ -147,7 +145,6 @@ def local_sobol_mc(
             diffusion = sigma_arr * np.sqrt(dt) * corr_Z[t]
             paths[t + 1] = paths[t] * np.exp(drift + diffusion)
 
-        worst = paths[1:].min(axis=1)  # worst-of across assets
         min_worst = paths[1:, :].min(axis=0).min()  # overall min of worst performer
 
         # Count coupons (simplified: coupon if worst > barrier at each obs)

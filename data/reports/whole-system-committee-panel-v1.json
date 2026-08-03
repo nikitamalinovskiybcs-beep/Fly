@@ -1,0 +1,157 @@
+{
+  "status": "completed",
+  "consensus_verdict": "revise",
+  "completed_providers": [
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:1.5b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:deepseek-r1:1.5b",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:llama3.2:1b",
+      "status": "error",
+      "reason": "review is missing a verdict",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:gemma3:1b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "deferred",
+      "reason": "HTTP 413",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "revise",
+        "summary": "The Phoenix system demonstrates a comprehensive architecture for trading strategy risk assessment, but it currently faces significant challenges in data readiness and empirical validation. The system is not yet ready for production due to unresolved issues with benchmark gates and the lack of validated settled notes. Improvements are necessary to ensure safety and reliability before any promotion to production.",
+        "top_technical_reasons": [
+          "Zero validated settled 24-month notes.",
+          "Zero verified BCS observations and quote-fit records.",
+          "All fixed-24-month candidate families fail the empirical baseline gate.",
+          "Production readiness is not yet independently approved."
+        ],
+        "candidate_safety": "The system is currently deemed unsafe for production due to the lack of empirical validation and unresolved health checks.",
+        "next_experiments": [
+          {
+            "hypothesis": "Improving data readiness will enhance the system's empirical validation.",
+            "change": "Implement a data validation pipeline to ensure all required data is available and accurate.",
+            "metric_gate": "Data readiness status must be 'ready' before proceeding.",
+            "why_it_is_informative": "This will help identify gaps in data collection and improve the overall reliability of the system."
+          },
+          {
+            "hypothesis": "Enhancing the benchmark gates will lead to better performance metrics.",
+            "change": "Revise the benchmark gates to include more stringent criteria for empirical validation.",
+            "metric_gate": "All benchmark gates must pass before the system can be considered for production.",
+            "why_it_is_informative": "This will ensure that only well-validated models are promoted, reducing risk."
+          }
+        ],
+        "data_or_label_risks": "There are significant risks related to data provenance and the potential for leakage, as the system currently lacks validated historical data.",
+        "strengths": [
+          "The architecture is well-structured and modular, allowing for easy updates and maintenance.",
+          "The use of self-learning agents indicates a forward-thinking approach to model improvement."
+        ],
+        "overall_score_0_to_100": 45,
+        "architecture_risks": [
+          "Insufficient empirical validation of models.",
+          "Lack of comprehensive data readiness checks."
+        ],
+        "prioritized_findings": [
+          {
+            "action": "REMOVE",
+            "component": "Any components relying on unvalidated data.",
+            "metric_gate": "N/A",
+            "priority": "P0",
+            "reason": "Unvalidated components could lead to erroneous trading decisions.",
+            "replacement": ""
+          },
+          {
+            "action": "ADD_TEST",
+            "component": "Data validation tests.",
+            "metric_gate": "Data readiness must be confirmed.",
+            "priority": "P1",
+            "reason": "To ensure that all necessary data is available and accurate before production.",
+            "replacement": ""
+          },
+          {
+            "action": "KEEP",
+            "component": "Self-learning agents.",
+            "metric_gate": "N/A",
+            "priority": "P2",
+            "reason": "They provide a robust mechanism for ongoing model improvement.",
+            "replacement": ""
+          }
+        ],
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

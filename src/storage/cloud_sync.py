@@ -12,6 +12,7 @@ import logging
 import os
 from datetime import datetime
 from typing import Any, Optional
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -19,15 +20,20 @@ logger = logging.getLogger(__name__)
 class CloudSync:
     """Sync critical data to Supabase PostgreSQL."""
 
-    def __init__(self) -> None:
-        self._url = os.getenv("SUPABASE_URL", "")
-        self._key = os.getenv("SUPABASE_KEY", "")
+    def __init__(self, url: str | None = None, key: str | None = None) -> None:
+        self._url = url if url is not None else os.getenv("SUPABASE_URL", "")
+        self._key = key if key is not None else os.getenv("SUPABASE_KEY", "")
         self._client = None
         self._enabled = False
         self._write_ready = False
         self._last_error: Optional[str] = None
 
         if self._url and self._key:
+            validation_error = self._validate_url(self._url)
+            if validation_error is not None:
+                self._last_error = validation_error
+                logger.warning("Supabase configuration rejected: %s", validation_error)
+                return
             try:
                 from supabase import create_client
                 self._client = create_client(self._url, self._key)
@@ -38,8 +44,8 @@ class CloudSync:
                 logger.info("supabase package not installed, cloud sync disabled")
             except Exception as exc:
                 self._client = None
-                self._last_error = str(exc)
-                logger.warning("Supabase health check failed: %s", exc)
+                self._last_error = self._sanitize_error(exc)
+                logger.warning("Supabase health check failed: %s", self._last_error)
 
     @property
     def enabled(self) -> bool:
@@ -55,6 +61,26 @@ class CloudSync:
     def last_error(self) -> Optional[str]:
         """Most recent cloud-sync error, if any."""
         return self._last_error
+
+    @staticmethod
+    def _validate_url(url: str) -> Optional[str]:
+        parsed = urlparse(url)
+        if parsed.scheme != "https":
+            return "invalid_endpoint_scheme"
+        if not parsed.hostname:
+            return "invalid_endpoint_host"
+        return None
+
+    @staticmethod
+    def _sanitize_error(error: Exception) -> str:
+        message = str(error)
+        if "Name or service not known" in message:
+            return "endpoint_dns_resolution_failed"
+        if "Temporary failure in name resolution" in message:
+            return "endpoint_dns_resolution_failed"
+        if "Max retries exceeded" in message:
+            return "supabase_request_failed"
+        return type(error).__name__
 
     def sync_trades(self, trades: list[dict]) -> int:
         """Sync trades to Supabase.

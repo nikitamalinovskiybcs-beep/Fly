@@ -1,0 +1,36 @@
+{
+  "verdict": "BLOCKED — EVIDENCE OR CONTROL GAPS",
+  "summary": "The Phoenix platform is not currently ready for production use due to significant gaps in evidence and compliance controls. It is classified as diagnostic software only, and there are multiple conditions that must be met before it can be considered for live product selection.",
+  "top_technical_reasons": [
+    "The platform lacks confirmed independent fixed-24m out-of-sample/paper evidence.",
+    "There is insufficient realized-note sample and outcome quality.",
+    "Timestamped, provenance-verified dealer quotes and quote-fit are not validated.",
+    "Independent model validation and human model-risk sign-off are required but not confirmed."
+  ],
+  "candidate_safety": "The platform is not safe for production use as it does not meet the necessary compliance and evidence requirements.",
+  "next_experiments": [
+    {
+      "hypothesis": "If independent fixed-24m out-of-sample evidence is confirmed, then the platform may be considered for production.",
+      "change": "Conduct independent validation of fixed-24m out-of-sample evidence.",
+      "metric_gate": "Confirmation of independent evidence.",
+      "why_it_is_informative": "This will determine if the platform can meet the empirical baseline required for promotion."
+    },
+    {
+      "hypothesis": "If the realized-note sample and outcome quality are improved, then the platform's readiness for production will increase.",
+      "change": "Enhance the collection of realized-note samples and improve outcome tracking.",
+      "metric_gate": "Quality assessment of realized-note samples.",
+      "why_it_is_informative": "This will provide insights into the platform's performance and reliability."
+    },
+    {
+      "hypothesis": "If timestamped, provenance-verified dealer quotes are validated, then the platform's compliance status will improve.",
+      "change": "Implement a system for validating dealer quotes with timestamp and provenance.",
+      "metric_gate": "Validation of dealer quotes.",
+      "why_it_is_informative": "This will ensure that the platform's outputs are based on reliable and verified data."
+    }
+  ],
+  "data_or_label_risks": "There are risks associated with presenting replay, paper results, synthetic paths, or provider estimates as independently realized market outcomes, which could mislead users.",
+  "provider": "openrouter",
+  "model": "openai/gpt-4o-mini",
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

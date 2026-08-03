@@ -1,0 +1,152 @@
+{
+  "status": "completed",
+  "consensus_verdict": "reject",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:7b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:deepseek-r1:7b",
+      "status": "skipped",
+      "reason": "Ollama is not running",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "All tested candidates fail to beat the empirical baseline at every fixed-24-month maturity anchor.",
+        "top_technical_reasons": [
+          "No candidate passes all anchors",
+          "Promotion blocked until one candidate passes all anchors"
+        ],
+        "candidate_safety": "Low",
+        "next_experiments": [
+          {
+            "hypothesis": "Adding settled 24-month Phoenix notes data improves realized loss calibration",
+            "change": "Add settled 24-month Phoenix notes data",
+            "metric_gate": "Brier and log-loss at all four anchors with ECE <= 0.05",
+            "why_it_is_informative": "To evaluate if adding settled 24-month Phoenix notes data improves model performance"
+          },
+          {
+            "hypothesis": "Adding timestamped observation-date underlying levels and barrier monitoring paths reduces path/payoff label error",
+            "change": "Add timestamped observation-date underlying levels and barrier monitoring paths",
+            "metric_gate": "Path/payoff label error reduction",
+            "why_it_is_informative": "To evaluate if adding timestamped observation-date underlying levels and barrier monitoring paths improves model accuracy"
+          }
+        ],
+        "data_or_label_risks": [
+          "Leakage or survivorship risks for each data source",
+          "Label error due to incomplete or inaccurate data"
+        ],
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "All tested candidates for the Phoenix model fail to meet the required empirical baseline at every fixed-24-month maturity anchor and do not satisfy the ECE gates. Therefore, none can be promoted to production.",
+        "top_technical_reasons": [
+          "All candidates failed to beat the fixed-24m baseline on Brier and log-loss at all four anchors.",
+          "None of the candidates achieved an ECE <= 0.05, which is a prerequisite for promotion.",
+          "The current evidence indicates that the model is still in the research phase and requires further data expansion and improvements."
+        ],
+        "candidate_safety": "High risk due to failure to meet baseline performance metrics.",
+        "next_experiments": [
+          {
+            "hypothesis": "Incorporating settled 24-month Phoenix notes will improve realized loss calibration.",
+            "change": "Add settled 24-month Phoenix notes data.",
+            "metric_gate": "Brier and log-loss performance at all four anchors.",
+            "why_it_is_informative": "This will help assess if the additional data can enhance the model's calibration and predictive accuracy."
+          },
+          {
+            "hypothesis": "Using timestamped observation-date underlying levels will reduce path/payoff label error.",
+            "change": "Integrate timestamped observation-date underlying levels and barrier monitoring paths.",
+            "metric_gate": "Reduction in path/payoff label error metrics.",
+            "why_it_is_informative": "This will provide insights into the model's ability to accurately predict outcomes based on historical data."
+          },
+          {
+            "hypothesis": "Incorporating timestamped IV, skew, tenor, and strike data will improve P(KI) versus realized baseline.",
+            "change": "Add timestamped IV, skew, tenor, and strike data.",
+            "metric_gate": "Improvement in P(KI) metrics.",
+            "why_it_is_informative": "This will help evaluate if the model can better predict key indicators with the new data."
+          },
+          {
+            "hypothesis": "Adding structured reason codes will help separate label regimes and reduce calibration drift.",
+            "change": "Include structured reason codes for KI, autocall miss, coupon loss, and early redemption.",
+            "metric_gate": "Improvement in calibration metrics.",
+            "why_it_is_informative": "This will allow for a better understanding of the factors affecting model performance and calibration."
+          }
+        ],
+        "data_or_label_risks": [
+          "Potential leakage or survivorship risks associated with the data sources.",
+          "Insufficient sample sizes for some candidates may lead to unreliable model performance.",
+          "Calibration drift may occur if the model does not adequately separate label regimes."
+        ],
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

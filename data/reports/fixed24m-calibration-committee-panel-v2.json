@@ -1,0 +1,139 @@
+{
+  "status": "completed",
+  "consensus_verdict": "reject",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:7b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:deepseek-r1:7b",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "No candidate beats the empirical baseline at every fixed-24-month maturity anchor.",
+        "top_technical_reasons": [
+          "No candidate passes all anchors",
+          "Promotion blocked until one candidate passes all anchors"
+        ],
+        "candidate_safety": "Low",
+        "next_experiments": [
+          {
+            "hypothesis": "Improving the model architecture will lead to better performance",
+            "change": "Try a different model architecture",
+            "metric_gate": "Brier score and log-loss at all four anchors",
+            "why_it_is_informative": "To determine if a different architecture can improve performance"
+          },
+          {
+            "hypothesis": "Increasing the training data will lead to better performance",
+            "change": "Add more training data",
+            "metric_gate": "Brier score and log-loss at all four anchors",
+            "why_it_is_informative": "To determine if more data can improve performance"
+          }
+        ],
+        "data_or_label_risks": "High",
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "Phoenix cannot be promoted as no candidate has passed the required benchmarks across all maturity anchors. All candidates have failed to beat the empirical baseline on Brier and log-loss at all four anchors, and the ECE values exceed the acceptable threshold.",
+        "top_technical_reasons": [
+          "No candidate has achieved a Brier score or log-loss that beats the empirical baseline across all maturity anchors.",
+          "All candidates have ECE values greater than the required threshold of 0.05.",
+          "Promotion is blocked until one candidate meets the criteria of beating the baseline on both Brier and log-loss at all four anchors."
+        ],
+        "candidate_safety": "All candidates are currently in a research-only phase and have not been tested in production, ensuring no immediate risk to operational safety.",
+        "next_experiments": [
+          {
+            "hypothesis": "Improving calibration techniques will reduce Brier scores across all maturity anchors.",
+            "change": "Implement advanced calibration methods on the candidates.",
+            "metric_gate": "Brier score must be below the empirical baseline at all maturity anchors.",
+            "why_it_is_informative": "This experiment will help determine if enhanced calibration can lead to better predictive performance."
+          },
+          {
+            "hypothesis": "Adjusting the model architecture will improve log-loss metrics.",
+            "change": "Modify the model architecture to include additional layers or different activation functions.",
+            "metric_gate": "Log-loss must be below the empirical baseline at all maturity anchors.",
+            "why_it_is_informative": "This will provide insights into the impact of architectural changes on model performance."
+          },
+          {
+            "hypothesis": "Reducing overfitting will improve ECE values.",
+            "change": "Introduce regularization techniques to the training process.",
+            "metric_gate": "ECE must be below 0.05 at all maturity anchors.",
+            "why_it_is_informative": "Understanding the relationship between overfitting and calibration will be crucial for future model improvements."
+          }
+        ],
+        "data_or_label_risks": "There are no immediate data or label risks identified, as the candidates are still in the research phase and have not been deployed in production.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

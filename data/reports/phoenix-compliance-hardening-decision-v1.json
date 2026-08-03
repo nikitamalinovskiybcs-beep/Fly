@@ -1,0 +1,60 @@
+{
+  "proposal_id": "phoenix-compliance-hardening-v1",
+  "decision": "NOW",
+  "committee_verdict": "REVISE",
+  "provider_reviews": [
+    {
+      "provider": "mistral",
+      "model": "mistral-small-latest",
+      "status": "completed",
+      "verdict": "revise",
+      "summary": "Document limitations, bias, and evidence blockers explicitly."
+    },
+    {
+      "provider": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "status": "completed",
+      "verdict": "approve",
+      "summary": "The bounded readiness controls preserve weights and verdicts."
+    },
+    {
+      "provider": "openrouter",
+      "model": "openai/gpt-4o-mini",
+      "status": "completed",
+      "verdict": "revise",
+      "summary": "Strengthen human-review processes and retain current blockers."
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen2.5:1.5b",
+      "status": "completed",
+      "verdict": "reject",
+      "summary": "Advisory disagreement preserved; no missing vote is treated as approval."
+    }
+  ],
+  "implementation_files": [
+    "src/commercial_readiness.py",
+    "app.py"
+  ],
+  "changes": [
+    "Commercial readiness now exposes human_review_required=true.",
+    "Legal, regulatory, and compliance approval are explicitly false.",
+    "Blocked claims and conditions precedent are machine-readable.",
+    "The UI displays that readiness is not a legal, regulatory, suitability, or compliance approval."
+  ],
+  "baseline": {
+    "readiness_contract": "status and allowed/blocked claim strings only"
+  },
+  "target": {
+    "readiness_contract": "status, claim policy, blockers, conditions, and approval boundaries"
+  },
+  "observed_metric": {
+    "quantitative_outputs_changed": false,
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "human_review_required": true,
+  "legal_or_regulatory_approval": false,
+  "next_experiment": "Obtain independent evidence and human sign-off for each production-readiness block."
+}

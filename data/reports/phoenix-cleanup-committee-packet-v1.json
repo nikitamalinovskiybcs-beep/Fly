@@ -1,0 +1,201 @@
+{
+  "review_type": "phoenix_cleanup_audit",
+  "scope": "Audit the 15 Streamlit sections and first implementation batch for redundant or result-neutral code.",
+  "sections": [
+    {
+      "index": 0,
+      "name": "AUDIT MAP",
+      "line": 507,
+      "purpose": "lineage and process map"
+    },
+    {
+      "index": 1,
+      "name": "MODEL BASIS",
+      "line": 510,
+      "purpose": "formula, assumptions, evidence"
+    },
+    {
+      "index": 2,
+      "name": "SCORE DECOMPOSITION",
+      "line": 602,
+      "purpose": "factor explanation"
+    },
+    {
+      "index": 3,
+      "name": "BASKET",
+      "line": 663,
+      "purpose": "basket composition and sectors"
+    },
+    {
+      "index": 4,
+      "name": "P(KI) ANALYSIS",
+      "line": 704,
+      "purpose": "KI probability methods"
+    },
+    {
+      "index": 5,
+      "name": "STRESS TEST",
+      "line": 730,
+      "purpose": "stress scenarios"
+    },
+    {
+      "index": 6,
+      "name": "BACKTEST",
+      "line": 755,
+      "purpose": "historical validation"
+    },
+    {
+      "index": 7,
+      "name": "SELF-LEARNING",
+      "line": 791,
+      "purpose": "learning metrics"
+    },
+    {
+      "index": 8,
+      "name": "ALTERNATIVES",
+      "line": 826,
+      "purpose": "candidate alternatives"
+    },
+    {
+      "index": 9,
+      "name": "MARKET",
+      "line": 877,
+      "purpose": "dealer and market risk"
+    },
+    {
+      "index": 10,
+      "name": "AGENTS",
+      "line": 930,
+      "purpose": "agent health and decision"
+    },
+    {
+      "index": 11,
+      "name": "BASKET SCORING",
+      "line": 1015,
+      "purpose": "buy-side scoring"
+    },
+    {
+      "index": 12,
+      "name": "PAPER TRADING",
+      "line": 1100,
+      "purpose": "paper signals only"
+    },
+    {
+      "index": 13,
+      "name": "DATA & STORAGE",
+      "line": 1161,
+      "purpose": "database/cloud/backup"
+    },
+    {
+      "index": 14,
+      "name": "BEST STRUCTURED PRODUCT",
+      "line": 1200,
+      "purpose": "universe search"
+    },
+    {
+      "index": 15,
+      "name": "NOTE OUTCOMES",
+      "line": 1285,
+      "purpose": "simulation/stress/realized learning"
+    },
+    {
+      "index": 16,
+      "name": "API & CONNECTIONS",
+      "line": 1384,
+      "purpose": "health and setup"
+    }
+  ],
+  "relevant_files": [
+    "app.py",
+    "src/precompute.py",
+    "src/buyside.py",
+    "src/structured_product.py",
+    "src/self_learning_agents.py",
+    "src/outcome_engine.py",
+    "src/phoenix_engine.py",
+    "src/data_module.py",
+    "src/storage/",
+    "tests/"
+  ],
+  "candidate_cleanup_findings": [
+    {
+      "file": "src/buyside.py",
+      "line": 256,
+      "item": "unused buyside_adj parameter",
+      "evidence": "ruff ARG001",
+      "risk": "low"
+    },
+    {
+      "file": "src/buyside.py",
+      "line": 304,
+      "item": "unused corr_matrix and universe parameters",
+      "evidence": "ruff ARG001",
+      "risk": "medium because public API may be relied on"
+    },
+    {
+      "file": "src/precompute.py",
+      "line": 718,
+      "item": "unused ch_data parameter",
+      "evidence": "ruff ARG001",
+      "risk": "medium"
+    },
+    {
+      "file": "src/precompute.py",
+      "line": 884,
+      "item": "unused yf_data and basket parameters",
+      "evidence": "ruff ARG001",
+      "risk": "medium"
+    },
+    {
+      "file": "src/precompute.py",
+      "line": 954,
+      "item": "unused basket parameter",
+      "evidence": "ruff ARG001",
+      "risk": "medium"
+    },
+    {
+      "file": "src/precompute.py",
+      "line": 1067,
+      "item": "unused n_results parameter",
+      "evidence": "ruff ARG001",
+      "risk": "medium"
+    },
+    {
+      "file": "src/precompute.py",
+      "line": 2322,
+      "item": "unused self_learning parameter",
+      "evidence": "ruff ARG001",
+      "risk": "high because learning behavior may be implied"
+    },
+    {
+      "file": "src/self_learning_agents.py",
+      "line": 174,
+      "item": "unused returns_60d parameter",
+      "evidence": "ruff ARG002",
+      "risk": "high because regime model interface"
+    },
+    {
+      "file": "src/self_learning_agents.py",
+      "line": 276,
+      "item": "unused tickers and yf_data parameters",
+      "evidence": "ruff ARG002",
+      "risk": "high because agent contract"
+    }
+  ],
+  "success_criteria": [
+    "No deletion without usage search and regression test evidence",
+    "Phoenix outputs and safety flags unchanged on a frozen fixture",
+    "Ruff ARG findings reduced only where API compatibility is preserved",
+    "15 sections remain understandable and connected to measurable results",
+    "No production weights, verdicts or trades changed"
+  ],
+  "constraints": {
+    "replay_is_not_realized": true,
+    "synthetic_data_is_not_independent_evidence": true,
+    "ai_may_not_change_production": true,
+    "ai_may_not_create_trades": true,
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "reviewer_name": "Jane Doe",
+  "timestamp": "2023-10-05T14:37:46Z",
+  "actions": [
+    {
+      "action_type": "approve",
+      "comment": "The proposal maintains high standards and is clear, adhering to the review guidelines."
+    }
+  ],
+  "verdict": "approved",
+  "details": "The compliance description meets all specified requirements without compromising on transparency or accuracy.",
+  "technical_details": {
+    "evidence_classes": [
+      "model validation",
+      "risk assessment"
+    ],
+    "blocker_conditions": [
+      "missing evidence gate verification"
+    ],
+    "human_approvals": [
+      "for production use"
+    ]
+  },
+  "notes": [
+    "The proposal ensures that all required conditions for compliance are met, including evidence gates and human approvals. The overview is clear and does not contain unsupported or promotional language."
+  ],
+  "provider": "ollama",
+  "model": "qwen2.5:1.5b",
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

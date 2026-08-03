@@ -12,9 +12,8 @@ Safety: NEVER saves weights that reduce accuracy or win rate below 75%.
 
 import json
 import os
-import time
 import numpy as np
-from typing import Dict, List, Tuple
+from typing import Dict, List
 from datetime import datetime
 
 
@@ -28,7 +27,6 @@ def run_full_improvement_cycle() -> Dict:
         _score_one_note,
         _compute_accuracy,
         _compute_precision_at_threshold,
-        _DEFAULT_SCORING_WEIGHTS,
     )
     from src.real_data import SETTLED_NOTES
 
@@ -127,7 +125,7 @@ def run_full_improvement_cycle() -> Dict:
 
 def _search_feature_interactions(w: Dict, data: List) -> Dict:
     """Test if interaction features (vol*corr, pki*term, etc.) improve accuracy."""
-    from src.precompute import _compute_accuracy, _score_one_note, _run_momentum_sgd
+    from src.precompute import _compute_accuracy
 
     base_acc = _compute_accuracy(w, data)
 
@@ -198,7 +196,6 @@ def _hyperparameter_sweep(w: Dict, data: List) -> Dict:
     threshold_results = []
     for thr in [60, 65, 70, 75, 80]:
         wr = _compute_precision_at_threshold(w, data, threshold=float(thr))
-        n_recommended = sum(1 for t, ty, _ in data if _compute_accuracy(w, [(t, ty, 90)]) > 0)
         threshold_results.append({
             "threshold": thr,
             "win_rate": round(wr, 1),

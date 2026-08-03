@@ -1,0 +1,152 @@
+{
+  "status": "completed",
+  "consensus_verdict": "reject",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:1.5b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:llama3.2:1b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:gemma3:1b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "Phoenix calculator and operating system comparative audit reveals significant gaps and blocked components, including unverified BCS observations, missing real settled labels, and limited resources.",
+        "top_technical_reasons": [
+          "unverified BCS observations",
+          "missing real settled labels",
+          "limited resources (8GB RAM limits concurrent judges)",
+          "no verified settled Phoenix outcomes"
+        ],
+        "candidate_safety": "low",
+        "next_experiments": [
+          {
+            "hypothesis": "Collecting verified settled 24m notes will improve the calculator's accuracy.",
+            "change": "Collect and integrate verified settled 24m notes.",
+            "metric_gate": "Fixed-24m benchmark candidates pass promotion gate.",
+            "why_it_is_informative": "This experiment will help determine if the lack of verified settled notes is a significant contributor to the calculator's inaccuracy."
+          },
+          {
+            "hypothesis": "Adding a fact-check gate for committee claims will improve the reliability of the calculator.",
+            "change": "Implement a fact-check gate for committee claims.",
+            "metric_gate": "Number of false or unverified claims decreases.",
+            "why_it_is_informative": "This experiment will help determine if the addition of a fact-check gate can improve the reliability of the calculator by reducing the number of false or unverified claims."
+          }
+        ],
+        "data_or_label_risks": [
+          "unverified BCS observations",
+          "missing real settled labels",
+          "limited resources (8GB RAM limits concurrent judges)"
+        ],
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "Phoenix is currently in a research-only phase with significant gaps in dealer calibration and evidence provenance. The lack of verified observations and settled outcomes raises concerns about its reliability and safety for production use.",
+        "top_technical_reasons": [
+          "No verified BCS observations available for dealer calibration.",
+          "Zero settled outcomes from the two-year evidence audit despite 107 quotes.",
+          "Fixed-24m OOS candidates failed the baseline promotion gate."
+        ],
+        "candidate_safety": "The safety and governance measures are strong, but mandatory fact-checking is required to ensure reliability.",
+        "next_experiments": [
+          {
+            "hypothesis": "Collecting verified settled 24m notes will improve evidence reliability.",
+            "change": "Initiate a process to gather and verify settled notes.",
+            "metric_gate": "Increase in the number of verified settled notes.",
+            "why_it_is_informative": "This will provide a clearer picture of the model's performance and reliability."
+          },
+          {
+            "hypothesis": "Capturing timestamped BCS Capital quotes will enhance observation paths.",
+            "change": "Implement a system for capturing and linking BCS Capital quotes.",
+            "metric_gate": "Number of timestamped quotes captured and linked.",
+            "why_it_is_informative": "This will help in understanding the context and reliability of the quotes used."
+          },
+          {
+            "hypothesis": "Adding a fact-check gate for committee claims will improve governance.",
+            "change": "Introduce a mandatory fact-checking process for all committee claims.",
+            "metric_gate": "Reduction in unsupported claims made by the committee.",
+            "why_it_is_informative": "This will enhance the credibility of the committee's outputs."
+          }
+        ],
+        "data_or_label_risks": "The absence of settled labels and verified observations poses a significant risk to the integrity of the data used in Phoenix.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

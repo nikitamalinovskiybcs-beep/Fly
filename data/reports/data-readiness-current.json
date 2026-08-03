@@ -1,0 +1,144 @@
+{
+  "schema_version": "data-readiness-v1",
+  "status": "blocked",
+  "sources": {
+    "settled_24m_notes": {
+      "status": "blocked",
+      "rows": 0,
+      "valid_rows": 0,
+      "invalid_rows": 0,
+      "required_fields": [
+        "note_id",
+        "basket",
+        "as_of",
+        "maturity_date",
+        "outcome_type",
+        "observations"
+      ]
+    },
+    "observation_paths": {
+      "status": "blocked",
+      "rows": 0,
+      "valid_rows": 0,
+      "invalid_rows": 0,
+      "required_fields": [
+        "ticker",
+        "observation_timestamp",
+        "level",
+        "source"
+      ]
+    },
+    "bcs_capital_quotes": {
+      "status": "blocked",
+      "rows": 0,
+      "valid_rows": 0,
+      "invalid_rows": 0,
+      "required_fields": [
+        "quote_id",
+        "quote_timestamp",
+        "basket",
+        "barrier",
+        "coupon_pa"
+      ]
+    },
+    "iv_surfaces": {
+      "status": "blocked",
+      "rows": 0,
+      "valid_rows": 0,
+      "invalid_rows": 0,
+      "required_fields": [
+        "ticker",
+        "as_of",
+        "strike",
+        "tenor",
+        "iv"
+      ]
+    },
+    "alternative_features": {
+      "status": "blocked",
+      "rows": 0,
+      "valid_rows": 0,
+      "invalid_rows": 0,
+      "required_fields": [
+        "feature_id",
+        "ticker",
+        "feature_timestamp",
+        "source",
+        "license_status"
+      ]
+    }
+  },
+  "blockers": [
+    "settled_24m_notes",
+    "observation_paths",
+    "bcs_capital_quotes",
+    "iv_surfaces",
+    "alternative_features"
+  ],
+  "next_action": "collect_missing_evidence",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false,
+  "priority_order": [
+    {
+      "id": "settled_24m_notes",
+      "information_gain": 10,
+      "feasibility": 8,
+      "safety": 10,
+      "cost": 2,
+      "priority_score": 4.7,
+      "decision": "research_only",
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "id": "observation_paths",
+      "information_gain": 9,
+      "feasibility": 7,
+      "safety": 9,
+      "cost": 3,
+      "priority_score": 2.8,
+      "decision": "research_only",
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "id": "bcs_capital_quotes",
+      "information_gain": 9,
+      "feasibility": 5,
+      "safety": 9,
+      "cost": 4,
+      "priority_score": 1.95,
+      "decision": "research_only",
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "id": "iv_surfaces",
+      "information_gain": 8,
+      "feasibility": 5,
+      "safety": 8,
+      "cost": 5,
+      "priority_score": 1.42,
+      "decision": "research_only",
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "id": "alternative_features",
+      "information_gain": 7,
+      "feasibility": 3,
+      "safety": 6,
+      "cost": 8,
+      "priority_score": 0.7,
+      "decision": "research_only",
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    }
+  ]
+}

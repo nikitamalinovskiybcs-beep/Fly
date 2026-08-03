@@ -12,7 +12,6 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from src.autopilot.models import (
     AlertLevel,
@@ -119,7 +118,6 @@ class AutopilotReporter:
         Returns:
             Formatted weekly report string.
         """
-        import numpy as np
         week_pnl = sum(t.get("pnl", 0) for t in trades[-50:])
         total_trades = len(trades)
         wins = sum(1 for t in trades[-50:] if t.get("pnl", 0) > 0)

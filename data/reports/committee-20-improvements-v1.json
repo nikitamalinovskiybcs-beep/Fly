@@ -1,0 +1,60 @@
+{
+  "schema_version": "committee-20-improvements-v1",
+  "status": "research_implementation_plan",
+  "selection_objective": "Improve early-autocall selection while preserving fixed-24m evidence gates.",
+  "implemented_in_this_cycle": [
+    "source_and_as_of_market_observation_gate",
+    "future_and_stale_observation_rejection",
+    "deterministic_snapshot_hash",
+    "payoff_cashflow_bounds",
+    "autocall_rate_and_first_observation_metrics",
+    "evidence_partition",
+    "fixed_24m_anchor_presence_gate",
+    "immutable_safety_flags",
+    "correlation_positive_semidefinite_gate",
+    "worst_of_driver_report",
+    "dealer_quote_fit_gate",
+    "confidence_interval_helper",
+    "monte_carlo_convergence_summary",
+    "basket_symbol_completeness_gate",
+    "observation_schedule_gate",
+    "feature_lineage_record",
+    "seed_sensitivity_report",
+    "parameter_sensitivity_grid",
+    "agent_evidence_schema_gate",
+    "payoff_monotonicity_contract"
+  ],
+  "prioritized_20": [
+    "formalize observation-date semantics",
+    "test coupon memory after missed observations",
+    "test coupon eligibility on autocall dates",
+    "test first-autocall termination",
+    "test discrete versus contractual barrier monitoring",
+    "add barrier-crossing research candidate",
+    "add payoff conservation checks",
+    "add Monte Carlo convergence curves",
+    "add common random numbers for candidate comparisons",
+    "add seed-sensitivity reports",
+    "validate positive-definite correlation inputs",
+    "stress downside correlation",
+    "compare terminal and path worst-of",
+    "report the asset driving worst-of risk",
+    "add dealer quote-fit as a separate gate",
+    "require source and as_of on market observations",
+    "reject future and stale prices",
+    "persist feature lineage and snapshot hashes",
+    "partition realized, replay, simulation and stress evidence",
+    "rank candidates by early-autocall probability with fixed-24m OOS"
+  ],
+  "promotion_rules": [
+    "no simulated result is called realized",
+    "all four fixed-24m anchors remain required",
+    "committee proposals require code and acceptance tests",
+    "production weights, verdicts and trades remain immutable"
+  ],
+  "safety": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

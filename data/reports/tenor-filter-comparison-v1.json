@@ -1,0 +1,140 @@
+{
+  "schema_version": "tenor-filter-comparison-v1",
+  "decision": "keep_fixed_24m_gate",
+  "research_mode": "mixed_tenor_auxiliary_only",
+  "reason": "Removing the filter would change the target product and could hide fixed-24m failure.",
+  "fixed_24m": {
+    "product_term_months": 24,
+    "promotion_gate": {
+      "eligible": false,
+      "required": "one candidate must beat baseline on Brier and log-loss at all four anchors with ECE <= 0.05",
+      "reason": "promotion blocked until one candidate passes all anchors"
+    },
+    "anchor_months": [
+      6,
+      12,
+      18,
+      24
+    ],
+    "anchors": {
+      "6": {
+        "baskets_replayed": 98,
+        "metrics": {
+          "brier": 0.198773,
+          "log_loss": 0.574989,
+          "ece": 0.329362,
+          "empirical_baseline_brier": 0.057476,
+          "empirical_baseline_log_loss": 0.230324,
+          "empirical_baseline_ece": 0.0,
+          "brier_vs_baseline_pct": -245.84,
+          "mean_predicted_loss": 0.390587,
+          "mean_observed_loss": 0.061224
+        },
+        "calibrated_metrics": {
+          "brier": 0.139771,
+          "log_loss": 0.445368,
+          "ece": 0.22449,
+          "empirical_baseline_brier": 0.057476,
+          "empirical_baseline_log_loss": 0.230324,
+          "empirical_baseline_ece": 0.0,
+          "brier_vs_baseline_pct": -143.18,
+          "mean_predicted_loss": 0.285714,
+          "mean_observed_loss": 0.061224
+        }
+      },
+      "12": {
+        "baskets_replayed": 98,
+        "metrics": {
+          "brier": 0.215685,
+          "log_loss": 0.618902,
+          "ece": 0.308591,
+          "empirical_baseline_brier": 0.083403,
+          "empirical_baseline_log_loss": 0.306767,
+          "empirical_baseline_ece": 0.0,
+          "brier_vs_baseline_pct": -158.61,
+          "mean_predicted_loss": 0.390587,
+          "mean_observed_loss": 0.091837
+        },
+        "calibrated_metrics": {
+          "brier": 0.215685,
+          "log_loss": 0.618902,
+          "ece": 0.308591,
+          "empirical_baseline_brier": 0.083403,
+          "empirical_baseline_log_loss": 0.306767,
+          "empirical_baseline_ece": 0.0,
+          "brier_vs_baseline_pct": -158.61,
+          "mean_predicted_loss": 0.390587,
+          "mean_observed_loss": 0.091837
+        }
+      },
+      "18": {
+        "baskets_replayed": 98,
+        "metrics": {
+          "brier": 0.212185,
+          "log_loss": 0.610598,
+          "ece": 0.29875,
+          "empirical_baseline_brier": 0.083403,
+          "empirical_baseline_log_loss": 0.306767,
+          "empirical_baseline_ece": 0.0,
+          "brier_vs_baseline_pct": -154.41,
+          "mean_predicted_loss": 0.390587,
+          "mean_observed_loss": 0.091837
+        },
+        "calibrated_metrics": {
+          "brier": 0.212185,
+          "log_loss": 0.610598,
+          "ece": 0.29875,
+          "empirical_baseline_brier": 0.083403,
+          "empirical_baseline_log_loss": 0.306767,
+          "empirical_baseline_ece": 0.0,
+          "brier_vs_baseline_pct": -154.41,
+          "mean_predicted_loss": 0.390587,
+          "mean_observed_loss": 0.091837
+        }
+      },
+      "24": {
+        "baskets_replayed": 98,
+        "metrics": {
+          "brier": 0.21486,
+          "log_loss": 0.614074,
+          "ece": 0.34464,
+          "empirical_baseline_brier": 0.057476,
+          "empirical_baseline_log_loss": 0.230324,
+          "empirical_baseline_ece": 0.0,
+          "brier_vs_baseline_pct": -273.83,
+          "mean_predicted_loss": 0.390587,
+          "mean_observed_loss": 0.061224
+        },
+        "calibrated_metrics": {
+          "brier": 0.21486,
+          "log_loss": 0.614074,
+          "ece": 0.34464,
+          "empirical_baseline_brier": 0.057476,
+          "empirical_baseline_log_loss": 0.230324,
+          "empirical_baseline_ece": 0.0,
+          "brier_vs_baseline_pct": -273.83,
+          "mean_predicted_loss": 0.390587,
+          "mean_observed_loss": 0.061224
+        }
+      }
+    }
+  },
+  "mixed_tenor_policy": {
+    "allowed_for": "auxiliary research, feature diagnostics, sample-size analysis",
+    "not_allowed_for": "replacing fixed-24m OOS labels or promotion gate",
+    "required_comparison": "mixed-tenor result must be reported beside fixed-24m result"
+  },
+  "committee_verdict": "reject_filter_removal",
+  "committee_completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "evidence_limits": {
+    "settled_24m_notes": 0,
+    "verified_bcs_observations": 0,
+    "quote_rows_24m": 107
+  },
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

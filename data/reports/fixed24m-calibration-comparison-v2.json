@@ -1,0 +1,328 @@
+{
+  "status": "research_only",
+  "source_report": "multi_horizon_benchmark_v2.json",
+  "product_term_months": 24,
+  "candidates": {
+    "raw": {
+      "status": "research_only",
+      "anchor_count": 4,
+      "anchors": [
+        {
+          "anchor_months": 6,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 12,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 18,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 24,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        }
+      ],
+      "bcs_quote_fit": null,
+      "promotion_gate": false,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    "calibrated": {
+      "status": "research_only",
+      "anchor_count": 4,
+      "anchors": [
+        {
+          "anchor_months": 6,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 12,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 18,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 24,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        }
+      ],
+      "bcs_quote_fit": null,
+      "promotion_gate": false,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    "quant": {
+      "status": "research_only",
+      "anchor_count": 4,
+      "anchors": [
+        {
+          "anchor_months": 6,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 12,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 18,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 24,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        }
+      ],
+      "bcs_quote_fit": null,
+      "promotion_gate": false,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    "duration_transfer": {
+      "status": "research_only",
+      "anchor_count": 4,
+      "anchors": [
+        {
+          "anchor_months": 6,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 12,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 18,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 24,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        }
+      ],
+      "bcs_quote_fit": null,
+      "promotion_gate": false,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    "path_quant": {
+      "status": "research_only",
+      "anchor_count": 4,
+      "anchors": [
+        {
+          "anchor_months": 6,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 12,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 18,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 24,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        }
+      ],
+      "bcs_quote_fit": null,
+      "promotion_gate": false,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    "regime_quant": {
+      "status": "research_only",
+      "anchor_count": 4,
+      "anchors": [
+        {
+          "anchor_months": 6,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 12,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 18,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        },
+        {
+          "anchor_months": 24,
+          "model_brier": null,
+          "baseline_brier": null,
+          "model_log_loss": null,
+          "baseline_log_loss": null,
+          "model_ece": null,
+          "baseline_ece": null,
+          "beats_brier": false
+        }
+      ],
+      "bcs_quote_fit": null,
+      "promotion_gate": false,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    }
+  },
+  "bcs_capital_quote_fit": {
+    "status": "blocked_missing_observation",
+    "dealer": "BCS Capital",
+    "required_fields": [
+      "quote_timestamp",
+      "basket",
+      "barrier",
+      "term_months",
+      "coupon_pa"
+    ],
+    "evidence_only": true
+  },
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

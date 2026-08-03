@@ -1,0 +1,1626 @@
+{
+  "review_type": "phoenix_improvement_brainstorm",
+  "catalog_version": "v3",
+  "objective": "Generate 100 additional improvements beyond prior catalogs, then shortlist ten.",
+  "count": 100,
+  "categories": {
+    "data_contracts": 10,
+    "payoff_autocall": 10,
+    "risk": 10,
+    "calibration_oos": 10,
+    "basket_selection": 10,
+    "agents_learning": 10,
+    "committee_governance": 10,
+    "storage_production": 10,
+    "ui_decision_support": 10,
+    "validation_research": 10
+  },
+  "constraints": [
+    "AI recommendations are research input, not market evidence",
+    "do not fabricate notes, quotes, outcomes, votes or consensus",
+    "do not change production weights, live verdicts or trades",
+    "fixed-24m OOS remains the promotion safety gate"
+  ],
+  "proposals": [
+    {
+      "id": "phoenix-201",
+      "category": "data_contracts",
+      "title": "Add source reliability scores per field",
+      "change": "Add source reliability scores per field",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-202",
+      "category": "data_contracts",
+      "title": "Validate timezone normalization at ingestion",
+      "change": "Validate timezone normalization at ingestion",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-203",
+      "category": "data_contracts",
+      "title": "Detect duplicate observations across providers",
+      "change": "Detect duplicate observations across providers",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-204",
+      "category": "data_contracts",
+      "title": "Store corporate-action adjustment provenance",
+      "change": "Store corporate-action adjustment provenance",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-205",
+      "category": "data_contracts",
+      "title": "Add stale-field quarantine instead of row-level masking",
+      "change": "Add stale-field quarantine instead of row-level masking",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-206",
+      "category": "data_contracts",
+      "title": "Version ticker aliases and corporate identifiers",
+      "change": "Version ticker aliases and corporate identifiers",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-207",
+      "category": "data_contracts",
+      "title": "Track market-close calendar mismatches",
+      "change": "Track market-close calendar mismatches",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-208",
+      "category": "data_contracts",
+      "title": "Add missingness pattern diagnostics by provider",
+      "change": "Add missingness pattern diagnostics by provider",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-209",
+      "category": "data_contracts",
+      "title": "Require immutable raw payload hashes",
+      "change": "Require immutable raw payload hashes",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-210",
+      "category": "data_contracts",
+      "title": "Add human review queue for disputed facts",
+      "change": "Add human review queue for disputed facts",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-211",
+      "category": "payoff_autocall",
+      "title": "Model observation-date timezone and holiday conventions",
+      "change": "Model observation-date timezone and holiday conventions",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-212",
+      "category": "payoff_autocall",
+      "title": "Separate autocall trigger from coupon trigger semantics",
+      "change": "Separate autocall trigger from coupon trigger semantics",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-213",
+      "category": "payoff_autocall",
+      "title": "Add coupon memory state transition tests",
+      "change": "Add coupon memory state transition tests",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-214",
+      "category": "payoff_autocall",
+      "title": "Test partial-period accrual at early redemption",
+      "change": "Test partial-period accrual at early redemption",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-215",
+      "category": "payoff_autocall",
+      "title": "Support issuer-specific call schedules",
+      "change": "Support issuer-specific call schedules",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-216",
+      "category": "payoff_autocall",
+      "title": "Add payoff monotonicity tests for every term",
+      "change": "Add payoff monotonicity tests for every term",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-217",
+      "category": "payoff_autocall",
+      "title": "Report first-call hazard by observation date",
+      "change": "Report first-call hazard by observation date",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-218",
+      "category": "payoff_autocall",
+      "title": "Decompose expected return by coupon and redemption state",
+      "change": "Decompose expected return by coupon and redemption state",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-219",
+      "category": "payoff_autocall",
+      "title": "Add barrier touch versus barrier close distinction",
+      "change": "Add barrier touch versus barrier close distinction",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-220",
+      "category": "payoff_autocall",
+      "title": "Validate participation cap and floor semantics",
+      "change": "Validate participation cap and floor semantics",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-221",
+      "category": "risk",
+      "title": "Add jump-to-default stress for single names",
+      "change": "Add jump-to-default stress for single names",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-222",
+      "category": "risk",
+      "title": "Model overnight gap risk separately from diffusion",
+      "change": "Model overnight gap risk separately from diffusion",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-223",
+      "category": "risk",
+      "title": "Add liquidity liquidation haircut scenarios",
+      "change": "Add liquidity liquidation haircut scenarios",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-224",
+      "category": "risk",
+      "title": "Stress correlation to crisis-floor and crisis-spike states",
+      "change": "Stress correlation to crisis-floor and crisis-spike states",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-225",
+      "category": "risk",
+      "title": "Add dividend-cut and special-dividend scenarios",
+      "change": "Add dividend-cut and special-dividend scenarios",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-226",
+      "category": "risk",
+      "title": "Estimate wrong-way risk between volatility and correlation",
+      "change": "Estimate wrong-way risk between volatility and correlation",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-227",
+      "category": "risk",
+      "title": "Add issuer credit spread sensitivity",
+      "change": "Add issuer credit spread sensitivity",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-228",
+      "category": "risk",
+      "title": "Report risk contribution by payoff state",
+      "change": "Report risk contribution by payoff state",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-229",
+      "category": "risk",
+      "title": "Add scenario ranking by expected loss contribution",
+      "change": "Add scenario ranking by expected loss contribution",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-230",
+      "category": "risk",
+      "title": "Track model-risk reserve for unsupported assumptions",
+      "change": "Track model-risk reserve for unsupported assumptions",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-231",
+      "category": "calibration_oos",
+      "title": "Add nested walk-forward calibration",
+      "change": "Add nested walk-forward calibration",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-232",
+      "category": "calibration_oos",
+      "title": "Use blocked bootstrap confidence intervals",
+      "change": "Use blocked bootstrap confidence intervals",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-233",
+      "category": "calibration_oos",
+      "title": "Add calibration transfer test across basket sizes",
+      "change": "Add calibration transfer test across basket sizes",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-234",
+      "category": "calibration_oos",
+      "title": "Track calibration sample effective size",
+      "change": "Track calibration sample effective size",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-235",
+      "category": "calibration_oos",
+      "title": "Add probability clipping audit",
+      "change": "Add probability clipping audit",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-236",
+      "category": "calibration_oos",
+      "title": "Compare isotonic and Platt calibration out of sample",
+      "change": "Compare isotonic and Platt calibration out of sample",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-237",
+      "category": "calibration_oos",
+      "title": "Add anchor-specific calibration stability bands",
+      "change": "Add anchor-specific calibration stability bands",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-238",
+      "category": "calibration_oos",
+      "title": "Require calibration degradation alerts",
+      "change": "Require calibration degradation alerts",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-239",
+      "category": "calibration_oos",
+      "title": "Separate label delay from model error",
+      "change": "Separate label delay from model error",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-240",
+      "category": "calibration_oos",
+      "title": "Add reproducible benchmark manifest per run",
+      "change": "Add reproducible benchmark manifest per run",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-241",
+      "category": "basket_selection",
+      "title": "Penalize common earnings-week concentration",
+      "change": "Penalize common earnings-week concentration",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-242",
+      "category": "basket_selection",
+      "title": "Add event-calendar overlap score",
+      "change": "Add event-calendar overlap score",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-243",
+      "category": "basket_selection",
+      "title": "Limit single-factor exposure in candidate baskets",
+      "change": "Limit single-factor exposure in candidate baskets",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-244",
+      "category": "basket_selection",
+      "title": "Add pairwise crash co-occurrence score",
+      "change": "Add pairwise crash co-occurrence score",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-245",
+      "category": "basket_selection",
+      "title": "Prefer basket substitutions with matched volatility",
+      "change": "Prefer basket substitutions with matched volatility",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-246",
+      "category": "basket_selection",
+      "title": "Add liquidity-weighted basket feasibility",
+      "change": "Add liquidity-weighted basket feasibility",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-247",
+      "category": "basket_selection",
+      "title": "Score index constituents separately from single names",
+      "change": "Score index constituents separately from single names",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-248",
+      "category": "basket_selection",
+      "title": "Add country and revenue exposure caps",
+      "change": "Add country and revenue exposure caps",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-249",
+      "category": "basket_selection",
+      "title": "Rank baskets by autocall hazard per unit coupon",
+      "change": "Rank baskets by autocall hazard per unit coupon",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-250",
+      "category": "basket_selection",
+      "title": "Add dealer inventory concentration as a research feature",
+      "change": "Add dealer inventory concentration as a research feature",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-251",
+      "category": "agents_learning",
+      "title": "Add per-agent ablation registry",
+      "change": "Add per-agent ablation registry",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-252",
+      "category": "agents_learning",
+      "title": "Measure agent correlation and signal overlap",
+      "change": "Measure agent correlation and signal overlap",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-253",
+      "category": "agents_learning",
+      "title": "Require agent output lineage and timestamp",
+      "change": "Require agent output lineage and timestamp",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-254",
+      "category": "agents_learning",
+      "title": "Add stale-agent output rejection",
+      "change": "Add stale-agent output rejection",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-255",
+      "category": "agents_learning",
+      "title": "Add champion-challenger agent reports",
+      "change": "Add champion-challenger agent reports",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-256",
+      "category": "agents_learning",
+      "title": "Cap online-learning update magnitude",
+      "change": "Cap online-learning update magnitude",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-257",
+      "category": "agents_learning",
+      "title": "Add rollback snapshots for learned parameters",
+      "change": "Add rollback snapshots for learned parameters",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-258",
+      "category": "agents_learning",
+      "title": "Separate research agent votes from scoring features",
+      "change": "Separate research agent votes from scoring features",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-259",
+      "category": "agents_learning",
+      "title": "Detect agent disagreement clusters",
+      "change": "Detect agent disagreement clusters",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-260",
+      "category": "agents_learning",
+      "title": "Require human approval for agent promotion",
+      "change": "Require human approval for agent promotion",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-261",
+      "category": "committee_governance",
+      "title": "Add proposal schema validation before panel calls",
+      "change": "Add proposal schema validation before panel calls",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-262",
+      "category": "committee_governance",
+      "title": "Require independent provider diversity for quorum",
+      "change": "Require independent provider diversity for quorum",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-263",
+      "category": "committee_governance",
+      "title": "Record provider timeout and rate-limit causes",
+      "change": "Record provider timeout and rate-limit causes",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-264",
+      "category": "committee_governance",
+      "title": "Add explicit abstain and conflict outcomes",
+      "change": "Add explicit abstain and conflict outcomes",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-265",
+      "category": "committee_governance",
+      "title": "Require dissent text for every approval",
+      "change": "Require dissent text for every approval",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-266",
+      "category": "committee_governance",
+      "title": "Add evidence citation validation",
+      "change": "Add evidence citation validation",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-267",
+      "category": "committee_governance",
+      "title": "Score proposals by falsifiability",
+      "change": "Score proposals by falsifiability",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-268",
+      "category": "committee_governance",
+      "title": "Detect copied or correlated provider reasoning",
+      "change": "Detect copied or correlated provider reasoning",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-269",
+      "category": "committee_governance",
+      "title": "Add second-pass adversarial review",
+      "change": "Add second-pass adversarial review",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-270",
+      "category": "committee_governance",
+      "title": "Add committee decision expiration dates",
+      "change": "Add committee decision expiration dates",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-271",
+      "category": "storage_production",
+      "title": "Add Supabase schema migration checksum",
+      "change": "Add Supabase schema migration checksum",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-272",
+      "category": "storage_production",
+      "title": "Add cloud/local write reconciliation report",
+      "change": "Add cloud/local write reconciliation report",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-273",
+      "category": "storage_production",
+      "title": "Add idempotency keys for cloud writes",
+      "change": "Add idempotency keys for cloud writes",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-274",
+      "category": "storage_production",
+      "title": "Add dead-letter queue for failed syncs",
+      "change": "Add dead-letter queue for failed syncs",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-275",
+      "category": "storage_production",
+      "title": "Add storage latency and error budgets",
+      "change": "Add storage latency and error budgets",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-276",
+      "category": "storage_production",
+      "title": "Add startup readiness endpoint",
+      "change": "Add startup readiness endpoint",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-277",
+      "category": "storage_production",
+      "title": "Add secrets-source precedence diagnostics",
+      "change": "Add secrets-source precedence diagnostics",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-278",
+      "category": "storage_production",
+      "title": "Add deployment configuration drift checks",
+      "change": "Add deployment configuration drift checks",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-279",
+      "category": "storage_production",
+      "title": "Add release rollback verification",
+      "change": "Add release rollback verification",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-280",
+      "category": "storage_production",
+      "title": "Add production-readiness evidence bundle export",
+      "change": "Add production-readiness evidence bundle export",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-281",
+      "category": "ui_decision_support",
+      "title": "Show evidence versus assumption badges per input",
+      "change": "Show evidence versus assumption badges per input",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-282",
+      "category": "ui_decision_support",
+      "title": "Show worst-of driver history",
+      "change": "Show worst-of driver history",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-283",
+      "category": "ui_decision_support",
+      "title": "Show autocall probability by observation date",
+      "change": "Show autocall probability by observation date",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-284",
+      "category": "ui_decision_support",
+      "title": "Show coupon fair-value interval beside quote",
+      "change": "Show coupon fair-value interval beside quote",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-285",
+      "category": "ui_decision_support",
+      "title": "Show confidence and sample-size warnings",
+      "change": "Show confidence and sample-size warnings",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-286",
+      "category": "ui_decision_support",
+      "title": "Add side-by-side payoff state comparison",
+      "change": "Add side-by-side payoff state comparison",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-287",
+      "category": "ui_decision_support",
+      "title": "Add stale-data banner with exact timestamps",
+      "change": "Add stale-data banner with exact timestamps",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-288",
+      "category": "ui_decision_support",
+      "title": "Show why a candidate is blocked",
+      "change": "Show why a candidate is blocked",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-289",
+      "category": "ui_decision_support",
+      "title": "Add downloadable audit summary",
+      "change": "Add downloadable audit summary",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-290",
+      "category": "ui_decision_support",
+      "title": "Separate research score from investment verdict",
+      "change": "Separate research score from investment verdict",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-291",
+      "category": "validation_research",
+      "title": "Add negative-control baskets to every replay",
+      "change": "Add negative-control baskets to every replay",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-292",
+      "category": "validation_research",
+      "title": "Run synthetic-data calibration sanity checks",
+      "change": "Run synthetic-data calibration sanity checks",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-293",
+      "category": "validation_research",
+      "title": "Add leakage sentinel features",
+      "change": "Add leakage sentinel features",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-294",
+      "category": "validation_research",
+      "title": "Track selection bias from survivor universes",
+      "change": "Track selection bias from survivor universes",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-295",
+      "category": "validation_research",
+      "title": "Add repeated-seed Monte Carlo stability reports",
+      "change": "Add repeated-seed Monte Carlo stability reports",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-296",
+      "category": "validation_research",
+      "title": "Compare model against naive autocall hazard",
+      "change": "Compare model against naive autocall hazard",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-297",
+      "category": "validation_research",
+      "title": "Add stress-period holdout evaluation",
+      "change": "Add stress-period holdout evaluation",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-298",
+      "category": "validation_research",
+      "title": "Add reproducible environment fingerprint",
+      "change": "Add reproducible environment fingerprint",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-299",
+      "category": "validation_research",
+      "title": "Add test-data contamination scan",
+      "change": "Add test-data contamination scan",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    },
+    {
+      "id": "phoenix-300",
+      "category": "validation_research",
+      "title": "Require human sign-off artifact before promotion",
+      "change": "Require human sign-off artifact before promotion",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      }
+    }
+  ]
+}

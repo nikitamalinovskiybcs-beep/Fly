@@ -98,6 +98,7 @@ jobs:
         with:
           name: improvement-report
           path: improvement_report.json
+          retention-days: 30
 
       - name: Publish immutable safety record
         run: |
@@ -117,3 +118,28 @@ jobs:
         with:
           name: automation-safety
           path: automation_safety.json
+          retention-days: 30
+
+      - name: Publish rollback manifest
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          Path("rollback-manifest.json").write_text(json.dumps({
+              "schema_version": "release-manifest-v1",
+              "version": os.environ.get("GITHUB_SHA", "unknown"),
+              "rollback_ref": os.environ.get("GITHUB_REF", "unknown"),
+              "retention_days": 30,
+              "promotion": "human_review_required",
+              "production_weights_changed": False,
+              "verdict_mutated": False,
+              "trades_created": False,
+          }, indent=2))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rollback-manifest
+          path: rollback-manifest.json
+          retention-days: 30
