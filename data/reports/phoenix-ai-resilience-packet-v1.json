@@ -1,0 +1,32 @@
+{
+  "proposal_id": "phoenix-ai-resilience-v1",
+  "objective": "Make committee AI routing resilient to timeouts and unavailable providers without fabricating votes or changing production behavior.",
+  "scope": [
+    "src/ai_resilience.py",
+    "tests/test_ai_resilience.py"
+  ],
+  "current_behavior": [
+    "Providers can timeout or return malformed reviews.",
+    "Unavailable providers are preserved as errors but routing is manual.",
+    "Missing votes correctly do not count as approval."
+  ],
+  "bounded_design": [
+    "Typed provider attempt records.",
+    "Short-prompt retry before fallback provider.",
+    "Explicit timeout/error/rate-limit statuses.",
+    "Quorum computed only from valid completed verdicts.",
+    "Research-only output with false production safety flags."
+  ],
+  "acceptance_tests": [
+    "Timeout is recorded and never treated as approval.",
+    "Malformed review is recorded as error.",
+    "Fallback attempts preserve provider/model lineage.",
+    "Quorum excludes unavailable, skipped, and errored providers.",
+    "Safety flags remain false."
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

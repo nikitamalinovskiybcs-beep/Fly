@@ -1,0 +1,33 @@
+{
+  "proposal_id": "phoenix-ai-specialists-v1",
+  "decision": "NOW",
+  "implementation_files": [
+    "src/ai_specialists.py",
+    "tests/test_ai_specialists.py"
+  ],
+  "enabled_roles": [
+    "quant_payoff",
+    "calibration_oos"
+  ],
+  "deferred_roles": [
+    "data_provenance",
+    "security_compliance",
+    "code_operations"
+  ],
+  "acceptance_tests": [
+    "Incomplete payoff evidence blocks the quant specialist.",
+    "Calibration requires fixed-24m anchors and a baseline improvement.",
+    "Complete calibration evidence remains research-only.",
+    "Unknown roles are rejected.",
+    "Safety flags remain false."
+  ],
+  "validation": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "blockers": [
+    "Specialist readiness is not production promotion.",
+    "Human review and fixed-24m evidence remain mandatory."
+  ]
+}
