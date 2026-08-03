@@ -5,7 +5,8 @@
   "committee_basis": {
     "available_reviews": [
       "groq",
-      "openrouter"
+      "openrouter",
+      "mistral"
     ],
     "quorum": false,
     "unavailable_or_deferred": [
@@ -16,6 +17,13 @@
       "nvidia/openai/mistral: key unavailable"
     ],
     "interpretation": "Advisory only; unavailable votes are not approval."
+  },
+  "mistral_review": {
+    "model": "mistral-small-latest",
+    "verdict": "approve",
+    "summary": "The bounded cleanup preserves frozen outputs, evidence/provenance labels, and safety invariants.",
+    "production_weights_changed": false,
+    "verdict_mutated": false
   },
   "selected_change": {
     "remove_section": "[7] АЛЬТЕРНАТИВЫ",
