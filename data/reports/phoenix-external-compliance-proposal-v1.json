@@ -1,0 +1,14 @@
+{
+  "proposal_id": "phoenix-external-compliance-overview-v1",
+  "decision": "RESEARCH",
+  "review_type": "external compliance wording audit",
+  "acceptance_tests": [
+    "Are any statements unsupported, promotional, or likely to be misunderstood as investment advice or compliance approval?",
+    "Are current blockers, evidence classes, AI boundaries, and human approvals explicit?",
+    "What omissions would matter to model-risk, data, security, conduct, or procurement review?",
+    "Provide exact wording changes and acceptance tests for a compliance-safe overview."
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}
