@@ -1,0 +1,57 @@
+{
+  "audit_id": "phoenix-xfinlink-live-provenance-bounded-fetch-v1",
+  "generated_at": "2026-08-03T22:24:33.824445+00:00",
+  "provider_preference": "xfinlink_then_yfinance",
+  "requested_symbols": [
+    "SPY",
+    "QQQ",
+    "IWM"
+  ],
+  "returned_symbols": [
+    "IWM",
+    "QQQ",
+    "SPY"
+  ],
+  "records": [
+    {
+      "ticker": "IWM",
+      "source": "yfinance",
+      "is_real": true,
+      "as_of": "2026-08-03",
+      "has_spot": true,
+      "has_returns": true
+    },
+    {
+      "ticker": "QQQ",
+      "source": "yfinance",
+      "is_real": true,
+      "as_of": "2026-08-03",
+      "has_spot": true,
+      "has_returns": true
+    },
+    {
+      "ticker": "SPY",
+      "source": "yfinance",
+      "is_real": true,
+      "as_of": "2026-08-03",
+      "has_spot": true,
+      "has_returns": true
+    }
+  ],
+  "implied_vol_returned_symbols": [
+    "IWM",
+    "QQQ",
+    "SPY"
+  ],
+  "status": "research_only",
+  "limitations": [
+    "bounded smoke fetch, not structured-note quote evidence",
+    "no issuer lifecycle outcomes",
+    "provider values not used to change weights"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

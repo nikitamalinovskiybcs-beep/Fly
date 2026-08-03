@@ -1,0 +1,125 @@
+{
+  "run_id": "phoenix-public-internet-source-expansion-v1",
+  "generated_at": "2026-08-03T23:17:33.714558+00:00",
+  "scope": "public lawful structured-product terms and realized-outcome discovery",
+  "source_registry": [
+    {
+      "source": "EUSIPA",
+      "url": "https://eusipa.org/category/market-reports/",
+      "use": "aggregate market reports, taxonomy, member-market context",
+      "evidence_class": "aggregate_public_market_evidence",
+      "status": "usable"
+    },
+    {
+      "source": "Leonteq",
+      "url": "https://certificati.leonteq.com/",
+      "use": "public product pages, terms, quotes, page-observed lifecycle",
+      "evidence_class": "public_product_page",
+      "status": "usable_with_provenance"
+    },
+    {
+      "source": "payoff.ch",
+      "url": "https://www.payoff.ch/",
+      "use": "public final-terms PDFs and structured-note terms",
+      "evidence_class": "public_termsheet_evidence",
+      "status": "pilot_1_downloaded_1_unavailable"
+    },
+    {
+      "source": "SEC EDGAR",
+      "url": "https://efts.sec.gov/LATEST/search-index",
+      "use": "prospectuses, pricing supplements, issuer filings",
+      "evidence_class": "prospectus_evidence",
+      "status": "usable_but_outcomes_missing"
+    },
+    {
+      "source": "Nasdaq",
+      "url": "https://www.nasdaq.com/market-activity",
+      "use": "security identifiers/listing pages",
+      "evidence_class": "public_listing_evidence",
+      "status": "limited_data_unavailable"
+    },
+    {
+      "source": "YiELDEN",
+      "url": "https://www.yielden.org/comparison-search-tool/",
+      "use": "public comparison/catalog discovery",
+      "evidence_class": "public_catalog_reference",
+      "status": "discovery_only"
+    },
+    {
+      "source": "SIX CONNEXOR",
+      "url": "https://connexor-api.com/",
+      "use": "structured-product reference data/valuation API",
+      "evidence_class": "commercial",
+      "status": "not_integrated_paywalled"
+    },
+    {
+      "source": "SRP",
+      "url": "https://structuredretailproducts.com/product/product-search",
+      "use": "global product database/API",
+      "evidence_class": "commercial",
+      "status": "not_integrated_paywalled"
+    },
+    {
+      "source": "SPI",
+      "url": "https://sp-intelligence.com/webflow-page/platform-api",
+      "use": "reference/lifecycle/pricing API",
+      "evidence_class": "commercial",
+      "status": "not_integrated_paywalled"
+    },
+    {
+      "source": "Certificati e Derivati",
+      "url": "https://www.certificatiederivati.it/",
+      "use": "discovery only",
+      "evidence_class": "restricted_public_data",
+      "status": "excluded_from_ingestion",
+      "reason": "page explicitly prohibits copying/reuse for third-party application development"
+    }
+  ],
+  "ai_api_registry": [
+    {
+      "provider": "Mistral",
+      "status": "working",
+      "http_status": 200,
+      "role": "research proposal/review"
+    },
+    {
+      "provider": "Groq",
+      "status": "working",
+      "http_status": 200,
+      "role": "independent research challenge"
+    },
+    {
+      "provider": "OpenRouter",
+      "status": "working",
+      "http_status": 200,
+      "role": "independent research challenge"
+    },
+    {
+      "provider": "Anthropic",
+      "status": "unavailable_this_run",
+      "http_status": 400,
+      "role": "not used as approval"
+    },
+    {
+      "provider": "Gemini",
+      "status": "rate_limited_this_run",
+      "http_status": 429,
+      "role": "not used as approval"
+    }
+  ],
+  "implemented_artifacts": [
+    "data/reports/phoenix-eusipa-public-reports-v1.json",
+    "data/reports/phoenix-leonteq-public-pilot-v1.json",
+    "data/reports/phoenix-public-termsheet-pilot-v1.json",
+    "data/reports/phoenix-nasdaq-public-structured-product-pilot-v1.json",
+    "data/reports/phoenix-public-source-research-mistral-v2.json",
+    "data/reports/phoenix-public-source-research-groq-v2.json",
+    "data/reports/phoenix-public-source-research-openrouter-v2.json"
+  ],
+  "next_experiment": "Expand only lawful sources: download accessible payoff.ch final terms, use SEC issuer filings to recover outcomes, and request licensed API access for CONNEXOR/SRP/SPI if broad note-level coverage is required.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

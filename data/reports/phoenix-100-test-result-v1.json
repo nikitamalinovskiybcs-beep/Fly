@@ -1,0 +1,186 @@
+{
+  "proposal_id": "phoenix-100-deterministic-tests-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "generated_at": "2026-08-03T22:46:44.490807+00:00",
+  "decision": "RESEARCH",
+  "implementation_file": "tests/test_phoenix_100_benchmark.py",
+  "test_count": 100,
+  "test_families": {
+    "payoff_semantics": 20,
+    "memory_coupon": 15,
+    "autocall": 15,
+    "knock_in_and_final_payoff": 15,
+    "worst_of_basket": 10,
+    "dates_and_schedule": 10,
+    "stress_and_boundaries": 10,
+    "safety": 5
+  },
+  "review": {
+    "decision": "Proceed with building 100 deterministic research tests for Phoenix, adhering strictly to the specified families and constraints.",
+    "scenario_families": {
+      "payoff_semantics": [
+        "Fixed payoff at maturity",
+        "Linear payoff with strike",
+        "Barrier payoff (knock-in/knock-out)",
+        "Digital payoff (all-or-nothing)",
+        "Asian payoff (average price)",
+        "Lookback payoff (max/min price)",
+        "Spread payoff (difference in prices)",
+        "Ratio payoff (proportional to underlying)",
+        "Conditional payoff (trigger-based)",
+        "Path-dependent payoff (e.g., cumulative)"
+      ],
+      "memory_coupon": [
+        "Fixed coupon at each observation",
+        "Increasing coupon with memory",
+        "Decreasing coupon with memory",
+        "Coupon reset at observation",
+        "Coupon cap/floor with memory",
+        "Coupon based on average price",
+        "Coupon based on max/min price",
+        "Coupon with conditional reset",
+        "Coupon with time decay",
+        "Coupon with path dependency"
+      ],
+      "autocall": [
+        "Autocall at first observation",
+        "Autocall at last observation",
+        "Autocall with memory (e.g., cumulative)",
+        "Autocall with barrier condition",
+        "Autocall with coupon reset",
+        "Autocall with payoff adjustment",
+        "Autocall with conditional reset",
+        "Autocall with time decay",
+        "Autocall with path dependency",
+        "Autocall with multiple triggers"
+      ],
+      "knock_in_final_payoff": [
+        "Knock-in at observation, final payoff",
+        "Knock-out at observation, final payoff",
+        "Knock-in/knock-out with memory",
+        "Knock-in/knock-out with barrier",
+        "Knock-in/knock-out with payoff adjustment",
+        "Knock-in/knock-out with conditional reset",
+        "Knock-in/knock-out with time decay",
+        "Knock-in/knock-out with path dependency",
+        "Knock-in/knock-out with multiple triggers",
+        "Knock-in/knock-out with fixed payoff"
+      ],
+      "worst_of_basket": [
+        "Worst-of with fixed payoff",
+        "Worst-of with linear payoff",
+        "Worst-of with barrier payoff",
+        "Worst-of with digital payoff",
+        "Worst-of with Asian payoff",
+        "Worst-of with lookback payoff",
+        "Worst-of with spread payoff",
+        "Worst-of with ratio payoff",
+        "Worst-of with conditional payoff",
+        "Worst-of with path-dependent payoff"
+      ],
+      "dates_schedule": [
+        "Single observation date",
+        "Multiple observation dates",
+        "Fixed observation schedule",
+        "Variable observation schedule",
+        "Observation with memory",
+        "Observation with barrier",
+        "Observation with payoff adjustment",
+        "Observation with conditional reset",
+        "Observation with time decay",
+        "Observation with path dependency"
+      ],
+      "stress_boundaries": [
+        "Extreme underlying price (0.1x)",
+        "Extreme underlying price (10x)",
+        "Zero volatility",
+        "Infinite volatility",
+        "Zero time to maturity",
+        "Infinite time to maturity",
+        "Zero interest rate",
+        "Infinite interest rate",
+        "Zero dividend",
+        "Infinite dividend"
+      ],
+      "provenance_safety": [
+        "Deterministic path generation",
+        "Reproducible random seed",
+        "No external dependencies",
+        "Pure path fixtures",
+        "No market data assumptions",
+        "No OOS calculations",
+        "No production-side changes",
+        "No side effects",
+        "No state mutations",
+        "No external calls"
+      ]
+    },
+    "objections": [
+      "Tests may not cover all edge cases in production.",
+      "Deterministic paths may not reflect real-world randomness.",
+      "Library references could introduce hidden dependencies.",
+      "No validation against external benchmarks.",
+      "No stress testing for correlated underlyings.",
+      "No testing for numerical stability in extreme scenarios.",
+      "No testing for parallel execution safety.",
+      "No testing for memory leaks in long paths.",
+      "No testing for thread safety in shared fixtures.",
+      "No testing for reproducibility across environments."
+    ],
+    "acceptance_tests": [
+      "All 100 tests run without errors in a clean environment.",
+      "All tests produce deterministic outputs for the same seed.",
+      "All tests pass with pure path fixtures (no external data).",
+      "All tests pass with optional library references (if used).",
+      "No tests rely on production-side changes or configurations.",
+      "All tests pass with zero market data assumptions.",
+      "All tests pass with no OOS calculations or side effects.",
+      "All tests pass with no state mutations or external calls.",
+      "All tests pass with no hidden dependencies or side effects.",
+      "All tests pass with no numerical instability in extreme scenarios."
+    ],
+    "implementation_notes": [
+      "Use pure path fixtures for all scenarios (e.g., `numpy` or `scipy` for deterministic paths).",
+      "Avoid external dependencies unless explicitly required by the test.",
+      "Ensure all tests are self-contained and do not rely on external state.",
+      "Use fixed random seeds for reproducibility (e.g., `np.random.seed(42)`).",
+      "Implement tests as independent units with no shared state.",
+      "Document all assumptions and constraints in test metadata.",
+      "Use assertions to validate deterministic outputs.",
+      "Avoid hardcoding market data; use synthetic or generated data.",
+      "Ensure all tests pass in isolation and in combination.",
+      "Log all test runs for debugging and validation."
+    ],
+    "safety_flags": [
+      "No external API calls or network dependencies.",
+      "No file I/O or disk writes (unless explicitly required).",
+      "No use of global state or mutable shared resources.",
+      "No reliance on system time or non-deterministic sources.",
+      "No use of uninitialized variables or undefined behavior.",
+      "No assumptions about underlying distributions or correlations.",
+      "No use of floating-point operations that may introduce instability.",
+      "No use of parallelism unless explicitly tested for thread safety.",
+      "No use of external libraries unless explicitly allowed.",
+      "No assumptions about production environment or configurations."
+    ]
+  },
+  "execution": {
+    "benchmark_tests": "100 passed",
+    "focused_suite": "138 passed",
+    "clean_full_suite": "683 passed",
+    "clean_home": "/home/ubuntu/phoenix-ci-clean"
+  },
+  "evidence_boundaries": [
+    "deterministic synthetic fixtures only",
+    "not market accuracy evidence",
+    "not chronological OOS",
+    "not verified lifecycle outcomes"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

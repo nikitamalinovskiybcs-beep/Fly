@@ -1,0 +1,550 @@
+{
+  "evaluation_id": "phoenix-prediction-vs-realized-settled-50-v1",
+  "generated_at": "2026-08-03T21:27:46.845967+00:00",
+  "status": "research_only",
+  "label_definition": "realized_loss from SETTLED_NOTES third tuple field; 1 means loss",
+  "prediction_definition": "compute_p_loss(tickers, term_months=24)",
+  "validation_type": "in_sample",
+  "provenance_status": "incomplete",
+  "sample_size": 50,
+  "metrics": {
+    "brier": 0.172077,
+    "log_loss": 0.523148,
+    "threshold_accuracy_at_0_5": 0.78,
+    "mean_predicted_loss": 0.509802,
+    "empirical_loss_rate": 0.54
+  },
+  "interpretation": "This is a same-sample diagnostic, not chronological OOS and not an independent market validation. The 50 rows lack field-level source/timestamp/outcome provenance. The mean prediction (0.509802) is below the empirical loss rate (0.54), so this sample shows slight underprediction of loss, not overprediction.",
+  "committee_review": {
+    "proposal_id": "phoenix-prediction-vs-realized-settled-50-v1",
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-prediction-vs-realized-settled-50-v1.json"
+    ],
+    "baseline": "Empirical loss rate 0.54 on the same 50 rows",
+    "target": "Out-of-sample prediction-versus-realized evaluation with complete provenance",
+    "observed_metric": "Brier 0.172077; log-loss 0.523148; threshold accuracy 0.78; mean prediction 0.509802",
+    "data_code_config_lineage": [
+      "src.real_data.SETTLED_NOTES",
+      "src.real_data.compute_p_loss",
+      "term_months=24"
+    ],
+    "blockers": [
+      "In-sample evaluation only",
+      "Incomplete source/timestamp/field-level provenance",
+      "No independent OOS labels in this artifact"
+    ],
+    "next_experiment": "Run chronological OOS evaluation after adding verified timestamps and realized lifecycle outcomes.",
+    "final_devin_validation": "Metrics reproduced from 50 rows; Mistral's overprediction wording was corrected because mean prediction is below empirical loss rate."
+  },
+  "rows": [
+    {
+      "basket": "AAPL/DAL/TSLA/NOK/MBT",
+      "term_months": 3.0,
+      "predicted_p_loss": 0.2943,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AAPL/DAL/TSLA/SBER/UCG",
+      "term_months": 3.0,
+      "predicted_p_loss": 0.2943,
+      "realized_loss": 1,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "ABMD/NKE/MCD/INTC/UCG",
+      "term_months": 3.0,
+      "predicted_p_loss": 0.2397,
+      "realized_loss": 1,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "BCS/BMW/SBUX",
+      "term_months": 2.8,
+      "predicted_p_loss": 0.1308,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "BIDU/DAI/INTC/SBER/YNDX",
+      "term_months": 2.6,
+      "predicted_p_loss": 0.5093,
+      "realized_loss": 0,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "ABMD/SBER/NOW/VRTX/WDC",
+      "term_months": 2.1,
+      "predicted_p_loss": 0.3076,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "ALB/APTV/COP/PANW/WDC",
+      "term_months": 2.1,
+      "predicted_p_loss": 0.4107,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "ABMD/BIIB/NOW/VRTX/SPG",
+      "term_months": 1.8,
+      "predicted_p_loss": 0.1506,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "ABMD/DISCA/YNDX/WMB",
+      "term_months": 1.3,
+      "predicted_p_loss": 0.1519,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AAPL/BABA/BMRN/TWLO",
+      "term_months": 1.1,
+      "predicted_p_loss": 0.3018,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/CTRA/MELI/SBER",
+      "term_months": 1.6,
+      "predicted_p_loss": 0.6884,
+      "realized_loss": 0,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "ALXN/DISCA/DPZ/UBER/NTES",
+      "term_months": 3.8,
+      "predicted_p_loss": 0.131,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AAPL/DAL/TSLA/NOK/UCG",
+      "term_months": 3.1,
+      "predicted_p_loss": 0.2943,
+      "realized_loss": 1,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "ANET/NVDA/QCOM/VMW",
+      "term_months": 1.0,
+      "predicted_p_loss": 0.6473,
+      "realized_loss": 0,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "ALXN/DISCA/DPZ/UBER/NTES/VEEV",
+      "term_months": 1.1,
+      "predicted_p_loss": 0.1213,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "DISCA/GILD/NFLX/OKTA",
+      "term_months": 1.1,
+      "predicted_p_loss": 0.4537,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/TWTR",
+      "term_months": 1.0,
+      "predicted_p_loss": 0.6584,
+      "realized_loss": 0,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/TEAM/TWLO/VIPS/W",
+      "term_months": 0.5,
+      "predicted_p_loss": 0.4632,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "TEAM/BMRN/DISCA/NTES/UBER",
+      "term_months": 0.5,
+      "predicted_p_loss": 0.1975,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AAPL/BABA/NTES/TWLO",
+      "term_months": 3.1,
+      "predicted_p_loss": 0.3018,
+      "realized_loss": 1,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.3,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "BABA/AMZN/EBAY/VIPS",
+      "term_months": 0.3,
+      "predicted_p_loss": 0.4769,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/NIO/OKTA/SPG/TWLO",
+      "term_months": 0.5,
+      "predicted_p_loss": 0.4632,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "BYND/NIO/RUN/TSLA",
+      "term_months": 0.5,
+      "predicted_p_loss": 0.4273,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "BYND/NIO/RUN/TSLA",
+      "term_months": 3.1,
+      "predicted_p_loss": 0.4273,
+      "realized_loss": 1,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.4,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/TWTR",
+      "term_months": 3.0,
+      "predicted_p_loss": 0.6584,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.3,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.3,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/MELI/NVDA/QCOM/WDC",
+      "term_months": 2.0,
+      "predicted_p_loss": 0.6925,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.0,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "COP/PANW/WDC/ALB/APTV",
+      "term_months": 3.6,
+      "predicted_p_loss": 0.4107,
+      "realized_loss": 1,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.0,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/MELI/NVDA/QCOM/WDC",
+      "term_months": 2.0,
+      "predicted_p_loss": 0.6925,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "BIIB/BMRN/ILMN",
+      "term_months": 0.8,
+      "predicted_p_loss": 0.2178,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.0,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.3,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.4,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.0,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "RUN/NOVA/PLUG/ENPH/FCX/BMRN",
+      "term_months": 0.8,
+      "predicted_p_loss": 0.6017,
+      "realized_loss": 0,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.3,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "ARCL/BLM/ENPH/FCX/PLUG",
+      "term_months": 3.6,
+      "predicted_p_loss": 0.659,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/MELI/NVDA/QCOM/WDC",
+      "term_months": 4.0,
+      "predicted_p_loss": 0.6925,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/MELI/NVDA/QCOM/WDC",
+      "term_months": 2.0,
+      "predicted_p_loss": 0.6925,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/AMZN/NFLX/QCOM/WDC",
+      "term_months": 3.3,
+      "predicted_p_loss": 0.72,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/MELI/NVDA/QCOM/WDC",
+      "term_months": 3.3,
+      "predicted_p_loss": 0.6925,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "COP/PANW/WDC/VRTX/ALB",
+      "term_months": 3.0,
+      "predicted_p_loss": 0.4468,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "XPEV/APA/CF/STLA",
+      "term_months": 1.3,
+      "predicted_p_loss": 0.4656,
+      "realized_loss": 0,
+      "prediction_label": "NO_LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/MELI/NVDA/QCOM/WDC",
+      "term_months": 3.3,
+      "predicted_p_loss": 0.6925,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    },
+    {
+      "basket": "AMD/MELI/NVDA/QCOM/WDC",
+      "term_months": 3.3,
+      "predicted_p_loss": 0.6925,
+      "realized_loss": 1,
+      "prediction_label": "LOSS",
+      "source": "src.real_data.SETTLED_NOTES",
+      "provenance_status": "incomplete",
+      "validation_type": "in_sample"
+    }
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

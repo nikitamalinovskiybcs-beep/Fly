@@ -1,0 +1,163 @@
+{
+  "problem_id": "phoenix-institutional-hard-benchmark-v1",
+  "generated_at": "2026-08-03T22:50:06.829924+00:00",
+  "status": "research_only",
+  "problem": {
+    "underlyings": 5,
+    "spots": [
+      100,
+      105,
+      95,
+      110,
+      98
+    ],
+    "vols": [
+      0.18,
+      0.22,
+      0.25,
+      0.2,
+      0.3
+    ],
+    "dividends": [
+      0.01,
+      0.015,
+      0,
+      0.02,
+      0.005
+    ],
+    "risk_free_rate": 0.03,
+    "issuer_spread": 0.012,
+    "discount_rate": 0.042,
+    "base_correlation": 0.35,
+    "maturity_years": 3,
+    "observations_per_year": 4,
+    "autocall_barrier": 1.0,
+    "coupon_barrier": 0.7,
+    "knock_in_barrier": 0.6,
+    "coupon": 0.065,
+    "notional": 100,
+    "features": [
+      "worst_of",
+      "dividends",
+      "issuer_spread",
+      "Heston",
+      "correlation_ladder",
+      "step_down_path_reference"
+    ]
+  },
+  "gbm_convergence": [
+    {
+      "n_paths": 1000,
+      "pv": 116.90656904682473,
+      "standard_error": 1.1127907844720224
+    },
+    {
+      "n_paths": 4000,
+      "pv": 118.07130795833008,
+      "standard_error": 0.5521965672376516
+    },
+    {
+      "n_paths": 16000,
+      "pv": 117.52148062946944,
+      "standard_error": 0.2776491481553177
+    }
+  ],
+  "gbm_fair_coupon": {
+    "n_paths": 2000,
+    "coupon": 0.03623234865525897
+  },
+  "heston": {
+    "n_paths": 3000,
+    "pv": 112.36675335486824,
+    "standard_error": 0.6927108378872061
+  },
+  "correlation_ladder": [
+    {
+      "correlation": 0.1,
+      "pv": 117.98710073499973,
+      "standard_error": 0.8567141593547152
+    },
+    {
+      "correlation": 0.35,
+      "pv": 116.97809623646133,
+      "standard_error": 0.785462743501101
+    },
+    {
+      "correlation": 0.6,
+      "pv": 115.64760389169726,
+      "standard_error": 0.7070284772603433
+    },
+    {
+      "correlation": 0.8,
+      "pv": 115.30262846174442,
+      "standard_error": 0.6242669406960615
+    }
+  ],
+  "step_down_path_reference": {
+    "barriers": [
+      0.95,
+      0.9,
+      0.85,
+      0.8,
+      0.75
+    ],
+    "worst_levels": [
+      0.82,
+      0.75,
+      0.68,
+      0.61,
+      0.55
+    ],
+    "coupon_cashflows": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "principal": 55.00000000000001,
+    "total_payoff": 55.00000000000001,
+    "autocalled_at": null
+  },
+  "limitations": [
+    "public challenger supports fixed barriers; step-down is path reference only",
+    "fixed correlation ladder is stress analysis, not stochastic correlation",
+    "synthetic setup is not market evidence",
+    "canonical engine is not directly comparable until full schedule semantics are implemented"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "review": {
+      "decision": "Reject for production use; proceed with caution in research context",
+      "interpretation": "The Phoenix benchmark shows sensitivity to model choice (GBM vs Heston), correlation structure, and path-dependent features. The 3.2% PV drop from GBM to Heston (117.521\u2192112.367) and correlation ladder's 2.3% decline (rho .1\u2192.8) indicate non-trivial model risk. The step-down reference's 55 payout suggests significant knock-in risk materialized.",
+      "objections": [
+        "Heston PV deviates significantly from GBM (3.2% absolute, 5.1x SE difference), raising model risk concerns",
+        "Correlation ladder shows 2.3% PV range across rho .1-.8, indicating high sensitivity to dependence structure",
+        "Step-down path's 55 payout implies 100% knock-in probability in this scenario, questioning barrier effectiveness",
+        "GBM fair coupon (3.623%) may overstate attractiveness given model risk and issuer spread",
+        "SEs suggest insufficient path convergence at lower path counts (1k paths)"
+      ],
+      "acceptance_tests": [
+        "Validate Heston calibration against market quotes for each underlying",
+        "Stress-test correlation ladder across rho ranges with worst-of payoff",
+        "Verify knock-in probability under step-down path scenarios",
+        "Compare GBM vs Heston PVs at higher path counts (e.g., 64k) for convergence",
+        "Check issuer spread impact on PV across different correlation regimes"
+      ],
+      "next_experiment": "Implement local-stochastic volatility model (e.g., Heston with stochastic vol-of-vol) to assess volatility smile effects on Phoenix payoff",
+      "safety_flags": {
+        "model_risk": true,
+        "correlation_risk": true,
+        "barrier_risk": true,
+        "convergence_risk": true,
+        "issuer_risk": false
+      }
+    }
+  }
+}

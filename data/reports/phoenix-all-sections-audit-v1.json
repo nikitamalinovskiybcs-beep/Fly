@@ -1,0 +1,93 @@
+{
+  "proposal_id": "phoenix-all-sections-audit-v1",
+  "status": "research_audit_complete",
+  "sections": [
+    {
+      "section": "UI and deployment",
+      "status": "PASS_WITH_LIMITATIONS",
+      "evidence": "Existing Streamlit app reachable after merge and reboot",
+      "missing": "Fly deployment is unavailable; Streamlit is free-tier infrastructure"
+    },
+    {
+      "section": "Payoff, Monte Carlo, and structured-product math",
+      "status": "PASS_TESTED",
+      "evidence": "Domain test subset passed; full suite previously passed 575 tests",
+      "missing": "Independent market calibration is not established"
+    },
+    {
+      "section": "Worst-of Phoenix risk metrics and stress",
+      "status": "PASS_TESTED",
+      "evidence": "Risk, performance, strategy, and Monte Carlo tests passed",
+      "missing": "No claim of realized market accuracy"
+    },
+    {
+      "section": "Fixed-24m OOS and anchors",
+      "status": "BLOCKED",
+      "evidence": "Chronological gate exists and rejects incomplete anchors",
+      "missing": "Verified 6/12/18/24 market evidence and labels"
+    },
+    {
+      "section": "Baseline and calibration",
+      "status": "BLOCKED",
+      "evidence": "Calibration contracts and tests exist",
+      "missing": "Independent baseline metrics from verified OOS data"
+    },
+    {
+      "section": "Provenance and settled evidence",
+      "status": "PARTIAL",
+      "evidence": "Field-level contract and rejection tests pass",
+      "missing": "Complete real source, quote-fit, settled/dealer evidence packet"
+    },
+    {
+      "section": "AI committee",
+      "status": "PASS_WITH_LIMITATIONS",
+      "evidence": "Dissent, unavailable providers, quorum, and Mistral audit artifacts preserved",
+      "missing": "Provider availability is not a production quorum guarantee"
+    },
+    {
+      "section": "Agent memory and recovery",
+      "status": "PASS_RESEARCH_ONLY",
+      "evidence": "Memory, encryption, replay, recovery, and self-learning tests pass",
+      "missing": "Approved operational key custody and remote recovery drill"
+    },
+    {
+      "section": "Rollback and operations",
+      "status": "BLOCKED",
+      "evidence": "Rollback runbook exists",
+      "missing": "Live rollback drill with timestamped evidence"
+    },
+    {
+      "section": "Key custody and security operations",
+      "status": "BLOCKED",
+      "evidence": "Policy draft exists",
+      "missing": "Owner approval, rotation, access, recovery, and audit verification"
+    },
+    {
+      "section": "Human model-risk, compliance, suitability",
+      "status": "BLOCKED",
+      "evidence": "Review packet and questions exist",
+      "missing": "Named reviewers and signed approval"
+    },
+    {
+      "section": "Production decision",
+      "status": "NO_GO",
+      "evidence": "Mistral post-deploy verdict is REJECTED/HOLD",
+      "missing": "All blocked gates above"
+    }
+  ],
+  "validation": {
+    "focused_domain_tests": "104 passed",
+    "memory_provenance_release_tests": "34 passed",
+    "storage_audit_tests": "70 passed",
+    "full_clean_suite": "575 passed",
+    "ruff_src_app": "passed",
+    "compileall": "passed",
+    "git_diff_check": "passed",
+    "ruff_all_tests": "blocked_by_existing_unused_imports"
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

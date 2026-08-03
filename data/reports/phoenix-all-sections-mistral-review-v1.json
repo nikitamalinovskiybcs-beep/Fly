@@ -1,0 +1,32 @@
+{
+  "proposal_id": "phoenix-all-sections-mistral-review-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "decision": "REVISE",
+  "corrections": [
+    "Complete real settled/dealer evidence for the provenance contract",
+    "Upgrade committee provider quorum to production-grade",
+    "Define an approved operational path for memory beyond research-only use"
+  ],
+  "missing_sections": [
+    "Independent baseline metrics verification",
+    "Live rollback drill execution",
+    "Key custody owner, rotation, and audit verification",
+    "Named human model-risk, compliance, and suitability reviewers"
+  ],
+  "next_actions": [
+    "Finalize the provenance evidence packet",
+    "Document committee availability and quorum acceptance criteria",
+    "Execute independent baseline metrics",
+    "Conduct the live rollback drill in an approved environment",
+    "Verify key custody processes",
+    "Assign and document human reviewers"
+  ],
+  "interpretation": "Mistral's false-valued safety fields indicate no safety violation flags were raised; they do not indicate that the readiness gates passed.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

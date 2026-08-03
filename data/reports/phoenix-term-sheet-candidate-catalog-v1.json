@@ -1,0 +1,3869 @@
+{
+  "catalog_id": "phoenix-term-sheet-candidate-catalog-v1",
+  "generated_at": "2026-08-03T21:13:36.037765+00:00",
+  "target_count": 200,
+  "record_count": 200,
+  "scope": "Public SEC EDGAR 424(b)(2) candidate pricing supplements discovered by official full-text search; candidates require document download and extraction validation.",
+  "search_queries": [
+    "\"Autocallable Phoenix\"",
+    "\"Phoenix Securities\"",
+    "\"worst performing\""
+  ],
+  "quality_gate": "No record is training data, realized outcome evidence, or OOS evidence until downloaded, hashed, parsed, deduplicated and human-validated.",
+  "pilot_execution": {
+    "manifest": "data/reports/phoenix-sec-term-sheet-pilot-10-v1.json",
+    "sample_size": 10,
+    "http_200": 10,
+    "content_valid": 10,
+    "unique_sha256": 10,
+    "extraction_status": "candidate_terms_detected",
+    "training_status": "not_approved"
+  },
+  "committee_review": {
+    "proposal_id": "phoenix-term-sheet-candidate-catalog-v1",
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-term-sheet-candidate-catalog-v1.json"
+    ],
+    "baseline": "0 downloaded and validated candidates before this slice",
+    "target": "200 official public term-sheet candidates catalogued, then a validated 10-document extraction pilot",
+    "observed_metric": "200 unique SEC candidate URLs catalogued; 5/5 sampled URLs returned HTTP 200",
+    "data_code_config_lineage": [
+      "SEC EDGAR full-text search API",
+      "search queries: Autocallable Phoenix, Phoenix Securities, worst performing",
+      "catalog records preserve accession, CIK, filename, file date and source query"
+    ],
+    "required_pipeline": [
+      "Download all candidates with retry and SEC rate-limit controls.",
+      "Compute SHA-256 hashes and validate content type.",
+      "Parse a 10-document subset before scaling extraction.",
+      "Deduplicate by accession, URL and document hash.",
+      "Use rule-based extraction plus AI-assisted review for barriers, coupons, autocall and worst-of logic.",
+      "Human-validate a random sample of at least 10 percent.",
+      "Keep extracted terms separate from realized outcomes and OOS labels."
+    ],
+    "acceptance_tests": [
+      "Every downloaded document has a valid URL, retrieval timestamp and SHA-256.",
+      "A 10-document pilot contains expected Phoenix/worst-of term patterns.",
+      "Duplicates and non-document responses are explicitly reported.",
+      "No record is promoted to training/OOS without human validation."
+    ],
+    "next_experiment": "Download and parse a controlled 10-document subset before scaling to all 200.",
+    "blockers": [
+      "No candidate has yet been downloaded, hashed or parsed at scale.",
+      "Search relevance, duplicate rate and document-content validity are not yet measured for all 200.",
+      "Human validation is not yet complete."
+    ],
+    "final_devin_validation": "Catalog JSON updated; sampled SEC retrieval succeeded 5/5; full download/extraction remains the next bounded slice.",
+    "safety_flags": [
+      "Respect SEC rate limits.",
+      "Validate content type and document integrity.",
+      "Do not treat pricing supplements as realized outcomes."
+    ]
+  },
+  "records": [
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-03-18",
+      "adsh": "0000950103-25-003544",
+      "cik": "0000831001",
+      "filename": "dp226436_424b2-us2554077d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325003544/dp226436_424b2-us2554077d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-10-28",
+      "adsh": "0000950103-21-016790",
+      "cik": "0000831001",
+      "filename": "dp160774_424b2-us2170430.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321016790/dp160774_424b2-us2170430.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2024-07-11",
+      "adsh": "0000950103-24-009866",
+      "cik": "0000831001",
+      "filename": "dp214418_424b2-us2498805d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324009866/dp214418_424b2-us2498805d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-10-24",
+      "adsh": "0000950103-25-013607",
+      "cik": "0000831001",
+      "filename": "dp236286_424b2-us2524155d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325013607/dp236286_424b2-us2524155d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-06-25",
+      "adsh": "0000950103-25-007802",
+      "cik": "0000831001",
+      "filename": "dp230583_424b2-us2578259d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325007802/dp230583_424b2-us2578259d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-07-03",
+      "adsh": "0000950103-25-008449",
+      "cik": "0000831001",
+      "filename": "dp231228_424b2-us2580709d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325008449/dp231228_424b2-us2580709d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-06-27",
+      "adsh": "0000950103-25-008015",
+      "cik": "0000831001",
+      "filename": "dp230745_424b2-us2578259d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325008015/dp230745_424b2-us2578259d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-06-03",
+      "adsh": "0000950103-25-006881",
+      "cik": "0000831001",
+      "filename": "dp229756_424b2-us2570868d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325006881/dp229756_424b2-us2570868d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-07-18",
+      "adsh": "0000950103-25-008990",
+      "cik": "0000831001",
+      "filename": "dp231773_424b2-us2580709d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325008990/dp231773_424b2-us2580709d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-11-07",
+      "adsh": "0000950103-25-014462",
+      "cik": "0000831001",
+      "filename": "dp237122_424b2-us2524155d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325014462/dp237122_424b2-us2524155d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-03-25",
+      "adsh": "0000950103-26-004627",
+      "cik": "0000831001",
+      "filename": "dp244127_424b2-us26d9249d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326004627/dp244127_424b2-us26d9249d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-02-14",
+      "adsh": "0000950103-25-002049",
+      "cik": "0000831001",
+      "filename": "dp224953_424b2-us2545954d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325002049/dp224953_424b2-us2545954d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-02-21",
+      "adsh": "0000950103-25-002250",
+      "cik": "0000831001",
+      "filename": "dp225146_424b2-us2545954d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325002250/dp225146_424b2-us2545954d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-11-02",
+      "adsh": "0000950103-21-017157",
+      "cik": "0000831001",
+      "filename": "dp161132_424b2-us2170430.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321017157/dp161132_424b2-us2170430.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-03-26",
+      "adsh": "0000950103-25-003844",
+      "cik": "0000831001",
+      "filename": "dp226707_424b2-us2554077d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325003844/dp226707_424b2-us2554077d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-11-24",
+      "adsh": "0000950103-21-018411",
+      "cik": "0000831001",
+      "filename": "dp162351_424b2-us2173499.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321018411/dp162351_424b2-us2173499.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-11-15",
+      "adsh": "0000950103-21-017827",
+      "cik": "0000831001",
+      "filename": "dp161737_424b2-us2172429.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321017827/dp161737_424b2-us2172429.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2024-07-17",
+      "adsh": "0000950103-24-010122",
+      "cik": "0000831001",
+      "filename": "dp214637_424b2-us2498805d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324010122/dp214637_424b2-us2498805d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-10-05",
+      "adsh": "0000950103-22-017384",
+      "cik": "0000831001",
+      "filename": "dp182094_424b2-us2205770.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322017384/dp182094_424b2-us2205770.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-06-11",
+      "adsh": "0000950103-26-008816",
+      "cik": "0000831001",
+      "filename": "dp248306_424b2-us26m5876d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326008816/dp248306_424b2-us26m5876d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-12-01",
+      "adsh": "0000950103-25-015525",
+      "cik": "0000831001",
+      "filename": "dp238187_424b2-us25a1296d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325015525/dp238187_424b2-us25a1296d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-10-29",
+      "adsh": "0000950103-25-013812",
+      "cik": "0000831001",
+      "filename": "dp236481_424b2-us2524550d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325013812/dp236481_424b2-us2524550d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-03-23",
+      "adsh": "0000950103-26-004499",
+      "cik": "0000831001",
+      "filename": "dp244013_424b2-us26d9249d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326004499/dp244013_424b2-us26d9249d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-04-24",
+      "adsh": "0000950103-23-006078",
+      "cik": "0000831001",
+      "filename": "dp192571_424b2-us2327071.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323006078/dp192571_424b2-us2327071.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-11-26",
+      "adsh": "0000950103-25-015319",
+      "cik": "0000831001",
+      "filename": "dp237959_424b2-us25a1296d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325015319/dp237959_424b2-us25a1296d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-04-20",
+      "adsh": "0000950103-22-006608",
+      "cik": "0000831001",
+      "filename": "dp171218_424b2-us2289436.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322006608/dp171218_424b2-us2289436.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-04-28",
+      "adsh": "0000950103-21-006234",
+      "cik": "0000831001",
+      "filename": "dp150124_424b2-us2142959.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321006234/dp150124_424b2-us2142959.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-03-17",
+      "adsh": "0000950103-23-004325",
+      "cik": "0000831001",
+      "filename": "dp190826_424b2-us2322277.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323004325/dp190826_424b2-us2322277.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-10-08",
+      "adsh": "0000950103-25-012972",
+      "cik": "0000831001",
+      "filename": "dp235650_424b2-us2516991d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325012972/dp235650_424b2-us2516991d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-06-23",
+      "adsh": "0000950103-25-007694",
+      "cik": "0000831001",
+      "filename": "dp230474_424b2-us2575977d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325007694/dp230474_424b2-us2575977d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-11-03",
+      "adsh": "0000950103-25-014136",
+      "cik": "0000831001",
+      "filename": "dp236801_424b2-us2525641d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325014136/dp236801_424b2-us2525641d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-06-11",
+      "adsh": "0000950103-26-008823",
+      "cik": "0000831001",
+      "filename": "dp248307_424b2-us26m3810d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326008823/dp248307_424b2-us26m3810d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2024-09-10",
+      "adsh": "0000950103-24-013388",
+      "cik": "0000831001",
+      "filename": "dp217845_424b2-us2412101d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324013388/dp217845_424b2-us2412101d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-11-05",
+      "adsh": "0000950103-25-014348",
+      "cik": "0000831001",
+      "filename": "dp237002_424b2-us2526474d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325014348/dp237002_424b2-us2526474d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2020-12-03",
+      "adsh": "0000950103-20-023695",
+      "cik": "0000831001",
+      "filename": "dp142369_424b2-us2022021.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320023695/dp142369_424b2-us2022021.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-03-15",
+      "adsh": "0000950103-23-004138",
+      "cik": "0000831001",
+      "filename": "dp190653_424b2-us2321932.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323004138/dp190653_424b2-us2321932.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-05-12",
+      "adsh": "0000950103-22-008396",
+      "cik": "0000831001",
+      "filename": "dp173020_424b2-us2292216.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322008396/dp173020_424b2-us2292216.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2023-07-10",
+      "adsh": "0000950103-23-010096",
+      "cik": "0000831001",
+      "filename": "dp196529_424b2-us2337898.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323010096/dp196529_424b2-us2337898.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-06-08",
+      "adsh": "0000950103-21-008514",
+      "cik": "0000831001",
+      "filename": "dp152415_424b2-us2149412.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321008514/dp152415_424b2-us2149412.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-09-13",
+      "adsh": "0000950103-22-015610",
+      "cik": "0000831001",
+      "filename": "dp180271_424b2-us2203815.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322015610/dp180271_424b2-us2203815.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-03-09",
+      "adsh": "0000950103-22-004261",
+      "cik": "0000831001",
+      "filename": "dp168901_424b2-us2285802.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322004261/dp168901_424b2-us2285802.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-09-24",
+      "adsh": "0000950103-25-012135",
+      "cik": "0000831001",
+      "filename": "dp234829_424b2-us2512328d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325012135/dp234829_424b2-us2512328d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2021-08-17",
+      "adsh": "0000950103-21-012468",
+      "cik": "0000831001",
+      "filename": "dp156380_424b2-us2159898.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321012468/dp156380_424b2-us2159898.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2020-07-31",
+      "adsh": "0000950103-20-014747",
+      "cik": "0000831001",
+      "filename": "dp133420_424b2-us2007700.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320014747/dp133420_424b2-us2007700.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-10-12",
+      "adsh": "0000950103-21-015727",
+      "cik": "0000831001",
+      "filename": "dp159650_424b2-us2168639.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321015727/dp159650_424b2-us2168639.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-09-18",
+      "adsh": "0000950103-23-013669",
+      "cik": "0000831001",
+      "filename": "dp200130_424b2-us2349766.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323013669/dp200130_424b2-us2349766.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-10-01",
+      "adsh": "0000950103-25-012636",
+      "cik": "0000831001",
+      "filename": "dp235349_424b2-us2514708d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325012636/dp235349_424b2-us2514708d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-03-30",
+      "adsh": "0000950103-22-005561",
+      "cik": "0000831001",
+      "filename": "dp170159_424b2-us2287447.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322005561/dp170159_424b2-us2287447.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-07-06",
+      "adsh": "0000950103-23-009967",
+      "cik": "0000831001",
+      "filename": "dp196450_424b2-us2337894.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323009967/dp196450_424b2-us2337894.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2020-12-01",
+      "adsh": "0000950103-20-023415",
+      "cik": "0000831001",
+      "filename": "dp142096_424b2-us2022021.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320023415/dp142096_424b2-us2022021.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2020-12-03",
+      "adsh": "0000950103-20-023697",
+      "cik": "0000831001",
+      "filename": "dp142388_424b2-us2022025.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320023697/dp142388_424b2-us2022025.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2024-07-18",
+      "adsh": "0000950103-24-010184",
+      "cik": "0000831001",
+      "filename": "dp214691_424b2-us2499604d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324010184/dp214691_424b2-us2499604d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-09-29",
+      "adsh": "0000950103-22-016676",
+      "cik": "0000831001",
+      "filename": "dp181299_424b2-us2205314.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322016676/dp181299_424b2-us2205314.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2021-11-15",
+      "adsh": "0000950103-21-017798",
+      "cik": "0000831001",
+      "filename": "dp161762_424b2-us2172709.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321017798/dp161762_424b2-us2172709.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2024-09-06",
+      "adsh": "0000950103-24-013281",
+      "cik": "0000831001",
+      "filename": "dp217731_424b2-us2411304d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324013281/dp217731_424b2-us2411304d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2025-04-09",
+      "adsh": "0000950103-25-004618",
+      "cik": "0000831001",
+      "filename": "dp227468_424b2-us2558241d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325004618/dp227468_424b2-us2558241d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-04-12",
+      "adsh": "0000950103-22-006307",
+      "cik": "0000831001",
+      "filename": "dp170974_424b2-us2289436.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322006307/dp170974_424b2-us2289436.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-08-24",
+      "adsh": "0000950103-21-012786",
+      "cik": "0000831001",
+      "filename": "dp156653_424b2-us2160616.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321012786/dp156653_424b2-us2160616.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-03-28",
+      "adsh": "0000950103-22-005266",
+      "cik": "0000831001",
+      "filename": "dp169886_424b2-us2287449.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322005266/dp169886_424b2-us2287449.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-10-17",
+      "adsh": "0000950103-25-013315",
+      "cik": "0000831001",
+      "filename": "dp236010_424b2-us2520784d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325013315/dp236010_424b2-us2520784d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-07-07",
+      "adsh": "0000950103-26-010350",
+      "cik": "0000831001",
+      "filename": "dp249798_424b2-us26n4141d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326010350/dp249798_424b2-us26n4141d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-01-13",
+      "adsh": "0000950103-21-000451",
+      "cik": "0000831001",
+      "filename": "dp144212_424b2-us2126141.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321000451/dp144212_424b2-us2126141.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-12-01",
+      "adsh": "0000950103-25-015531",
+      "cik": "0000831001",
+      "filename": "dp238190_424b2-us25a1298d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325015531/dp238190_424b2-us25a1298d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-09-20",
+      "adsh": "0000950103-23-013810",
+      "cik": "0000831001",
+      "filename": "dp200287_424b2-us2349766.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323013810/dp200287_424b2-us2349766.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2024-04-17",
+      "adsh": "0000950103-24-005393",
+      "cik": "0000831001",
+      "filename": "dp209909_424b2-us2482799d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324005393/dp209909_424b2-us2482799d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2021-04-27",
+      "adsh": "0000950103-21-006134",
+      "cik": "0000831001",
+      "filename": "dp150008_424b2-us2142959.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321006134/dp150008_424b2-us2142959.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-07-06",
+      "adsh": "0000950103-26-010235",
+      "cik": "0000831001",
+      "filename": "dp249686_424b2-us26n3686d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326010235/dp249686_424b2-us26n3686d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2023-03-01",
+      "adsh": "0000950103-23-003435",
+      "cik": "0000831001",
+      "filename": "dp189966_424b2-us2320064.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323003435/dp189966_424b2-us2320064.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2024-04-19",
+      "adsh": "0000950103-24-005516",
+      "cik": "0000831001",
+      "filename": "dp210062_424b2-us2483764d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324005516/dp210062_424b2-us2483764d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-06-23",
+      "adsh": "0000950103-23-009194",
+      "cik": "0000831001",
+      "filename": "dp195661_424b2-us2335521.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323009194/dp195661_424b2-us2335521.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2023-07-14",
+      "adsh": "0000950103-23-010318",
+      "cik": "0000831001",
+      "filename": "dp196790_424b2-us2339233.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323010318/dp196790_424b2-us2339233.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-06-24",
+      "adsh": "0000950103-26-009415",
+      "cik": "0000831001",
+      "filename": "dp248889_424b2-us26n1094d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326009415/dp248889_424b2-us26n1094d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2024-12-23",
+      "adsh": "0000950103-24-018227",
+      "cik": "0000831001",
+      "filename": "dp222573_424b2-us2433473d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324018227/dp222573_424b2-us2433473d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2024-08-06",
+      "adsh": "0000950103-24-011732",
+      "cik": "0000831001",
+      "filename": "dp216245_424b2-us2404769d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324011732/dp216245_424b2-us2404769d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2024-05-21",
+      "adsh": "0000950103-24-006943",
+      "cik": "0000831001",
+      "filename": "dp211486_424b2-us2488596d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324006943/dp211486_424b2-us2488596d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-07-30",
+      "adsh": "0000950103-25-009499",
+      "cik": "0000831001",
+      "filename": "dp232332_424b2-us2591126d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325009499/dp232332_424b2-us2591126d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-07-30",
+      "adsh": "0000950103-26-011368",
+      "cik": "0000831001",
+      "filename": "dp250826_424b2-us26o6280d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326011368/dp250826_424b2-us26o6280d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-03-07",
+      "adsh": "0000950103-22-004064",
+      "cik": "0000831001",
+      "filename": "dp168700_424b2-us2285535.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322004064/dp168700_424b2-us2285535.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2021-11-04",
+      "adsh": "0000950103-21-017399",
+      "cik": "0000831001",
+      "filename": "dp161345_424b2-us2170900.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321017399/dp161345_424b2-us2170900.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2021-01-08",
+      "adsh": "0000950103-21-000240",
+      "cik": "0000831001",
+      "filename": "dp144054_424b2-us2125768.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321000240/dp144054_424b2-us2125768.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2023-05-30",
+      "adsh": "0000950103-23-008085",
+      "cik": "0000831001",
+      "filename": "dp194606_424b2-us2331708.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323008085/dp194606_424b2-us2331708.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2023-06-22",
+      "adsh": "0000950103-23-009091",
+      "cik": "0000831001",
+      "filename": "dp195562_424b2-us2335153.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323009091/dp195562_424b2-us2335153.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-04-21",
+      "adsh": "0000950103-23-006015",
+      "cik": "0000831001",
+      "filename": "dp192516_424b2-us2326886.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323006015/dp192516_424b2-us2326886.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-06-24",
+      "adsh": "0000950103-21-009265",
+      "cik": "0000831001",
+      "filename": "dp153155_424b2-us2152385.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321009265/dp153155_424b2-us2152385.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-05-05",
+      "adsh": "0000950103-22-008022",
+      "cik": "0000831001",
+      "filename": "dp172682_424b2-us2291339.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322008022/dp172682_424b2-us2291339.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2019-02-20",
+      "adsh": "0000950103-19-002114",
+      "cik": "0000831001",
+      "filename": "dp102472_424b2-us1964845.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010319002114/dp102472_424b2-us1964845.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-08-31",
+      "adsh": "0000950103-21-013302",
+      "cik": "0000831001",
+      "filename": "dp157194_424b2-us2161437.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321013302/dp157194_424b2-us2161437.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2020-12-01",
+      "adsh": "0000950103-20-023417",
+      "cik": "0000831001",
+      "filename": "dp142095_424b2-us2022025.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320023417/dp142095_424b2-us2022025.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-12-05",
+      "adsh": "0000950103-25-015786",
+      "cik": "0000831001",
+      "filename": "dp238438_424b2-us25a2545d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325015786/dp238438_424b2-us25a2545d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-01-12",
+      "adsh": "0000950103-21-000354",
+      "cik": "0000831001",
+      "filename": "dp144143_424b2-us2125768.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321000354/dp144143_424b2-us2125768.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-03-03",
+      "adsh": "0000950103-21-003490",
+      "cik": "0000831001",
+      "filename": "dp147288_424b2-us2134500.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321003490/dp147288_424b2-us2134500.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2019-02-15",
+      "adsh": "0000950103-19-002045",
+      "cik": "0000831001",
+      "filename": "dp102389_424b2-us1964498.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010319002045/dp102389_424b2-us1964498.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2023-08-31",
+      "adsh": "0000950103-23-013058",
+      "cik": "0000831001",
+      "filename": "dp199518_424b2-us2346709.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323013058/dp199518_424b2-us2346709.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2021-08-17",
+      "adsh": "0000950103-21-012436",
+      "cik": "0000831001",
+      "filename": "dp156335_424b2-us2159896.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321012436/dp156335_424b2-us2159896.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2022-05-24",
+      "adsh": "0000950103-22-009164",
+      "cik": "0000831001",
+      "filename": "dp173815_424b2-us2292923.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322009164/dp173815_424b2-us2292923.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2023-05-04",
+      "adsh": "0000950103-23-006836",
+      "cik": "0000831001",
+      "filename": "dp193358_424b2-us2328381.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323006836/dp193358_424b2-us2328381.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Autocallable Phoenix\"",
+      "form": "424B2",
+      "file_date": "2021-10-13",
+      "adsh": "0000950103-21-015839",
+      "cik": "0000831001",
+      "filename": "dp159747_424b2-us2168639.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321015839/dp159747_424b2-us2168639.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-06-25",
+      "adsh": "0000950103-21-009378",
+      "cik": "0000831001",
+      "filename": "dp153259_424b2-us2152730.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321009378/dp153259_424b2-us2152730.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-02-24",
+      "adsh": "0000950103-23-002937",
+      "cik": "0000831001",
+      "filename": "dp189452_424b2-us2319472.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323002937/dp189452_424b2-us2319472.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-02-28",
+      "adsh": "0000950103-23-003278",
+      "cik": "0000831001",
+      "filename": "dp189804_424b2-us2319871.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323003278/dp189804_424b2-us2319871.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-01-22",
+      "adsh": "0000950103-26-000811",
+      "cik": "0000831001",
+      "filename": "dp240310_424b2-us26b5660d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326000811/dp240310_424b2-us26b5660d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-01-26",
+      "adsh": "0000950103-26-000927",
+      "cik": "0000831001",
+      "filename": "dp240415_424b2-us26b5660d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326000927/dp240415_424b2-us26b5660d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-09-18",
+      "adsh": "0000950103-25-011811",
+      "cik": "0000831001",
+      "filename": "dp234529_424b2-us2511018d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325011811/dp234529_424b2-us2511018d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-10-27",
+      "adsh": "0000950103-21-016681",
+      "cik": "0000831001",
+      "filename": "dp160516_424b2-us2170125.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321016681/dp160516_424b2-us2170125.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-10-29",
+      "adsh": "0000950103-21-016924",
+      "cik": "0000831001",
+      "filename": "dp160878_424b2-us2170125.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321016924/dp160878_424b2-us2170125.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-09-04",
+      "adsh": "0000950103-25-011262",
+      "cik": "0000831001",
+      "filename": "dp234003_424b2-us2505163d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325011262/dp234003_424b2-us2505163d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-09-22",
+      "adsh": "0000950103-25-011956",
+      "cik": "0000831001",
+      "filename": "dp234655_424b2-us2511018d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325011956/dp234655_424b2-us2511018d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-09-09",
+      "adsh": "0000950103-25-011455",
+      "cik": "0000831001",
+      "filename": "dp234172_424b2-us2505163d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325011455/dp234172_424b2-us2505163d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-01-13",
+      "adsh": "0000950103-21-000450",
+      "cik": "0000831001",
+      "filename": "dp144211_424b2-us2126140.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321000450/dp144211_424b2-us2126140.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-11-12",
+      "adsh": "0000950103-21-017724",
+      "cik": "0000831001",
+      "filename": "dp161651_424b2-us2172429.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321017724/dp161651_424b2-us2172429.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-03-28",
+      "adsh": "0000950103-22-005267",
+      "cik": "0000831001",
+      "filename": "dp169887_424b2-us2287447.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322005267/dp169887_424b2-us2287447.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-04-19",
+      "adsh": "0000950103-23-005921",
+      "cik": "0000831001",
+      "filename": "dp192410_424b2-us2326601.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323005921/dp192410_424b2-us2326601.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2022-03-15",
+      "adsh": "0000950103-22-004570",
+      "cik": "0000831001",
+      "filename": "dp169191_424b2-us2285685.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322004570/dp169191_424b2-us2285685.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-03-11",
+      "adsh": "0000950103-21-003800",
+      "cik": "0000831001",
+      "filename": "dp147639_424b2-us2136612.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321003800/dp147639_424b2-us2136612.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-07-21",
+      "adsh": "0000950103-26-010865",
+      "cik": "0000831001",
+      "filename": "dp250348_424b2-us26o1926d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326010865/dp250348_424b2-us26o1926d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-08-25",
+      "adsh": "0000950103-23-012677",
+      "cik": "0000831001",
+      "filename": "dp199163_424b2-us2346343.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323012677/dp199163_424b2-us2346343.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2021-06-28",
+      "adsh": "0000950103-21-009486",
+      "cik": "0000831001",
+      "filename": "dp153366_424b2-us2152385.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321009486/dp153366_424b2-us2152385.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-11-26",
+      "adsh": "0000950103-25-015340",
+      "cik": "0000831001",
+      "filename": "dp237961_424b2-us25a1335d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325015340/dp237961_424b2-us25a1335d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2023-08-29",
+      "adsh": "0000950103-23-012898",
+      "cik": "0000831001",
+      "filename": "dp199345_424b2-us2346709.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323012898/dp199345_424b2-us2346709.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2025-10-17",
+      "adsh": "0000950103-25-013326",
+      "cik": "0000831001",
+      "filename": "dp236012_424b2-us2520788d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325013326/dp236012_424b2-us2520788d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"Phoenix Securities\"",
+      "form": "424B2",
+      "file_date": "2026-07-27",
+      "adsh": "0000950103-26-011181",
+      "cik": "0000831001",
+      "filename": "dp250658_424b2-us26o4645d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "US26O4645D",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326011181/dp250658_424b2-us26o4645d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2026-01-28",
+      "adsh": "0001918704-26-002069",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870426002069/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2015-11-05",
+      "adsh": "0000950103-15-008708",
+      "cik": "0000831001",
+      "filename": "dp61044_424b2-2089.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010315008708/dp61044_424b2-2089.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-07-31",
+      "adsh": "0001481057-24-009932",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000148105724009932/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-03-04",
+      "adsh": "0000950103-25-002954",
+      "cik": "0000831001",
+      "filename": "dp225802_424b2-us2542148.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325002954/dp225802_424b2-us2542148.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-10-30",
+      "adsh": "0001918704-25-018585",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425018585/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-10-15",
+      "adsh": "0000950103-25-013226",
+      "cik": "0000831001",
+      "filename": "dp235875_424b2-us2520786d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325013226/dp235875_424b2-us2520786d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-03-26",
+      "adsh": "0001918704-25-005102",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425005102/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2021-11-02",
+      "adsh": "0000950103-21-017209",
+      "cik": "0000831001",
+      "filename": "dp161168_424b2-us2166816.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321017209/dp161168_424b2-us2166816.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-10-26",
+      "adsh": "0000950103-22-018377",
+      "cik": "0000831001",
+      "filename": "dp182973_424b2-us2207704.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322018377/dp182973_424b2-us2207704.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2015-10-13",
+      "adsh": "0000950103-15-008120",
+      "cik": "0000831001",
+      "filename": "dp60449_424b2-1939.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010315008120/dp60449_424b2-1939.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-12-26",
+      "adsh": "0001918704-24-002331",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870424002331/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-08-24",
+      "adsh": "0000950103-22-014408",
+      "cik": "0000831001",
+      "filename": "dp179122_424b2-us2202119.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322014408/dp179122_424b2-us2202119.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-06-21",
+      "adsh": "0001481057-24-008357",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000148105724008357/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-09-27",
+      "adsh": "0001481057-24-012444",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000148105724012444/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-12-26",
+      "adsh": "0000950103-24-018261",
+      "cik": "0000831001",
+      "filename": "dp222628_424b2-us2429353.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324018261/dp222628_424b2-us2429353.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-06-30",
+      "adsh": "0001918704-25-010323",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425010323/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-10-29",
+      "adsh": "0001918704-25-018352",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425018352/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-07-31",
+      "adsh": "0001918704-25-012137",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425012137/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-10-30",
+      "adsh": "0001918704-25-018601",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425018601/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-08-29",
+      "adsh": "0001918704-25-014095",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425014095/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-03-23",
+      "adsh": "0000950103-22-005108",
+      "cik": "0000831001",
+      "filename": "dp169719_424b2-us2287096.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322005108/dp169719_424b2-us2287096.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2021-12-29",
+      "adsh": "0000950103-21-020430",
+      "cik": "0000831001",
+      "filename": "dp164355_424b2-us2277205.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321020430/dp164355_424b2-us2277205.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2026-06-01",
+      "adsh": "0001918704-26-014971",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870426014971/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2026-05-28",
+      "adsh": "0001918704-26-014490",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870426014490/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-03-22",
+      "adsh": "0000950103-24-004139",
+      "cik": "0000831001",
+      "filename": "dp208675_424b2-us2478443.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324004139/dp208675_424b2-us2478443.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-02-28",
+      "adsh": "0001918704-25-003432",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425003432/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2026-05-04",
+      "adsh": "0000950103-26-006771",
+      "cik": "0000831001",
+      "filename": "dp246258_424b2-us26e1707d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326006771/dp246258_424b2-us26e1707d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-06-28",
+      "adsh": "0000950103-24-009111",
+      "cik": "0000831001",
+      "filename": "dp213663_424b2-us2495684.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324009111/dp213663_424b2-us2495684.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-02-28",
+      "adsh": "0000950103-22-003472",
+      "cik": "0000831001",
+      "filename": "dp168087_424b2-us2284382.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322003472/dp168087_424b2-us2284382.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2021-10-20",
+      "adsh": "0000950103-21-016170",
+      "cik": "0000831001",
+      "filename": "dp160118_424b2-us2169572.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321016170/dp160118_424b2-us2169572.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-12-27",
+      "adsh": "0000950103-24-018393",
+      "cik": "0000831001",
+      "filename": "dp222767_424b2-us2533747.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324018393/dp222767_424b2-us2533747.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-05-29",
+      "adsh": "0001918704-25-008413",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425008413/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-08-28",
+      "adsh": "0001918704-25-013789",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425013789/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-01-23",
+      "adsh": "0000950103-24-001026",
+      "cik": "0000831001",
+      "filename": "dp205600_424b2-us2463928.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324001026/dp205600_424b2-us2463928.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-10-08",
+      "adsh": "0001918704-25-017047",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425017047/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-03-03",
+      "adsh": "0001918704-25-003696",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425003696/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2015-10-14",
+      "adsh": "0000950103-15-008172",
+      "cik": "0000831001",
+      "filename": "dp60486_424b2-1939.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010315008172/dp60486_424b2-1939.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-11-25",
+      "adsh": "0000950103-22-020125",
+      "cik": "0000831001",
+      "filename": "dp184771_424b2-us2210083.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322020125/dp184771_424b2-us2210083.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-09-10",
+      "adsh": "0001481057-24-011873",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000148105724011873/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2023-04-13",
+      "adsh": "0000950103-23-005696",
+      "cik": "0000831001",
+      "filename": "dp192184_424b2-us2326081.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323005696/dp192184_424b2-us2326081.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-09-11",
+      "adsh": "0001918704-25-015024",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425015024/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-06-03",
+      "adsh": "0001481057-24-007483",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000148105724007483/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-03-28",
+      "adsh": "0001918704-25-005254",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425005254/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2026-03-30",
+      "adsh": "0001918704-26-008569",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870426008569/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-02-25",
+      "adsh": "0000950103-22-003263",
+      "cik": "0000831001",
+      "filename": "dp167934_424b2-us2284231.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322003263/dp167934_424b2-us2284231.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-01-03",
+      "adsh": "0000950103-22-000048",
+      "cik": "0000831001",
+      "filename": "dp164608_424b2-us2174292.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322000048/dp164608_424b2-us2174292.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-12-23",
+      "adsh": "0001918704-24-002071",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870424002071/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2026-02-03",
+      "adsh": "0001918704-26-003013",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870426003013/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2021-06-24",
+      "adsh": "0000950103-21-009267",
+      "cik": "0000831001",
+      "filename": "dp153163_424b2-us2152388.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321009267/dp153163_424b2-us2152388.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-03-08",
+      "adsh": "0000950103-24-003592",
+      "cik": "0000831001",
+      "filename": "dp208130_424b2-us2475179.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324003592/dp208130_424b2-us2475179.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-07-02",
+      "adsh": "0001918704-25-010691",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425010691/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-09-29",
+      "adsh": "0001918704-25-016020",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425016020/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-02-27",
+      "adsh": "0001918704-25-003295",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425003295/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2026-03-03",
+      "adsh": "0001918704-26-005918",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870426005918/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2018-10-03",
+      "adsh": "0000950103-18-011591",
+      "cik": "0000831001",
+      "filename": "dp96301_424b2-us1857196.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010318011591/dp96301_424b2-us1857196.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2020-06-02",
+      "adsh": "0000950103-20-010953",
+      "cik": "0000831001",
+      "filename": "dp129511_424b2-us2099136.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "FORM 424B2",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320010953/dp129511_424b2-us2099136.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-11-17",
+      "adsh": "0000950103-22-019840",
+      "cik": "0000831001",
+      "filename": "dp184530_424b2-us2210083.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322019840/dp184530_424b2-us2210083.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-01-21",
+      "adsh": "0000950103-25-000700",
+      "cik": "0000831001",
+      "filename": "dp223659_424b2-us2537643.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325000700/dp223659_424b2-us2537643.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-02-03",
+      "adsh": "0001918704-25-001629",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425001629/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-01-12",
+      "adsh": "0000950103-22-000473",
+      "cik": "0000831001",
+      "filename": "dp165066_424b2-us2278786.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322000473/dp165066_424b2-us2278786.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2021-10-29",
+      "adsh": "0000950103-21-016889",
+      "cik": "0000831001",
+      "filename": "dp160850_424b2-us2169572.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321016889/dp160850_424b2-us2169572.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2020-07-21",
+      "adsh": "0000950103-20-013981",
+      "cik": "0000831001",
+      "filename": "dp132558_424b2-us2006028.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320013981/dp132558_424b2-us2006028.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2015-12-17",
+      "adsh": "0000950103-15-009588",
+      "cik": "0000831001",
+      "filename": "dp61930_424b2-2267.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010315009588/dp61930_424b2-2267.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2020-02-03",
+      "adsh": "0000950103-20-001853",
+      "cik": "0000831001",
+      "filename": "dp120419_424b2-us2086033.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320001853/dp120419_424b2-us2086033.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2015-12-30",
+      "adsh": "0000950103-15-009816",
+      "cik": "0000831001",
+      "filename": "dp62201_424b2-2304.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010315009816/dp62201_424b2-2304.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-08-17",
+      "adsh": "0000950103-22-014100",
+      "cik": "0000831001",
+      "filename": "dp178810_424b2-us2201448.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322014100/dp178810_424b2-us2201448.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-10-26",
+      "adsh": "0000950103-22-018386",
+      "cik": "0000831001",
+      "filename": "dp183099_424b2-us2208077.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322018386/dp183099_424b2-us2208077.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-02-24",
+      "adsh": "0000950103-22-003149",
+      "cik": "0000831001",
+      "filename": "dp167794_424b2-us2284074.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322003149/dp167794_424b2-us2284074.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-11-01",
+      "adsh": "0001481057-24-014310",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000148105724014310/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2021-11-29",
+      "adsh": "0000950103-21-018688",
+      "cik": "0000831001",
+      "filename": "dp162538_424b2-us2173980.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321018688/dp162538_424b2-us2173980.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-11-27",
+      "adsh": "0001918704-24-001111",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870424001111/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2026-04-02",
+      "adsh": "0001918704-26-009281",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN, C-PR)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870426009281/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2021-08-25",
+      "adsh": "0000950103-21-012842",
+      "cik": "0000831001",
+      "filename": "dp156747_424b2-us2161480.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321012842/dp156747_424b2-us2161480.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-03-15",
+      "adsh": "0000950103-22-004630",
+      "cik": "0000831001",
+      "filename": "dp169243_424b2-us2284523.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322004630/dp169243_424b2-us2284523.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2024-07-18",
+      "adsh": "0000950103-24-010157",
+      "cik": "0000831001",
+      "filename": "dp214692_424b2-us2400283d.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324010157/dp214692_424b2-us2400283d.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-06-03",
+      "adsh": "0000950103-22-010087",
+      "cik": "0000831001",
+      "filename": "dp174734_424b2-us2294786.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322010087/dp174734_424b2-us2294786.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-04-13",
+      "adsh": "0000950103-22-006357",
+      "cik": "0000831001",
+      "filename": "dp170985_424b2-us2289431.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322006357/dp170985_424b2-us2289431.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2022-05-27",
+      "adsh": "0000950103-22-009464",
+      "cik": "0000831001",
+      "filename": "dp174134_424b2-us2290424.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322009464/dp174134_424b2-us2290424.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    },
+    {
+      "source": "SEC EDGAR full-text search",
+      "search_query": "\"worst performing\"",
+      "form": "424B2",
+      "file_date": "2025-02-11",
+      "adsh": "0001918704-25-002233",
+      "cik": "0000831001",
+      "filename": "form424b2.htm",
+      "display_names": [
+        "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+        "Citigroup Global Markets Holdings Inc.  (CIK 0000200245)"
+      ],
+      "file_description": "PRELIMINARY PRICING SUPPLEMENT",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000191870425002233/form424b2.htm",
+      "classification": "public_free_candidate",
+      "download_status": "not_downloaded",
+      "extraction_status": "not_started",
+      "evidence_class": "pricing_supplement_candidate"
+    }
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

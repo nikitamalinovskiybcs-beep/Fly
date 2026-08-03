@@ -1,0 +1,231 @@
+{
+  "run_id": "phoenix-sec-term-sheet-predictions-2000-v2",
+  "generated_at": "2026-08-03T22:15:36.669389+00:00",
+  "status": "research_only",
+  "as_of_rule": "historical prices capped at derived expected pricing date; no look-ahead",
+  "counts": {
+    "eligible_unique": 10,
+    "prediction_completed": 10,
+    "blocked_missing_valid_inputs": 896
+  },
+  "verified_comparisons": 0,
+  "records": [
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325003544/dp226436_424b2-us2554077d.htm",
+      "accession": "0000950103-25-003544",
+      "basket": [
+        "^GSPC",
+        "^RUT",
+        "^NDX"
+      ],
+      "as_of_date": "2025-03-24",
+      "as_of_provenance": "derived_from_expected_pricing_date_text",
+      "prediction": {
+        "p_loss": 0.0,
+        "avg_payoff": 1.241735,
+        "n_sims": 1000,
+        "barrier": 0.65,
+        "coupon_rate": 0.065
+      },
+      "outcome_status": "missing_verified_outcome",
+      "comparison_status": "not_comparable",
+      "evidence_class": "pricing_supplement_evidence"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321016790/dp160774_424b2-us2170430.htm",
+      "accession": "0000950103-21-016790",
+      "basket": [
+        "^GSPC",
+        "^RUT",
+        "^STOXX50E"
+      ],
+      "as_of_date": "2021-10-29",
+      "as_of_provenance": "derived_from_expected_pricing_date_text",
+      "prediction": {
+        "p_loss": 0.0,
+        "avg_payoff": 1.18811,
+        "n_sims": 1000,
+        "barrier": 0.65,
+        "coupon_rate": 0.065
+      },
+      "outcome_status": "missing_verified_outcome",
+      "comparison_status": "not_comparable",
+      "evidence_class": "pricing_supplement_evidence"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324009866/dp214418_424b2-us2498805d.htm",
+      "accession": "0000950103-24-009866",
+      "basket": [
+        "^GSPC",
+        "^RUT"
+      ],
+      "as_of_date": "2024-07-15",
+      "as_of_provenance": "derived_from_expected_pricing_date_text",
+      "prediction": {
+        "p_loss": 0.0,
+        "avg_payoff": 1.2865199999999999,
+        "n_sims": 1000,
+        "barrier": 0.65,
+        "coupon_rate": 0.065
+      },
+      "outcome_status": "missing_verified_outcome",
+      "comparison_status": "not_comparable",
+      "evidence_class": "pricing_supplement_evidence"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325013607/dp236286_424b2-us2524155d.htm",
+      "accession": "0000950103-25-013607",
+      "basket": [
+        "^GSPC",
+        "^RUT",
+        "^NDX"
+      ],
+      "as_of_date": "2025-11-05",
+      "as_of_provenance": "derived_from_expected_pricing_date_text",
+      "prediction": {
+        "p_loss": 0.0,
+        "avg_payoff": 1.2640300000000002,
+        "n_sims": 1000,
+        "barrier": 0.65,
+        "coupon_rate": 0.065
+      },
+      "outcome_status": "missing_verified_outcome",
+      "comparison_status": "not_comparable",
+      "evidence_class": "pricing_supplement_evidence"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325007802/dp230583_424b2-us2578259d.htm",
+      "accession": "0000950103-25-007802",
+      "basket": [
+        "^GSPC",
+        "^RUT",
+        "^NDX"
+      ],
+      "as_of_date": "2025-06-25",
+      "as_of_provenance": "derived_from_expected_pricing_date_text",
+      "prediction": {
+        "p_loss": 0.0,
+        "avg_payoff": 1.2721550000000001,
+        "n_sims": 1000,
+        "barrier": 0.65,
+        "coupon_rate": 0.065
+      },
+      "outcome_status": "missing_verified_outcome",
+      "comparison_status": "not_comparable",
+      "evidence_class": "pricing_supplement_evidence"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325008449/dp231228_424b2-us2580709d.htm",
+      "accession": "0000950103-25-008449",
+      "basket": [
+        "^GSPC",
+        "^RUT",
+        "^NDX"
+      ],
+      "as_of_date": "2025-07-16",
+      "as_of_provenance": "derived_from_expected_pricing_date_text",
+      "prediction": {
+        "p_loss": 0.0,
+        "avg_payoff": 1.2678649999999998,
+        "n_sims": 1000,
+        "barrier": 0.65,
+        "coupon_rate": 0.065
+      },
+      "outcome_status": "missing_verified_outcome",
+      "comparison_status": "not_comparable",
+      "evidence_class": "pricing_supplement_evidence"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325006881/dp229756_424b2-us2570868d.htm",
+      "accession": "0000950103-25-006881",
+      "basket": [
+        "^GSPC",
+        "^STOXX50E"
+      ],
+      "as_of_date": "2025-06-03",
+      "as_of_provenance": "derived_from_expected_pricing_date_text",
+      "prediction": {
+        "p_loss": 0.0,
+        "avg_payoff": 1.23257,
+        "n_sims": 1000,
+        "barrier": 0.65,
+        "coupon_rate": 0.065
+      },
+      "outcome_status": "missing_verified_outcome",
+      "comparison_status": "not_comparable",
+      "evidence_class": "pricing_supplement_evidence"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326000811/dp240310_424b2-us26b5660d.htm",
+      "accession": "0000950103-26-000811",
+      "basket": [
+        "^GSPC",
+        "^RUT",
+        "^NDX"
+      ],
+      "as_of_date": "2026-01-22",
+      "as_of_provenance": "derived_from_expected_pricing_date_text",
+      "prediction": {
+        "p_loss": 0.0,
+        "avg_payoff": 1.26247,
+        "n_sims": 1000,
+        "barrier": 0.65,
+        "coupon_rate": 0.065
+      },
+      "outcome_status": "missing_verified_outcome",
+      "comparison_status": "not_comparable",
+      "evidence_class": "pricing_supplement_evidence"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325011811/dp234529_424b2-us2511018d.htm",
+      "accession": "0000950103-25-011811",
+      "basket": [
+        "^GSPC",
+        "^RUT"
+      ],
+      "as_of_date": "2025-09-18",
+      "as_of_provenance": "derived_from_expected_pricing_date_text",
+      "prediction": {
+        "p_loss": 0.0,
+        "avg_payoff": 1.2732599999999998,
+        "n_sims": 1000,
+        "barrier": 0.65,
+        "coupon_rate": 0.065
+      },
+      "outcome_status": "missing_verified_outcome",
+      "comparison_status": "not_comparable",
+      "evidence_class": "pricing_supplement_evidence"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321016681/dp160516_424b2-us2170125.htm",
+      "accession": "0000950103-21-016681",
+      "basket": [
+        "^GSPC",
+        "^STOXX50E"
+      ],
+      "as_of_date": "2021-10-27",
+      "as_of_provenance": "derived_from_expected_pricing_date_text",
+      "prediction": {
+        "p_loss": 0.0,
+        "avg_payoff": 1.196105,
+        "n_sims": 1000,
+        "barrier": 0.65,
+        "coupon_rate": 0.065
+      },
+      "outcome_status": "missing_verified_outcome",
+      "comparison_status": "not_comparable",
+      "evidence_class": "pricing_supplement_evidence"
+    }
+  ],
+  "limitations": [
+    "derived expected dates are not verified issuance dates",
+    "index mapping is a research mapping, not human validated",
+    "no verified lifecycle outcomes",
+    "predictions are not training labels"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "proposal_id": "phoenix-100-deterministic-tests-v1",
+  "scope": "Generate and execute 100 deterministic research tests for Phoenix adapters and payoff semantics.",
+  "constraints": [
+    "Do not change production weights, verdicts, or trades.",
+    "Use explicit expected results for path-level tests.",
+    "Keep AI proposals separate from executable pass/fail evidence.",
+    "Do not treat synthetic fixtures as market evidence."
+  ],
+  "test_families": {
+    "payoff_semantics": 20,
+    "memory_coupon": 15,
+    "autocall": 15,
+    "knock_in_and_final_payoff": 15,
+    "worst_of_basket": 10,
+    "date_and_schedule": 10,
+    "stress_and_boundaries": 10,
+    "provenance_and_safety": 5
+  },
+  "success_criteria": [
+    "Exactly 100 deterministic tests execute.",
+    "Expected path-level results are reproducible.",
+    "Malformed paths and invalid terms fail safely.",
+    "Optional-library parity remains within declared tolerance.",
+    "Production safety flags remain false."
+  ],
+  "blocked_claims": [
+    "No market accuracy claim.",
+    "No OOS calibration claim.",
+    "No Numerix benchmark claim."
+  ]
+}

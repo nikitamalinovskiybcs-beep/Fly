@@ -1,0 +1,877 @@
+{
+  "run_id": "phoenix-sec-term-sheet-expanded-assumption-replay-v1",
+  "generated_at": "2026-08-03T23:00:14.017463+00:00",
+  "status": "research_only",
+  "rows_considered": 39,
+  "counts": {
+    "completed": 36,
+    "blocked_market": 3
+  },
+  "as_of_rule": "file_date proxy only where expected pricing date was absent; explicitly assumption-labeled",
+  "records": [
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325002250/dp225146_424b2-us2545954d.htm",
+      "accession": "0000950103-25-002250",
+      "basket": [
+        "XLY",
+        "XLK"
+      ],
+      "as_of_date": "2025-02-21",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.28054,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322010637/dp175315_424b2-us2296142.htm",
+      "accession": "0000950103-22-010637",
+      "basket": [
+        "JNJ",
+        "PG"
+      ],
+      "as_of_date": "2022-06-15",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.23946,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045520/000110465920077908/a20-22925_34424b2.htm",
+      "accession": "0001104659-20-077908",
+      "basket": [
+        "V",
+        "CVS",
+        "UPS"
+      ],
+      "as_of_date": "2020-06-29",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.19227,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324004990/dp209554_424b2-us2481708.htm",
+      "accession": "0000950103-24-004990",
+      "basket": [
+        "MRO",
+        "OVV"
+      ],
+      "as_of_date": "2024-04-08",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "blocked",
+      "blocked_reason": "market_history_unavailable_before_assumed_as_of",
+      "missing_tickers": [
+        "MRO"
+      ]
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1053092/000095010321000072/dp143532_424b2-k1658.htm",
+      "accession": "0000950103-21-000072",
+      "basket": [
+        "XLI",
+        "XLF"
+      ],
+      "as_of_date": "2021-01-05",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2891199999999998,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326009265/dp248719_424b2-us26m9902d.htm",
+      "accession": "0000950103-26-009265",
+      "basket": [
+        "ANET",
+        "CASY",
+        "NTAP"
+      ],
+      "as_of_date": "2026-06-22",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.17173,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326009819/dp249281_424b2-us26m9902d.htm",
+      "accession": "0000950103-26-009819",
+      "basket": [
+        "ANET",
+        "CASY",
+        "NTAP"
+      ],
+      "as_of_date": "2026-06-30",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.15938,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1000275/000121465914004250/o65141424b2.htm",
+      "accession": "0001214659-14-004250",
+      "basket": [
+        "BAC",
+        "JPM"
+      ],
+      "as_of_date": "2014-06-06",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "blocked",
+      "blocked_reason": "market_history_unavailable_before_assumed_as_of",
+      "missing_tickers": [
+        "BAC",
+        "JPM"
+      ]
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322007890/dp172578_424b2-us2291485.htm",
+      "accession": "0000950103-22-007890",
+      "basket": [
+        "AAPL",
+        "BAC",
+        "BRK-B"
+      ],
+      "as_of_date": "2022-05-04",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2121600000000001,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322012883/dp177601_424b2-us2299336.htm",
+      "accession": "0000950103-22-012883",
+      "basket": [
+        "GOOGL",
+        "JPM"
+      ],
+      "as_of_date": "2022-07-26",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.24804,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320007707/dp126365_424b2-us2096717.htm",
+      "accession": "0000950103-20-007707",
+      "basket": [
+        "JPM",
+        "AMTD"
+      ],
+      "as_of_date": "2020-04-20",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "blocked",
+      "blocked_reason": "market_history_unavailable_before_assumed_as_of",
+      "missing_tickers": [
+        "AMTD"
+      ]
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323010782/dp197268_424b2-us2341022.htm",
+      "accession": "0000950103-23-010782",
+      "basket": [
+        "ADBE",
+        "AMAT",
+        "DE"
+      ],
+      "as_of_date": "2023-07-26",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.1830399999999999,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320005749/dp124406_424b2-us2095180.htm",
+      "accession": "0000950103-20-005749",
+      "basket": [
+        "AAPL",
+        "AMZN"
+      ],
+      "as_of_date": "2020-03-23",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2571400000000001,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322010436/dp175129_424b2-us2295811.htm",
+      "accession": "0000950103-22-010436",
+      "basket": [
+        "JNJ",
+        "PG"
+      ],
+      "as_of_date": "2022-06-13",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2455699999999998,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323010437/dp196948_424b2-us2339885.htm",
+      "accession": "0000950103-23-010437",
+      "basket": [
+        "AMZN",
+        "GOOGL"
+      ],
+      "as_of_date": "2023-07-19",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2645500000000003,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323011476/dp197948_424b2-us2342680.htm",
+      "accession": "0000950103-23-011476",
+      "basket": [
+        "MSFT",
+        "JPM"
+      ],
+      "as_of_date": "2023-08-03",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.22386,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045520/000110465925076756/tm2522250d17_424b2.htm",
+      "accession": "0001104659-25-076756",
+      "basket": [
+        "GOOGL",
+        "NFLX",
+        "INTC"
+      ],
+      "as_of_date": "2025-08-12",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.1891500000000002,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045520/000110465921116885/tm2126716d38_424b2.htm",
+      "accession": "0001104659-21-116885",
+      "basket": [
+        "WMT",
+        "COST"
+      ],
+      "as_of_date": "2021-09-17",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.24141,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322007765/dp172419_424b2-us2289658.htm",
+      "accession": "0000950103-22-007765",
+      "basket": [
+        "AAPL",
+        "BAC",
+        "JPM"
+      ],
+      "as_of_date": "2022-05-03",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.24258,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/895421/000183988224026552/ms3564_424b2-16004.htm",
+      "accession": "0001839882-24-026552",
+      "basket": [
+        "MSFT",
+        "NVDA",
+        "MS"
+      ],
+      "as_of_date": "2024-08-22",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.20228,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326009830/dp249286_424b2-us26m8641d.htm",
+      "accession": "0000950103-26-009830",
+      "basket": [
+        "AMZN",
+        "GOOGL",
+        "MSFT"
+      ],
+      "as_of_date": "2026-06-30",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2056600000000002,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325009135/dp231910_424b2-us2585147d.htm",
+      "accession": "0000950103-25-009135",
+      "basket": [
+        "AMZN",
+        "GOOGL",
+        "MSFT"
+      ],
+      "as_of_date": "2025-07-22",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2342600000000001,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1053092/000095010321000373/dp144192_424b2-k1658.htm",
+      "accession": "0000950103-21-000373",
+      "basket": [
+        "XLI",
+        "XLF"
+      ],
+      "as_of_date": "2021-01-12",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2934100000000002,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045520/000110465920077445/a20-22925_28424b2.htm",
+      "accession": "0001104659-20-077445",
+      "basket": [
+        "AAPL",
+        "AMZN",
+        "NVDA"
+      ],
+      "as_of_date": "2020-06-26",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2216500000000001,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323004600/dp191129_424b2-us2323519.htm",
+      "accession": "0000950103-23-004600",
+      "basket": [
+        "AAPL",
+        "AMZN"
+      ],
+      "as_of_date": "2023-03-23",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.25675,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1997464/000119312526064034/d101529d424b2.htm",
+      "accession": "0001193125-26-064034",
+      "basket": [
+        "AMZN",
+        "GOOGL",
+        "NVDA",
+        "TSLA"
+      ],
+      "as_of_date": "2026-02-23",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.1888899999999998,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322009725/dp174400_424b2-us2291485.htm",
+      "accession": "0000950103-22-009725",
+      "basket": [
+        "AAPL",
+        "BAC",
+        "BRK-B"
+      ],
+      "as_of_date": "2022-05-31",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.21762,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322011859/dp176550_424b2-us2295663.htm",
+      "accession": "0000950103-22-011859",
+      "basket": [
+        "AAPL",
+        "BAC",
+        "BRK-B"
+      ],
+      "as_of_date": "2022-07-01",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.20059,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323001998/dp188522_424b2-us2314417.htm",
+      "accession": "0000950103-23-001998",
+      "basket": [
+        "AAPL",
+        "BAC",
+        "BRK-B"
+      ],
+      "as_of_date": "2023-02-08",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2096900000000002,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324010379/dp214898_424b2-us2499025d.htm",
+      "accession": "0000950103-24-010379",
+      "basket": [
+        "AAPL",
+        "GOOGL",
+        "NFLX"
+      ],
+      "as_of_date": "2024-07-22",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.21619,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322010384/dp175066_424b2-us2295663.htm",
+      "accession": "0000950103-22-010384",
+      "basket": [
+        "AAPL",
+        "BAC",
+        "BRK-B"
+      ],
+      "as_of_date": "2022-06-10",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.22113,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323017574/dp204061_424b2-us2359019.htm",
+      "accession": "0000950103-23-017574",
+      "basket": [
+        "MSFT",
+        "JPM"
+      ],
+      "as_of_date": "2023-12-18",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2320499999999999,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045520/000110465921049632/tm2111851d17_424b2.htm",
+      "accession": "0001104659-21-049632",
+      "basket": [
+        "AMZN",
+        "NVDA"
+      ],
+      "as_of_date": "2021-04-13",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2527199999999998,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324012731/dp217202_424b2-us2409603d.htm",
+      "accession": "0000950103-24-012731",
+      "basket": [
+        "BAC",
+        "NFLX"
+      ],
+      "as_of_date": "2024-08-28",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2197,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320022183/dp140899_424b2-us2020505.htm",
+      "accession": "0000950103-20-022183",
+      "basket": [
+        "AAPL",
+        "MSFT",
+        "NFLX"
+      ],
+      "as_of_date": "2020-11-16",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.2054,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320005961/dp124636_424b2-us2095180.htm",
+      "accession": "0000950103-20-005961",
+      "basket": [
+        "AAPL",
+        "AMZN"
+      ],
+      "as_of_date": "2020-03-25",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.24999,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324004483/dp209036_424b2-us2479430.htm",
+      "accession": "0000950103-24-004483",
+      "basket": [
+        "AAPL",
+        "GOOGL"
+      ],
+      "as_of_date": "2024-03-28",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.26936,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1045520/000110465920023310/a20-6386_31424b2.htm",
+      "accession": "0001104659-20-023310",
+      "basket": [
+        "MS",
+        "OXY",
+        "AAL"
+      ],
+      "as_of_date": "2020-02-20",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.1583400000000001,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326006267/dp245776_424b2-us26f3595d.htm",
+      "accession": "0000950103-26-006267",
+      "basket": [
+        "BAC",
+        "JPM"
+      ],
+      "as_of_date": "2026-04-28",
+      "as_of_provenance": "file_date_asof_assumption",
+      "outcome_status": "missing_verified_outcome",
+      "research_assumption": "file_date used as proxy because expected pricing date was unavailable",
+      "prediction_status": "completed",
+      "prediction": {
+        "avg_payoff": 1.28197,
+        "p_loss": 0.0,
+        "p_loss_ci_low": 0,
+        "p_loss_ci_high": 0.0,
+        "n_sims": 500
+      },
+      "comparison_status": "not_comparable_without_verified_outcome"
+    }
+  ],
+  "limitations": [
+    "file_date is not a verified pricing date",
+    "only 49 rows had recognizable mapped equity baskets; 39 required this fallback",
+    "no verified outcomes",
+    "not OOS calibration"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "review": {
+      "decision": "Not acceptable for production; only suitable for research",
+      "objections": [
+        "Dates are unverified proxies (file_date used without expected pricing date)",
+        "No production flags set (all remain false)",
+        "Market history unavailable for 3 blocked cases (data integrity risk)",
+        "No verification of dates or labels (potential for incorrect assumptions)"
+      ],
+      "acceptance_tests": [
+        "Verify expected pricing dates exist for all 39 equity baskets",
+        "Confirm market history availability for all cases",
+        "Validate file_date as a reliable proxy for research purposes",
+        "Set production flags only after verification"
+      ],
+      "next_experiment": "Re-run analysis with verified expected pricing dates or alternative proxies",
+      "safety_flags": [
+        "Data integrity risk (unverified dates)",
+        "Production readiness not met (flags false)"
+      ]
+    }
+  }
+}
