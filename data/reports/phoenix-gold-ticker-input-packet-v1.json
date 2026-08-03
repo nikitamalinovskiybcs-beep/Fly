@@ -1,0 +1,27 @@
+{
+  "proposal_id": "phoenix-gold-ticker-input-v1",
+  "scope": [
+    "app.py",
+    "tests/test_ui_contracts.py"
+  ],
+  "objective": "Make ticker text in the basket input visibly gold while preserving input behavior and accessibility.",
+  "current_behavior": {
+    "input_selector": ".bi input",
+    "text_color": "#6db6ff",
+    "background": "#000",
+    "border": "#6db6ff"
+  },
+  "constraints": [
+    "Change only presentation styling.",
+    "Preserve ticker parsing, defaults, placeholder, and run behavior.",
+    "Do not change Phoenix calculations, verdicts, evidence gates, weights, or trades."
+  ],
+  "success_criteria": [
+    "Entered ticker text uses the existing gold accent color.",
+    "Placeholder remains visually distinct.",
+    "Ruff, compileall, diff check, and UI contract tests pass."
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

@@ -1,0 +1,40 @@
+{
+  "proposal_id": "phoenix-gold-ticker-input-v1",
+  "decision": "NOW",
+  "committee_verdict": "APPROVE",
+  "provider_reviews": [
+    {
+      "provider": "mistral",
+      "model": "mistral-small-latest",
+      "status": "completed",
+      "verdict": "approve"
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen2.5:1.5b",
+      "status": "completed",
+      "verdict": "approve"
+    }
+  ],
+  "implementation_files": [
+    "app.py"
+  ],
+  "acceptance_tests": [
+    "Entered ticker text uses gold accent color.",
+    "Placeholder remains distinct.",
+    "Ticker parsing and run behavior are unchanged."
+  ],
+  "baseline": {
+    "input_text_color": "#6db6ff"
+  },
+  "target": {
+    "input_text_color": "#ffb000"
+  },
+  "observed_metric": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "blockers": [],
+  "next_experiment": "Consider adding an explicit visible label above the input in a separate UI change."
+}
