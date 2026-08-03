@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import importlib.util
+from pathlib import Path
+import sys
 from typing import Sequence
+
+import numpy as np
 
 
 @dataclass(frozen=True)
@@ -128,3 +133,75 @@ PUBLIC_CHALLENGERS: tuple[ChallengerStatus, ...] = (
         integration_status="reference_only",
     ),
 )
+
+
+def run_public_worst_of_challenger(
+    repository_root: str,
+    spots: Sequence[float],
+    vols: Sequence[float],
+    correlation: Sequence[Sequence[float]],
+    terms: PhoenixTerms,
+    rate: float = 0.0,
+    maturity_years: float = 2.0,
+    observations_per_year: int = 4,
+    n_paths: int = 2_000,
+    seed: int = 42,
+) -> dict[str, float | int | str]:
+    """Run the isolated public worst-of pricer through an explicit adapter.
+
+    The repository is supplied by the caller and is never copied into Phoenix.
+    This function is research-only and intentionally returns the external
+    implementation's PV and standard error as separate evidence.
+    """
+
+    root = Path(repository_root)
+    module_path = root / "worstof_pricer.py"
+    if not module_path.exists():
+        raise FileNotFoundError(f"public challenger not found: {module_path}")
+    if len(spots) != len(vols):
+        raise ValueError("spots and vols must have the same length")
+    if len(spots) != len(correlation):
+        raise ValueError("correlation dimension must match asset count")
+
+    spec = importlib.util.spec_from_file_location(
+        "phoenix_public_worstof_pricer",
+        module_path,
+    )
+    if spec is None or spec.loader is None:
+        raise ImportError(f"unable to load public challenger: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+
+    assets = [
+        module.Asset(f"asset_{index}", float(spot), float(vol), 0.0)
+        for index, (spot, vol) in enumerate(zip(spots, vols))
+    ]
+    market = module.MultiMarket(
+        assets=assets,
+        rate=float(rate),
+        corr=np.asarray(correlation, dtype=float),
+    )
+    product = module.WorstOfAutocallable(
+        strikes=[float(spot) for spot in spots],
+        notional=float(terms.notional),
+        maturity_years=float(maturity_years),
+        obs_per_year=int(observations_per_year),
+        autocall_barrier=float(terms.autocall_barrier),
+        coupon_barrier=float(terms.coupon_barrier),
+        ki_barrier=float(terms.knock_in_barrier),
+        coupon=float(terms.coupon),
+    )
+    pv, standard_error = module.price(
+        market,
+        product,
+        n_paths=int(n_paths),
+        seed=int(seed),
+    )
+    return {
+        "source": "public_autocallable_pricer",
+        "pv": float(pv),
+        "standard_error": float(standard_error),
+        "n_paths": int(n_paths),
+        "seed": int(seed),
+    }
