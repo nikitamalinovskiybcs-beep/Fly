@@ -1,0 +1,134 @@
+{
+  "provider": "openrouter",
+  "status": 200,
+  "response": {
+    "id": "gen-1785799000-XsBBtMtS8jtZmfvcUDPJ",
+    "object": "chat.completion",
+    "created": 1785799000,
+    "model": "perplexity/sonar",
+    "provider": "Perplexity",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "length",
+        "native_finish_reason": "length",
+        "message": {
+          "role": "assistant",
+          "content": "For **note-level terms**, the best public-lawful sources are **issuer product pages and termsheet PDFs** from **Leonteq** and **payoff.ch**, with **SEC EDGAR 424(b)(2)** filings as the strongest U.S. reference for prospectus-grade deal terms; for **realized lifecycle outcomes**, the best public sources are **maturity/redemption notices and final terms documents** from those same issuer sites, plus any **EDGAR issuer event filings** when the product is U.S.-listed or registered. Your excluded source note is important: if **Certificati e Derivati** prohibits copying for third-party application development, it should not be ingested.  \n\n- **Best source tier for note-level terms**\n  - **Tier 1: Leonteq public product pages** and **payoff.ch public termsheet PDFs** for structured fields such as underlying, issue date, maturity, barrier/autocall levels, coupon, observation dates, strike, currency, and redemption formulas.\n  - **Tier 1: SEC EDGAR** for U.S. structured-note prospectuses and final terms, especially **Form 424(b)(2)** and related exhibits, which are widely used in structured-note research and can be systematically parsed from filings.\n  - **Tier 2: EUSIPA aggregate reports / Product Map** for **market-level taxonomy and aggregation**, not for full note-level contractual detail; these are best used to normalize product type labels and compare market shares or feature prevalence.\n  - **Tier 2: Nasdaq public security pages** only when the note is exchange-listed or has a public security page that exposes identifiers, listing status, or basic reference data; these are usually supplemental rather than primary for full term extraction.\n\n- **Best source tier for realized lifecycle outcomes**\n  - **Tier 1: issuer lifecycle notices** on **Leonteq** and **payoff.ch** when they publish autocall, coupon, barrier, early redemption, maturity, or settlement outcome notices tied to the original note.\n  - **Tier 1: SEC EDGAR event filings** for U.S. notes where redemption, settlement, or issuer notices appear in 8-Ks, prospectus supplements, or related exhibits.\n  - **Tier 2: Nasdaq public security pages** for delisting, corporate-action, or listing-status signals that can help confirm a note\u2019s public lifecycle, but not usually enough to reconstruct payoff outcomes alone.\n  - **Tier 2: EUSIPA aggregate reports / Product Map** for market context only; these are not appropriate as the main source for realized note-by-note lifecycle outcomes.\n\n- **Recommended evidence classes**\n  - **Class A: Primary contractual evidence**\n    - Termsheet PDFs\n    - Prospectus supplements / 424(b)(2) filings\n    - Final terms\n    - Issuer product pages with the complete term sheet embedded or mirrored\n  - **Class B: Primary lifecycle evidence**\n    - Autocall/redemption notices\n    - Maturity/settlement notices\n    - Coupon payment notices\n    - Barrier breach or observation-date notices\n  - **Class C: Registry or index evidence**\n    - EUSIPA aggregate reports / Product Map\n    - Nasdaq listing/security pages\n    - EDGAR metadata and accession records\n  - **Class D: Derived or inferred evidence**\n    - Parsed payoff classification\n    - Realized outcome labels\n    - Normalized underlying taxonomy\n    - Event-sequence reconstruction from multiple notices\n\n- **Acceptance tests**\n  - **License and provenance test**\n    - Each ingested source must be public, lawful to use, and not subject to a no-copy or restricted-reuse clause for the intended application.\n    - Certificati e Derivati must fail this test if its terms prohibit copying for third-party application development.\n  - **Document identity test**\n    - The source must include a stable identifier such as ISIN, CUSIP, ticker, accession number, or issuer deal code.\n    - The extracted note must be uniquely matchable across term sheets and lifecycle notices.\n  - **Term completeness test**\n    - The dataset row must capture the core payoff fields: issuer, underlying, issue date, maturity, denomination, currency, coupon, autocall, barrier, strike, observation schedule, and settlement convention when available.\n  - **Outcome verifiability test**\n    - A realized outcome label",
+          "refusal": null,
+          "reasoning": null,
+          "annotations": [
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://www.youtube.com/watch?v=8k7nZ9NOZbA",
+                "title": "Structured Products - The Phoenix",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://www.slcg.com/files/structured-products/90267F287.pdf",
+                "title": "Phoenix Autocallable Optimization Securities with ...",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://www.sec.gov/data-research/sec-markets-data/financial-statement-notes-data-sets",
+                "title": "Financial Statement and Notes Data Sets",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://www.risk.net/awards/7955836/structured-products-house-of-the-year-jp-morgan",
+                "title": "Structured products house of the year: JP Morgan",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://s3.amazonaws.com/oeda/docs/phoenix_codebook.pdf",
+                "title": "Phoenix Event Data Set Codebook (0.0.1b)",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://columbialawreview.org/wp-content/uploads/2023/01/Freund-Investors_take_note_complexity_and_disclosure_efficacy_concerns_amid_a_structured_notes_renaissance.pdf",
+                "title": "INVESTORS TAKE NOTE: COMPLEXITY AND ...",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://www.slcg.com/files/structured-products/90269X724.pdf",
+                "title": "[PDF] Trigger Phoenix Autocallable Optimization Securities linked to ...",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://equityderivatives.natixis.com/wp-content/uploads/Notice-IT0006768532.pdf",
+                "title": "[PDF] Issue of EUR 3,000,000 Structured Notes (Phoenix) linked to a ...",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12099345/",
+                "title": "Toward Relieving Clinician Burden by Automatically ... - PMC",
+                "start_index": 0,
+                "end_index": 0
+              }
+            }
+          ],
+          "model": "perplexity/sonar"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 105,
+      "completion_tokens": 915,
+      "total_tokens": 1020,
+      "cost": 0.00602,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00602,
+        "upstream_inference_prompt_cost": 0.000105,
+        "upstream_inference_completions_cost": 0.005915
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}
