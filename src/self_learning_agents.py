@@ -894,7 +894,7 @@ class MetaAgent:
         for agent_name, score in calibration.items():
             current = self.weights[agent_name]
             target = max(0.05, min(1.0, score / 100.0))
-            self.weights[agent_name] = round(0.8 * current + 0.2 * target, 3)
+            self.weights[agent_name] = round(0.8 * current + 0.2 * target, 6)
 
         # Normalize weights
         total = sum(self.weights.values())

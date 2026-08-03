@@ -8,6 +8,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from cryptography.fernet import Fernet, InvalidToken
+
 
 SAFETY_FLAGS = (
     "production_weights_changed",
@@ -121,6 +123,59 @@ class AgentMemory:
             handle.flush()
         return record
 
+    def export_encrypted_bundle(
+        self,
+        destination: str | Path,
+        *,
+        key: bytes,
+    ) -> dict[str, object]:
+        """Export memory and manifest; the caller owns key custody."""
+        bundle = {
+            "schema_version": MEMORY_SCHEMA_VERSION,
+            "records": self.replay(),
+            "manifest": self.read_manifest(),
+        }
+        encrypted = Fernet(key).encrypt(
+            json.dumps(bundle, sort_keys=True).encode("utf-8")
+        )
+        output = Path(destination)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(encrypted)
+        return {
+            "schema_version": MEMORY_SCHEMA_VERSION,
+            "encrypted": True,
+            "record_count": len(bundle["records"]),
+            "bundle_hash": hashlib.sha256(encrypted).hexdigest(),
+        }
+
+    def restore_encrypted_bundle(
+        self,
+        source: str | Path,
+        *,
+        key: bytes,
+    ) -> dict[str, object]:
+        """Validate an encrypted bundle before replacing local memory."""
+        try:
+            bundle = json.loads(Fernet(key).decrypt(Path(source).read_bytes()))
+        except (InvalidToken, json.JSONDecodeError) as exc:
+            raise ValueError("encrypted memory bundle is invalid") from exc
+        if bundle.get("schema_version") != MEMORY_SCHEMA_VERSION:
+            raise ValueError("unsupported memory bundle schema")
+        records = bundle.get("records", [])
+        self._validate_records(records)
+        manifest = bundle.get("manifest", {})
+        if manifest:
+            self._validate_manifest(manifest)
+        self.path.write_text(
+            "".join(json.dumps(record, sort_keys=True) + "\n" for record in records),
+            encoding="utf-8",
+        )
+        self.manifest_path.write_text(
+            json.dumps(manifest, sort_keys=True, indent=2),
+            encoding="utf-8",
+        )
+        return {"restored": True, "record_count": len(records)}
+
     def replay(
         self,
         *,
@@ -130,18 +185,12 @@ class AgentMemory:
         if not self.path.exists():
             return []
         records: list[dict[str, object]] = []
-        previous_hash = ""
         for line in self.path.read_text(encoding="utf-8").splitlines():
             record = json.loads(line)
             record_hash = record.pop("record_hash", None)
-            if record.get("previous_hash", "") != previous_hash:
-                raise ValueError("agent memory chain is broken")
-            if record_hash != _hash_record(record):
-                raise ValueError("agent memory record hash is invalid")
-            self._check_safety(record)
             record["record_hash"] = record_hash
             records.append(record)
-            previous_hash = str(record_hash)
+        self._validate_records(records)
         return [
             record
             for record in records
@@ -154,3 +203,30 @@ class AgentMemory:
         for flag in SAFETY_FLAGS:
             if payload.get(flag, False) is not False:
                 raise ValueError(f"unsafe:{flag}")
+
+    @classmethod
+    def _validate_records(cls, records: list[dict[str, object]]) -> None:
+        previous_hash = ""
+        for record in records:
+            record_hash = record.get("record_hash")
+            unsigned = dict(record)
+            unsigned.pop("record_hash", None)
+            if record.get("previous_hash", "") != previous_hash:
+                raise ValueError("agent memory chain is broken")
+            if record_hash != _hash_record(unsigned):
+                raise ValueError("agent memory record hash is invalid")
+            cls._check_safety(record)
+            previous_hash = str(record_hash)
+
+    @classmethod
+    def _validate_manifest(cls, manifest: Mapping[str, object]) -> None:
+        expected = _hash_record(
+            {
+                "schema_version": manifest["schema_version"],
+                "item_count": manifest["item_count"],
+                "items": manifest["items"],
+            }
+        )
+        if manifest.get("manifest_hash") != expected:
+            raise ValueError("memory manifest hash is invalid")
+        cls._check_safety(manifest)

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from cryptography.fernet import Fernet
 
 from src.agent_memory import AgentMemory
 
@@ -57,3 +58,24 @@ def test_tampering_and_unsafe_flags_are_rejected(tmp_path: Path) -> None:
             agent="guardian",
             payload={"trades_created": True},
         )
+
+
+def test_encrypted_backup_round_trip_and_wrong_key_rejected(tmp_path: Path) -> None:
+    key = Fernet.generate_key()
+    source = AgentMemory(tmp_path / "source.jsonl", tmp_path / "source.json")
+    source.write_manifest([{"id": "improvement-01", "status": "pending"}])
+    source.append(
+        kind="signal",
+        snapshot_id="snapshot-1",
+        agent="guardian",
+        payload={"finding": "safe"},
+    )
+    bundle = tmp_path / "memory.bundle"
+    result = source.export_encrypted_bundle(bundle, key=key)
+    assert result["encrypted"] is True
+
+    restored = AgentMemory(tmp_path / "restored.jsonl", tmp_path / "restored.json")
+    assert restored.restore_encrypted_bundle(bundle, key=key)["restored"] is True
+    assert len(restored.replay()) == 1
+    with pytest.raises(ValueError, match="encrypted"):
+        restored.restore_encrypted_bundle(bundle, key=Fernet.generate_key())
