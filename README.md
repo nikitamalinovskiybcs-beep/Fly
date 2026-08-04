@@ -34,6 +34,21 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+### Cloud precompute snapshots
+
+The scheduled `Free Batch Snapshot` workflow precomputes configured Phoenix
+baskets in GitHub Actions and uploads independent ready-result snapshots plus
+a manifest as a short-lived artifact. Run it manually with a semicolon-
+separated basket list:
+
+```bash
+python scripts/precompute_baskets.py \
+  --baskets "AAPL,MSFT,GOOGL,AMZN,NVDA;AAPL,MSFT,NVDA"
+```
+
+This is research-only cache generation. It does not change production weights,
+verdict logic, or trades.
+
 Для предварительного расчёта готового snapshot (например, через cron):
 
 ```bash
