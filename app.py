@@ -317,7 +317,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>PHOENIX v40.0 · CURRENT VERSION</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>PHOENIX</h1></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
@@ -433,6 +433,8 @@ if (
         unsafe_allow_html=True,
     )
     st.stop()
+
+st.stop()
 
 if basket_tickers:
     with st.spinner("⚡ Precomputing..."):
