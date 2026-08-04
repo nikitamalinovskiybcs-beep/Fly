@@ -41,6 +41,7 @@ def cached_precompute(tickers_key: str):
     return _precompute_all(tickers)
 
 
+@st.cache_data(ttl=300, show_spinner=False)
 def cached_full_analysis(
     tickers_key: str,
     barrier_pct: float,
