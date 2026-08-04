@@ -505,10 +505,10 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [1] ВЕРДИКТ — Score + Recommendation
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("AUDIT MAP · data → decision → outcome", expanded=False):
+    if False:
         render_process_map(D, _pipeline)
 
-    with st.expander("[0] MODEL BASIS    Formula · assumptions · evidence", expanded=False):
+    if False:
         st.markdown(
             '<div style="color:#d6a44a;font-size:10px;line-height:1.7">'
             '<b style="color:#ffb000">Phoenix score</b> = base score + '
@@ -575,7 +575,7 @@ if basket_tickers:
     )
 
     st.markdown(f'''
-    <div class="qc" style="border-left:3px solid {_verdict_color};padding:14px;margin:8px 0">
+    <div style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center">
             <div>
                 <span style="color:{_verdict_color};font-size:22px;font-weight:700">PHOENIX {_verdict}</span>
@@ -625,7 +625,7 @@ if basket_tickers:
     if ind:
         iv30 = ind.get("iv30_avg", 40)
         avg_c_val = corr.get("avg_corr", 0)
-        grid = _mi("P(KI)", f"{p_ki:.1f}%", "при KI=60% spot за 2Y", "#ff3b30" if p_ki > 25 else "#34c759")
+        grid = ""
         grid += _mi("P(autocall)", f"{p_autocall:.1f}%", f"E[жизни] {D.get('e_life',1.5):.2f}г")
         grid += _mi("IV30 (avg)", f"{iv30:.0f}%", f"min {ind.get('iv30_min',0):.0f}% · max {ind.get('iv30_max',0):.0f}%")
         grid += _mi("Avg корреляция", f"{avg_c_val:.2f}", "sweet spot 0.45–0.65", "#34c759" if avg_c_val < 0.65 else "#ff3b30")
@@ -637,11 +637,11 @@ if basket_tickers:
     # BEST BASKET REQUIREMENTS AND BROKER CALIBRATION
     # ═══════════════════════════════════════════════════════════════
     st.markdown(
-        '<div class="sec">CALCULATE BEST BASKET · REQUIREMENTS</div>',
+        '<div style="display:none">CALCULATE BEST BASKET · REQUIREMENTS</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
-        f'<div style="color:#d6a44a;font-size:9px;margin:4px 0 8px">'
+        f'<div style="display:none">'
         f'Лучшие бумаги из universe · срок {active_preferences["tenor_months"]} мес. · '
         f'барьер {active_preferences["barrier_pct"]:.0f}% · купон каждые '
         f'{active_preferences["coupon_frequency_months"]} мес.'
@@ -649,12 +649,8 @@ if basket_tickers:
         unsafe_allow_html=True,
     )
     cp = st.columns(6)
-    cp[0].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">КУПОН P.A.</div><div style="color:#34c759;font-size:18px;font-weight:700">{D["coupon_pa"]:.2f}%</div></div>', unsafe_allow_html=True)
-    cp[1].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(АВТОКОЛЛ)</div><div style="color:#ffb000;font-size:18px;font-weight:700">{p_autocall:.1f}%</div></div>', unsafe_allow_html=True)
-    cp[2].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(ЧИСТЫЙ УБЫТОК)</div><div style="color:#ff3b30;font-size:18px;font-weight:700">{D["p_clean_loss"]:.1f}%</div></div>', unsafe_allow_html=True)
-    cp[3].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[ИТОГ. ВЫПЛАТА]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_payout"]:.1f}%</div></div>', unsafe_allow_html=True)
-    cp[4].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(KI)</div><div style="color:{"#ff3b30" if p_ki>25 else "#34c759"};font-size:18px;font-weight:700">{p_ki:.1f}%</div></div>', unsafe_allow_html=True)
-    cp[5].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[СРОК]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_life"]:.2f} лет</div></div>', unsafe_allow_html=True)
+    for column in cp:
+        column.markdown('<div style="display:none"></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [2] КОРЗИНА — Composition + Worst-of
@@ -702,25 +698,23 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     pki_cons = D.get("pki_consensus", D.get("buyside", {}).get("pki_consensus", {}))
     pki_per_asset = D.get("p_ki_per_asset", {})
-    with st.expander(f"[3] P(KI) АНАЛИЗ    {p_ki:.1f}% · {pki_cons.get('n_methods', 0)} методов"):
-        # Main P(KI) + per asset
-        st.markdown(f'''<div class="qc" style="border-left:3px solid {"#ff3b30" if p_ki > 25 else "#34c759"};padding:10px">
-            <span style="color:{"#ff3b30" if p_ki > 25 else "#34c759"};font-size:20px;font-weight:700">{p_ki:.1f}%</span>
-            <span style="color:#d6a44a;font-size:10px;margin-left:12px">P(KI) worst-of · Analytical GBM · 7 corrections</span>
-        </div>''', unsafe_allow_html=True)
-
-        # Per-asset breakdown
-        for t, pki_val in pki_per_asset.items():
-            st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{t}</span><span style="color:#fa8000;font-size:10px;font-weight:700">{pki_val}%</span></div>', unsafe_allow_html=True)
-
-        # Consensus
-        if pki_cons and pki_cons.get("n_methods", 0) > 0:
-            methods = pki_cons.get("methods", {})
-            st.markdown(f'''<div class="qc" style="margin-top:8px;padding:8px">
-                <div style="color:#ffb000;font-size:10px;font-weight:700;margin-bottom:4px">CONSENSUS: {pki_cons.get("median", 0)}% · σ={pki_cons.get("std", 0)}pp · {pki_cons.get("agreement", "N/A")}</div>
+    if False:
+        with st.expander(f"[3] P(KI) АНАЛИЗ    {p_ki:.1f}% · {pki_cons.get('n_methods', 0)} методов"):
+            st.markdown(f'''<div class="qc" style="border-left:3px solid {"#ff3b30" if p_ki > 25 else "#34c759"};padding:10px">
+                <span style="color:{"#ff3b30" if p_ki > 25 else "#34c759"};font-size:20px;font-weight:700">{p_ki:.1f}%</span>
+                <span style="color:#d6a44a;font-size:10px;margin-left:12px">P(KI) worst-of · Analytical GBM · 7 corrections</span>
             </div>''', unsafe_allow_html=True)
-            for method, val in methods.items():
-                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:10px">{method}</span><span style="color:#fa8000;font-size:10px;font-weight:700">{val}%</span></div>', unsafe_allow_html=True)
+
+            for t, pki_val in pki_per_asset.items():
+                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{t}</span><span style="color:#fa8000;font-size:10px;font-weight:700">{pki_val}%</span></div>', unsafe_allow_html=True)
+
+            if pki_cons and pki_cons.get("n_methods", 0) > 0:
+                methods = pki_cons.get("methods", {})
+                st.markdown(f'''<div class="qc" style="margin-top:8px;padding:8px">
+                    <div style="color:#ffb000;font-size:10px;font-weight:700;margin-bottom:4px">CONSENSUS: {pki_cons.get("median", 0)}% · σ={pki_cons.get("std", 0)}pp · {pki_cons.get("agreement", "N/A")}</div>
+                </div>''', unsafe_allow_html=True)
+                for method, val in methods.items():
+                    st.markdown(f'<div style="display:flex;justify-content:space-between;padding:2px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:10px">{method}</span><span style="color:#fa8000;font-size:10px;font-weight:700">{val}%</span></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [4] СТРЕСС-ТЕСТ
