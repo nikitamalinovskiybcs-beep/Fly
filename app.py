@@ -317,7 +317,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">ONE PIPELINE · ФЕНИКС v40.0 · CURRENT VERSION · 8 AGENTS</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>PHOENIX v40.0 · CURRENT VERSION</h1></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
@@ -599,7 +599,7 @@ if basket_tickers:
 
     # Score factor decomposition (inline)
     score_factors = D.get("score_factors", {})
-    with st.expander("▶ Разложение скора по факторам"):
+    if False:
         for name, info in score_factors.items():
             impact = info["impact"] if isinstance(info, dict) else info
             raw = info.get("raw", "") if isinstance(info, dict) else ""
@@ -752,7 +752,7 @@ if basket_tickers:
         BT = cached_backtest(",".join(basket_tickers), D["p_ki"], D["coupon_pa"], D["e_payout"])
 
     bt_stats = BT.get("bt_stats", {})
-    with st.expander(f"[5] БЭКТЕСТ    {BT['n_backtests']} WINDOWS · WIN {bt_stats.get('win_rate',0):.0f}%"):
+    if False:
         if bt_stats:
             st.markdown(f'''
             <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">
