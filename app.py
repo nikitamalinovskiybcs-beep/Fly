@@ -317,7 +317,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">ONE PIPELINE · 15 STEPS · ФЕНИКС v36.0 · 8 AGENTS · PRODUCT · OUTCOMES · API</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">ONE PIPELINE · ФЕНИКС v40.0 · CURRENT VERSION · 8 AGENTS</span></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
@@ -660,7 +660,7 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     n_sectors = len(set(SECTOR_MAP.get(t, "Unknown") for t in basket_tickers))
     wo_analysis = D.get("worst_of_analysis", [])
-    with st.expander(f"[2] КОРЗИНА    {n_tickers} NAMES · {n_sectors} SECTORS"):
+    if False:
         for t in basket_tickers:
             if t in yf:
                 d = yf[t]
@@ -995,8 +995,42 @@ if basket_tickers:
     # ═══════════════════════════════════════════════════════════════
     # [9] BASKET SCORING — Bank-grade 8-criterion analysis
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[9] BASKET SCORING    Bank-grade analysis"):
+    with st.expander("[9] КОРЗИНА · BASKET SCORING    Bank-grade analysis"):
         try:
+            for t in basket_tickers:
+                if t in yf:
+                    d = yf[t]
+                    sector = d.get("sector", "Unknown")
+                    rec_label = d.get("rec_label", "buy")
+                    ema_sign = "▲" if d["ema200_above"] else "▼"
+                    ema_color = "#34c759" if d["ema200_above"] else "#ff3b30"
+                    st.markdown(f'''
+                    <div class="qc" style="border-left:3px solid #fa8000;padding:10px 14px;margin:4px 0">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div><span style="color:#ffb000;font-size:16px;font-weight:700">{t}</span> <span style="color:#6a5a2a;font-size:10px">{sector}</span></div>
+                            <span style="color:#d6a44a;font-size:10px">{rec_label}</span>
+                        </div>
+                        <div style="display:flex;gap:12px;font-size:11px;margin-top:4px">
+                            <span style="color:#d6a44a">Spot <span style="color:#ffb000">{d["spot"]}</span></span>
+                            <span style="color:#d6a44a">IV30 <span style="color:#ffb000">{d["iv30"]}%</span></span>
+                            <span style="color:#d6a44a">β <span style="color:#ffb000">{d["beta"]}</span></span>
+                            <span style="color:#d6a44a">P/E <span style="color:#ffb000">{d["pe"]}</span></span>
+                            <span style="color:#d6a44a">EMA200 <span style="color:{ema_color}">{ema_sign} {d["ema200_pct"]:+.1f}%</span></span>
+                        </div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+
+            if wo_analysis:
+                st.markdown('<div style="color:#ffb000;font-size:11px;font-weight:700;margin:8px 0 4px">WORST-OF RANKING</div>', unsafe_allow_html=True)
+                for i, wa in enumerate(wo_analysis):
+                    bar_w = min(80, wa["p_worst"] * 2)
+                    bar_c = "#ff3b30" if i == 0 else "#ffb000"
+                    st.markdown(f'''<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 8px;border-bottom:1px solid #1a1400">
+                        <span style="color:#ffb000;font-size:11px;font-weight:700">{wa["ticker"]}</span>
+                        <div style="width:120px;height:14px;background:#1a1400"><div class="bar" style="width:{bar_w}%;background:{bar_c}"></div></div>
+                        <span style="color:#ffb000;font-size:11px">{wa["p_worst"]:.1f}%</span>
+                    </div>''', unsafe_allow_html=True)
+
             from src.basket.scorer import SAMPLE_BASKETS, BasketScorer
             from src.basket.worst_of import WorstOfPredictor
             bs = BasketScorer()
