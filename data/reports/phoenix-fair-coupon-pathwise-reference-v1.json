@@ -1,0 +1,133 @@
+{
+  "problem_id": "phoenix-fair-coupon-pathwise-reference-v1",
+  "generated_at": "2026-08-03T22:53:12.103504+00:00",
+  "status": "research_only",
+  "model": "independent correlated GBM pathwise decomposition with step-down barriers, memory coupons, autocall and knock-in",
+  "terms": {
+    "notional": 100.0,
+    "maturity_years": 3.0,
+    "observations_per_year": 4,
+    "autocall_barriers": [
+      0.98,
+      0.98,
+      0.99,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "coupon_barriers": [
+      0.95,
+      0.93,
+      0.91,
+      0.89,
+      0.87,
+      0.85,
+      0.83,
+      0.81,
+      0.79,
+      0.77,
+      0.75,
+      0.73
+    ],
+    "knock_in_barrier": 0.6,
+    "risk_free_rate": 0.03,
+    "issuer_spread": 0.012,
+    "memory_coupon": true
+  },
+  "convergence": [
+    {
+      "n_paths": 10000,
+      "fair_coupon": 5.892110932987019,
+      "standard_error": 0.10481258403341039,
+      "principal_pv": 77.88373776306759,
+      "coupon_annuity_pv": 3.7535379914716787
+    },
+    {
+      "n_paths": 40000,
+      "fair_coupon": 6.005229930581677,
+      "standard_error": 0.05343217691231959,
+      "principal_pv": 77.57985634629077,
+      "coupon_annuity_pv": 3.7334363401365342
+    },
+    {
+      "n_paths": 160000,
+      "fair_coupon": 5.9274280993702115,
+      "standard_error": 0.02628848961780489,
+      "principal_pv": 77.65943983067137,
+      "coupon_annuity_pv": 3.7690141145199734
+    }
+  ],
+  "issuer_spread_sensitivity": [
+    {
+      "issuer_spread": 0.0,
+      "fair_coupon": 5.411119578057916,
+      "standard_error": 0.050924690618955507
+    },
+    {
+      "issuer_spread": 0.012,
+      "fair_coupon": 6.005229930581677,
+      "standard_error": 0.05343217691231959
+    },
+    {
+      "issuer_spread": 0.025,
+      "fair_coupon": 6.655956499348996,
+      "standard_error": 0.05619494837543499
+    }
+  ],
+  "correlation_sensitivity": [
+    {
+      "correlation": 0.1,
+      "fair_coupon": 7.1503310699285985,
+      "standard_error": 0.06203879287959436
+    },
+    {
+      "correlation": 0.35,
+      "fair_coupon": 6.005229930581677,
+      "standard_error": 0.05343217691231959
+    },
+    {
+      "correlation": 0.6,
+      "fair_coupon": 5.008383307349574,
+      "standard_error": 0.04653486711682197
+    },
+    {
+      "correlation": 0.8,
+      "fair_coupon": 4.221451447854179,
+      "standard_error": 0.041684276885756356
+    }
+  ],
+  "math_identity": "fair_coupon=(notional-mean(discounted principal PV))/mean(discounted coupon annuity PV)",
+  "limitations": [
+    "GBM reference, not Heston",
+    "synthetic inputs, not market evidence",
+    "not directly comparable to canonical engine until full schedule semantics are wired",
+    "no OOS or verified outcomes"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "review": {
+      "decision": "approve_with_monitoring",
+      "interpretation": "The fair-coupon values are consistent across different sample sizes (5.892% to 6.005%), with decreasing standard errors as sample size increases (.105 to .026). The spread sensitivity shows expected linear behavior (5.411% to 6.656%), and correlation impact is non-linear (7.150% to 5.008%). No production changes are required.",
+      "objections": [],
+      "acceptance_tests": [
+        "Verify fair-coupon convergence across 10k, 40k, and 160k paths (SE < 0.15pp)",
+        "Confirm spread sensitivity linearity (\u0394spread 0%\u21922.5% \u2192 \u0394fair-coupon ~1.245pp)",
+        "Validate correlation impact trend (inverse relationship with fair-coupon)"
+      ],
+      "next_experiment": "Test alternative barrier structures (e.g., time-varying step-downs) to assess coupon optimization potential.",
+      "safety_flags": []
+    }
+  }
+}

@@ -63,7 +63,10 @@ class Storage:
         if self.config.supabase_available:
             try:
                 from src.storage.cloud_sync import CloudSync
-                self.cloud = CloudSync()
+                self.cloud = CloudSync(
+                    url=self.config.supabase_url,
+                    key=self.config.supabase_key,
+                )
             except Exception as exc:
                 logger.info("Supabase unavailable: %s", exc)
 
@@ -134,6 +137,18 @@ class Storage:
         if status == "closed":
             return self.db.get_closed_trades(limit)
         return self.db.get_all_trades()
+
+    def record_calculated_note(self, note: dict) -> None:
+        """Persist one calculated note for later lifecycle tracking."""
+        self.db.record_calculated_note(note)
+
+    def count_calculated_notes(self, months: int = 6) -> int:
+        """Count unique calculated notes in the trailing period."""
+        return self.db.count_calculated_notes(months)
+
+    def count_calculated_baskets(self, months: int = 6) -> int:
+        """Count unique baskets represented by calculated notes."""
+        return self.db.count_calculated_baskets(months)
 
     def close_trade(self, trade_id: str, pnl: float, pnl_pct: float) -> None:
         """Close a trade."""
@@ -217,6 +232,7 @@ class Storage:
     def status(self) -> dict:
         """Get storage system status."""
         result = self.config.status_report()
+        result["integration"] = self.integration_status()
         result["sqlite_tables"] = self.db.table_stats()
         result["sqlite_size_mb"] = round(self.db.db_size_bytes() / 1024 / 1024, 2)
         if self.analytics and self.analytics.available:
@@ -226,3 +242,41 @@ class Storage:
         if self.backup_manager:
             result["backup_status"] = self.backup_manager.get_backup_status()
         return result
+
+    def integration_status(self) -> dict[str, object]:
+        """Report configured versus initialized backends."""
+        configured = self.config.status_report()
+        active = {
+            "sqlite": self.db is not None,
+            "duckdb": bool(self.analytics and self.analytics.available),
+            "supabase": bool(self.cloud and getattr(self.cloud, "enabled", False)),
+            "firebase": bool(self.firebase and getattr(self.firebase, "enabled", False)),
+            "clickhouse": bool(
+                self.clickhouse and getattr(self.clickhouse, "enabled", False)
+            ),
+            "r2": bool(self.r2 and getattr(self.r2, "enabled", False)),
+            "redis": bool(self.redis and getattr(self.redis, "enabled", False)),
+        }
+        required = ("sqlite", "duckdb")
+        missing_required = [name for name in required if not active[name]]
+        return {
+            "status": "ready" if not missing_required else "blocked",
+            "configured": configured,
+            "active": active,
+            "diagnostics": {
+                "supabase": (
+                    getattr(self.cloud, "last_error", None)
+                    if self.cloud is not None
+                    else None
+                )
+            },
+            "missing_required": missing_required,
+            "optional_unavailable": [
+                name
+                for name in active
+                if name not in required and not active[name]
+            ],
+            "production_weights_changed": False,
+            "verdict_mutated": False,
+            "trades_created": False,
+        }

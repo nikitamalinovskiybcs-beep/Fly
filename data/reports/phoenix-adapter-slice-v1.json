@@ -1,0 +1,52 @@
+{
+  "proposal_id": "phoenix-adapter-slice-v1",
+  "generated_at": "2026-08-03T22:19:22.994225+00:00",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "decision": "RESEARCH",
+  "implementation_files": [
+    "src/phoenix_adapters.py",
+    "tests/test_phoenix_adapters.py"
+  ],
+  "baseline": "src/phoenix_engine.py canonical MC engine",
+  "target": "Independent deterministic payoff/date fixture reference for challenger comparisons",
+  "observed_metrics": {
+    "focused_tests": "33 passed",
+    "full_suite_clean_environment": "578 passed",
+    "external_dependencies_added": false
+  },
+  "review": {
+    "decision": "approve",
+    "proposal": "Keep the Phoenix adapter slice as an isolated reference implementation in src/phoenix_adapters.py, pending further validation and integration review.",
+    "objections": [],
+    "acceptance_tests": [
+      "Unit tests for Phoenix path payoff logic (33 passed)",
+      "Full suite passes (578 tests) with SUPABASE_URL and SUPABASE_KEY unset"
+    ],
+    "next_experiment": "Integrate the Phoenix adapter slice into the canonical engine with production-grade validation, including edge-case testing for memory coupon, autocall termination, and knock-in final principal scenarios.",
+    "safety_flags": [
+      "No external dependencies introduced",
+      "No production weights or configurations modified",
+      "Pure Python implementation with no side effects"
+    ]
+  },
+  "blockers": [
+    "No market outcome labels",
+    "No live QuantLib/finmath integration",
+    "Human validation of term-sheet semantics pending"
+  ],
+  "acceptance_tests": [
+    "Path-level payoff agrees with declared contract semantics",
+    "Autocall terminates and does not accrue later coupons",
+    "Memory coupon and knock-in behavior are explicit",
+    "Canonical engine remains unchanged",
+    "Safety flags remain false"
+  ],
+  "next_experiment": "Run the adapter against validated term-sheet fixtures and compare canonical MC path semantics before adding external dependencies.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

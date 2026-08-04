@@ -1,0 +1,36 @@
+{
+  "status": "research_only",
+  "scope": "review unified Phoenix research orchestrator and next safe implementation slice",
+  "architecture": [
+    "data_readiness",
+    "calculation",
+    "committee",
+    "fact_check",
+    "oos",
+    "safety",
+    "research_report"
+  ],
+  "current_controls": [
+    "immutable production flags",
+    "resource-aware Ollama scheduling",
+    "fixed-24m evidence blockers",
+    "BCS Capital evidence contract",
+    "hallucination audit"
+  ],
+  "known_gaps": [
+    "no settled 24m outcomes",
+    "no verified BCS observations",
+    "storage backends not all connected",
+    "fact-check stage is injectable but not yet canonical",
+    "orchestrator not yet wired into Streamlit runtime"
+  ],
+  "committee_questions": [
+    "identify highest-value safe code slice",
+    "find missing safety checks",
+    "propose acceptance tests",
+    "identify any unsupported claims"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

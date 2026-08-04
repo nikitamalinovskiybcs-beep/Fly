@@ -1,0 +1,133 @@
+{
+  "status": "completed",
+  "consensus_verdict": "revise",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:7b",
+      "status": "skipped",
+      "reason": "Ollama is not running",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:deepseek-r1:7b",
+      "status": "skipped",
+      "reason": "Ollama is not running",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "The candidate does not meet the production rule as the fixed-24m promotion gate is blocked.",
+        "top_technical_reasons": [
+          "fixed-24m promotion gate is blocked",
+          "insufficient evidence for production promotion"
+        ],
+        "candidate_safety": "low",
+        "next_experiments": [
+          {
+            "hypothesis": "Increasing the sample size will improve the candidate's performance",
+            "change": "Increase the sample size",
+            "metric_gate": "fixed-24m promotion gate",
+            "why_it_is_informative": "To determine if the candidate can beat the empirical baseline at every fixed-24-month maturity anchor"
+          },
+          {
+            "hypothesis": "Calibrating the candidate with a different BCS Capital quote-fit tolerance will improve its performance",
+            "change": "Calibrate the candidate with a different BCS Capital quote-fit tolerance",
+            "metric_gate": "fixed-24m promotion gate",
+            "why_it_is_informative": "To determine the appropriate BCS Capital quote-fit tolerance for the candidate"
+          }
+        ],
+        "data_or_label_risks": "high",
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "revise",
+        "summary": "The Phoenix model is currently blocked from production due to insufficient evidence at the fixed-24-month promotion gate. While it has passed various checks and is ready for committee revote, further research and testing are needed to ensure it meets the necessary criteria for production promotion.",
+        "top_technical_reasons": [
+          "Insufficient evidence at the fixed-24-month maturity anchor.",
+          "Need for minimum realized or paper sample requirements to be established.",
+          "Further calibration candidates need to be evaluated."
+        ],
+        "candidate_safety": "The model has passed all safety checks, indicating a strong safety profile, but production is blocked pending further evidence.",
+        "next_experiments": [
+          {
+            "hypothesis": "Increasing the sample size will improve the model's performance metrics.",
+            "change": "Test with a larger realized or paper sample.",
+            "metric_gate": "Performance metrics must exceed the empirical baseline.",
+            "why_it_is_informative": "This will help determine if the model can meet the necessary thresholds for production promotion."
+          },
+          {
+            "hypothesis": "Testing additional calibration candidates will yield a better fit.",
+            "change": "Evaluate the next set of calibration candidates.",
+            "metric_gate": "Calibration candidates must show improved fit tolerance.",
+            "why_it_is_informative": "Identifying the best calibration candidate is crucial for enhancing model performance."
+          }
+        ],
+        "data_or_label_risks": "There are potential risks associated with the data quality and label accuracy, which need to be addressed before moving forward with production.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

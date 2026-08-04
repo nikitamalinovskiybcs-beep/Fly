@@ -1,0 +1,139 @@
+{
+  "status": "completed",
+  "consensus_verdict": "revise",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "revise",
+        "summary": "The Phoenix architecture and process improvements are still in the research phase and have not been promoted to production. There are known gaps, including no settled 24m outcomes and no verified BCS observations.",
+        "top_technical_reasons": [
+          "no settled 24m outcomes",
+          "no verified BCS observations",
+          "storage backends not all connected",
+          "fact-check stage is injectable but not yet canonical",
+          "orchestrator not yet wired into Streamlit runtime"
+        ],
+        "candidate_safety": "low",
+        "next_experiments": [
+          {
+            "hypothesis": "Connecting all storage backends will improve data consistency",
+            "change": "Connect all storage backends",
+            "metric_gate": "Data consistency metric",
+            "why_it_is_informative": "This experiment will help determine if connecting all storage backends improves data consistency and reduces errors"
+          },
+          {
+            "hypothesis": "Implementing a canonical fact-check stage will improve the accuracy of results",
+            "change": "Implement a canonical fact-check stage",
+            "metric_gate": "Result accuracy metric",
+            "why_it_is_informative": "This experiment will help determine if implementing a canonical fact-check stage improves the accuracy of results"
+          },
+          {
+            "hypothesis": "Wiring the orchestrator into the Streamlit runtime will improve the efficiency of the process",
+            "change": "Wire the orchestrator into the Streamlit runtime",
+            "metric_gate": "Process efficiency metric",
+            "why_it_is_informative": "This experiment will help determine if wiring the orchestrator into the Streamlit runtime improves the efficiency of the process"
+          }
+        ],
+        "data_or_label_risks": [
+          "No verified BCS observations",
+          "No settled 24m outcomes"
+        ],
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "Phoenix is currently in a research-only phase with significant gaps in its architecture and controls. The lack of settled outcomes and verified observations, along with the inability to promote candidates without meeting strict empirical baselines, leads to a rejection of the current implementation.",
+        "top_technical_reasons": [
+          "No settled 24-month outcomes available.",
+          "No verified BCS observations to support claims.",
+          "Storage backends are not fully connected, limiting data access.",
+          "Fact-check stage is injectable but not yet canonical, raising safety concerns.",
+          "The orchestrator is not yet integrated into the Streamlit runtime, affecting functionality."
+        ],
+        "candidate_safety": "The current implementation lacks sufficient safety checks and has not undergone rigorous acceptance testing, posing risks to deployment.",
+        "next_experiments": [
+          {
+            "hypothesis": "Integrating the orchestrator into the Streamlit runtime will enhance functionality and safety.",
+            "change": "Wire the orchestrator into the Streamlit runtime.",
+            "metric_gate": "Functionality and safety metrics post-integration.",
+            "why_it_is_informative": "This will provide insights into the operational readiness of the system and its ability to handle real-time data."
+          },
+          {
+            "hypothesis": "Establishing verified BCS observations will improve the reliability of the system.",
+            "change": "Connect all storage backends and verify BCS observations.",
+            "metric_gate": "Number of verified observations and their impact on decision-making.",
+            "why_it_is_informative": "This will help assess the accuracy and reliability of the system's outputs."
+          },
+          {
+            "hypothesis": "Creating a canonical fact-check stage will enhance safety and reduce risks.",
+            "change": "Develop a canonical version of the fact-check stage.",
+            "metric_gate": "Reduction in safety incidents related to fact-checking.",
+            "why_it_is_informative": "This will provide clarity on the safety of the outputs and the integrity of the decision-making process."
+          }
+        ],
+        "data_or_label_risks": "The current lack of connected storage backends and the injectable nature of the fact-check stage pose risks to data integrity and label accuracy.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

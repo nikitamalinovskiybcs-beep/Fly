@@ -1,0 +1,92 @@
+{
+  "benchmark_id": "phoenix-universal-benchmark-v1",
+  "status": "research_only",
+  "fixture": {
+    "path_level": {
+      "principal": 0.55,
+      "coupon_cashflows": [
+        0.065,
+        0.065,
+        0.0
+      ],
+      "total_payoff": 0.68,
+      "autocalled_at": null,
+      "knock_in": true
+    },
+    "terms": {
+      "notional": 1.0,
+      "coupon": 0.065,
+      "coupon_barrier": 0.65,
+      "autocall_barrier": 1.0,
+      "knock_in_barrier": 0.65,
+      "memory_coupon": true
+    }
+  },
+  "canonical_phoenix": {
+    "avg_payoff": 1.1913275,
+    "p_loss": 0.0,
+    "n_sims": 2000
+  },
+  "public_challenger": {
+    "runs": [
+      {
+        "source": "public_autocallable_pricer",
+        "pv": 1.1931098748937636,
+        "standard_error": 0.007686137068529494,
+        "n_paths": 1000,
+        "seed": 42
+      },
+      {
+        "source": "public_autocallable_pricer",
+        "pv": 1.1950146204072005,
+        "standard_error": 0.005438956417726321,
+        "n_paths": 2000,
+        "seed": 42
+      },
+      {
+        "source": "public_autocallable_pricer",
+        "pv": 1.1975444348514521,
+        "standard_error": 0.0038032117250547674,
+        "n_paths": 4000,
+        "seed": 42
+      }
+    ],
+    "pv_range_across_path_counts": 0.004434559957688489
+  },
+  "optional_library_reference": {
+    "vanilla_call": {
+      "QuantLib": 10.450583572185579,
+      "FinancePy": 10.450575619322288,
+      "vollib": 10.450583572185561,
+      "max_abs_difference": 7.952863290583423e-06
+    },
+    "quarterly_schedule": [
+      "2025-03-24",
+      "2025-06-24",
+      "2025-09-24",
+      "2025-12-24",
+      "2026-03-24"
+    ]
+  },
+  "gates": {
+    "path_fixture_completed": true,
+    "canonical_completed": true,
+    "public_challenger_completed": true,
+    "vanilla_parity_under_1e-4": true,
+    "oos_accuracy": null,
+    "verified_outcome_comparison": null,
+    "production_promotion": false
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "generated_at": "2026-08-03T22:41:16.181384+00:00",
+  "limitations": [
+    "synthetic fixture is not market evidence",
+    "no verified lifecycle outcomes in SEC corpus",
+    "canonical and public PV conventions are not identical until normalized",
+    "OOS calibration remains blocked"
+  ]
+}

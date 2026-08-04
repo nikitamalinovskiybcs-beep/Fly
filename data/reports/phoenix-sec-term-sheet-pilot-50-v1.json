@@ -1,0 +1,910 @@
+{
+  "manifest_id": "phoenix-sec-term-sheet-pilot-50-v1",
+  "status": "research_only",
+  "record_count": 50,
+  "downloaded": 50,
+  "valid": 50,
+  "unique_sha256": 50,
+  "records": [
+    {
+      "adsh": "0000950103-25-003544",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325003544/dp226436_424b2-us2554077d.htm",
+      "file_date": "2025-03-18",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/001-000095010325003544-dp226436_424b2-us2554077d.htm",
+      "http_status": 200,
+      "sha256": "5f9f8a36ad1e5079d0d13bf23eebbdb8146baf9a38a2504c2e15ea59d77469b8",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 68,
+        "coupon barrier": 22,
+        "contingent coupon": 55,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-21-016790",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321016790/dp160774_424b2-us2170430.htm",
+      "file_date": "2021-10-28",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/002-000095010321016790-dp160774_424b2-us2170430.htm",
+      "http_status": 200,
+      "sha256": "9832e8a863262e3a4c2d8668afa03778625488e493b44a360017516a5fa2e500",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 16,
+        "worst performing": 76,
+        "coupon barrier": 27,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-24-009866",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324009866/dp214418_424b2-us2498805d.htm",
+      "file_date": "2024-07-11",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/003-000095010324009866-dp214418_424b2-us2498805d.htm",
+      "http_status": 200,
+      "sha256": "40b9879f000d7097e791ea64de12bdfb710d66fc98fd1f63d7b08a9764961b68",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 68,
+        "coupon barrier": 21,
+        "contingent coupon": 55,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-013607",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325013607/dp236286_424b2-us2524155d.htm",
+      "file_date": "2025-10-24",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/004-000095010325013607-dp236286_424b2-us2524155d.htm",
+      "http_status": 200,
+      "sha256": "c7613b0f80884d3602e35e421bda572f8b76fca0db700cb48524d52c9cbf9787",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 69,
+        "coupon barrier": 22,
+        "contingent coupon": 55,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-007802",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325007802/dp230583_424b2-us2578259d.htm",
+      "file_date": "2025-06-25",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/005-000095010325007802-dp230583_424b2-us2578259d.htm",
+      "http_status": 200,
+      "sha256": "e8be56f3e112a78d64c1e17fd33c87381cf09f2c8315334102bb7a4f56604e1f",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 68,
+        "coupon barrier": 22,
+        "contingent coupon": 55,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-008449",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325008449/dp231228_424b2-us2580709d.htm",
+      "file_date": "2025-07-03",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/006-000095010325008449-dp231228_424b2-us2580709d.htm",
+      "http_status": 200,
+      "sha256": "400f4b2f453de791c1b569e4cbbb7ee610bd0f9d5509aa1897f5bb21e8221323",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 69,
+        "coupon barrier": 22,
+        "contingent coupon": 55,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-008015",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325008015/dp230745_424b2-us2578259d.htm",
+      "file_date": "2025-06-27",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/007-000095010325008015-dp230745_424b2-us2578259d.htm",
+      "http_status": 200,
+      "sha256": "ab2a88747ea6dbdd7e3efbb343db31cd3be0021f0a6e7e64f777669cddf856d8",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 16,
+        "worst performing": 70,
+        "coupon barrier": 22,
+        "contingent coupon": 55,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-006881",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325006881/dp229756_424b2-us2570868d.htm",
+      "file_date": "2025-06-03",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/008-000095010325006881-dp229756_424b2-us2570868d.htm",
+      "http_status": 200,
+      "sha256": "0a4b1d93dc14869564cc0edf37b57aad70b830f9a5221eb3511778828d76a09f",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 16,
+        "worst performing": 75,
+        "coupon barrier": 27,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-008990",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325008990/dp231773_424b2-us2580709d.htm",
+      "file_date": "2025-07-18",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/009-000095010325008990-dp231773_424b2-us2580709d.htm",
+      "http_status": 200,
+      "sha256": "80cb49079abf91ca2148195a7a5ae783740410b6c91f48d5f7dbb479d1a340e1",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 16,
+        "worst performing": 70,
+        "coupon barrier": 22,
+        "contingent coupon": 55,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-014462",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325014462/dp237122_424b2-us2524155d.htm",
+      "file_date": "2025-11-07",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/010-000095010325014462-dp237122_424b2-us2524155d.htm",
+      "http_status": 200,
+      "sha256": "50da0e89a021eee8d65ed78928f9aefd1527751ef914a1923e0e32382f658ec7",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 16,
+        "worst performing": 70,
+        "coupon barrier": 22,
+        "contingent coupon": 55,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-26-004627",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326004627/dp244127_424b2-us26d9249d.htm",
+      "file_date": "2026-03-25",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/011-000095010326004627-dp244127_424b2-us26d9249d.htm",
+      "http_status": 200,
+      "sha256": "5170461ac11dcd9e152358a57afc53269a58a0f54796d254889ac1f351ac462f",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 16,
+        "worst performing": 75,
+        "coupon barrier": 26,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-002049",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325002049/dp224953_424b2-us2545954d.htm",
+      "file_date": "2025-02-14",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/012-000095010325002049-dp224953_424b2-us2545954d.htm",
+      "http_status": 200,
+      "sha256": "c13c758eb094e72ab8e9e02258f8bd2ba9ebb4a75fbd75a34d87a3364160107c",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 19,
+        "worst performing": 86,
+        "coupon barrier": 25,
+        "contingent coupon": 57,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-002250",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325002250/dp225146_424b2-us2545954d.htm",
+      "file_date": "2025-02-21",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/013-000095010325002250-dp225146_424b2-us2545954d.htm",
+      "http_status": 200,
+      "sha256": "d3c705db074da77460288718084f929e7822f9f5c3aac0a63dbcdc1290edf762",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 20,
+        "worst performing": 87,
+        "coupon barrier": 25,
+        "contingent coupon": 57,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-21-017157",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321017157/dp161132_424b2-us2170430.htm",
+      "file_date": "2021-11-02",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/014-000095010321017157-dp161132_424b2-us2170430.htm",
+      "http_status": 200,
+      "sha256": "775bd3cdd1f0e039ce2e368ed98423ec4af5909243f1a8080d02827ad2e78343",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 17,
+        "worst performing": 77,
+        "coupon barrier": 27,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-003844",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325003844/dp226707_424b2-us2554077d.htm",
+      "file_date": "2025-03-26",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/015-000095010325003844-dp226707_424b2-us2554077d.htm",
+      "http_status": 200,
+      "sha256": "b778b1f034daa5a8160c3613628c4d7a9ad173b5c962e120ad553a689155ebbf",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 16,
+        "worst performing": 69,
+        "coupon barrier": 22,
+        "contingent coupon": 55,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-21-018411",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321018411/dp162351_424b2-us2173499.htm",
+      "file_date": "2021-11-24",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/016-000095010321018411-dp162351_424b2-us2173499.htm",
+      "http_status": 200,
+      "sha256": "d8c7f2e077bed6b34d53ba247d1b1343791512b35d244ba22440a0cfbbc3b6da",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 16,
+        "worst performing": 0,
+        "coupon barrier": 27,
+        "contingent coupon": 72,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-21-017827",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321017827/dp161737_424b2-us2172429.htm",
+      "file_date": "2021-11-15",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/017-000095010321017827-dp161737_424b2-us2172429.htm",
+      "http_status": 200,
+      "sha256": "d60b4e762c52f1a37799ccc53d962c094c2c3d7aac5346e0b7bc363ea35b6421",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 0,
+        "coupon barrier": 23,
+        "contingent coupon": 60,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-24-010122",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324010122/dp214637_424b2-us2498805d.htm",
+      "file_date": "2024-07-17",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/018-000095010324010122-dp214637_424b2-us2498805d.htm",
+      "http_status": 200,
+      "sha256": "dcb29882e65e198f080aedcae4bec74187267f5a4086c9f9e10364ac442130e0",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 68,
+        "coupon barrier": 21,
+        "contingent coupon": 55,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-22-017384",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322017384/dp182094_424b2-us2205770.htm",
+      "file_date": "2022-10-05",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/019-000095010322017384-dp182094_424b2-us2205770.htm",
+      "http_status": 200,
+      "sha256": "e5fb8dc698e8925216d0959a93198bd7fc7eb565668e493a9faf5cfb78eef7eb",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 12,
+        "worst performing": 0,
+        "coupon barrier": 24,
+        "contingent coupon": 70,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-26-008816",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326008816/dp248306_424b2-us26m5876d.htm",
+      "file_date": "2026-06-11",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/020-000095010326008816-dp248306_424b2-us26m5876d.htm",
+      "http_status": 200,
+      "sha256": "ab267c2a8631822b5e9e188d208815e1489079402763cec05caea1af3af80172",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-015525",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325015525/dp238187_424b2-us25a1296d.htm",
+      "file_date": "2025-12-01",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/021-000095010325015525-dp238187_424b2-us25a1296d.htm",
+      "http_status": 200,
+      "sha256": "6b92e15f6a855b2742c0c9fe6499834cfca83d7d56454b50bd4bfe1dce06a1da",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-26-004499",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326004499/dp244013_424b2-us26d9249d.htm",
+      "file_date": "2026-03-23",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/022-000095010326004499-dp244013_424b2-us26d9249d.htm",
+      "http_status": 200,
+      "sha256": "4d0753580fcb08f50404e16fd0932e0fca484c1f22cb9aa6298e0dd0e4597d42",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 74,
+        "coupon barrier": 26,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-013812",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325013812/dp236481_424b2-us2524550d.htm",
+      "file_date": "2025-10-29",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/023-000095010325013812-dp236481_424b2-us2524550d.htm",
+      "http_status": 200,
+      "sha256": "e185ee36ce7dd0430f41dc5450d1f117e932764a5eeb1931f63e8675943f22de",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-23-006078",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323006078/dp192571_424b2-us2327071.htm",
+      "file_date": "2023-04-24",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/024-000095010323006078-dp192571_424b2-us2327071.htm",
+      "http_status": 200,
+      "sha256": "692d35b907ce1fb7e8c04b5a0ef35d6c31ceb9e29cfb7d90f0393def68b689d3",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-015319",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325015319/dp237959_424b2-us25a1296d.htm",
+      "file_date": "2025-11-26",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/025-000095010325015319-dp237959_424b2-us25a1296d.htm",
+      "http_status": 200,
+      "sha256": "036cb55c38cdf8ee27fe7556a9d998ac9451cce338d54243c9546f8d4d86684d",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-21-006234",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321006234/dp150124_424b2-us2142959.htm",
+      "file_date": "2021-04-28",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/026-000095010321006234-dp150124_424b2-us2142959.htm",
+      "http_status": 200,
+      "sha256": "2c892aa8665e599988a37d95519af8859c32eca4ae096025a48d1a5d9e5399f9",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 27,
+        "contingent coupon": 71,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-23-004325",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323004325/dp190826_424b2-us2322277.htm",
+      "file_date": "2023-03-17",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/027-000095010323004325-dp190826_424b2-us2322277.htm",
+      "http_status": 200,
+      "sha256": "bc010607e8ce49b4c1c8b27f4b98cc9c40850fc76f2b2d1cd4082bc982eed9d3",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-012972",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325012972/dp235650_424b2-us2516991d.htm",
+      "file_date": "2025-10-08",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/028-000095010325012972-dp235650_424b2-us2516991d.htm",
+      "http_status": 200,
+      "sha256": "00a736381789b281d60be04758c198619b53c203fa06d7c773150434be8da824",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-007694",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325007694/dp230474_424b2-us2575977d.htm",
+      "file_date": "2025-06-23",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/029-000095010325007694-dp230474_424b2-us2575977d.htm",
+      "http_status": 200,
+      "sha256": "464e8fc615a25eb556a58cc313baf3f18963f9cd01dca14b82181ca1a6e90578",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-014136",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325014136/dp236801_424b2-us2525641d.htm",
+      "file_date": "2025-11-03",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/030-000095010325014136-dp236801_424b2-us2525641d.htm",
+      "http_status": 200,
+      "sha256": "21552059afb0305b9e7afffea4707adae507aed7717ad9c6a2cc820a767a10b3",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-26-008823",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326008823/dp248307_424b2-us26m3810d.htm",
+      "file_date": "2026-06-11",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/031-000095010326008823-dp248307_424b2-us26m3810d.htm",
+      "http_status": 200,
+      "sha256": "321911fd54918e147ce902fb29d13bf60947da787ef0bcb2ef4b565121c6a853",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-24-013388",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324013388/dp217845_424b2-us2412101d.htm",
+      "file_date": "2024-09-10",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/032-000095010324013388-dp217845_424b2-us2412101d.htm",
+      "http_status": 200,
+      "sha256": "3c5e2fbd5a50460d6894923105213e2eee036e68fb5516f4f2da82c38bb7298c",
+      "content_valid": true,
+      "term_hits": {},
+      "retrieval_status": "downloaded",
+      "error": "HTTPError: HTTP Error 503: Service Unavailable",
+      "retry": "succeeded"
+    },
+    {
+      "adsh": "0000950103-25-014348",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325014348/dp237002_424b2-us2526474d.htm",
+      "file_date": "2025-11-05",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/033-000095010325014348-dp237002_424b2-us2526474d.htm",
+      "http_status": 200,
+      "sha256": "192e7fb4b475891f41db4a933976f7b6561e75d525320cef993b4232151e60af",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-22-006608",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322006608/dp171218_424b2-us2289436.htm",
+      "file_date": "2022-04-20",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/034-000095010322006608-dp171218_424b2-us2289436.htm",
+      "http_status": 200,
+      "sha256": "9c0523a58d4cdf45f5916559d919ef378486b0fcac76305836073cac13302bf7",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-20-023695",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320023695/dp142369_424b2-us2022021.htm",
+      "file_date": "2020-12-03",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/035-000095010320023695-dp142369_424b2-us2022021.htm",
+      "http_status": 200,
+      "sha256": "faf3f151dfaf761eb201aa1dbb831db9af848e3b17dee11e3805a3c8430c92c3",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 30,
+        "contingent coupon": 75,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-23-004138",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323004138/dp190653_424b2-us2321932.htm",
+      "file_date": "2023-03-15",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/036-000095010323004138-dp190653_424b2-us2321932.htm",
+      "http_status": 200,
+      "sha256": "ce9bc6a849fa2bc4cdaa6126fec8724e0b49704f4dc44649c59ddba4fc65416b",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-22-008396",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322008396/dp173020_424b2-us2292216.htm",
+      "file_date": "2022-05-12",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/037-000095010322008396-dp173020_424b2-us2292216.htm",
+      "http_status": 200,
+      "sha256": "2d17864eaabf92539de0ce725c8a2505d50fbfb47409064aeeca2b33abd67d82",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-23-010096",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323010096/dp196529_424b2-us2337898.htm",
+      "file_date": "2023-07-10",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/038-000095010323010096-dp196529_424b2-us2337898.htm",
+      "http_status": 200,
+      "sha256": "0717d72eb9e0f2dd461c8f2dabc7c515c09db2a62bd7c61b707a8531bf33aebe",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 13,
+        "worst performing": 0,
+        "coupon barrier": 27,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-21-008514",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321008514/dp152415_424b2-us2149412.htm",
+      "file_date": "2021-06-08",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/039-000095010321008514-dp152415_424b2-us2149412.htm",
+      "http_status": 200,
+      "sha256": "a584d501c86074fbb8d347994d630df6a82c133c96eab98394a71e4ebb2f953a",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 13,
+        "worst performing": 0,
+        "coupon barrier": 27,
+        "contingent coupon": 72,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-22-015610",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322015610/dp180271_424b2-us2203815.htm",
+      "file_date": "2022-09-13",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/040-000095010322015610-dp180271_424b2-us2203815.htm",
+      "http_status": 200,
+      "sha256": "64b9ce66a0dd5ac42954260e48a7535eaf5916e0251a5acaeff36f8f0061d24d",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 12,
+        "worst performing": 0,
+        "coupon barrier": 24,
+        "contingent coupon": 70,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-22-004261",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322004261/dp168901_424b2-us2285802.htm",
+      "file_date": "2022-03-09",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/041-000095010322004261-dp168901_424b2-us2285802.htm",
+      "http_status": 200,
+      "sha256": "a1fd039cf51e8e676a58e7b703a8f3ea56ae24a393bcca91b2547230c8191af4",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-012135",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325012135/dp234829_424b2-us2512328d.htm",
+      "file_date": "2025-09-24",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/042-000095010325012135-dp234829_424b2-us2512328d.htm",
+      "http_status": 200,
+      "sha256": "f7c077a1ecf4e3b9438f0772b1938e4d650382f97b95ef8e51a341546bb53031",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-21-012468",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321012468/dp156380_424b2-us2159898.htm",
+      "file_date": "2021-08-17",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/043-000095010321012468-dp156380_424b2-us2159898.htm",
+      "http_status": 200,
+      "sha256": "2fc8da82408a9689353dc0ddb9a62a5fdd3dd7d13c190da86e0d05bc433bcaba",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 30,
+        "contingent coupon": 75,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-20-014747",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320014747/dp133420_424b2-us2007700.htm",
+      "file_date": "2020-07-31",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/044-000095010320014747-dp133420_424b2-us2007700.htm",
+      "http_status": 200,
+      "sha256": "c733ea81e774f65d1229874af56196af6a45e0b28df45e7d6be22f1261b6a157",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 27,
+        "contingent coupon": 72,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-21-015727",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321015727/dp159650_424b2-us2168639.htm",
+      "file_date": "2021-10-12",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/045-000095010321015727-dp159650_424b2-us2168639.htm",
+      "http_status": 200,
+      "sha256": "daf9e38b124294f3d9c499d0979288e2fd584a4ca8644c91562645a5f6d88906",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 27,
+        "contingent coupon": 72,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-23-013669",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323013669/dp200130_424b2-us2349766.htm",
+      "file_date": "2023-09-18",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/046-000095010323013669-dp200130_424b2-us2349766.htm",
+      "http_status": 200,
+      "sha256": "032a22eac1a1a8472181e7c29300e22f6cb3d02c8ba81f278cc8e235dbebb18f",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-25-012636",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325012636/dp235349_424b2-us2514708d.htm",
+      "file_date": "2025-10-01",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/047-000095010325012636-dp235349_424b2-us2514708d.htm",
+      "http_status": 200,
+      "sha256": "3fdada2152aa3212a0bf45d8ae9ffbbedec87b53a562fcbfee77e997cfc75d93",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 14,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-22-005561",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322005561/dp170159_424b2-us2287447.htm",
+      "file_date": "2022-03-30",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/048-000095010322005561-dp170159_424b2-us2287447.htm",
+      "http_status": 200,
+      "sha256": "fb6695762f4e0d866183a0d5282da9a76268301b8926d114c33bddecd475cc04",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 15,
+        "worst performing": 0,
+        "coupon barrier": 29,
+        "contingent coupon": 74,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-23-009967",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323009967/dp196450_424b2-us2337894.htm",
+      "file_date": "2023-07-06",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/049-000095010323009967-dp196450_424b2-us2337894.htm",
+      "http_status": 200,
+      "sha256": "8d29303c48efbc38c2ea0f15ac5e3b6f8cbc14e166a2549dcaffe8e2acc2224d",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 13,
+        "worst performing": 0,
+        "coupon barrier": 30,
+        "contingent coupon": 75,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    },
+    {
+      "adsh": "0000950103-20-023415",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010320023415/dp142096_424b2-us2022021.htm",
+      "file_date": "2020-12-01",
+      "local_file": "data/source_documents/structured_notes/sec_pilot_50/050-000095010320023415-dp142096_424b2-us2022021.htm",
+      "http_status": 200,
+      "sha256": "e730e79ce2b878cf46704a4c6e64e9a89e5125d6eea95b11c52d9233338986e6",
+      "content_valid": true,
+      "term_hits": {
+        "autocallable phoenix": 13,
+        "worst performing": 0,
+        "coupon barrier": 30,
+        "contingent coupon": 75,
+        "memory coupon": 0,
+        "automatic redemption": 0
+      },
+      "retrieval_status": "downloaded"
+    }
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

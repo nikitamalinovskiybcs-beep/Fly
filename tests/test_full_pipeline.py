@@ -44,6 +44,7 @@ def test_full_analysis_runs_stages_in_order(monkeypatch) -> None:
 
     result = full_pipeline.run_full_analysis(["A", "B", "C"])
 
-    assert calls == ["phoenix", "market", "product", "stress"]
+    assert calls == ["market", "phoenix", "product", "stress"]
     assert result["stages"]["product"] == "complete"
     assert result["stages"]["outcomes"] == "stress_complete"
+    assert result["stress"]["source"] == "simulated"

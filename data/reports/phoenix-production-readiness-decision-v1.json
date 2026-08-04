@@ -1,0 +1,44 @@
+{
+  "proposal_id": "phoenix-production-readiness-v1",
+  "decision": "NO_GO",
+  "reviewer": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed"
+  },
+  "ordered_gates": [
+    {
+      "gate": "chronological_oos",
+      "acceptance": "fixed-24m OOS with 6/12/18/24 anchors, baseline comparison, field-level provenance, quote-fit, and verifiable settled/dealer evidence"
+    },
+    {
+      "gate": "state_and_storage",
+      "acceptance": "resolve three known state/environment failures and prove encrypted backup/restore for agent memory"
+    },
+    {
+      "gate": "deployment_rollback",
+      "acceptance": "persistent deployment, monitoring, health checks, rollback drill, and post-deployment validation"
+    },
+    {
+      "gate": "human_review",
+      "acceptance": "recorded model-risk, compliance, and client-suitability approval with stable provider quorum"
+    }
+  ],
+  "code_fixable_now": [
+    "Add OOS/provenance acceptance contracts and reports",
+    "Add deterministic failure regression tests",
+    "Add deployment health/rollback checks",
+    "Add memory backup/restore interfaces without embedding secrets"
+  ],
+  "requires_human_or_external_data": [
+    "settled notes and dealer quotes",
+    "model-risk/compliance review",
+    "client suitability",
+    "production hosting and secret policy approval"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

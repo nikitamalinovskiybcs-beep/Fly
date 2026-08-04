@@ -1,0 +1,73 @@
+{
+  "proposal_id": "phoenix-tabs-optimizer-v1",
+  "scope": {
+    "ui_file": "app.py",
+    "sections": [
+      "AUDIT MAP",
+      "MODEL BASIS",
+      "КОРЗИНА",
+      "P(KI) АНАЛИЗ",
+      "СТРЕСС-ТЕСТ",
+      "БЭКТЕСТ",
+      "САМООБУЧЕНИЕ",
+      "АЛЬТЕРНАТИВЫ",
+      "РЫНОК",
+      "АГЕНТЫ",
+      "BASKET SCORING",
+      "PAPER TRADING",
+      "DATA & STORAGE",
+      "BEST STRUCTURED PRODUCT",
+      "NOTE OUTCOMES",
+      "API & CONNECTIONS"
+    ],
+    "optimizer_scope": [
+      "duplicate calculations",
+      "duplicate decision information",
+      "unnecessary rendering",
+      "avoidable network or storage calls",
+      "safe simplification without changing model outputs"
+    ]
+  },
+  "constraints": [
+    "Do not remove payoff, P(KI), autocall, risk, OOS, provenance, storage, safety, or realized-outcome evidence.",
+    "Do not change production weights, verdict logic, or trades.",
+    "Do not treat unavailable committee votes as approval.",
+    "Preserve paper and realized evidence distinctions."
+  ],
+  "candidate_findings": [
+    {
+      "section": "[7] АЛЬТЕРНАТИВЫ",
+      "hypothesis": "The current basket replacement view duplicates the product-search/leaderboard workflow.",
+      "risk": "medium",
+      "required_check": "Confirm smart_alts and quote-fit are UI-only and not consumed by calculations."
+    },
+    {
+      "section": "[6] САМООБУЧЕНИЕ",
+      "hypothesis": "Some metrics overlap with [9] АГЕНТЫ, but calibration evidence is distinct.",
+      "risk": "high",
+      "required_check": "Keep or merge only after preserving calibration and evidence labels."
+    },
+    {
+      "section": "[11] BASKET SCORING",
+      "hypothesis": "Score decomposition overlaps visually, but the bank-grade criteria and presets are distinct.",
+      "risk": "high",
+      "required_check": "Do not remove without proving no unique decision/audit value."
+    },
+    {
+      "section": "[12] DATA & STORAGE / [15] API & CONNECTIONS",
+      "hypothesis": "Both show infrastructure status but one covers persistence and one covers credentials/connectivity.",
+      "risk": "high",
+      "required_check": "Keep separate unless a merged view preserves backup and health actions."
+    }
+  ],
+  "optimizer_acceptance": [
+    "No change in frozen key outputs: P(KI), P(autocall), score, coupon, stress, verdict, safety flags.",
+    "Full test suite passes.",
+    "Standard Ruff, compileall, and diff checks pass.",
+    "UI imports and rendering path remain valid.",
+    "Removed section has no calculation or storage side effects."
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

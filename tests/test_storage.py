@@ -5,11 +5,9 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-import numpy as np
 import pandas as pd
-import pytest
 
 
 # ── SQLite Database Tests ──
@@ -36,6 +34,20 @@ class TestDatabase:
         assert result is not None
         assert result["ticker"] == "AAPL"
         assert result["price"] == 150.0
+
+    def test_calculated_note_is_idempotent_and_counted(self) -> None:
+        note = {
+            "note_id": "note-1",
+            "calculated_at": "2099-01-01T00:00:00",
+            "basket": "[\"AAPL\", \"MSFT\"]",
+            "term_months": 24,
+            "evidence_status": "incomplete",
+        }
+        self.db.record_calculated_note(note)
+        self.db.record_calculated_note(note)
+
+        assert self.db.count_calculated_notes(months=1200) == 1
+        assert self.db.count_calculated_baskets(months=1200) == 1
 
     def test_get_open_trades(self) -> None:
         self.db.insert_trade({"id": "t1", "timestamp": "2024-01-01", "ticker": "AAPL",
@@ -217,6 +229,16 @@ class TestStorageConfig:
         assert status["duckdb"] is True
         assert status["supabase"] is False
 
+    def test_storage_integration_status_has_configured_and_active(self) -> None:
+        from src.storage import Storage
+
+        storage = Storage()
+        result = storage.integration_status()
+
+        assert result["status"] == "ready"
+        assert result["active"]["sqlite"] is True
+        assert result["production_weights_changed"] is False
+
     @patch.dict(os.environ, {"SUPABASE_URL": "https://x.supabase.co", "SUPABASE_KEY": "key123"})
     def test_supabase_available_with_env(self) -> None:
         from src.storage.config import StorageConfig
@@ -254,6 +276,19 @@ class TestCloudSync:
         from src.storage.cloud_sync import CloudSync
         sync = CloudSync()
         assert sync.restore_from_cloud("trades") == []
+
+    def test_invalid_endpoint_is_rejected_without_network_call(self) -> None:
+        from src.storage.cloud_sync import CloudSync
+        sync = CloudSync(url="ftp://supabase.example", key="test-key")
+        assert not sync.enabled
+        assert sync.last_error == "invalid_endpoint_scheme"
+
+    def test_unresolvable_endpoint_has_sanitized_diagnostic(self) -> None:
+        from src.storage.cloud_sync import CloudSync
+        with patch("supabase.create_client", side_effect=OSError("Name or service not known")):
+            sync = CloudSync(url="https://project.supabase.co", key="test-key")
+        assert not sync.enabled
+        assert sync.last_error == "endpoint_dns_resolution_failed"
 
 
 # ── Firebase Tests (Graceful Degradation) ──
@@ -387,7 +422,7 @@ class TestBackupManager:
         mgr.BACKUP_DIR = Path(self.tmp) / "backups"
         with patch("src.storage.backup.Path") as mock_path:
             mock_path.return_value = self.data_dir
-            path = mgr.local_backup()
+            mgr.local_backup()
         # Since we mocked Path, just check the method doesn't crash
         assert True
 

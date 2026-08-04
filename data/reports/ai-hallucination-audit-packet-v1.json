@@ -1,0 +1,47 @@
+{
+  "status": "research_only",
+  "scope": "audit AI hallucination and unsupported-claim risk in Phoenix process",
+  "claims_to_check": [
+    {
+      "claim": "the public quote dataset proves realized Phoenix performance",
+      "evidence": "two-year-evidence-audit-v1.json",
+      "expected": "false_quote_only"
+    },
+    {
+      "claim": "dealer quotes are from BCS Capital",
+      "evidence": "data/dealer_quotes.csv",
+      "expected": "unverified_source"
+    },
+    {
+      "claim": "paper trades prove structured-note outcomes",
+      "evidence": "data/paper_trading/trades.json",
+      "expected": "false_equity_trades_only"
+    },
+    {
+      "claim": "a committee consensus exists when providers are unavailable",
+      "evidence": "committee panel artifacts",
+      "expected": "only_completed_providers_count"
+    },
+    {
+      "claim": "a model candidate has production edge",
+      "evidence": "multi_horizon_benchmark_v2.json",
+      "expected": "false_all_gates_fail"
+    }
+  ],
+  "audit_rules": [
+    "no evidence means no claim",
+    "quote is not outcome",
+    "simulation/replay is not realized market history",
+    "unavailable providers are not votes",
+    "AI opinion is not market evidence",
+    "production flags must remain false"
+  ],
+  "committee_questions": [
+    "identify unsupported or fabricated claims",
+    "classify each claim as proven, unverified, or false",
+    "recommend process controls to prevent hallucinated evidence"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

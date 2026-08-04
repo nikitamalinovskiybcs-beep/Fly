@@ -1,0 +1,62 @@
+{
+  "run_id": "phoenix-public-note-records-quality-gate-v1",
+  "run_at": "2026-08-03T23:12:27.185187+00:00",
+  "items_tested": 9,
+  "passed": true,
+  "failures": [],
+  "records": [
+    {
+      "source": "data/reports/phoenix-leonteq-public-pilot-v1.json",
+      "id": "CH1571714935",
+      "url": "https://certificati.leonteq.com/isin/CH1571714935"
+    },
+    {
+      "source": "data/reports/phoenix-leonteq-public-pilot-v1.json",
+      "id": "CH1571715296",
+      "url": "https://certificati.leonteq.com/isin/CH1571715296"
+    },
+    {
+      "source": "data/reports/phoenix-leonteq-public-pilot-v1.json",
+      "id": "CH1571715981",
+      "url": "https://certificati.leonteq.com/isin/CH1571715981"
+    },
+    {
+      "source": "data/reports/phoenix-leonteq-public-pilot-v1.json",
+      "id": "CH1484591107",
+      "url": "https://certificati.leonteq.com/isin/CH1484591107"
+    },
+    {
+      "source": "data/reports/phoenix-leonteq-public-pilot-v1.json",
+      "id": "CH1491781253",
+      "url": "https://certificati.leonteq.com/isin/CH1491781253?language_id=1"
+    },
+    {
+      "source": "data/reports/phoenix-nasdaq-public-structured-product-pilot-v1.json",
+      "id": "NBDIMXX",
+      "url": "https://www.nasdaq.com/market-activity/mutual-fund/nbdimxx"
+    },
+    {
+      "source": "data/reports/phoenix-nasdaq-public-structured-product-pilot-v1.json",
+      "id": "BMCVQXX",
+      "url": "https://www.nasdaq.com/market-activity/mutual-fund/bmcvqxx/historical"
+    },
+    {
+      "source": "data/reports/phoenix-nasdaq-public-structured-product-pilot-v1.json",
+      "id": "ACFCGXX",
+      "url": "https://www.nasdaq.com/market-activity/mutual-fund/acfcgxx/historical"
+    },
+    {
+      "source": "eusipa",
+      "id": "XS2011028805",
+      "url": "https://www.eavest.com/produits-structures/1877/tsheet"
+    }
+  ],
+  "limitations": [
+    "public page evidence is not independent settlement verification"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

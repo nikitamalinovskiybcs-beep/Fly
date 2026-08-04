@@ -1,0 +1,81 @@
+{
+  "verdict": "research_only",
+  "summary": "The Phoenix proposal includes ten local improvements aimed at enhancing evidence quality, stability, readability, and speed without altering production behavior. All proposals are deemed safe for research only until further committee review.",
+  "top_technical_reasons": [
+    "High information gain from all proposals.",
+    "Local implementation minimizes risk.",
+    "Measurable gates ensure accountability."
+  ],
+  "candidate_safety": {
+    "production_weights_changed": false,
+    "trades_created": false,
+    "verdict_mutated": false
+  },
+  "next_experiments": [
+    {
+      "hypothesis": "Adding source reliability scores will improve data quality.",
+      "change": "Add source reliability scores per field.",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "This will provide insights into the reliability of data sources, enhancing overall data integrity."
+    },
+    {
+      "hypothesis": "Validating timezone normalization will reduce data discrepancies.",
+      "change": "Validate timezone normalization at ingestion.",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "This will help ensure that data is consistently interpreted across different time zones, improving accuracy."
+    },
+    {
+      "hypothesis": "Detecting duplicate observations will enhance data uniqueness.",
+      "change": "Detect duplicate observations across providers.",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "This will help in maintaining a clean dataset, which is crucial for reliable analysis."
+    },
+    {
+      "hypothesis": "Storing corporate-action adjustment provenance will improve traceability.",
+      "change": "Store corporate-action adjustment provenance.",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "This will allow for better tracking of changes and their impacts on data."
+    },
+    {
+      "hypothesis": "Adding coupon memory state transition tests will enhance model robustness.",
+      "change": "Add coupon memory state transition tests.",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "This will provide insights into the model's performance under different conditions."
+    },
+    {
+      "hypothesis": "Implementing nested walk-forward calibration will improve model accuracy.",
+      "change": "Add nested walk-forward calibration.",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "This will help in fine-tuning the model for better predictive performance."
+    },
+    {
+      "hypothesis": "Creating a per-agent ablation registry will enhance model transparency.",
+      "change": "Add per-agent ablation registry.",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "This will allow for better understanding of individual agent contributions to overall performance."
+    },
+    {
+      "hypothesis": "Proposal schema validation will reduce errors in panel calls.",
+      "change": "Add proposal schema validation before panel calls.",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "This will help ensure that only valid proposals are considered, improving decision-making."
+    },
+    {
+      "hypothesis": "Adding a Supabase schema migration checksum will enhance data integrity.",
+      "change": "Add Supabase schema migration checksum.",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "This will help in verifying that data migrations are executed correctly."
+    },
+    {
+      "hypothesis": "Showing evidence versus assumption badges will improve user decision-making.",
+      "change": "Show evidence versus assumption badges per input.",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "This will provide users with clearer insights into the basis of decisions, enhancing trust."
+    }
+  ],
+  "data_or_label_risks": "No immediate data or label risks identified; all proposals are designed to enhance data quality and integrity.",
+  "provider": "openrouter",
+  "model": "openai/gpt-4o-mini",
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

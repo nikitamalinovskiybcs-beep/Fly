@@ -1,0 +1,58 @@
+{
+  "status": "research_only",
+  "scope": "alternative data edge for Phoenix fundamentals and earnings risk",
+  "objective": "identify legal, timestamped, historically replayable leading indicators for revenue/downside before earnings",
+  "data_candidates": [
+    {
+      "id": "satellite_store_activity",
+      "source": "public/licensed satellite imagery or aggregated geospatial activity",
+      "signal": "store/parking activity trend",
+      "risk": "cloud cover, weak causal link, vendor licensing, look-ahead",
+      "gate": "incremental OOS lift over price/vol baseline"
+    },
+    {
+      "id": "aggregated_footfall",
+      "source": "licensed anonymized footfall index",
+      "signal": "traffic trend and seasonality",
+      "risk": "coverage bias, privacy, vendor revisions",
+      "gate": "stable walk-forward lift and no survivorship bias"
+    },
+    {
+      "id": "web_demand",
+      "source": "public search/trends and licensed web traffic aggregates",
+      "signal": "demand intent before earnings",
+      "risk": "bot noise, revisions, regional bias",
+      "gate": "timestamped feature freeze before earnings"
+    },
+    {
+      "id": "inventory_freight",
+      "source": "public shipping/freight and inventory indicators",
+      "signal": "supply chain pressure",
+      "risk": "sparse coverage, interpretation risk",
+      "gate": "improves earnings-risk labels OOS"
+    },
+    {
+      "id": "weather",
+      "source": "historical weather and severe-weather events",
+      "signal": "retail/travel/energy sensitivity",
+      "risk": "sector-specific relevance, confounding",
+      "gate": "incremental lift by sector and regime"
+    },
+    {
+      "id": "filings_transcripts",
+      "source": "timestamped filings, earnings transcripts and guidance changes",
+      "signal": "fundamental regime shift",
+      "risk": "text leakage after event, NLP instability",
+      "gate": "feature timestamp precedes outcome and improves calibration"
+    }
+  ],
+  "committee_questions": [
+    "rank by expected information gain, cost and availability",
+    "identify legal/privacy/licensing constraints",
+    "define minimum sample and OOS gates",
+    "recommend one pilot for Phoenix"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

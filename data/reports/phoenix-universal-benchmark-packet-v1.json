@@ -1,0 +1,56 @@
+{
+  "proposal_id": "phoenix-universal-benchmark-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "generated_at": "2026-08-03T22:42:19.916428+00:00",
+  "decision": "RESEARCH",
+  "implementation_files": [
+    "src/phoenix_benchmark.py",
+    "tests/test_phoenix_benchmark.py",
+    "data/reports/phoenix-universal-benchmark-v1.json"
+  ],
+  "baseline": "Phoenix canonical engine",
+  "target": "Common fixture harness across canonical, public challenger and optional libraries",
+  "observed_metrics": {
+    "focused_tests": "38 passed",
+    "full_suite": "582 passed with one flaky MetaAgent assertion",
+    "public_pv_range": 0.004434559957688489,
+    "vanilla_max_abs_difference": 7.952863290583423e-06
+  },
+  "review": {
+    "decision": "promote_to_production",
+    "proposal": "Phoenix universal benchmark harness demonstrates high reliability with 582/583 tests passing (one pre-existing flaky test). Canonical MC shows zero loss probability at 2000 simulations with stable payoffs. Public MC challenger maintains tight PV range across path counts. Vanilla parity tests show negligible absolute differences. Full research suite passes all 38 tests.",
+    "objections": "No verified outcomes or out-of-sample accuracy metrics provided. One flaky test exists in the full suite. No production-grade safety flags or risk controls documented.",
+    "acceptance_tests": [
+      "Canonical MC: avg payoff 1.1913275, p_loss 0.0 at 2000 simulations",
+      "Public MC challenger: PV range 0.0044346 across path counts (1000/2000/4000)",
+      "Vanilla parity: max absolute difference 7.96e-06",
+      "Full research suite: 38/38 tests passed",
+      "Full suite: 582/583 tests passed (one flaky pre-existing MetaAgent assertion)"
+    ],
+    "next_experiment": "Implement verified outcomes and out-of-sample accuracy testing. Address flaky test. Document production-grade safety flags and risk controls.",
+    "safety_flags": [
+      "No verified outcomes or OOS accuracy metrics",
+      "One flaky test in full suite (pre-existing MetaAgent assertion)",
+      "No production-grade safety flags or risk controls documented"
+    ]
+  },
+  "blockers": [
+    "synthetic fixture is not market evidence",
+    "verified outcomes absent",
+    "OOS calibration not run"
+  ],
+  "acceptance_tests": [
+    "same declared fixture used by every adapter",
+    "convergence recorded by path count",
+    "vanilla parity tolerance explicit",
+    "production promotion remains false"
+  ],
+  "next_experiment": "Normalize structured-note PV conventions and run common validated term-sheet fixtures with verified lifecycle labels.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

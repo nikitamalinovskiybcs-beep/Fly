@@ -1,0 +1,106 @@
+{
+  "problem_id": "phoenix-hard-math-benchmark-v1",
+  "generated_at": "2026-08-03T22:48:17.244427+00:00",
+  "status": "research_only",
+  "problem": {
+    "assets": 2,
+    "spots": [
+      100,
+      100
+    ],
+    "vols": [
+      0.2,
+      0.25
+    ],
+    "rate": 0.03,
+    "correlation": 0.4,
+    "maturity_years": 2,
+    "observations_per_year": 4,
+    "autocall_barrier": 1.0,
+    "coupon_barrier": 0.7,
+    "knock_in_barrier": 0.6,
+    "coupon_tested": 0.065,
+    "notional": 100
+  },
+  "gbm_convergence": [
+    {
+      "n_paths": 2000,
+      "pv": 116.73506162678395,
+      "se": 0.4607365854410268
+    },
+    {
+      "n_paths": 8000,
+      "pv": 117.25486684230182,
+      "se": 0.22772828764828987
+    },
+    {
+      "n_paths": 32000,
+      "pv": 117.38333448440696,
+      "se": 0.11395505921892338
+    }
+  ],
+  "gbm_fair_coupon": {
+    "n_paths": 4000,
+    "coupon": 0.01862399925650335
+  },
+  "heston_result": {
+    "n_paths": 4000,
+    "pv": 114.77483466050016,
+    "standard_error": 0.3468302372652839
+  },
+  "heston_fair_coupon": {
+    "n_paths": 1000,
+    "coupon": 0.023122346633578955
+  },
+  "interpretation": [
+    "This is a hard synthetic math benchmark, not market evidence.",
+    "GBM and Heston are different models; their outputs should not be expected to match.",
+    "Fair coupon is challenger output and is not production-approved."
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "path_level_reference": {
+    "principal": 55.00000000000001,
+    "coupon_cashflows": [
+      6.5,
+      6.5,
+      0.0
+    ],
+    "total_payoff": 68.0,
+    "autocalled_at": null,
+    "knock_in": true
+  },
+  "canonical_phoenix_engine": {
+    "status": "not_directly_comparable",
+    "reason": "current canonical engine uses simplified coupon/autocall semantics and does not consume full structured-note schedule; do not treat its output as the same hard problem solution"
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "review": {
+      "decision": "reject",
+      "interpretation": "The benchmark is synthetic and not directly comparable to the canonical Phoenix engine due to simplified coupon/autocall semantics. The public GBM challenger PVs converge to ~117.38 with SE ~0.1140 at 32k paths, while the Heston model yields a lower PV of 114.7748 with SE 0.3468. The path-level reference payoff of 68.0 suggests significant discrepancies in pricing mechanics.",
+      "objections": [
+        "Lack of direct comparability to the canonical Phoenix engine due to simplified semantics.",
+        "Synthetic nature of the benchmark with no market or OOS claims.",
+        "Discrepancies between GBM and Heston models (PV difference of ~2.61).",
+        "Path-level reference payoff (68.0) deviates significantly from model PVs (~117)."
+      ],
+      "acceptance_tests": [
+        "Verify convergence of GBM challenger PVs across increasing path counts (1k, 2k, 4k, 8k, 16k, 32k).",
+        "Compare Heston model PVs with GBM challenger PVs under identical parameters.",
+        "Validate path-level payoff logic against model PVs.",
+        "Test coupon/autocall semantics in the canonical Phoenix engine against the benchmark."
+      ],
+      "next_experiment": "Implement a refined Phoenix engine with explicit coupon/autocall semantics and compare against the synthetic benchmark using the same path-level payoff logic.",
+      "safety_flags": {
+        "market_claims": false,
+        "oos_claims": false,
+        "comparability": false
+      }
+    }
+  }
+}

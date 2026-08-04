@@ -1,0 +1,148 @@
+{
+  "status": "completed",
+  "consensus_verdict": "revise",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:7b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:deepseek-r1:7b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "revise",
+        "summary": "The provided data candidates have various risks and gates associated with them, but none have been promoted to production due to the production rule and research-only status.",
+        "top_technical_reasons": [
+          "Lack of empirical baseline comparison for data candidates",
+          "Risks associated with data candidates, such as cloud cover, weak causal link, and vendor licensing",
+          "Need for timestamped feature freeze before earnings and stable walk-forward lift"
+        ],
+        "candidate_safety": "low",
+        "next_experiments": [
+          {
+            "hypothesis": "Satellite store activity data can improve earnings-risk labels OOS",
+            "change": "Add satellite store activity data to the model",
+            "metric_gate": "Incremental OOS lift over price/vol baseline",
+            "why_it_is_informative": "To evaluate the effectiveness of satellite store activity data in improving earnings-risk labels"
+          },
+          {
+            "hypothesis": "Aggregated footfall data can provide stable walk-forward lift",
+            "change": "Add aggregated footfall data to the model",
+            "metric_gate": "Stable walk-forward lift and no survivorship bias",
+            "why_it_is_informative": "To assess the stability and effectiveness of aggregated footfall data in the model"
+          }
+        ],
+        "data_or_label_risks": [
+          "Cloud cover and weak causal link risks associated with satellite store activity data",
+          "Coverage bias and privacy risks associated with aggregated footfall data",
+          "Bot noise and revisions risks associated with web demand data"
+        ],
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "revise",
+        "summary": "Phoenix aims to identify leading indicators for revenue and downside risks before earnings using alternative data. However, the current candidates face various risks and limitations that need to be addressed before any promotion to production.",
+        "top_technical_reasons": [
+          "Candidates exhibit significant risks such as coverage bias, privacy concerns, and vendor licensing issues.",
+          "The objective requires legally compliant, timestamped data that is historically replayable, which is not guaranteed by all candidates.",
+          "The production rule mandates that candidates must outperform the empirical baseline at every fixed-24-month maturity anchor, which has not been demonstrated."
+        ],
+        "candidate_safety": "High risk due to potential legal and privacy issues associated with data sources, as well as the possibility of biased or unreliable signals.",
+        "next_experiments": [
+          {
+            "hypothesis": "Improving the causal link of satellite store activity will enhance its predictive power.",
+            "change": "Conduct a detailed analysis of cloud cover effects and refine the causal model.",
+            "metric_gate": "Incremental OOS lift over price/vol baseline.",
+            "why_it_is_informative": "This will help assess the reliability of satellite data as a leading indicator."
+          },
+          {
+            "hypothesis": "Aggregated footfall data can provide stable insights if coverage bias is mitigated.",
+            "change": "Expand the data sources to include more diverse geographic areas.",
+            "metric_gate": "Stable walk-forward lift and no survivorship bias.",
+            "why_it_is_informative": "This will determine if broader data coverage can improve the robustness of the signal."
+          },
+          {
+            "hypothesis": "Web demand signals can be made more reliable by filtering out bot noise.",
+            "change": "Implement advanced filtering techniques to clean the data.",
+            "metric_gate": "Timestamped feature freeze before earnings.",
+            "why_it_is_informative": "This will help validate the effectiveness of web demand as a leading indicator."
+          }
+        ],
+        "data_or_label_risks": [
+          "Cloud cover affecting satellite imagery accuracy.",
+          "Privacy concerns related to footfall data collection.",
+          "Potential bot noise in web demand data leading to inaccurate signals."
+        ],
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

@@ -1,0 +1,46 @@
+{
+  "comparison_id": "phoenix-optional-python-library-comparison-v1",
+  "generated_at": "2026-08-03T22:29:22.877150+00:00",
+  "status": "research_only",
+  "libraries": {
+    "QuantLib": "available",
+    "FinancePy": "available",
+    "vollib": "available",
+    "finmath-lib": "unavailable",
+    "OpenGamma Strata": "unavailable"
+  },
+  "fixture": {
+    "spot": 100,
+    "strike": 100,
+    "time_to_expiry": 1,
+    "rate": 0.05,
+    "volatility": 0.2
+  },
+  "vanilla_call_prices": {
+    "QuantLib": 10.450583572185579,
+    "FinancePy": 10.450575619322288,
+    "vollib": 10.450583572185561,
+    "max_abs_difference": 7.952863290583423e-06
+  },
+  "quantlib_schedule": [
+    "2025-03-24",
+    "2025-06-24",
+    "2025-09-24",
+    "2025-12-24",
+    "2026-03-24"
+  ],
+  "decision": "reference_only",
+  "why_not_promoted": "Vanilla parity does not establish structured-note payoff, calibration, lifecycle, or OOS superiority.",
+  "finmath_lib": "unavailable_runtime_no_maven",
+  "opengamma_strata": "unavailable_runtime_no_maven",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "versions": {
+    "QuantLib": "1.43",
+    "FinancePy": "1.0.1",
+    "vollib": "1.0.11"
+  }
+}

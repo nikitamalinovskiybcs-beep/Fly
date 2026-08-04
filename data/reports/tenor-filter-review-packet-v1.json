@@ -1,0 +1,18 @@
+{
+  "question": "Should Phoenix remove the fixed-24-month filter to improve model quality?",
+  "target_product_term_months": 24,
+  "options": [
+    "remove_filter_and_mix_tenors",
+    "keep_24m_gate_and_test_mixed_tenor_as_auxiliary_research_only"
+  ],
+  "evidence": {
+    "settled_24m_notes": 0,
+    "verified_bcs_observations": 0,
+    "quote_rows_24m": 107,
+    "fixed_24m_benchmark_gate": false
+  },
+  "safety_rule": "Never replace fixed-24m validation with mixed-tenor metrics.",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

@@ -1,0 +1,16 @@
+{
+  "proposal_id": "phoenix-stage1-oos-v1",
+  "required_gates": [
+    "fixed-24m chronological OOS",
+    "anchors 6/12/18/24",
+    "baseline Brier/log-loss/ECE",
+    "field-level provenance",
+    "realized or explicitly labeled paper outcomes"
+  ],
+  "current_evidence": "Current repository contains gate helpers and evidence-report code, but no verified packet proving all anchors beat baseline with complete provenance.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

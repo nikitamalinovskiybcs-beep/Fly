@@ -1,0 +1,35 @@
+{
+  "verdict": "revise",
+  "summary": "The Phoenix proposal requires revisions to enhance commercial readiness and ensure compliance with human review processes. Key blockers remain, and the model's limitations and biases need to be explicitly stated.",
+  "top_technical_reasons": [
+    "Human review is always required, indicating a lack of confidence in automated processes.",
+    "Current evidence blockers prevent production readiness.",
+    "Model limitations and potential biases are not clearly communicated."
+  ],
+  "candidate_safety": "The proposal does not imply production readiness or legal approval, ensuring that safety measures are in place.",
+  "next_experiments": [
+    {
+      "hypothesis": "Explicitly stating model limitations will improve transparency and trust.",
+      "change": "Add a section in the documentation that outlines model limitations and potential biases.",
+      "metric_gate": "User feedback on transparency and trustworthiness.",
+      "why_it_is_informative": "Understanding user perception of model limitations can guide further improvements."
+    },
+    {
+      "hypothesis": "Separating AI-generated proposals from human approvals will clarify decision-making processes.",
+      "change": "Implement a clear distinction in the UI between AI-generated and human-approved proposals.",
+      "metric_gate": "Reduction in user confusion and increased clarity in decision-making.",
+      "why_it_is_informative": "This will help assess the effectiveness of the separation in improving user understanding."
+    },
+    {
+      "hypothesis": "Enhancing the UI to show human-review status will improve user confidence.",
+      "change": "Render human-review status and non-approval in the existing UI readiness block.",
+      "metric_gate": "User satisfaction ratings regarding the clarity of the review process.",
+      "why_it_is_informative": "This will provide insights into how UI changes affect user trust in the system."
+    }
+  ],
+  "data_or_label_risks": "There are risks associated with not clearly communicating the evidence classes and current blockers, which could lead to misunderstandings about the model's readiness.",
+  "provider": "openrouter",
+  "model": "openai/gpt-4o-mini",
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

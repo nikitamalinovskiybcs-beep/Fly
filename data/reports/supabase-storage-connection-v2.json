@@ -1,0 +1,18 @@
+{
+  "status": "connected",
+  "project": "Fen2",
+  "project_ref": "mxchflmqgnejxbxhlpga",
+  "github_repository": "nikitamalinovskiybcs-beep/Fly",
+  "endpoint_host": "mxchflmqgnejxbxhlpga.supabase.co",
+  "schema_applied": true,
+  "rls_enabled": true,
+  "health_check": {
+    "cloud_sync_enabled": true,
+    "last_error": null,
+    "last_sync_time": null
+  },
+  "local_storage_fallback": true,
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

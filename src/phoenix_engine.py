@@ -5,18 +5,15 @@ Sobol MC (500K paths), Memory Coupon, Barrier Pricing.
 Integrated with ClickHouse caching & Google Drive backups.
 """
 
-import numpy as np
 import hashlib
+import importlib.util
 import json
 import os
-import time
 from datetime import datetime, timedelta
 
-try:
-    from scipy.stats import qmc, norm
-    SCIPY_QMC = True
-except ImportError:
-    SCIPY_QMC = False
+import numpy as np
+
+SCIPY_QMC = importlib.util.find_spec("scipy.stats") is not None
 
 # ── Google Drive (Colab / local fallback) ──
 try:

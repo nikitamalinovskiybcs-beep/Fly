@@ -1,0 +1,89 @@
+{
+  "run_id": "phoenix-leonteq-rendered-model-readiness-v1",
+  "generated_at": "2026-08-03T23:25:46.008339+00:00",
+  "status": "research_only_not_calibration",
+  "records": [
+    {
+      "isin": "CH1491781816",
+      "terms_source": "public_page_observed",
+      "model_status": "assumption_labeled_scenario",
+      "assumptions": {
+        "coupon_barrier_pct": 80.0,
+        "autocall_barrier_pct": 100.0,
+        "observation_schedule": "regularized from available frequency",
+        "notional": 100.0
+      },
+      "result": {
+        "principal": 100.0,
+        "coupon_cashflows": [
+          1.7499999999999998
+        ],
+        "total_payoff": 101.75,
+        "worst_final": 1.04,
+        "autocalled_at": 0,
+        "knock_in": false
+      }
+    },
+    {
+      "isin": "CH1484603449",
+      "terms_source": "public_page_observed",
+      "model_status": "assumption_labeled_scenario",
+      "assumptions": {
+        "coupon_barrier_pct": 80.0,
+        "autocall_barrier_pct": 100.0,
+        "observation_schedule": "regularized from available frequency",
+        "notional": 100.0
+      },
+      "result": {
+        "principal": 100.0,
+        "coupon_cashflows": [
+          0.0,
+          0.0,
+          8.75
+        ],
+        "total_payoff": 108.75,
+        "worst_final": 0.85,
+        "autocalled_at": null,
+        "knock_in": false
+      }
+    },
+    {
+      "isin": "CH1111681792",
+      "terms_source": "public_page_observed",
+      "model_status": "assumption_labeled_scenario",
+      "assumptions": {
+        "coupon_barrier_pct": 80.0,
+        "autocall_barrier_pct": 100.0,
+        "observation_schedule": "regularized from available frequency",
+        "notional": 100.0
+      },
+      "result": {
+        "principal": 100.0,
+        "coupon_cashflows": [
+          0.0,
+          0.0,
+          6.0
+        ],
+        "total_payoff": 106.0,
+        "worst_final": 0.9,
+        "autocalled_at": null,
+        "knock_in": false
+      }
+    }
+  ],
+  "metrics": {
+    "verified_outcomes": 0,
+    "brier": null,
+    "log_loss": null,
+    "ece": null
+  },
+  "decision": "do_not_promote_or_reweight",
+  "limitations": [
+    "Coupon barrier and exact autocall schedule were not complete for every record; scenario assumptions are not historical labels."
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

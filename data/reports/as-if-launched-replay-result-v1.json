@@ -1,0 +1,47 @@
+{
+  "schema_version": "historical-replay-as-if-launched-v1",
+  "interpretation": "hypothetical_paper_replay_not_realized_notes",
+  "source": "data/reports/multi_horizon_benchmark_v2.json",
+  "as_of_source_timestamp": "2026-08-02T20:05:59.851968+00:00",
+  "total_calculated_notes": 392,
+  "unique_baskets": 98,
+  "hypothetical_loss_events": 30,
+  "hypothetical_no_loss_events": 362,
+  "hypothetical_loss_rate": 0.076531,
+  "mean_predicted_pki": 0.390587,
+  "anchors": {
+    "6": {
+      "notes": 98,
+      "hypothetical_loss_events": 6,
+      "hypothetical_no_loss_events": 92,
+      "mean_predicted_pki": 0.390587
+    },
+    "12": {
+      "notes": 98,
+      "hypothetical_loss_events": 9,
+      "hypothetical_no_loss_events": 89,
+      "mean_predicted_pki": 0.390587
+    },
+    "18": {
+      "notes": 98,
+      "hypothetical_loss_events": 9,
+      "hypothetical_no_loss_events": 89,
+      "mean_predicted_pki": 0.390587
+    },
+    "24": {
+      "notes": 98,
+      "hypothetical_loss_events": 6,
+      "hypothetical_no_loss_events": 92,
+      "mean_predicted_pki": 0.390587
+    }
+  },
+  "limitations": [
+    "no coupons or observation-level cashflows in source rows",
+    "no verified issuance or dealer fills",
+    "no settled Phoenix notes",
+    "cannot calculate realized P&L or actual payout"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

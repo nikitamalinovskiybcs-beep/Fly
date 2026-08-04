@@ -1,0 +1,6 @@
+{
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "response": "```json\n{\n  \"decision\": \"NO_GO\",\n  \"passed_gates\": [],\n  \"remaining_blockers\": [\n    \"Missing verified full anchor evidence for OOS (24m chronological requirement not met)\",\n    \"Real provenance evidence still missing (contract added but not verified)\",\n    \"Persistent deployment and rollback proof missing\",\n    \"Human review not recorded\",\n    \"Key custody policy missing for memory encryption\"\n  ],\n  \"exact_next_actions\": [\n    \"Obtain and verify full anchor evidence for OOS with 24m chronological data\",\n    \"Provide real provenance evidence for field deployment\",\n    \"Implement and document persistent deployment with rollback proof\",\n    \"Conduct and record human review of all changes\",\n    \"Finalize and approve key custody policy for memory encryption\"\n  ]\n}\n```"
+}

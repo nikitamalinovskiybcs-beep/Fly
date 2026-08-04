@@ -7,7 +7,7 @@ Karpathy method: all computation here, app.py is pure render.
 import math
 import cmath
 import numpy as np
-from typing import Dict, List, Optional
+from typing import Dict, List
 from scipy.stats import norm
 
 
@@ -112,8 +112,6 @@ def trinomial_tree_pki(vol: float, barrier: float = 0.65,
     pd = max(0.001, min(0.998, pd))
     total = pu + pm + pd
     pu, pm, pd = pu / total, pm / total, pd / total
-    u = math.exp(dx)
-    d = math.exp(-dx)
     V = np.zeros(2 * n_steps + 1)
     for j in range(2 * n_steps + 1):
         S_T = math.exp((j - n_steps) * dx)
@@ -226,13 +224,10 @@ def compute_options_sentiment(yf_data: Dict, tickers: List[str]) -> Dict:
         iv_premium = iv30 - hist_vol
         if iv_premium > 10:
             sentiment = "BEARISH"
-            adj = -0.5
         elif iv_premium < -5:
             sentiment = "BULLISH"
-            adj = 0.3
         else:
             sentiment = "NEUTRAL"
-            adj = 0
         sentiments[t] = {"sentiment": sentiment, "iv_premium": round(iv_premium, 1)}
     avg_adj = float(np.mean([0.3 if s["sentiment"] == "BULLISH" else -0.5 if s["sentiment"] == "BEARISH" else 0 for s in sentiments.values()])) if sentiments else 0
     return {"per_ticker": sentiments, "scoring_adj": round(avg_adj, 2)}
@@ -258,7 +253,7 @@ def credit_adjusted_coupon(coupon_pa: float, issuer_spread: float = 0.01,
 # ═══════════════════════════════════════════════════════════════
 
 def _executive_summary(score: float, p_ki: float, coupon: float,
-                       pki_consensus: Dict, buyside_adj: Dict) -> Dict:
+                       pki_consensus: Dict) -> Dict:
     """3-line verdict: BUY / HOLD / AVOID."""
     if score >= 70 and p_ki < 85:
         verdict = "BUY"
@@ -305,9 +300,7 @@ def _executive_summary(score: float, p_ki: float, coupon: float,
 
 def compute_buyside_analytics(basket: List[str], yf_data: Dict,
                               score: float, weights: Dict,
-                              features: Dict[str, float],
-                              corr_matrix: Optional[np.ndarray] = None,
-                              universe: Optional[Dict] = None) -> Dict:
+                              features: Dict[str, float]) -> Dict:
     """Compute buy-side analytics — only what improves prediction accuracy."""
     result = {}
 
@@ -414,7 +407,6 @@ def compute_buyside_analytics(basket: List[str], yf_data: Dict,
         result["executive_summary"] = _executive_summary(
             score, p_ki, coupon,
             result.get("pki_consensus", {}),
-            result.get("buyside_adjustments", {}),
         )
     except Exception:
         result["executive_summary"] = {"verdict": "N/A", "reasons": []}

@@ -1,0 +1,89 @@
+{
+  "proposal_id": "phoenix-gate-closure-ai-committee-v1",
+  "decision": "HOLD",
+  "scope": "Prioritize closure of Phoenix production gates without fabricating evidence",
+  "providers": [
+    {
+      "provider": "mistral",
+      "model": "mistral-small-latest",
+      "status": "completed",
+      "decision": "REJECTED",
+      "recommendation": "Prioritize OOS anchors, independent baselines, provenance evidence, committee quorum, memory validation, rollback drill, and approved key custody."
+    },
+    {
+      "provider": "openrouter",
+      "model": "openai/gpt-oss-20b:free",
+      "status": "unavailable",
+      "reason": "HTTP 429 upstream shared-pool rate limit",
+      "decision": "not counted"
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen2.5:1.5b",
+      "status": "completed",
+      "decision": "RESEARCH_ONLY",
+      "recommendation": "Separate engineering work from external evidence and human approval."
+    },
+    {
+      "provider": "ollama",
+      "model": "deepseek-r1:1.5b",
+      "status": "unavailable",
+      "reason": "Local inference did not complete within bounded review window",
+      "decision": "not counted"
+    }
+  ],
+  "prioritized_plan": [
+    {
+      "order": 1,
+      "gate": "fixed-24m OOS anchors 6/12/18/24",
+      "owner": "requester plus Phoenix evidence pipeline",
+      "status": "blocked_pending_real_quotes",
+      "acceptance": "Structured, provenance-validated observations with chronological anchors and no leakage"
+    },
+    {
+      "order": 2,
+      "gate": "independent baseline metrics",
+      "owner": "Phoenix analytics plus independent reviewer",
+      "status": "blocked_pending_dataset",
+      "acceptance": "Reproducible baseline Brier/log-loss/ECE and comparison against Phoenix"
+    },
+    {
+      "order": 3,
+      "gate": "settled/dealer provenance",
+      "owner": "requester and data custodian",
+      "status": "blocked_pending_source",
+      "acceptance": "Field-level source, source_id, observed_at, dataset_version, evidence_class, freshness and quote-fit"
+    },
+    {
+      "order": 4,
+      "gate": "live rollback drill",
+      "owner": "deployment operator",
+      "status": "not_drilled",
+      "acceptance": "Recorded rollback and restore on a non-production or approved staging target"
+    },
+    {
+      "order": 5,
+      "gate": "key custody",
+      "owner": "requester",
+      "status": "draft_only",
+      "acceptance": "Approved owner, rotation, revocation, access log and recovery test"
+    },
+    {
+      "order": 6,
+      "gate": "human sign-off",
+      "owner": "named model-risk, compliance and suitability reviewers",
+      "status": "not_independent",
+      "acceptance": "Named reviewers sign the packet; requester self-review alone is not independent approval"
+    }
+  ],
+  "hosting_recommendation": {
+    "streamlit": "research_and_demo_only",
+    "client_production": "authenticated_frontend_plus_fastapi_backend_plus_managed_storage_and_secret_manager",
+    "billing_note": "A real client production deployment normally requires a paid or organization-managed hosting account"
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

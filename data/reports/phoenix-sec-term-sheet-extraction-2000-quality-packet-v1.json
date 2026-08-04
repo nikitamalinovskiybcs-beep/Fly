@@ -1,0 +1,122 @@
+{
+  "proposal_id": "phoenix-sec-term-sheet-extraction-2000-quality-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "scope": "Review deterministic extraction quality for 2,000 SEC documents",
+  "observed": {
+    "with_title": 1995,
+    "with_issuer": 1994,
+    "with_underlyings_text": 1995,
+    "with_dates": 1995,
+    "html": 1995,
+    "pdf": 5
+  },
+  "download_quality": {
+    "downloaded": 2000,
+    "content_valid": 1995,
+    "unique_sha256": 2000,
+    "content_types": {
+      "text/html": 1995,
+      "application/pdf": 5
+    }
+  },
+  "examples": [
+    {
+      "title": "this preliminary pricing supplement is not complete and may be changed. A registration statement relating to these securities has been filed with the Securities",
+      "issuer": "Citigroup Global Markets Holdings Inc",
+      "dates": [
+        "March 24, 2025",
+        "March 27, 2025",
+        "June 24, 2025",
+        "September 24, 2025",
+        "December 24, 2025",
+        "March 24, 2026"
+      ],
+      "underlyings_text": "For any interim valuation date or with respect to the final valuation date, the underlying index with the lowest index return determined as of that interim valuation date or the fi",
+      "source_file": "data/source_documents/structured_notes/sec_pilot_2000/0001-0000950103-25-003544-dp226436_424b2-us2554077d.htm",
+      "sha256": "5f9f8a36ad1e5079d0d13bf23eebbdb8146baf9a38a2504c2e15ea59d77469b8",
+      "content_type": "text/html",
+      "retrieval_status": "downloaded",
+      "evidence_class": "pricing_supplement_evidence",
+      "outcome_status": "not_verified"
+    },
+    {
+      "title": "this preliminary pricing supplement is not complete and may be changed. A registration statement relating to these securities has been filed with the Securities",
+      "issuer": "Citigroup Global Markets Holdings Inc",
+      "dates": [
+        "October 29, 2021",
+        "January 31, 2022",
+        "April 29, 2022",
+        "July 29, 2022",
+        "October 31, 2022",
+        "January 30, 2023"
+      ],
+      "underlyings_text": "For any interim valuation date or with respect to the final valuation dates, the underlying index with the lowest index return determined as of that interim valuation date or the f",
+      "source_file": "data/source_documents/structured_notes/sec_pilot_2000/0002-0000950103-21-016790-dp160774_424b2-us2170430.htm",
+      "sha256": "9832e8a863262e3a4c2d8668afa03778625488e493b44a360017516a5fa2e500",
+      "content_type": "text/html",
+      "retrieval_status": "downloaded",
+      "evidence_class": "pricing_supplement_evidence",
+      "outcome_status": "not_verified"
+    },
+    {
+      "title": "this preliminary pricing supplement is not complete and may be changed. A registration statement relating to these securities has been filed with the Securities",
+      "issuer": "Citigroup Global Markets Holdings Inc",
+      "dates": [
+        "July 10, 2024",
+        "July 15, 2024",
+        "July 18, 2024",
+        "October 15, 2024",
+        "January 15, 2025",
+        "April 15, 2025"
+      ],
+      "underlyings_text": "For any interim valuation date or with respect to the final valuation date, the underlying index with the lowest index return determined as of that interim valuation date or the fi",
+      "source_file": "data/source_documents/structured_notes/sec_pilot_2000/0003-0000950103-24-009866-dp214418_424b2-us2498805d.htm",
+      "sha256": "40b9879f000d7097e791ea64de12bdfb710d66fc98fd1f63d7b08a9764961b68",
+      "content_type": "text/html",
+      "retrieval_status": "downloaded",
+      "evidence_class": "pricing_supplement_evidence",
+      "outcome_status": "not_verified"
+    }
+  ],
+  "constraints": [
+    "research-only",
+    "no verified outcomes",
+    "no production changes"
+  ],
+  "review": {
+    "decision": "not_usable_for_production",
+    "objections": [
+      "Generic titles and underlyings indicate low extraction quality",
+      "No verified outcomes for training or pricing",
+      "Sample data shows placeholder text rather than meaningful content",
+      "High risk of misleading results in downstream applications"
+    ],
+    "usable_for": [
+      "schema_discovery",
+      "initial_data_exploration"
+    ],
+    "not_usable_for": [
+      "training",
+      "pricing",
+      "out_of_sample_testing"
+    ],
+    "required_fixes": [
+      "Implement content verification for extracted fields",
+      "Add validation against known SEC document structures",
+      "Develop quality scoring for extracted data",
+      "Implement human review for sample documents"
+    ],
+    "next_experiment": "Test extraction on a smaller set of manually verified documents",
+    "safety_flags": [
+      "high_risk_of_misleading_results",
+      "unverified_data_quality"
+    ]
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

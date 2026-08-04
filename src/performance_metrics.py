@@ -1,7 +1,61 @@
 """Realized-only model evaluation and baseline comparison."""
 
+import math
 from statistics import mean
 from typing import Iterable, Mapping
+
+
+def binary_calibration_metrics(
+    probabilities: Iterable[float],
+    outcomes: Iterable[float],
+    bins: int = 10,
+) -> dict[str, float | int]:
+    """Compute Brier, log-loss, ECE, and Brier decomposition."""
+    predicted = [min(1.0, max(0.0, float(value))) for value in probabilities]
+    actual = [float(value) for value in outcomes]
+    if len(predicted) != len(actual):
+        raise ValueError("probabilities and outcomes must have equal length")
+    if not predicted:
+        raise ValueError("at least one observation is required")
+    if bins < 2:
+        raise ValueError("bins must be at least 2")
+    base_rate = mean(actual)
+    brier = mean((probability - outcome) ** 2 for probability, outcome in zip(predicted, actual))
+    epsilon = 1e-12
+    log_loss = mean(
+        -outcome * math.log(max(epsilon, probability))
+        - (1.0 - outcome) * math.log(max(epsilon, 1.0 - probability))
+        for probability, outcome in zip(predicted, actual)
+    )
+    reliability = 0.0
+    resolution = 0.0
+    ece = 0.0
+    for index in range(bins):
+        lower = index / bins
+        upper = (index + 1) / bins
+        members = [
+            position for position, probability in enumerate(predicted)
+            if lower <= probability < upper
+            or (index == bins - 1 and probability == upper)
+        ]
+        if not members:
+            continue
+        fraction = len(members) / len(predicted)
+        mean_prediction = mean(predicted[position] for position in members)
+        mean_outcome = mean(actual[position] for position in members)
+        reliability += fraction * (mean_prediction - mean_outcome) ** 2
+        resolution += fraction * (mean_outcome - base_rate) ** 2
+        ece += fraction * abs(mean_prediction - mean_outcome)
+    uncertainty = base_rate * (1.0 - base_rate)
+    return {
+        "observations": len(predicted),
+        "brier": round(brier, 8),
+        "log_loss": round(log_loss, 8),
+        "ece": round(ece, 8),
+        "reliability": round(reliability, 8),
+        "resolution": round(resolution, 8),
+        "uncertainty": round(uncertainty, 8),
+    }
 
 
 def build_realized_evaluation(
@@ -106,6 +160,10 @@ def build_out_of_sample_gate(
             and float(metrics["model_cvar"]) <= float(metrics["baseline_cvar"])
         ),
     }
+    if metrics.get("model_log_loss") is not None and metrics.get("baseline_log_loss") is not None:
+        checks["log_loss"] = float(metrics["model_log_loss"]) <= float(metrics["baseline_log_loss"])
+    if metrics.get("model_ece") is not None and metrics.get("baseline_ece") is not None:
+        checks["ece"] = float(metrics["model_ece"]) <= float(metrics["baseline_ece"])
     return {
         "passed": all(checks.values()),
         "status": "approved" if all(checks.values()) else "blocked",

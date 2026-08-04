@@ -1,0 +1,266 @@
+{
+  "run_id": "phoenix-leonteq-public-discovery-v1",
+  "generated_at": "2026-08-03T23:23:16.944605+00:00",
+  "records": [
+    {
+      "isin": "CH1571727168",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571727168",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1571730022",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571730022",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1571729917",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571729917",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1571729198",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571729198",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1571729214",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571729214",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "LU3413012975",
+      "source_url": "https://certificati.leonteq.com/isin/LU3413012975",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1571715783",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571715783",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1550430156",
+      "source_url": "https://certificati.leonteq.com/isin/CH1550430156",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1381840318",
+      "source_url": "https://certificati.leonteq.com/isin/CH1381840318",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1571713812",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571713812",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1491781816",
+      "source_url": "https://certificati.leonteq.com/isin/CH1491781816",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1491785338",
+      "source_url": "https://certificati.leonteq.com/isin/CH1491785338",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1143298409",
+      "source_url": "https://certificati.leonteq.com/isin/CH1143298409",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1491772690",
+      "source_url": "https://certificati.leonteq.com/isin/CH1491772690",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1111681792",
+      "source_url": "https://certificati.leonteq.com/isin/CH1111681792",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1484603449",
+      "source_url": "https://certificati.leonteq.com/isin/CH1484603449",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1550423102",
+      "source_url": "https://certificati.leonteq.com/isin/CH1550423102",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1571715700",
+      "source_url": "https://certificati.leonteq.com/isin/CH1571715700",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1300970659",
+      "source_url": "https://certificati.leonteq.com/isin/CH1300970659",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1550429786",
+      "source_url": "https://certificati.leonteq.com/isin/CH1550429786",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1143296924",
+      "source_url": "https://certificati.leonteq.com/isin/CH1143296924",
+      "discovery_source": "public web-search snippet",
+      "evidence_class": "public_search_discovery",
+      "terms_status": "requires_rendered_page_capture",
+      "outcome_status": "missing_verified_outcome",
+      "independent_verified": false
+    }
+  ],
+  "counts": {
+    "unique_isins": 21,
+    "terms_ready": 0,
+    "discovery_only": 21,
+    "verified_outcomes": 0
+  },
+  "limitations": [
+    "Search snippets are discovery evidence only; do not treat snippets as complete termsheets.",
+    "Rendered pages/KIDs/final terms are required for barriers, coupons, schedules and lifecycle outcomes."
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "ai_review_files": [
+    "data/reports/phoenix-leonteq-discovery-mistral-v1.json",
+    "data/reports/phoenix-leonteq-discovery-groq-v1.json",
+    "data/reports/phoenix-leonteq-discovery-openrouter-v1.json"
+  ],
+  "committee_packet": {
+    "proposal_id": "phoenix-leonteq-public-discovery-v1",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-leonteq-public-discovery-v1.json",
+      "src/leonteq_public_adapter.py"
+    ],
+    "acceptance_tests": [
+      "unique ISINs only",
+      "source URL for every row",
+      "discovery evidence not treated as full terms",
+      "verified outcome count explicit",
+      "safety flags false"
+    ],
+    "baseline": "5 manually collected Leonteq pilot records",
+    "target": "expand lawful discovery coverage without fabricating terms or outcomes",
+    "observed_metric": "21 unique discovery-only ISIN candidates; 0 verified outcomes",
+    "lineage": "public web search -> ISIN candidate registry -> AI review -> provenance artifact",
+    "blockers": [
+      "rendered page/KID capture required for full payoff terms",
+      "authorized LYNQS/API required for bulk lifecycle/quote data",
+      "human validation required before calibration"
+    ],
+    "next_experiment": "capture rendered pages/KIDs for a bounded sample and validate fields against issuer documents",
+    "final_devin_validation": "JSON, provenance and safety gates passed"
+  },
+  "ai_committee": [
+    {
+      "provider": "mistral",
+      "model": "recorded in raw response",
+      "status": "completed",
+      "decision": "RESEARCH",
+      "response_excerpt": "Here\u2019s a structured review of the provided Leonteq ISIN candidate list, focusing on **deduplication**, **evidence classes**, and **fields requiring verification** (without inferring outcomes or altering production data):\n\n---\n\n### **1. Deduplication**\n- **Check for duplicates**: All ISINs in the list appear unique (no identical entries).\n- **Cross-reference with known Leonteq issuance patterns**:\n  - Leonteq often uses sequential or structured numbering (e.g., `CH15717xxx` for Swiss ISINs, `LU` "
+    },
+    {
+      "provider": "groq",
+      "model": "recorded in raw response",
+      "status": "completed",
+      "decision": "RESEARCH",
+      "response_excerpt": "Based on the provided ISIN list, here's a review for the research dataset:\n\n**Deduplication:**\nThe list appears to be free of duplicates, as each ISIN is unique. However, it's essential to verify this against the entire dataset to ensure no duplicates exist.\n\n**Evidence Classes:**\nTo categorize the ISINs, we can use the following evidence classes:\n\n1. **Verified ISINs**: These are ISINs that can be confirmed through publicly available sources, such as financial databases or regulatory websites.\n"
+    },
+    {
+      "provider": "openrouter",
+      "model": "recorded in raw response",
+      "status": "completed",
+      "decision": "RESEARCH",
+      "response_excerpt": "The list is **plausibly Leonteq-related**, but only a subset is directly evidenced by the rendered product page or by a Leonteq document; the rest should remain **unverified** until you capture each product\u2019s rendered page, KID, or termsheet. The safest dataset treatment is to deduplicate by **ISIN exactly as written**, mark the already-captured items as **page-confirmed**, and keep all product attributes except the ISIN itself as **pending verification**.[6][5]\n\n### Deduplication advice\n- **No "
+    }
+  ],
+  "next_step_status": "rendered_capture_pending",
+  "rendered_capture_policy": "Use browser-rendered pages or issuer KID/final terms only; search snippets remain discovery evidence."
+}

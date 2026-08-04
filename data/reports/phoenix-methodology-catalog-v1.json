@@ -1,0 +1,147 @@
+{
+  "schema_version": "phoenix-methodology-catalog-v1",
+  "status": "research_only",
+  "objective": "Select Phoenix baskets with a high probability of early autocall without hiding worst-of tail risk.",
+  "priority_metrics": [
+    "first_autocall_probability_by_observation",
+    "cumulative_autocall_probability",
+    "expected_time_to_autocall",
+    "conditional_coupon_payment_probability",
+    "memory_coupon_recovery_probability",
+    "maturity_loss_probability",
+    "expected_payout_and_pv",
+    "worst_of_barrier_breach_probability",
+    "model_calibration_brier_log_loss_ece",
+    "dealer_quote_fit"
+  ],
+  "methods": [
+    {
+      "id": "payoff_state_machine",
+      "status": "implemented_partially",
+      "priority": "P0",
+      "use": "Make autocall, coupon, memory and maturity rules explicit before any valuation.",
+      "required_evidence": [
+        "strike_levels",
+        "autocall_schedule",
+        "coupon_barrier",
+        "knock_in_barrier",
+        "memory_rule",
+        "settlement_rule"
+      ],
+      "source_urls": [
+        "https://www.quantlib.org/slides/qlum17/schlenkrich.pdf",
+        "https://github.com/MikeJuniperhill/QuantLib.AutoCallable.Memory.Coupon.Note"
+      ]
+    },
+    {
+      "id": "correlated_path_monte_carlo",
+      "status": "research_candidate",
+      "priority": "P0",
+      "use": "Estimate first-call timing, coupon cashflows and worst-of barrier outcomes on correlated paths.",
+      "controls": [
+        "fixed_seed_reproducibility",
+        "standard_error",
+        "quasi_monte_carlo_comparison",
+        "pathwise_payoff_replay",
+        "no_realized_outcome_claim"
+      ],
+      "source_urls": [
+        "https://doi.org/10.1142/s0219024919500286",
+        "https://doi.org/10.1080/14697688.2022.2076607"
+      ]
+    },
+    {
+      "id": "implied_volatility_and_skew",
+      "status": "missing_market_inputs",
+      "priority": "P1",
+      "use": "Replace flat-vol assumptions with maturity and strike-dependent volatility where verified option data exists.",
+      "blocker": "No verified historical option surface is currently linked to the reference notes."
+    },
+    {
+      "id": "dependence_and_tail_correlation",
+      "status": "implemented_partially",
+      "priority": "P0",
+      "use": "Stress worst-of risk using realized, shrinkage and stressed downside correlation.",
+      "controls": [
+        "positive_definite_correlation",
+        "correlation_uncertainty",
+        "downside_correlation_scenario",
+        "correlation_break_scenario"
+      ]
+    },
+    {
+      "id": "risk_neutral_calibration_and_fair_coupon",
+      "status": "research_candidate",
+      "priority": "P1",
+      "use": "Solve the coupon that prices the note near par under a documented model and market inputs.",
+      "source_urls": [
+        "https://hdl.handle.net/10400.5/99494",
+        "https://github.com/ShrishDhuria/autocallable-pricer"
+      ],
+      "blocker": "Dealer quote and option-surface provenance must be verified before fair-value claims."
+    },
+    {
+      "id": "walk_forward_realized_calibration",
+      "status": "implemented_partially",
+      "priority": "P0",
+      "use": "Calibrate autocall and loss probabilities only on prior realized note outcomes.",
+      "metrics": [
+        "brier",
+        "log_loss",
+        "ece",
+        "reliability",
+        "resolution",
+        "uncertainty"
+      ],
+      "gate": "Candidate must beat the empirical baseline at every fixed-24m anchor."
+    },
+    {
+      "id": "scenario_and_sensitivity_grid",
+      "status": "implemented_partially",
+      "priority": "P0",
+      "use": "Show sensitivity to volatility, correlation, barrier, coupon, gap risk and tenor.",
+      "required_outputs": [
+        "barrier_sensitivity",
+        "correlation_sensitivity",
+        "volatility_sensitivity",
+        "coupon_after_loss",
+        "first_autocall_timing"
+      ]
+    },
+    {
+      "id": "surrogate_model",
+      "status": "optional_research",
+      "priority": "P2",
+      "use": "Accelerate repeated valuation only after the reference pricer and error bounds are established.",
+      "guard": "Cannot replace the reference pricer or create evidence of realized performance."
+    }
+  ],
+  "selection_policy": {
+    "primary_objective": "maximize_early_autocall_probability",
+    "hard_constraints": [
+      "fully specified payoff",
+      "worst_of_tail_risk_reported",
+      "quote_provenance_or_explicitly_unverified",
+      "fixed_24m_oos_reported_separately",
+      "no_production_mutation"
+    ],
+    "committee_role": "propose_and_review_methods; never fabricate evidence or mutate production",
+    "promotion_status": "blocked_until_realized_oos_and_quote_fit"
+  },
+  "evidence": {
+    "open_methodology_sources": [
+      "https://www.quantlib.org/slides/qlum17/schlenkrich.pdf",
+      "https://doi.org/10.1142/s0219024919500286",
+      "https://doi.org/10.1080/14697688.2022.2076607",
+      "https://hdl.handle.net/10400.5/99494",
+      "https://github.com/ShrishDhuria/autocallable-pricer",
+      "https://github.com/MikeJuniperhill/QuantLib.AutoCallable.Memory.Coupon.Note"
+    ],
+    "classification": "open_research_references_not_market_evidence"
+  },
+  "safety": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

@@ -205,4 +205,18 @@ class AutopilotScheduler:
         """
         trades = self.monitor._load_trades()
         equity = self.monitor._load_equity_curve().tolist()
-        return self.reporter.weekly_report(trades, equity)
+        report = self.reporter.weekly_report(trades, equity)
+        try:
+            from src.calibration_agent import run_calibration_cycle
+            from src.outcome_engine import PaperOutcomeTracker
+
+            calibration = run_calibration_cycle(PaperOutcomeTracker().notes)
+            report += (
+                "\nCalibration agent: "
+                f"{calibration.get('status', 'unknown')} — "
+                f"{calibration.get('reason', 'no_reason')}"
+            )
+        except Exception as exc:
+            logger.warning("Calibration agent failed: %s", exc)
+            report += f"\nCalibration agent: error — {exc}"
+        return report

@@ -1,0 +1,26 @@
+{
+  "proposal_id": "phoenix-streamlit-deployment-v1",
+  "platform": "Streamlit Community Cloud",
+  "app_url": "https://phoenixdashboard2026.streamlit.app/",
+  "repository": "github.com/nikitamalinovskiybcs-beep/Fly",
+  "branch": "devin/1779618014-quant-risk-framework",
+  "entrypoint": "app.py",
+  "status": "reachable_after_wake",
+  "observed_ui": "WORST-OF PHOENIX dashboard loaded with basket, barrier, tenor, coupon controls",
+  "rollback_procedure": [
+    "Disable or stop the Streamlit app from Manage app",
+    "Revert the connected Git branch to the last reviewed commit",
+    "Redeploy from the reviewed commit",
+    "Run the UI smoke test and verify the app URL"
+  ],
+  "limitations": [
+    "This is an existing free Streamlit deployment, not Fly.io",
+    "The deployed branch predates PR #38 agent-memory changes",
+    "Rollback procedure is documented but not executed as a live destructive drill"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

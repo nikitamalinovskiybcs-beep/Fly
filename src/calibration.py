@@ -491,8 +491,6 @@ def generate_forecast(
 
     # Ensemble mean as base prediction
     base_score = float(np.mean(ensemble_scores))
-    base_coupon = float(np.mean(ensemble_coupons))
-    base_p_loss = float(np.mean(ensemble_p_losses))
 
     # Ensemble spread = model uncertainty
     model_spread = {
@@ -696,7 +694,7 @@ def run_pipeline(
     # Fetch learning history from Google Drive store
     learning_history = []
     try:
-        from src.gdrive_store import get_pipeline_runs, get_backtest_history
+        from src.gdrive_store import get_pipeline_runs
         learning_history = get_pipeline_runs(limit=20)
     except Exception:
         pass

@@ -1,0 +1,37 @@
+{
+  "provider": "groq",
+  "status": 200,
+  "response": {
+    "id": "chatcmpl-5c966947-762f-4527-897c-695eec2f2d1c",
+    "object": "chat.completion",
+    "created": 1785799382,
+    "model": "llama-3.3-70b-versatile",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "Based on the provided ISIN list, here's a review for the research dataset:\n\n**Deduplication:**\nThe list appears to be free of duplicates, as each ISIN is unique. However, it's essential to verify this against the entire dataset to ensure no duplicates exist.\n\n**Evidence Classes:**\nTo categorize the ISINs, we can use the following evidence classes:\n\n1. **Verified ISINs**: These are ISINs that can be confirmed through publicly available sources, such as financial databases or regulatory websites.\n2. **Unverified ISINs**: These are ISINs that cannot be confirmed through publicly available sources and require further verification.\n\nAll ISINs in the provided list can be considered **Unverified ISINs** until further verification is conducted.\n\n**Fields to remain unverified:**\nThe following fields should remain unverified until the rendered page, KID (Key Information Document), or termsheet is captured:\n\n1. **Instrument name**\n2. **Issuer name**\n3. **Instrument type** (e.g., bond, equity, fund)\n4. **Currency**\n5. **Maturity date** (if applicable)\n6. **Coupon rate** (if applicable)\n7. **Issue date**\n8. **Nominal value** (if applicable)\n\nThese fields are typically available in the KID or termsheet and should not be inferred or filled in until the actual document is captured.\n\n**Next steps:**\nTo further verify the ISINs, you can:\n\n1. Check financial databases, such as Bloomberg or Reuters, to confirm the existence of the ISINs.\n2. Verify the ISINs against regulatory websites, such as the Financial Conduct Authority (FCA) or the Swiss Financial Market Supervisory Authority (FINMA).\n3. Capture the rendered page, KID, or termsheet for each ISIN to fill in the unverified fields.\n\nBy following these steps, you can ensure the accuracy and completeness of your research dataset."
+        },
+        "logprobs": null,
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "queue_time": 0.183644796,
+      "prompt_tokens": 215,
+      "prompt_time": 0.01133663,
+      "completion_tokens": 405,
+      "completion_time": 1.082975015,
+      "total_tokens": 620,
+      "total_time": 1.0943116449999999
+    },
+    "usage_breakdown": null,
+    "system_fingerprint": "fp_45180df409",
+    "x_groq": {
+      "id": "req_01kz4z04n2e538br0ntctkmtzd",
+      "seed": 1383862092
+    },
+    "service_tier": "on_demand"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "verdict": "revise",
+  "summary": "The Phoenix proposal is under review and requires further evaluation to ensure it meets the production promotion criteria.",
+  "top_technical_reasons": [
+    "Insufficient fixed-24m OOS evidence to support promotion",
+    "Incomplete realized-note sample and dealer quote provenance",
+    "Lack of human compliance/model-risk review"
+  ],
+  "candidate_safety": "low-risk",
+  "next_experiments": [
+    {
+      "hypothesis": "Adding source reliability scores per field improves evidence quality",
+      "change": "Implement source reliability scores per field",
+      "metric_gate": "fixed-24m OOS Brier and log-loss",
+      "why_it_is_informative": "Evaluates the impact of source reliability scores on evidence quality"
+    },
+    {
+      "hypothesis": "Validating timezone normalization at ingestion improves data consistency",
+      "change": "Implement timezone normalization validation at ingestion",
+      "metric_gate": "fixed-24m OOS Brier and log-loss",
+      "why_it_is_informative": "Assesses the effect of timezone normalization on data consistency"
+    },
+    {
+      "hypothesis": "Detecting duplicate observations across providers enhances data quality",
+      "change": "Implement duplicate observation detection across providers",
+      "metric_gate": "fixed-24m OOS Brier and log-loss",
+      "why_it_is_informative": "Examines the impact of duplicate observation detection on data quality"
+    }
+  ],
+  "data_or_label_risks": [
+    "Incomplete or inaccurate data",
+    "Lack of diverse and representative data",
+    "Insufficient data quality control measures"
+  ],
+  "provider": "groq",
+  "model": "llama-3.3-70b-versatile",
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

@@ -1,0 +1,25 @@
+{
+  "evaluation_id": "phoenix-sec-term-sheet-all-2000-prediction-vs-realized-v1",
+  "generated_at": "2026-08-03T22:57:51.242963+00:00",
+  "status": "research_only",
+  "n_documents": 2000,
+  "n_predictions": 86,
+  "n_verified_outcomes": 0,
+  "n_comparable": 0,
+  "metrics": {
+    "brier": null,
+    "log_loss": null,
+    "ece": null,
+    "accuracy": null
+  },
+  "reason_metrics_null": "All realized lifecycle outcomes remain unverified; derived scenarios are not labels.",
+  "research_prediction_summary": {
+    "mean_p_loss": 0.0,
+    "mean_avg_payoff": 1.261877441860465
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

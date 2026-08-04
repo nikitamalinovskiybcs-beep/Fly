@@ -1,0 +1,139 @@
+{
+  "status": "completed",
+  "consensus_verdict": "revise",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "revise",
+        "summary": "The Phoenix architecture and process improvements are still in the research phase and have not been promoted to production. There are known gaps, including no settled 24m outcomes and no verified BCS observations.",
+        "top_technical_reasons": [
+          "No settled 24m outcomes",
+          "No verified BCS observations",
+          "Storage backends not all connected",
+          "Fact-check stage is injectable but not yet canonical",
+          "Orchestrator not yet wired into Streamlit runtime"
+        ],
+        "candidate_safety": "low",
+        "next_experiments": [
+          {
+            "hypothesis": "Connecting all storage backends will improve data consistency",
+            "change": "Connect all storage backends",
+            "metric_gate": "Data consistency metric",
+            "why_it_is_informative": "To evaluate the impact of connecting all storage backends on data consistency"
+          },
+          {
+            "hypothesis": "Implementing a canonical fact-check stage will improve the accuracy of results",
+            "change": "Implement a canonical fact-check stage",
+            "metric_gate": "Accuracy metric",
+            "why_it_is_informative": "To evaluate the impact of a canonical fact-check stage on the accuracy of results"
+          },
+          {
+            "hypothesis": "Wiring the orchestrator into the Streamlit runtime will improve the efficiency of the process",
+            "change": "Wire the orchestrator into the Streamlit runtime",
+            "metric_gate": "Efficiency metric",
+            "why_it_is_informative": "To evaluate the impact of wiring the orchestrator into the Streamlit runtime on the efficiency of the process"
+          }
+        ],
+        "data_or_label_risks": [
+          "No verified BCS observations",
+          "No settled 24m outcomes"
+        ],
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "Phoenix is currently in a research-only phase with significant gaps in its architecture and controls. It has not yet demonstrated the ability to meet the required empirical baseline for promotion, particularly due to the absence of settled 24-month outcomes and verified observations.",
+        "top_technical_reasons": [
+          "No settled 24-month outcomes available.",
+          "Lack of verified BCS observations.",
+          "Storage backends are not all connected.",
+          "Fact-check stage is injectable but not yet canonical.",
+          "Orchestrator not yet wired into Streamlit runtime."
+        ],
+        "candidate_safety": "The current safety measures include immutable production flags and a hallucination audit, but the known gaps raise concerns about the overall safety of the implementation.",
+        "next_experiments": [
+          {
+            "hypothesis": "Connecting all storage backends will improve data integrity and availability.",
+            "change": "Integrate remaining storage backends into the system.",
+            "metric_gate": "Data integrity metrics and availability rates post-integration.",
+            "why_it_is_informative": "This will help assess whether the integration of all storage backends resolves current data access issues."
+          },
+          {
+            "hypothesis": "Establishing a canonical fact-check stage will enhance the reliability of outputs.",
+            "change": "Implement a canonical version of the fact-check stage.",
+            "metric_gate": "Reduction in errors identified during audits.",
+            "why_it_is_informative": "This will provide insights into the effectiveness of the fact-checking process and its impact on overall safety."
+          },
+          {
+            "hypothesis": "Wiring the orchestrator into the Streamlit runtime will improve operational efficiency.",
+            "change": "Complete the integration of the orchestrator with Streamlit.",
+            "metric_gate": "Operational efficiency metrics before and after integration.",
+            "why_it_is_informative": "This will help evaluate the performance improvements gained from the integration."
+          }
+        ],
+        "data_or_label_risks": "The lack of verified observations and the injectable nature of the fact-check stage pose risks to data quality and reliability.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

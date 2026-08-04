@@ -1,0 +1,5490 @@
+{
+  "generated_at": "2026-08-02T20:05:59.851968+00:00",
+  "source": "yfinance",
+  "status": "research_only",
+  "baskets_requested": 100,
+  "anchor_description": "24-month product matured N months ago; anchor is the historical maturity date",
+  "product_term_months": 24,
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "anchor_months": [
+    6,
+    12,
+    18,
+    24
+  ],
+  "anchors": {
+    "6": {
+      "months_ago": 6,
+      "product_term_months": 24,
+      "end_offset_months": 6,
+      "baskets_replayed": 98,
+      "metrics": {
+        "brier": 0.198773,
+        "log_loss": 0.574989,
+        "ece": 0.329362,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -245.84,
+        "mean_predicted_loss": 0.390587,
+        "mean_observed_loss": 0.061224
+      },
+      "calibrated_metrics": {
+        "brier": 0.139771,
+        "log_loss": 0.445368,
+        "ece": 0.22449,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -143.18,
+        "mean_predicted_loss": 0.285714,
+        "mean_observed_loss": 0.061224
+      },
+      "quant_metrics": {
+        "brier": 0.215866,
+        "log_loss": 0.620577,
+        "ece": 0.362384,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -275.58,
+        "mean_predicted_loss": 0.423609,
+        "mean_observed_loss": 0.061224
+      },
+      "duration_transfer_metrics": {
+        "brier": 0.161344,
+        "log_loss": 0.502717,
+        "ece": 0.278773,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -180.71,
+        "mean_predicted_loss": 0.339997,
+        "mean_observed_loss": 0.061224
+      },
+      "path_quant_metrics": {
+        "brier": 0.726757,
+        "log_loss": 19.260509,
+        "ece": 0.751701,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -1164.45,
+        "mean_predicted_loss": 0.751701,
+        "mean_observed_loss": 0.061224
+      },
+      "regime_quant_metrics": {
+        "brier": 0.150543,
+        "log_loss": 0.48188,
+        "ece": 0.282054,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -161.92,
+        "mean_predicted_loss": 0.34049,
+        "mean_observed_loss": 0.061224
+      },
+      "calibration_train_observations": 98,
+      "calibration_bins": 5,
+      "calibration_rates": [
+        0.571429,
+        0.2,
+        0.191489,
+        0.3,
+        0.285714
+      ],
+      "quant_method": "gaussian_copula_terminal_worst_of",
+      "duration_transfer_method": "50pct_24m_50pct_12m_quant_blend",
+      "path_quant_method": "rolling_worst_of_barrier_frequency",
+      "regime_quant_method": "recent_to_long_run_volatility_ratio",
+      "phoenix_score_today": 60.94,
+      "rows": [
+        {
+          "basket": [
+            "AAPL",
+            "GOOGL",
+            "MSFT"
+          ],
+          "predicted_p_loss": 0.2141,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "BAC",
+            "DIA",
+            "GOOGL"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "AMD",
+            "AVGO",
+            "TSLA"
+          ],
+          "predicted_p_loss": 0.6242,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3
+        },
+        {
+          "basket": [
+            "KO",
+            "TSLA",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "CRM",
+            "INTC",
+            "ORCL"
+          ],
+          "predicted_p_loss": 0.3546,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "ORLY",
+            "QQQ",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "C",
+            "GS",
+            "MS"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "BAC",
+            "NOW",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "AXP",
+            "PYPL",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "EFA",
+            "JPM",
+            "TXN"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "CAT",
+            "DE",
+            "GE"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "AMAT",
+            "BKNG",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "COST",
+            "LOW",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "NOW",
+            "PANW",
+            "QQQ"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "DIS",
+            "NKE",
+            "PEP"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "CSCO",
+            "CVX",
+            "HON"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "LLY",
+            "MRK",
+            "PFE"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "BMY",
+            "DIA",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7646,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3
+        },
+        {
+          "basket": [
+            "ABT",
+            "AMGN",
+            "GILD"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "CRWD",
+            "IWM",
+            "MSFT"
+          ],
+          "predicted_p_loss": 0.1787,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "ABNB",
+            "PLTR",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "GLD",
+            "JPM",
+            "LOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "DIS",
+            "GE",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "LRCX",
+            "MU",
+            "TXN"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "ARKK",
+            "C",
+            "EEM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "ORLY",
+            "REGN",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "ABNB",
+            "BMY",
+            "ORLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "XLE",
+            "XLF",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "ARKK",
+            "KO",
+            "REGN"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "XLB",
+            "XLU",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "NKE",
+            "SBUX",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "GLD",
+            "SLV",
+            "TLT"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "COIN",
+            "MCD",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1635,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "AMZN",
+            "GOOGL",
+            "NVDA"
+          ],
+          "predicted_p_loss": 0.6042,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3
+        },
+        {
+          "basket": [
+            "AXP",
+            "NFLX",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.7218,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3
+        },
+        {
+          "basket": [
+            "AMD",
+            "NFLX",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7385,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3
+        },
+        {
+          "basket": [
+            "BMY",
+            "JNJ",
+            "MRK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "CSCO",
+            "INTC",
+            "JPM"
+          ],
+          "predicted_p_loss": 0.5529,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "CSCO",
+            "GS",
+            "MU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "C",
+            "V",
+            "WFC"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "AMZN",
+            "PEP",
+            "PLTR"
+          ],
+          "predicted_p_loss": 0.4528,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "COP",
+            "CVX",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "MU",
+            "PFE",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "GE",
+            "HON",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "AMZN",
+            "REGN",
+            "SHOP"
+          ],
+          "predicted_p_loss": 0.6754,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3
+        },
+        {
+          "basket": [
+            "COST",
+            "MCD",
+            "TGT"
+          ],
+          "predicted_p_loss": 0.2031,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "AAPL",
+            "MCD",
+            "ORLY"
+          ],
+          "predicted_p_loss": 0.2281,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "KO",
+            "PEP",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.1488,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "ABBV",
+            "AMAT",
+            "XLF"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "ABBV",
+            "BMY",
+            "LLY"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "CAT",
+            "MRK",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7646,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3
+        },
+        {
+          "basket": [
+            "BA",
+            "GILD",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "DIS",
+            "GLD",
+            "HD"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "CRWD",
+            "PANW",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.3968,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "HD",
+            "MU",
+            "T"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "COIN",
+            "T",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "ABNB",
+            "GILD",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "ADI",
+            "AMAT",
+            "LRCX"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "ABBV",
+            "AMAT",
+            "EFA"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "IWM",
+            "QQQ",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "EEM",
+            "PLTR",
+            "SLB"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "XLE",
+            "XLI",
+            "XLV"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "GOOGL",
+            "XLU",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "ARKK",
+            "EEM",
+            "XLU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "CVX",
+            "EFA",
+            "NFLX"
+          ],
+          "predicted_p_loss": 0.7218,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3
+        },
+        {
+          "basket": [
+            "AAPL",
+            "SLV",
+            "VNQ"
+          ],
+          "predicted_p_loss": 0.2544,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "AMD",
+            "JNJ",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.742,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3
+        },
+        {
+          "basket": [
+            "AVGO",
+            "META",
+            "NVDA"
+          ],
+          "predicted_p_loss": 0.3906,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "ARKK",
+            "BKNG",
+            "DIA"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "ADBE",
+            "CRM",
+            "NFLX"
+          ],
+          "predicted_p_loss": 0.4128,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "GILD",
+            "UBER",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.1787,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "BAC",
+            "GS",
+            "JPM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "BAC",
+            "SLB",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "MA",
+            "PYPL",
+            "V"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "ORLY",
+            "PYPL",
+            "XLU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "CAT",
+            "COP",
+            "SLB"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "AVGO",
+            "NOW",
+            "TSLA"
+          ],
+          "predicted_p_loss": 0.2745,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "HD",
+            "LOW",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "GLD",
+            "MA",
+            "XLP"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "MCD",
+            "NKE",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1635,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "IBM",
+            "JNJ",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "JNJ",
+            "MRK",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "ABNB",
+            "MCD",
+            "ORCL"
+          ],
+          "predicted_p_loss": 0.2488,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "ABT",
+            "BMY",
+            "TMO"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "AVGO",
+            "COP",
+            "GE"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2
+        },
+        {
+          "basket": [
+            "ABNB",
+            "BKNG",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "DIA",
+            "HD",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "CRWD",
+            "NOW",
+            "SHOP"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "ABNB",
+            "CRWD",
+            "GOOGL"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "IBM",
+            "TXN",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "CRM",
+            "NOW",
+            "QQQ"
+          ],
+          "predicted_p_loss": 0.1697,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "AMZN",
+            "GE",
+            "NKE"
+          ],
+          "predicted_p_loss": 0.6754,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3
+        },
+        {
+          "basket": [
+            "DIA",
+            "IWM",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "ABT",
+            "MA",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "XLI",
+            "XLP",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "NOW",
+            "TLT",
+            "VNQ"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.571429
+        },
+        {
+          "basket": [
+            "EEM",
+            "EFA",
+            "TLT"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        },
+        {
+          "basket": [
+            "ADI",
+            "DE",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.191489
+        }
+      ]
+    },
+    "12": {
+      "months_ago": 12,
+      "product_term_months": 24,
+      "end_offset_months": 12,
+      "baskets_replayed": 98,
+      "metrics": {
+        "brier": 0.215685,
+        "log_loss": 0.618902,
+        "ece": 0.308591,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -158.61,
+        "mean_predicted_loss": 0.390587,
+        "mean_observed_loss": 0.091837
+      },
+      "calibrated_metrics": {
+        "brier": 0.215685,
+        "log_loss": 0.618902,
+        "ece": 0.308591,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -158.61,
+        "mean_predicted_loss": 0.390587,
+        "mean_observed_loss": 0.091837
+      },
+      "quant_metrics": {
+        "brier": 0.234969,
+        "log_loss": 0.661365,
+        "ece": 0.355725,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -181.73,
+        "mean_predicted_loss": 0.441504,
+        "mean_observed_loss": 0.091837
+      },
+      "duration_transfer_metrics": {
+        "brier": 0.18411,
+        "log_loss": 0.552215,
+        "ece": 0.266448,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -120.75,
+        "mean_predicted_loss": 0.358285,
+        "mean_observed_loss": 0.091837
+      },
+      "path_quant_metrics": {
+        "brier": 0.091837,
+        "log_loss": 2.537543,
+        "ece": 0.091837,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -10.11,
+        "mean_predicted_loss": 0.0,
+        "mean_observed_loss": 0.091837
+      },
+      "regime_quant_metrics": {
+        "brier": 0.175405,
+        "log_loss": 0.534226,
+        "ece": 0.266692,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -110.31,
+        "mean_predicted_loss": 0.358528,
+        "mean_observed_loss": 0.091837
+      },
+      "calibration_train_observations": 0,
+      "calibration_bins": 5,
+      "calibration_rates": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quant_method": "gaussian_copula_terminal_worst_of",
+      "duration_transfer_method": "50pct_24m_50pct_12m_quant_blend",
+      "path_quant_method": "rolling_worst_of_barrier_frequency",
+      "regime_quant_method": "recent_to_long_run_volatility_ratio",
+      "phoenix_score_today": 60.94,
+      "rows": [
+        {
+          "basket": [
+            "AAPL",
+            "GOOGL",
+            "MSFT"
+          ],
+          "predicted_p_loss": 0.2141,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2141
+        },
+        {
+          "basket": [
+            "BAC",
+            "DIA",
+            "GOOGL"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AMD",
+            "AVGO",
+            "TSLA"
+          ],
+          "predicted_p_loss": 0.6242,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6242
+        },
+        {
+          "basket": [
+            "KO",
+            "TSLA",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "CRM",
+            "INTC",
+            "ORCL"
+          ],
+          "predicted_p_loss": 0.3546,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3546
+        },
+        {
+          "basket": [
+            "ORLY",
+            "QQQ",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "C",
+            "GS",
+            "MS"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "BAC",
+            "NOW",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "AXP",
+            "PYPL",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "EFA",
+            "JPM",
+            "TXN"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CAT",
+            "DE",
+            "GE"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AMAT",
+            "BKNG",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "COST",
+            "LOW",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "NOW",
+            "PANW",
+            "QQQ"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "DIS",
+            "NKE",
+            "PEP"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "CSCO",
+            "CVX",
+            "HON"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "LLY",
+            "MRK",
+            "PFE"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "BMY",
+            "DIA",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7646,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7646
+        },
+        {
+          "basket": [
+            "ABT",
+            "AMGN",
+            "GILD"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRWD",
+            "IWM",
+            "MSFT"
+          ],
+          "predicted_p_loss": 0.1787,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1787
+        },
+        {
+          "basket": [
+            "ABNB",
+            "PLTR",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "GLD",
+            "JPM",
+            "LOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "DIS",
+            "GE",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "LRCX",
+            "MU",
+            "TXN"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ARKK",
+            "C",
+            "EEM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ORLY",
+            "REGN",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABNB",
+            "BMY",
+            "ORLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "XLE",
+            "XLF",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ARKK",
+            "KO",
+            "REGN"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "XLB",
+            "XLU",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "NKE",
+            "SBUX",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "GLD",
+            "SLV",
+            "TLT"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "COIN",
+            "MCD",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1635,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1635
+        },
+        {
+          "basket": [
+            "AMZN",
+            "GOOGL",
+            "NVDA"
+          ],
+          "predicted_p_loss": 0.6042,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6042
+        },
+        {
+          "basket": [
+            "AXP",
+            "NFLX",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.7218,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7218
+        },
+        {
+          "basket": [
+            "AMD",
+            "NFLX",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7385,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7385
+        },
+        {
+          "basket": [
+            "BMY",
+            "JNJ",
+            "MRK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CSCO",
+            "INTC",
+            "JPM"
+          ],
+          "predicted_p_loss": 0.5529,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.5529
+        },
+        {
+          "basket": [
+            "CSCO",
+            "GS",
+            "MU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "C",
+            "V",
+            "WFC"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "AMZN",
+            "PEP",
+            "PLTR"
+          ],
+          "predicted_p_loss": 0.4528,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4528
+        },
+        {
+          "basket": [
+            "COP",
+            "CVX",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3394
+        },
+        {
+          "basket": [
+            "MU",
+            "PFE",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "GE",
+            "HON",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AMZN",
+            "REGN",
+            "SHOP"
+          ],
+          "predicted_p_loss": 0.6754,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6754
+        },
+        {
+          "basket": [
+            "COST",
+            "MCD",
+            "TGT"
+          ],
+          "predicted_p_loss": 0.2031,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2031
+        },
+        {
+          "basket": [
+            "AAPL",
+            "MCD",
+            "ORLY"
+          ],
+          "predicted_p_loss": 0.2281,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2281
+        },
+        {
+          "basket": [
+            "KO",
+            "PEP",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.1488,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1488
+        },
+        {
+          "basket": [
+            "ABBV",
+            "AMAT",
+            "XLF"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABBV",
+            "BMY",
+            "LLY"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "CAT",
+            "MRK",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7646,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7646
+        },
+        {
+          "basket": [
+            "BA",
+            "GILD",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "DIS",
+            "GLD",
+            "HD"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRWD",
+            "PANW",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.3968,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3968
+        },
+        {
+          "basket": [
+            "HD",
+            "MU",
+            "T"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "COIN",
+            "T",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "ABNB",
+            "GILD",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "ADI",
+            "AMAT",
+            "LRCX"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABBV",
+            "AMAT",
+            "EFA"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "IWM",
+            "QQQ",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "EEM",
+            "PLTR",
+            "SLB"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "XLE",
+            "XLI",
+            "XLV"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "GOOGL",
+            "XLU",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ARKK",
+            "EEM",
+            "XLU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CVX",
+            "EFA",
+            "NFLX"
+          ],
+          "predicted_p_loss": 0.7218,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7218
+        },
+        {
+          "basket": [
+            "AAPL",
+            "SLV",
+            "VNQ"
+          ],
+          "predicted_p_loss": 0.2544,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2544
+        },
+        {
+          "basket": [
+            "AMD",
+            "JNJ",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.742,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.742
+        },
+        {
+          "basket": [
+            "AVGO",
+            "META",
+            "NVDA"
+          ],
+          "predicted_p_loss": 0.3906,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3906
+        },
+        {
+          "basket": [
+            "ARKK",
+            "BKNG",
+            "DIA"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ADBE",
+            "CRM",
+            "NFLX"
+          ],
+          "predicted_p_loss": 0.4128,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4128
+        },
+        {
+          "basket": [
+            "GILD",
+            "UBER",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.1787,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1787
+        },
+        {
+          "basket": [
+            "BAC",
+            "GS",
+            "JPM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "BAC",
+            "SLB",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "MA",
+            "PYPL",
+            "V"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "ORLY",
+            "PYPL",
+            "XLU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CAT",
+            "COP",
+            "SLB"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3394
+        },
+        {
+          "basket": [
+            "AVGO",
+            "NOW",
+            "TSLA"
+          ],
+          "predicted_p_loss": 0.2745,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2745
+        },
+        {
+          "basket": [
+            "HD",
+            "LOW",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "GLD",
+            "MA",
+            "XLP"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "MCD",
+            "NKE",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1635,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1635
+        },
+        {
+          "basket": [
+            "IBM",
+            "JNJ",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "JNJ",
+            "MRK",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "ABNB",
+            "MCD",
+            "ORCL"
+          ],
+          "predicted_p_loss": 0.2488,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2488
+        },
+        {
+          "basket": [
+            "ABT",
+            "BMY",
+            "TMO"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AVGO",
+            "COP",
+            "GE"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3394
+        },
+        {
+          "basket": [
+            "ABNB",
+            "BKNG",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "DIA",
+            "HD",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRWD",
+            "NOW",
+            "SHOP"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "ABNB",
+            "CRWD",
+            "GOOGL"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "IBM",
+            "TXN",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRM",
+            "NOW",
+            "QQQ"
+          ],
+          "predicted_p_loss": 0.1697,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1697
+        },
+        {
+          "basket": [
+            "AMZN",
+            "GE",
+            "NKE"
+          ],
+          "predicted_p_loss": 0.6754,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6754
+        },
+        {
+          "basket": [
+            "DIA",
+            "IWM",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABT",
+            "MA",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "XLI",
+            "XLP",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "NOW",
+            "TLT",
+            "VNQ"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "EEM",
+            "EFA",
+            "TLT"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ADI",
+            "DE",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        }
+      ]
+    },
+    "18": {
+      "months_ago": 18,
+      "product_term_months": 24,
+      "end_offset_months": 18,
+      "baskets_replayed": 98,
+      "metrics": {
+        "brier": 0.212185,
+        "log_loss": 0.610598,
+        "ece": 0.29875,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -154.41,
+        "mean_predicted_loss": 0.390587,
+        "mean_observed_loss": 0.091837
+      },
+      "calibrated_metrics": {
+        "brier": 0.212185,
+        "log_loss": 0.610598,
+        "ece": 0.29875,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -154.41,
+        "mean_predicted_loss": 0.390587,
+        "mean_observed_loss": 0.091837
+      },
+      "quant_metrics": {
+        "brier": 0.247564,
+        "log_loss": 0.687921,
+        "ece": 0.375511,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -196.83,
+        "mean_predicted_loss": 0.458428,
+        "mean_observed_loss": 0.091837
+      },
+      "duration_transfer_metrics": {
+        "brier": 0.19441,
+        "log_loss": 0.575176,
+        "ece": 0.283926,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -133.1,
+        "mean_predicted_loss": 0.375763,
+        "mean_observed_loss": 0.091837
+      },
+      "path_quant_metrics": {
+        "brier": 0.091837,
+        "log_loss": 2.537543,
+        "ece": 0.091837,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -10.11,
+        "mean_predicted_loss": 0.0,
+        "mean_observed_loss": 0.091837
+      },
+      "regime_quant_metrics": {
+        "brier": 0.239138,
+        "log_loss": 0.671269,
+        "ece": 0.363671,
+        "empirical_baseline_brier": 0.083403,
+        "empirical_baseline_log_loss": 0.306767,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -186.73,
+        "mean_predicted_loss": 0.445961,
+        "mean_observed_loss": 0.091837
+      },
+      "calibration_train_observations": 0,
+      "calibration_bins": 5,
+      "calibration_rates": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quant_method": "gaussian_copula_terminal_worst_of",
+      "duration_transfer_method": "50pct_24m_50pct_12m_quant_blend",
+      "path_quant_method": "rolling_worst_of_barrier_frequency",
+      "regime_quant_method": "recent_to_long_run_volatility_ratio",
+      "phoenix_score_today": 60.94,
+      "rows": [
+        {
+          "basket": [
+            "AAPL",
+            "GOOGL",
+            "MSFT"
+          ],
+          "predicted_p_loss": 0.2141,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2141
+        },
+        {
+          "basket": [
+            "BAC",
+            "DIA",
+            "GOOGL"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AMD",
+            "AVGO",
+            "TSLA"
+          ],
+          "predicted_p_loss": 0.6242,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6242
+        },
+        {
+          "basket": [
+            "KO",
+            "TSLA",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "CRM",
+            "INTC",
+            "ORCL"
+          ],
+          "predicted_p_loss": 0.3546,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3546
+        },
+        {
+          "basket": [
+            "ORLY",
+            "QQQ",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "C",
+            "GS",
+            "MS"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "BAC",
+            "NOW",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "AXP",
+            "PYPL",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "EFA",
+            "JPM",
+            "TXN"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CAT",
+            "DE",
+            "GE"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AMAT",
+            "BKNG",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "COST",
+            "LOW",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "NOW",
+            "PANW",
+            "QQQ"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "DIS",
+            "NKE",
+            "PEP"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "CSCO",
+            "CVX",
+            "HON"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "LLY",
+            "MRK",
+            "PFE"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "BMY",
+            "DIA",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7646,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7646
+        },
+        {
+          "basket": [
+            "ABT",
+            "AMGN",
+            "GILD"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRWD",
+            "IWM",
+            "MSFT"
+          ],
+          "predicted_p_loss": 0.1787,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1787
+        },
+        {
+          "basket": [
+            "ABNB",
+            "PLTR",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "GLD",
+            "JPM",
+            "LOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "DIS",
+            "GE",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "LRCX",
+            "MU",
+            "TXN"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ARKK",
+            "C",
+            "EEM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ORLY",
+            "REGN",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABNB",
+            "BMY",
+            "ORLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "XLE",
+            "XLF",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ARKK",
+            "KO",
+            "REGN"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "XLB",
+            "XLU",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "NKE",
+            "SBUX",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "GLD",
+            "SLV",
+            "TLT"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "COIN",
+            "MCD",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1635,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1635
+        },
+        {
+          "basket": [
+            "AMZN",
+            "GOOGL",
+            "NVDA"
+          ],
+          "predicted_p_loss": 0.6042,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6042
+        },
+        {
+          "basket": [
+            "AXP",
+            "NFLX",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.7218,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7218
+        },
+        {
+          "basket": [
+            "AMD",
+            "NFLX",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7385,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7385
+        },
+        {
+          "basket": [
+            "BMY",
+            "JNJ",
+            "MRK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CSCO",
+            "INTC",
+            "JPM"
+          ],
+          "predicted_p_loss": 0.5529,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.5529
+        },
+        {
+          "basket": [
+            "CSCO",
+            "GS",
+            "MU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "C",
+            "V",
+            "WFC"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "AMZN",
+            "PEP",
+            "PLTR"
+          ],
+          "predicted_p_loss": 0.4528,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4528
+        },
+        {
+          "basket": [
+            "COP",
+            "CVX",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3394
+        },
+        {
+          "basket": [
+            "MU",
+            "PFE",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "GE",
+            "HON",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AMZN",
+            "REGN",
+            "SHOP"
+          ],
+          "predicted_p_loss": 0.6754,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6754
+        },
+        {
+          "basket": [
+            "COST",
+            "MCD",
+            "TGT"
+          ],
+          "predicted_p_loss": 0.2031,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2031
+        },
+        {
+          "basket": [
+            "AAPL",
+            "MCD",
+            "ORLY"
+          ],
+          "predicted_p_loss": 0.2281,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2281
+        },
+        {
+          "basket": [
+            "KO",
+            "PEP",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.1488,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1488
+        },
+        {
+          "basket": [
+            "ABBV",
+            "AMAT",
+            "XLF"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABBV",
+            "BMY",
+            "LLY"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "CAT",
+            "MRK",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7646,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7646
+        },
+        {
+          "basket": [
+            "BA",
+            "GILD",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "DIS",
+            "GLD",
+            "HD"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRWD",
+            "PANW",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.3968,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3968
+        },
+        {
+          "basket": [
+            "HD",
+            "MU",
+            "T"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "COIN",
+            "T",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "ABNB",
+            "GILD",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "ADI",
+            "AMAT",
+            "LRCX"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABBV",
+            "AMAT",
+            "EFA"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "IWM",
+            "QQQ",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "EEM",
+            "PLTR",
+            "SLB"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "XLE",
+            "XLI",
+            "XLV"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "GOOGL",
+            "XLU",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ARKK",
+            "EEM",
+            "XLU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CVX",
+            "EFA",
+            "NFLX"
+          ],
+          "predicted_p_loss": 0.7218,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7218
+        },
+        {
+          "basket": [
+            "AAPL",
+            "SLV",
+            "VNQ"
+          ],
+          "predicted_p_loss": 0.2544,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2544
+        },
+        {
+          "basket": [
+            "AMD",
+            "JNJ",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.742,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.742
+        },
+        {
+          "basket": [
+            "AVGO",
+            "META",
+            "NVDA"
+          ],
+          "predicted_p_loss": 0.3906,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3906
+        },
+        {
+          "basket": [
+            "ARKK",
+            "BKNG",
+            "DIA"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ADBE",
+            "CRM",
+            "NFLX"
+          ],
+          "predicted_p_loss": 0.4128,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4128
+        },
+        {
+          "basket": [
+            "GILD",
+            "UBER",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.1787,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1787
+        },
+        {
+          "basket": [
+            "BAC",
+            "GS",
+            "JPM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "BAC",
+            "SLB",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "MA",
+            "PYPL",
+            "V"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "ORLY",
+            "PYPL",
+            "XLU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CAT",
+            "COP",
+            "SLB"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3394
+        },
+        {
+          "basket": [
+            "AVGO",
+            "NOW",
+            "TSLA"
+          ],
+          "predicted_p_loss": 0.2745,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2745
+        },
+        {
+          "basket": [
+            "HD",
+            "LOW",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "GLD",
+            "MA",
+            "XLP"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "MCD",
+            "NKE",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1635,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1635
+        },
+        {
+          "basket": [
+            "IBM",
+            "JNJ",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "JNJ",
+            "MRK",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "ABNB",
+            "MCD",
+            "ORCL"
+          ],
+          "predicted_p_loss": 0.2488,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2488
+        },
+        {
+          "basket": [
+            "ABT",
+            "BMY",
+            "TMO"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AVGO",
+            "COP",
+            "GE"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3394
+        },
+        {
+          "basket": [
+            "ABNB",
+            "BKNG",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "DIA",
+            "HD",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRWD",
+            "NOW",
+            "SHOP"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "ABNB",
+            "CRWD",
+            "GOOGL"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "IBM",
+            "TXN",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRM",
+            "NOW",
+            "QQQ"
+          ],
+          "predicted_p_loss": 0.1697,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1697
+        },
+        {
+          "basket": [
+            "AMZN",
+            "GE",
+            "NKE"
+          ],
+          "predicted_p_loss": 0.6754,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6754
+        },
+        {
+          "basket": [
+            "DIA",
+            "IWM",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABT",
+            "MA",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "XLI",
+            "XLP",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "NOW",
+            "TLT",
+            "VNQ"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "EEM",
+            "EFA",
+            "TLT"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ADI",
+            "DE",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        }
+      ]
+    },
+    "24": {
+      "months_ago": 24,
+      "product_term_months": 24,
+      "end_offset_months": 24,
+      "baskets_replayed": 98,
+      "metrics": {
+        "brier": 0.21486,
+        "log_loss": 0.614074,
+        "ece": 0.34464,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -273.83,
+        "mean_predicted_loss": 0.390587,
+        "mean_observed_loss": 0.061224
+      },
+      "calibrated_metrics": {
+        "brier": 0.21486,
+        "log_loss": 0.614074,
+        "ece": 0.34464,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -273.83,
+        "mean_predicted_loss": 0.390587,
+        "mean_observed_loss": 0.061224
+      },
+      "quant_metrics": {
+        "brier": 0.236686,
+        "log_loss": 0.664351,
+        "ece": 0.396446,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -311.8,
+        "mean_predicted_loss": 0.45767,
+        "mean_observed_loss": 0.061224
+      },
+      "duration_transfer_metrics": {
+        "brier": 0.178341,
+        "log_loss": 0.538944,
+        "ece": 0.31723,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -210.29,
+        "mean_predicted_loss": 0.375085,
+        "mean_observed_loss": 0.061224
+      },
+      "path_quant_metrics": {
+        "brier": 0.061224,
+        "log_loss": 1.691695,
+        "ece": 0.061224,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -6.52,
+        "mean_predicted_loss": 0.0,
+        "mean_observed_loss": 0.061224
+      },
+      "regime_quant_metrics": {
+        "brier": 0.344301,
+        "log_loss": 0.926045,
+        "ece": 0.512116,
+        "empirical_baseline_brier": 0.057476,
+        "empirical_baseline_log_loss": 0.230324,
+        "empirical_baseline_ece": 0.0,
+        "brier_vs_baseline_pct": -499.03,
+        "mean_predicted_loss": 0.560985,
+        "mean_observed_loss": 0.061224
+      },
+      "calibration_train_observations": 0,
+      "calibration_bins": 5,
+      "calibration_rates": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "quant_method": "gaussian_copula_terminal_worst_of",
+      "duration_transfer_method": "50pct_24m_50pct_12m_quant_blend",
+      "path_quant_method": "rolling_worst_of_barrier_frequency",
+      "regime_quant_method": "recent_to_long_run_volatility_ratio",
+      "phoenix_score_today": 60.94,
+      "rows": [
+        {
+          "basket": [
+            "AAPL",
+            "GOOGL",
+            "MSFT"
+          ],
+          "predicted_p_loss": 0.2141,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2141
+        },
+        {
+          "basket": [
+            "BAC",
+            "DIA",
+            "GOOGL"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AMD",
+            "AVGO",
+            "TSLA"
+          ],
+          "predicted_p_loss": 0.6242,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6242
+        },
+        {
+          "basket": [
+            "KO",
+            "TSLA",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "CRM",
+            "INTC",
+            "ORCL"
+          ],
+          "predicted_p_loss": 0.3546,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3546
+        },
+        {
+          "basket": [
+            "ORLY",
+            "QQQ",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "C",
+            "GS",
+            "MS"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "BAC",
+            "NOW",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "AXP",
+            "PYPL",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "EFA",
+            "JPM",
+            "TXN"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CAT",
+            "DE",
+            "GE"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AMAT",
+            "BKNG",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "COST",
+            "LOW",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "NOW",
+            "PANW",
+            "QQQ"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "DIS",
+            "NKE",
+            "PEP"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "CSCO",
+            "CVX",
+            "HON"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "LLY",
+            "MRK",
+            "PFE"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "BMY",
+            "DIA",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7646,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7646
+        },
+        {
+          "basket": [
+            "ABT",
+            "AMGN",
+            "GILD"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRWD",
+            "IWM",
+            "MSFT"
+          ],
+          "predicted_p_loss": 0.1787,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1787
+        },
+        {
+          "basket": [
+            "ABNB",
+            "PLTR",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "GLD",
+            "JPM",
+            "LOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "DIS",
+            "GE",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "LRCX",
+            "MU",
+            "TXN"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ARKK",
+            "C",
+            "EEM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ORLY",
+            "REGN",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABNB",
+            "BMY",
+            "ORLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "XLE",
+            "XLF",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ARKK",
+            "KO",
+            "REGN"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "XLB",
+            "XLU",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "NKE",
+            "SBUX",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "GLD",
+            "SLV",
+            "TLT"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "COIN",
+            "MCD",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1635,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1635
+        },
+        {
+          "basket": [
+            "AMZN",
+            "GOOGL",
+            "NVDA"
+          ],
+          "predicted_p_loss": 0.6042,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6042
+        },
+        {
+          "basket": [
+            "AXP",
+            "NFLX",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.7218,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7218
+        },
+        {
+          "basket": [
+            "AMD",
+            "NFLX",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7385,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7385
+        },
+        {
+          "basket": [
+            "BMY",
+            "JNJ",
+            "MRK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CSCO",
+            "INTC",
+            "JPM"
+          ],
+          "predicted_p_loss": 0.5529,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.5529
+        },
+        {
+          "basket": [
+            "CSCO",
+            "GS",
+            "MU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "C",
+            "V",
+            "WFC"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "AMZN",
+            "PEP",
+            "PLTR"
+          ],
+          "predicted_p_loss": 0.4528,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4528
+        },
+        {
+          "basket": [
+            "COP",
+            "CVX",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3394
+        },
+        {
+          "basket": [
+            "MU",
+            "PFE",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "GE",
+            "HON",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AMZN",
+            "REGN",
+            "SHOP"
+          ],
+          "predicted_p_loss": 0.6754,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6754
+        },
+        {
+          "basket": [
+            "COST",
+            "MCD",
+            "TGT"
+          ],
+          "predicted_p_loss": 0.2031,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2031
+        },
+        {
+          "basket": [
+            "AAPL",
+            "MCD",
+            "ORLY"
+          ],
+          "predicted_p_loss": 0.2281,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2281
+        },
+        {
+          "basket": [
+            "KO",
+            "PEP",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.1488,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1488
+        },
+        {
+          "basket": [
+            "ABBV",
+            "AMAT",
+            "XLF"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABBV",
+            "BMY",
+            "LLY"
+          ],
+          "predicted_p_loss": 0.2178,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2178
+        },
+        {
+          "basket": [
+            "CAT",
+            "MRK",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.7646,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7646
+        },
+        {
+          "basket": [
+            "BA",
+            "GILD",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "DIS",
+            "GLD",
+            "HD"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRWD",
+            "PANW",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.3968,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3968
+        },
+        {
+          "basket": [
+            "HD",
+            "MU",
+            "T"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "COIN",
+            "T",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 1.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "ABNB",
+            "GILD",
+            "WMT"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "ADI",
+            "AMAT",
+            "LRCX"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABBV",
+            "AMAT",
+            "EFA"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "IWM",
+            "QQQ",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "EEM",
+            "PLTR",
+            "SLB"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "XLE",
+            "XLI",
+            "XLV"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "GOOGL",
+            "XLU",
+            "XOM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ARKK",
+            "EEM",
+            "XLU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CVX",
+            "EFA",
+            "NFLX"
+          ],
+          "predicted_p_loss": 0.7218,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.7218
+        },
+        {
+          "basket": [
+            "AAPL",
+            "SLV",
+            "VNQ"
+          ],
+          "predicted_p_loss": 0.2544,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2544
+        },
+        {
+          "basket": [
+            "AMD",
+            "JNJ",
+            "QCOM"
+          ],
+          "predicted_p_loss": 0.742,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.742
+        },
+        {
+          "basket": [
+            "AVGO",
+            "META",
+            "NVDA"
+          ],
+          "predicted_p_loss": 0.3906,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3906
+        },
+        {
+          "basket": [
+            "ARKK",
+            "BKNG",
+            "DIA"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ADBE",
+            "CRM",
+            "NFLX"
+          ],
+          "predicted_p_loss": 0.4128,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4128
+        },
+        {
+          "basket": [
+            "GILD",
+            "UBER",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.1787,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1787
+        },
+        {
+          "basket": [
+            "BAC",
+            "GS",
+            "JPM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "BAC",
+            "SLB",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "MA",
+            "PYPL",
+            "V"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "ORLY",
+            "PYPL",
+            "XLU"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CAT",
+            "COP",
+            "SLB"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3394
+        },
+        {
+          "basket": [
+            "AVGO",
+            "NOW",
+            "TSLA"
+          ],
+          "predicted_p_loss": 0.2745,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2745
+        },
+        {
+          "basket": [
+            "HD",
+            "LOW",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "GLD",
+            "MA",
+            "XLP"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "MCD",
+            "NKE",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1635,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1635
+        },
+        {
+          "basket": [
+            "IBM",
+            "JNJ",
+            "SPY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "JNJ",
+            "MRK",
+            "UNH"
+          ],
+          "predicted_p_loss": 0.2393,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2393
+        },
+        {
+          "basket": [
+            "ABNB",
+            "MCD",
+            "ORCL"
+          ],
+          "predicted_p_loss": 0.2488,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.2488
+        },
+        {
+          "basket": [
+            "ABT",
+            "BMY",
+            "TMO"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "AVGO",
+            "COP",
+            "GE"
+          ],
+          "predicted_p_loss": 0.3394,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.3394
+        },
+        {
+          "basket": [
+            "ABNB",
+            "BKNG",
+            "UBER"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "DIA",
+            "HD",
+            "SNOW"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRWD",
+            "NOW",
+            "SHOP"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "ABNB",
+            "CRWD",
+            "GOOGL"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "IBM",
+            "TXN",
+            "VZ"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "CRM",
+            "NOW",
+            "QQQ"
+          ],
+          "predicted_p_loss": 0.1697,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1697
+        },
+        {
+          "basket": [
+            "AMZN",
+            "GE",
+            "NKE"
+          ],
+          "predicted_p_loss": 0.6754,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.6754
+        },
+        {
+          "basket": [
+            "DIA",
+            "IWM",
+            "XLK"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ABT",
+            "MA",
+            "SBUX"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "XLI",
+            "XLP",
+            "XLY"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "NOW",
+            "TLT",
+            "VNQ"
+          ],
+          "predicted_p_loss": 0.1308,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.1308
+        },
+        {
+          "basket": [
+            "EEM",
+            "EFA",
+            "TLT"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        },
+        {
+          "basket": [
+            "ADI",
+            "DE",
+            "MMM"
+          ],
+          "predicted_p_loss": 0.4875,
+          "observed_loss_rate": 0.0,
+          "source": "historical_forward_replay",
+          "prediction_source": "current_model_replayed_as_of_anchor",
+          "simulated_rows": 0,
+          "calibrated_p_loss": 0.4875
+        }
+      ]
+    }
+  },
+  "candidate_gates": {
+    "raw": false,
+    "calibrated": false,
+    "quant": false,
+    "duration_transfer": false,
+    "path_quant": false,
+    "regime_quant": false
+  },
+  "candidate_status": {
+    "raw": "research_only_no_gate",
+    "calibrated": "research_only_no_gate",
+    "quant": "research_only_no_gate",
+    "duration_transfer": "research_only_no_gate",
+    "path_quant": "research_only_no_gate",
+    "regime_quant": "research_only_no_gate"
+  },
+  "promotion_gate": {
+    "eligible": false,
+    "required": "one candidate must beat baseline on Brier and log-loss at all four anchors with ECE <= 0.05",
+    "reason": "promotion blocked until one candidate passes all anchors"
+  },
+  "universe_requested": 100,
+  "universe_with_data": 100,
+  "missing_symbols": []
+}

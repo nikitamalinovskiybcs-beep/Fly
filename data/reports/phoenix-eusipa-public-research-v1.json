@@ -1,0 +1,100 @@
+{
+  "dataset_id": "phoenix-eusipa-public-research-v1",
+  "generated_at": "2026-08-03T23:06:55.892111+00:00",
+  "status": "research_only",
+  "association": {
+    "name": "European Structured Investment Products Association",
+    "url": "https://eusipa.org/governance/",
+    "role": "industry taxonomy and market infrastructure standardization"
+  },
+  "taxonomy_relevance": {
+    "product_family": "12 Yield Enhancement",
+    "candidate_code": "1230",
+    "candidate_label": "Barrier Reverse Convertibles",
+    "related_label": "Express Certificates 1260",
+    "note": "Phoenix/autocallable may be represented under issuer/exchange-specific classifications; EUSIPA code is a taxonomy reference, not a payoff parser."
+  },
+  "public_market_report": {
+    "url": "https://eusipa.org/wp-content/uploads/Eusipa_Report_Q1_2026_EN.pdf",
+    "period": "Q1 2026",
+    "aggregate_sales_eur_bn": 74,
+    "open_interest_eur_bn": 508,
+    "investment_products_listed": 465721,
+    "leverage_products_listed": 2548739,
+    "investment_products_issued": 163413,
+    "source_note": "Aggregate association/member data processed by Derivative Partners; not note-level realized outcomes."
+  },
+  "public_termsheet_sample": {
+    "source_url": "https://www.eavest.com/produits-structures/1877/tsheet",
+    "isin": "XS2011028805",
+    "classification": "EUSIPA/SSPA 1230 Barrier Reverse Convertible; European Barrier; Autocallable; Memory Coupon",
+    "underlying": "EURO STOXX 50 Price Index",
+    "issue_size_eur": 30000000,
+    "nominal_eur": 1000,
+    "issue_price_pct": 100,
+    "trade_date": "2020-03-13",
+    "initial_fixing_date": "2020-03-13",
+    "issue_date": "2020-03-27",
+    "final_fixing_date": "2028-03-13",
+    "redemption_date": "2028-03-20",
+    "source_class": "public_termsheet_like_page",
+    "outcome_status": "not_verified_realized_outcome"
+  },
+  "what_can_be_used": [
+    "taxonomy normalization for SEC/Leonteq records",
+    "aggregate market context",
+    "public termsheet schema and barrier/autocall/memory fields"
+  ],
+  "what_cannot_be_claimed": [
+    "EUSIPA aggregate data is not Phoenix prediction accuracy",
+    "taxonomy code does not prove exact payoff semantics",
+    "public termsheet page is not independent settlement evidence",
+    "no automatic merge with SEC/Leonteq labels"
+  ],
+  "next_experiment": "Map 20 human-validation records to EUSIPA codes and compare code versus extracted payoff semantics.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "review": {
+      "decision": "proceed_with_caution",
+      "objections": [
+        "Taxonomy alignment risks: Public termsheet sample may not fully represent the 465,721 product universe; potential misclassification in Product Map taxonomy.",
+        "Aggregate market data (74bn EUR sales, 508bn EUR open interest) lacks granularity on product complexity distribution (e.g., autocallables, barriers), which could skew governance assumptions.",
+        "Governance page review not provided; cannot assess alignment with EUSIPA's risk management frameworks or regulatory compliance gaps.",
+        "Termsheet sample (XS2011028805) is pre-2026; may not reflect current market practices or ESG-related risks in Q1 2026 report."
+      ],
+      "acceptance_tests": [
+        "Validate Product Map taxonomy against a stratified sample of 1,000+ products from the 465,721 list to ensure <5% misclassification rate.",
+        "Cross-reference Q1 2026 market report data with ESMA/ECB disclosures to confirm sales/open interest figures and identify outliers.",
+        "Audit governance page against EUSIPA\u2019s 2025 risk management guidelines for completeness and alignment with PRIIPs/KID requirements.",
+        "Test termsheet schema against EUSIPA\u2019s 2026 autocallable/barrier product standards to ensure consistency in key terms (e.g., memory coupon mechanics, barrier levels)."
+      ],
+      "next_experiment": "Conduct a pilot taxonomy alignment exercise using a random 1% sample of the 465,721 products, focusing on autocallables and barriers, to quantify misclassification risks and refine governance criteria.",
+      "safety_flags": [
+        "High: Potential systemic misclassification in Product Map taxonomy could lead to incorrect risk assessments for 465,721 products.",
+        "Medium: Aggregate market data may obscure concentration risks in specific product types (e.g., autocallables with memory coupons).",
+        "Low: Termsheet sample is outdated; may not reflect current market practices or regulatory changes."
+      ]
+    }
+  },
+  "committee_packet": {
+    "proposal_id": "phoenix-eusipa-public-research-v1",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-eusipa-public-research-v1.json"
+    ],
+    "acceptance_tests": [
+      "taxonomy source URL preserved",
+      "aggregate stats separated from note-level outcomes",
+      "sample termsheet source preserved",
+      "no labels/weights/trades changed",
+      "safety flags false"
+    ]
+  }
+}

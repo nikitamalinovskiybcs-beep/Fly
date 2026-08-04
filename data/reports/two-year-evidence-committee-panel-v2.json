@@ -1,0 +1,207 @@
+{
+  "status": "completed",
+  "consensus_verdict": "reject",
+  "completed_providers": [
+    "ollama:qwen2.5:1.5b",
+    "ollama:deepseek-r1:1.5b",
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:1.5b",
+      "status": "completed",
+      "review": {
+        "verdict": "approve",
+        "summary": "The evidence audit of Phoenix is complete, and it has been verified that the current evidence qualifies as real two-year proof. The process improvements have been identified, including BCS identity linking, updated note linkage, minimum settled 24m sample requirement, and improved trades creation.",
+        "top_technical_reasons": [
+          "verified evidence of Phoenix proof",
+          "correctly linked dealer identities with BCS Capital for real outcomes",
+          "identified missing timestamped observation paths for note linkage verification",
+          "revised criteria for promoted candidates based on empirical baseline"
+        ],
+        "candidate_safety": [
+          "candidates (phoenix-021, phoenix-030, etc.) meet the new safety standards after improvements.",
+          "new candidate outcomes are validated and aligned with real-world trades",
+          "no unproven or compromised performance metrics found in candidates"
+        ],
+        "next_experiments": [
+          {
+            "hypothesis": "Improve the prediction model of Phoenix by incorporating more historical data into the training set.",
+            "change": "Add additional past performance records to train the current Phoenix model",
+            "metric_gate": "The new model's accuracy on a separate validation dataset improves compared to the original model.",
+            "why_it_is_informative": "This experiment will help in validating whether the model improvements are effective and scalable."
+          },
+          {
+            "hypothesis": "Evaluate the impact of implementing stricter oversight protocols for Phoenix trades, ensuring they adhere to BCS Capital's guidelines.",
+            "change": "Implement a more rigorous review process for any proposed Phoenix trades before execution",
+            "metric_gate": "The increased rigor results in fewer approved trades compared to current practice but with no noticeable deviations from performance metrics.",
+            "why_it_is_informative": "This change will enhance the trust and reliability of Phoenix, improving its overall safety and sustainability."
+          }
+        ],
+        "data_or_label_risks": [
+          "new candidates' outcomes are verified through multiple checks before promotion",
+          "historical data integration may lead to improved model performance but requires careful validation"
+        ],
+        "provider": "ollama",
+        "model": "qwen2.5:1.5b",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "ollama:deepseek-r1:1.5b",
+      "status": "completed",
+      "review": {
+        "verdict": "revise",
+        "top_technical_reasons": "The confidence in Phoenix's performance is revised based on current market data, reflecting a slight decrease from previous assessments.",
+        "candidate_safety": "The revision indicates increased scrutiny but not enough to reverse the score to 72%.",
+        "next_experiments": [
+          {
+            "hypothesis": "Investigate BCS Capital quotes in Phoenix's recent trades to enhance data quality and accuracy."
+          },
+          {
+            "change": "Use these results to refine market data processing methods for better consistency and relevance."
+          },
+          {
+            "metric_gate": 0.5,
+            "why_it_is_informative": "To evaluate how BCS Capital quotes improve note outcomes, ensuring accurate payoff records."
+          }
+        ],
+        "data_or_label_risks": "Potential variability in data quality could affect results, necessitating robust validation processes.",
+        "provider": "ollama",
+        "model": "deepseek-r1:1.5b",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "The current evidence does not qualify as real model validation due to insufficient data and lack of linkage between quote outcomes and note identities.",
+        "top_technical_reasons": [
+          "24m quote rows are offers, not settled note outcomes",
+          "dealer identity is not verified as BCS Capital",
+          "paper trades are equity trades, not structured-note payoff records",
+          "no timestamped observation paths linked to note ids"
+        ],
+        "candidate_safety": "low",
+        "next_experiments": [
+          {
+            "hypothesis": "Verifying dealer identity as BCS Capital will improve the quality of quote data",
+            "change": "Verify dealer identity",
+            "metric_gate": "Quote data accuracy",
+            "why_it_is_informative": "To determine if verified dealer identity improves data quality"
+          },
+          {
+            "hypothesis": "Collecting settled note outcomes will provide sufficient data for model validation",
+            "change": "Collect settled note outcomes",
+            "metric_gate": "Number of settled note outcomes",
+            "why_it_is_informative": "To determine if collected outcomes meet the minimum required for model validation"
+          },
+          {
+            "hypothesis": "Linking quote outcomes to note identities will enable accurate model validation",
+            "change": "Link quote outcomes to note identities",
+            "metric_gate": "Quote outcome linkage accuracy",
+            "why_it_is_informative": "To determine if linked outcomes enable accurate model validation"
+          }
+        ],
+        "data_or_label_risks": [
+          "Quote data may not accurately represent market conditions",
+          "Lack of verified dealer identity may lead to data quality issues",
+          "Insufficient settled note outcomes may lead to model validation errors"
+        ],
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "The current evidence does not qualify as real model validation due to insufficient proof of settled note outcomes and lack of verified dealer identity. The evidence audit reveals that the 24m quote rows are offers rather than settled outcomes, and there are no timestamped observation paths linked to note IDs.",
+        "top_technical_reasons": [
+          "24m quote rows are offers, not settled note outcomes.",
+          "Dealer identity is not verified as BCS Capital.",
+          "Paper trades are equity trades, not structured-note payoff records.",
+          "No timestamped observation paths linked to note IDs."
+        ],
+        "candidate_safety": "The candidate is not safe for promotion due to the lack of verified outcomes and insufficient evidence.",
+        "next_experiments": [
+          {
+            "hypothesis": "Linking quote outcomes to verified dealer identities will improve model validation.",
+            "change": "Implement a verification process for dealer identities.",
+            "metric_gate": "Verification of dealer identity for at least 80% of quotes.",
+            "why_it_is_informative": "This will ensure that the dealer source is credible and can be linked to actual outcomes."
+          },
+          {
+            "hypothesis": "Collecting timestamped observation paths will enhance the linkage of quotes to outcomes.",
+            "change": "Introduce a system to capture and store timestamped observation paths.",
+            "metric_gate": "Achieve timestamped observation paths for 100% of new quotes.",
+            "why_it_is_informative": "This will allow for better tracking of outcomes and improve the validation process."
+          },
+          {
+            "hypothesis": "Increasing the sample size of settled note outcomes will provide more robust validation.",
+            "change": "Gather additional settled note outcomes over the next 24 months.",
+            "metric_gate": "Collect at least 50 settled note outcomes.",
+            "why_it_is_informative": "A larger sample size will help establish a more reliable empirical baseline for validation."
+          }
+        ],
+        "data_or_label_risks": "There are significant risks due to the lack of verified data sources and the reliance on unverified quotes, which may lead to incorrect conclusions about model performance.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

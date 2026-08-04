@@ -14,3 +14,4 @@ data/numerai_submissions.json
 data/paper_trading/
 data/connectivity_probe.json
 data/runtime/
+data/calibration_agent/

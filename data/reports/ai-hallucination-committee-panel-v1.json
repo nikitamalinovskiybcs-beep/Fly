@@ -1,0 +1,147 @@
+{
+  "status": "completed",
+  "consensus_verdict": "reject",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:7b",
+      "status": "skipped",
+      "reason": "Ollama is not running",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:deepseek-r1:7b",
+      "status": "skipped",
+      "reason": "Ollama is not running",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "The provided evidence does not support the claims made about Phoenix's performance. The public quote dataset only provides quote data, not realized performance, and the dealer quotes are from an unverified source.",
+        "top_technical_reasons": [
+          "The public quote dataset does not prove realized Phoenix performance",
+          "Dealer quotes are from an unverified source",
+          "Paper trades do not prove structured-note outcomes",
+          "No committee consensus exists when providers are unavailable",
+          "The model candidate does not have production edge"
+        ],
+        "candidate_safety": "low",
+        "next_experiments": [
+          {
+            "hypothesis": "Improving the quality of dealer quotes will increase the accuracy of Phoenix's performance",
+            "change": "Verify the source of dealer quotes",
+            "metric_gate": "Quote accuracy",
+            "why_it_is_informative": "To determine if improving quote quality will have a positive impact on Phoenix's performance"
+          },
+          {
+            "hypothesis": "Using realized market history instead of simulation/replay will provide more accurate results",
+            "change": "Use realized market history",
+            "metric_gate": "Performance accuracy",
+            "why_it_is_informative": "To determine if using realized market history will provide more accurate results than simulation/replay"
+          }
+        ],
+        "data_or_label_risks": [
+          "Unverified dealer quotes",
+          "Lack of realized market history",
+          "Insufficient committee consensus"
+        ],
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "The evidence indicates that Phoenix does not meet the necessary criteria for promotion, as it fails to provide verified claims and demonstrates unsupported outcomes.",
+        "top_technical_reasons": [
+          "Claims regarding realized performance are based solely on quotes, which do not constitute valid evidence.",
+          "Dealer quotes are sourced from an unverified provider, BCS Capital.",
+          "Paper trades do not substantiate structured-note outcomes, as they are not realized market trades.",
+          "The model candidate does not demonstrate a production edge, with all gates failing in the benchmark."
+        ],
+        "candidate_safety": "High risk due to unsupported claims and reliance on unverifiable data sources.",
+        "next_experiments": [
+          {
+            "hypothesis": "Verifying dealer quote sources will improve the reliability of performance claims.",
+            "change": "Conduct a thorough audit of dealer quote sources to ensure they are verified.",
+            "metric_gate": "Percentage of verified dealer quotes.",
+            "why_it_is_informative": "This will help establish a foundation of trust in the data used for performance claims."
+          },
+          {
+            "hypothesis": "Using realized market data instead of quotes will provide a more accurate assessment of performance.",
+            "change": "Replace quote-based performance metrics with actual realized trading data.",
+            "metric_gate": "Correlation between realized trades and performance outcomes.",
+            "why_it_is_informative": "This will validate whether the model can perform effectively in real market conditions."
+          },
+          {
+            "hypothesis": "Improving the model's ability to handle unavailable provider scenarios will enhance its robustness.",
+            "change": "Implement a fallback mechanism for when providers are unavailable.",
+            "metric_gate": "Reduction in performance variability during provider outages.",
+            "why_it_is_informative": "This will test the model's resilience and adaptability in real-world trading environments."
+          }
+        ],
+        "data_or_label_risks": "High risk due to reliance on unverified data sources and unsupported claims, which could lead to erroneous conclusions about model performance.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

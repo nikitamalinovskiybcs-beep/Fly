@@ -1,0 +1,35 @@
+{
+  "proposal_id": "phoenix-human-inputs-v1",
+  "status": "provisional",
+  "human_inputs": {
+    "real_quotes": {
+      "status": "pending",
+      "expected_delivery": "Monday",
+      "handling": "Do not treat chat text as evidence until a structured packet is received and provenance-validated"
+    },
+    "reviewer_owner": "requester",
+    "key_custody_owner": "requester",
+    "client_profile": "professional_or_institutional"
+  },
+  "hosting_decision": {
+    "streamlit": "research_and_demo_only",
+    "recommended_client_architecture": [
+      "authenticated frontend",
+      "FastAPI calculation backend",
+      "managed database/object storage",
+      "secret manager",
+      "monitoring and rollback"
+    ],
+    "rationale": "Streamlit is reachable and useful for research, but is not sufficient alone as a client production control plane."
+  },
+  "go_implication": [
+    "Requester self-review is not independent model-risk/compliance approval",
+    "Professional client status does not remove suitability, disclosure, or evidence requirements",
+    "Real quotes remain blocked until structured and provenance-validated"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

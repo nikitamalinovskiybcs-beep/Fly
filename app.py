@@ -2,7 +2,9 @@
 Computation stays in the domain modules; this file renders the decision workflow."""
 
 import datetime
+import hashlib
 import html
+import json
 import streamlit as st
 import plotly.graph_objects as go
 
@@ -22,6 +24,7 @@ from src.outcome_engine import (
 )
 from src.online_learning import assess_learning_gate, load_realized_feedback
 from src.performance_metrics import build_realized_evaluation
+from src.runtime_research import build_runtime_research_status
 from src.snapshot_cache import (
     load_snapshot,
     refresh_in_background,
@@ -38,6 +41,7 @@ def cached_precompute(tickers_key: str):
     return _precompute_all(tickers)
 
 
+@st.cache_data(ttl=300, show_spinner=False)
 def cached_full_analysis(
     tickers_key: str,
     barrier_pct: float,
@@ -314,7 +318,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">ONE PIPELINE · 15 STEPS · ФЕНИКС v36.0 · 8 AGENTS · PRODUCT · OUTCOMES · API</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>PHOENIX</h1></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
@@ -383,7 +387,7 @@ requested_preferences = {
 if "analysis_preferences" not in st.session_state:
     st.session_state.analysis_preferences = requested_preferences
 with bc[2]:
-    if st.button("▶ RUN FULL ANALYSIS", key="run_basket", type="primary", use_container_width=True):
+    if st.button("▶ RUN", key="run_basket", type="primary", use_container_width=True):
         st.session_state.analysis_tickers = requested_tickers
         st.session_state.analysis_preferences = requested_preferences
         st.session_state.analysis_requested = True
@@ -440,6 +444,36 @@ if basket_tickers:
             active_preferences["coupon_frequency_months"],
         )
         D = _pipeline["data"]
+        note_id = hashlib.sha256(
+            json.dumps(
+                {
+                    "basket": basket_tickers,
+                    "preferences": active_preferences,
+                    "as_of": D.get("ts"),
+                },
+                sort_keys=True,
+            ).encode()
+        ).hexdigest()[:24]
+        from src.storage import Storage
+
+        Storage().record_calculated_note(
+            {
+                "note_id": note_id,
+                "calculated_at": D.get("ts", datetime.datetime.now().isoformat()),
+                "basket": json.dumps(basket_tickers),
+                "barrier": active_preferences["barrier_pct"] / 100.0,
+                "term_months": active_preferences["tenor_months"],
+                "coupon_pa": D.get("coupon_pa"),
+                "p_ki": D.get("p_ki"),
+                "verdict": D.get("decision_gate", {}).get("verdict"),
+                "evidence_status": (
+                    "verified"
+                    if D.get("evidence_gate", {}).get("passed")
+                    else "incomplete"
+                ),
+            }
+        )
+        _pipeline["research_orchestrator"] = build_runtime_research_status(D, _pipeline)
 
     ch = D["ch"]
     wo = ch.get("worst_of", {})
@@ -512,7 +546,8 @@ if basket_tickers:
     gen = D.get("scoring_generation", 0)
     _gate_passed = bool(D.get("evidence_gate", {}).get("passed"))
     _director_status = D.get("sl_agents", {}).get("director_status", "")
-    _verdict = (
+    _decision_gate = D.get("decision_gate", {})
+    _verdict = _decision_gate.get("verdict") or (
         "GOOD" if _gate_passed and rs >= 80
         else "CAUTION" if rs >= 65
         else "BAD"
@@ -522,7 +557,7 @@ if basket_tickers:
         else "#ffb000" if _verdict == "CAUTION"
         else "#ff3b30"
     )
-    _block_reasons = []
+    _block_reasons = list(_decision_gate.get("reasons", []))
     if not _gate_passed:
         _block_reasons.append("evidence gate incomplete")
     if p_ki >= 35:
@@ -590,12 +625,12 @@ if basket_tickers:
     if ind:
         iv30 = ind.get("iv30_avg", 40)
         avg_c_val = corr.get("avg_corr", 0)
-        grid = _mi("P(KI)", f"{p_ki:.1f}%", f"при KI=60% spot за 2Y", "#ff3b30" if p_ki > 25 else "#34c759")
+        grid = _mi("P(KI)", f"{p_ki:.1f}%", "при KI=60% spot за 2Y", "#ff3b30" if p_ki > 25 else "#34c759")
         grid += _mi("P(autocall)", f"{p_autocall:.1f}%", f"E[жизни] {D.get('e_life',1.5):.2f}г")
         grid += _mi("IV30 (avg)", f"{iv30:.0f}%", f"min {ind.get('iv30_min',0):.0f}% · max {ind.get('iv30_max',0):.0f}%")
-        grid += _mi("Avg корреляция", f"{avg_c_val:.2f}", f"sweet spot 0.45–0.65", "#34c759" if avg_c_val < 0.65 else "#ff3b30")
+        grid += _mi("Avg корреляция", f"{avg_c_val:.2f}", "sweet spot 0.45–0.65", "#34c759" if avg_c_val < 0.65 else "#ff3b30")
         grid += _mi("β (avg)", f"{ind.get('beta_avg',1):.2f}", f"min {ind.get('beta_min',0):.2f} · max {ind.get('beta_max',0):.2f}")
-        grid += _mi("Dispersion", f"σ {D.get('dispersion',5):.1f}%", f"vol-spread корзины")
+        grid += _mi("Dispersion", f"σ {D.get('dispersion',5):.1f}%", "vol-spread корзины")
         st.markdown(f'<div style="display:flex;flex-wrap:wrap;gap:0">{grid}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
@@ -620,34 +655,6 @@ if basket_tickers:
     cp[3].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[ИТОГ. ВЫПЛАТА]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_payout"]:.1f}%</div></div>', unsafe_allow_html=True)
     cp[4].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">P(KI)</div><div style="color:{"#ff3b30" if p_ki>25 else "#34c759"};font-size:18px;font-weight:700">{p_ki:.1f}%</div></div>', unsafe_allow_html=True)
     cp[5].markdown(f'<div style="text-align:center"><div style="color:#d6a44a;font-size:9px;text-transform:uppercase">E[СРОК]</div><div style="color:#ffb000;font-size:18px;font-weight:700">{D["e_life"]:.2f} лет</div></div>', unsafe_allow_html=True)
-
-    # ═══════════════════════════════════════════════════════════════
-    # КАЛИБРОВКА — ввод реальной ставки от брокера
-    # ═══════════════════════════════════════════════════════════════
-    cal_col1, cal_col2, cal_col3 = st.columns([2, 2, 4])
-    with cal_col1:
-        broker_rate = st.number_input("СТАВКА БРОКЕРА, % P.A.", min_value=0.0, max_value=100.0, value=0.0, step=0.5, key="broker_rate")
-    with cal_col2:
-        broker_name = st.text_input("БРОКЕР", value="", placeholder="БКС, Тинькофф...", key="broker_name")
-    with cal_col3:
-        if broker_rate > 0:
-            our_rate = D["coupon_pa"]
-            delta = broker_rate - our_rate
-            delta_color = "#34c759" if abs(delta) < 2 else "#ff3b30" if delta > 2 else "#ffb000"
-            accuracy_pct = max(0, 100 - abs(delta) / max(our_rate, 1) * 100)
-            broker_label = f" ({broker_name})" if broker_name else ""
-            st.markdown(f'''<div style="padding:8px;border:1px solid #333;border-radius:6px;margin-top:18px">
-                <div style="color:#d6a44a;font-size:9px;text-transform:uppercase">КАЛИБРОВКА{broker_label}</div>
-                <div style="display:flex;gap:20px;align-items:center">
-                    <div><span style="color:#aaa;font-size:11px">Наша модель:</span> <span style="color:#ffb000;font-size:14px;font-weight:700">{our_rate:.2f}%</span></div>
-                    <div><span style="color:#aaa;font-size:11px">Брокер:</span> <span style="color:#34c759;font-size:14px;font-weight:700">{broker_rate:.2f}%</span></div>
-                    <div><span style="color:#aaa;font-size:11px">Δ:</span> <span style="color:{delta_color};font-size:14px;font-weight:700">{delta:+.2f}pp</span></div>
-                    <div><span style="color:#aaa;font-size:11px">Точность:</span> <span style="color:{delta_color};font-size:14px;font-weight:700">{accuracy_pct:.0f}%</span></div>
-                </div>
-                <div style="color:#6a5a2a;font-size:9px;margin-top:4px">{"Модель калибрована (Δ<2pp)" if abs(delta) < 2 else "Требуется калибровка — модель " + ("занижает" if delta > 0 else "завышает") + f" на {abs(delta):.1f}pp"}</div>
-            </div>''', unsafe_allow_html=True)
-        else:
-            st.markdown('<div style="color:#6a5a2a;font-size:9px;margin-top:24px">Введи ставку от брокера для калибровки модели</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
     # [2] КОРЗИНА — Composition + Worst-of
@@ -814,23 +821,7 @@ if basket_tickers:
                     st.markdown(f'<div style="display:flex;justify-content:space-between;padding:1px 8px;border-bottom:1px solid #1a1400"><span style="color:#6a5a2a;font-size:9px">{k}</span><span style="color:#d6a44a;font-size:9px">{v}</span></div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [7] АЛЬТЕРНАТИВЫ — Smart replacement
-    # ═══════════════════════════════════════════════════════════════
-    smart_alts = D.get("smart_alts", [])
-    with st.expander(f"[7] АЛЬТЕРНАТИВЫ    {len(smart_alts)} вариантов"):
-        if smart_alts:
-            worst_replaced = smart_alts[0].get("replaced", "?")
-            st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-bottom:6px">Замена <b style="color:#ff3b30">{worst_replaced}</b> на лучшие альтернативы:</div>', unsafe_allow_html=True)
-            for alt in smart_alts:
-                alt_score = alt["est_score"]
-                alt_c = "#34c759" if alt_score > rs else "#ffb000"
-                delta = alt_score - rs
-                st.markdown(f'<div style="display:flex;justify-content:space-between;padding:3px 8px;border-bottom:1px solid #1a1400"><span style="color:#d6a44a;font-size:10px">{" · ".join(alt["basket"])}</span><span style="color:{alt_c};font-size:10px;font-weight:700">{alt_score:.0f} ({delta:+.0f})</span></div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div style="color:#6a5a2a;font-size:10px">Недостаточно данных</div>', unsafe_allow_html=True)
-
-    # ═══════════════════════════════════════════════════════════════
-    # [8] СРАВНЕНИЕ С РЫНКОМ — Toxicity + Dealer benchmark
+    # [7] СРАВНЕНИЕ С РЫНКОМ — Toxicity + Dealer benchmark
     # ═══════════════════════════════════════════════════════════════
     DL = cached_dealer(",".join(basket_tickers), D["coupon_pa"], D["p_ki"], D["score"])
     tox_data = DL.get("toxicity", {})
@@ -838,7 +829,36 @@ if basket_tickers:
     cpn_pred = DL.get("coupon_prediction", {})
     guard = DL.get("guard_flag", False)
 
-    with st.expander("[8] РЫНОК    Токсичность · Дилер · P(loss)"):
+    with st.expander("[7] РЫНОК    Токсичность · Дилер · P(loss)"):
+        broker_rate = st.number_input(
+            "СТАВКА BCS CAPITAL, % P.A.",
+            min_value=0.0,
+            max_value=100.0,
+            value=0.0,
+            step=0.5,
+            key="broker_rate",
+        )
+        if broker_rate > 0:
+            model_rate = float(D["coupon_pa"])
+            delta = broker_rate - model_rate
+            delta_color = (
+                "#34c759"
+                if abs(delta) < 2
+                else "#ff3b30"
+                if delta > 2
+                else "#ffb000"
+            )
+            quote_fit = "FIT" if abs(delta) < 2 else "MISMATCH"
+            accuracy_pct = max(0, 100 - abs(delta) / max(model_rate, 1) * 100)
+            st.markdown(
+                f'<div style="color:{delta_color};font-size:9px">'
+                f'BCS quote-fit: <b>{quote_fit}</b> · '
+                f'quote {broker_rate:.2f}% · model {model_rate:.2f}% · '
+                f'Δ {delta:+.2f}pp · fit {accuracy_pct:.0f}%</div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            st.caption("Quote-fit evidence only; enter a verified BCS rate.")
         if guard:
             st.markdown(f'<div style="background:#3a0000;border:1px solid #ff3b30;padding:6px;margin-bottom:6px;color:#ff3b30;font-size:11px;font-weight:700">GUARD: P(убыток) = {p_loss_data.get("p_loss_pct",0):.0f}%</div>', unsafe_allow_html=True)
 
@@ -878,7 +898,7 @@ if basket_tickers:
         )
 
     # ═══════════════════════════════════════════════════════════════
-    # [9] АГЕНТЫ — 8 Self-Learning Agents
+    # [8] АГЕНТЫ — 8 Self-Learning Agents
     # ═══════════════════════════════════════════════════════════════
     sla = D.get("sl_agents", {})
     sla_ok = sla.get("agents_ok", 0)
@@ -891,7 +911,7 @@ if basket_tickers:
     sla_adj = D.get("sl_agents_adj", 0)
     sla_dec_c = "#34c759" if sla_decision == "BUY" else "#ff3b30" if sla_decision == "AVOID" else "#ffb000"
 
-    with st.expander(f"[9] АГЕНТЫ    {sla_ok}/{sla_total} OK · {sla_decision} · {sla_director} · Conf {sla_confidence:.0%}"):
+    with st.expander(f"[8] АГЕНТЫ    {sla_ok}/{sla_total} OK · {sla_decision} · {sla_director} · Conf {sla_confidence:.0%}"):
         # Summary metrics
         st.markdown(f'''
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
@@ -974,9 +994,9 @@ if basket_tickers:
             st.markdown(f'<div style="background:#3a0000;border:1px solid #ff3b30;padding:6px;margin-top:6px;color:#ff3b30;font-size:10px;font-weight:700">GUARDIAN ALERT: {", ".join(guardian.get("safety_issues", []))}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [10] BASKET SCORING — Bank-grade 8-criterion analysis
+    # [9] BASKET SCORING — Bank-grade 8-criterion analysis
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[10] BASKET SCORING    Bank-grade analysis"):
+    with st.expander("[9] BASKET SCORING    Bank-grade analysis"):
         try:
             from src.basket.scorer import SAMPLE_BASKETS, BasketScorer
             from src.basket.worst_of import WorstOfPredictor
@@ -1059,9 +1079,9 @@ if basket_tickers:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Basket scoring error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [12] PAPER TRADING — Agent signals + portfolio
+    # [10] PAPER TRADING — Agent signals + portfolio
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[11] PAPER TRADING    Agent · Portfolio · Signals"):
+    with st.expander("[10] PAPER TRADING    Agent · Portfolio · Signals"):
         try:
             from src.agents.paper_trader import PaperTradingAgent
             from src.agents.models import TradeAction
@@ -1120,9 +1140,9 @@ if basket_tickers:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Paper trading error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [13] DATA & STORAGE — Database status + backup
+    # [11] DATA & STORAGE — Database status + backup
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[12] DATA & STORAGE    Database · Cloud · Backup"):
+    with st.expander("[11] DATA & STORAGE    Database · Cloud · Backup"):
         try:
             from src.storage import Storage
             storage = Storage()
@@ -1144,6 +1164,10 @@ if basket_tickers:
 
             trade_count = len(storage.get_trades(limit=10000))
             st.markdown(f'<div style="color:#d6a44a;font-size:10px;margin-top:8px">Trades in DB: <b style="color:#ffb000">{trade_count}</b></div>', unsafe_allow_html=True)
+            note_count = storage.count_calculated_notes(months=6)
+            st.markdown(f'<div style="color:#d6a44a;font-size:10px">Calculated Phoenix notes, last 6 months: <b style="color:#ffb000">{note_count}</b></div>', unsafe_allow_html=True)
+            basket_count = storage.count_calculated_baskets(months=6)
+            st.markdown(f'<div style="color:#d6a44a;font-size:10px">Unique calculated baskets, last 6 months: <b style="color:#ffb000">{basket_count}</b></div>', unsafe_allow_html=True)
 
             if st.button("BACKUP NOW", key="backup_now"):
                 result = storage.backup()
@@ -1155,9 +1179,9 @@ if basket_tickers:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Storage error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [18] BEST STRUCTURED PRODUCT — agent-driven product search
+    # [12] BEST STRUCTURED PRODUCT — agent-driven product search
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[13] BEST STRUCTURED PRODUCT    Universe search · Barrier/Tenor grid"):
+    with st.expander("[12] BEST STRUCTURED PRODUCT    Universe search · Barrier/Tenor grid"):
         try:
             _res = _pipeline["product"]
             _universe = list(dict.fromkeys(list(basket_tickers) + [
@@ -1240,9 +1264,9 @@ if basket_tickers:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Product search error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [19] STRUCTURED NOTE OUTCOMES — explicit simulated/replay/realized states
+    # [13] STRUCTURED NOTE OUTCOMES — explicit simulated/replay/realized states
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[14] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
+    with st.expander("[13] NOTE OUTCOMES    Simulation · Stress · Realized-only learning"):
         try:
             _quality = load_quality_report()
             _paper_notes = PaperOutcomeTracker().notes
@@ -1265,6 +1289,9 @@ if basket_tickers:
                 f'{_readiness["allowed_claim"]} '
                 f'Realized notes: {_readiness["realized_notes"]}; '
                 f'historical windows: {_readiness["historical_windows"]}.</div>'
+                f'<div style="color:#ffb000;font-size:9px">'
+                'Human review required; this is not legal, regulatory, suitability '
+                'or compliance approval.</div>'
                 f'<div style="color:#ff3b30;font-size:9px">'
                 f'{_readiness["blocked_claim"]}</div></div>',
                 unsafe_allow_html=True,
@@ -1339,9 +1366,9 @@ if basket_tickers:
             st.markdown(f'<div style="color:#ff3b30;font-size:10px">Outcome engine error: {exc}</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════
-    # [15] API & CONNECTIONS — Setup · Keys · Health Check
+    # [14] API & CONNECTIONS — Setup · Keys · Health Check
     # ═══════════════════════════════════════════════════════════════
-    with st.expander("[15] API & CONNECTIONS    Setup · Keys · Health Check"):
+    with st.expander("[14] API & CONNECTIONS    Setup · Keys · Health Check"):
         try:
             from src.api_manager import APIManager, SERVICES, mask_key
             api_mgr = APIManager(load_env=True)
