@@ -434,8 +434,6 @@ if (
     )
     st.stop()
 
-st.stop()
-
 if basket_tickers:
     with st.spinner("⚡ Precomputing..."):
         _pipeline = cached_full_analysis(
@@ -445,6 +443,11 @@ if basket_tickers:
             active_preferences["coupon_frequency_months"],
         )
         D = _pipeline["data"]
+        st.markdown(
+            '<div class="sec">ANALYSIS COMPLETE</div>',
+            unsafe_allow_html=True,
+        )
+        st.stop()
         note_id = hashlib.sha256(
             json.dumps(
                 {
