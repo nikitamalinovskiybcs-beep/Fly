@@ -318,7 +318,7 @@ hr{border-color:var(--border)!important}
 # ═══════════════════════════════════════════════════════════════════
 # HEADER
 # ═══════════════════════════════════════════════════════════════════
-st.markdown('<div class="hdr"><h1>WORST-OF PHOENIX</h1><span class="sub">ONE PIPELINE · 15 STEPS · ФЕНИКС v36.0 · 8 AGENTS · PRODUCT · OUTCOMES · API</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="hdr"><h1>PHOENIX</h1></div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════
 # BASKET INPUT
