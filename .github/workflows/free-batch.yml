@@ -2,13 +2,13 @@ name: Free Batch Snapshot
 
 on:
   schedule:
-    - cron: "30 6 * * *"
+    - cron: "15 * * * *"
   workflow_dispatch:
     inputs:
-      tickers:
-        description: "Comma-separated basket"
+      baskets:
+        description: "Semicolon-separated baskets; tickers comma-separated"
         required: false
-        default: "AAPL,MSFT,GOOGL,AMZN,NVDA"
+        default: "AAPL,MSFT,GOOGL,AMZN,NVDA;AAPL,MSFT,NVDA"
 
 jobs:
   snapshot:
@@ -31,9 +31,9 @@ jobs:
 
       - name: Generate observed-data snapshot
         env:
-          TICKERS: ${{ inputs.tickers || 'AAPL,MSFT,GOOGL,AMZN,NVDA' }}
+          BASKETS: ${{ inputs.baskets || 'AAPL,MSFT,GOOGL,AMZN,NVDA;AAPL,MSFT,NVDA' }}
         run: |
-          python -m src.scheduler --snapshot --tickers "$TICKERS"
+          python scripts/precompute_baskets.py --baskets "$BASKETS"
 
       - name: Upload batch outputs
         uses: actions/upload-artifact@v4
@@ -41,5 +41,4 @@ jobs:
           name: phoenix-free-batch-${{ github.run_number }}
           retention-days: 7
           path: |
-            data/runtime/full_analysis_snapshot.pkl
-            data/scheduler_log.json
+            data/runtime/cloud_snapshots/
