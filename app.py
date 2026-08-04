@@ -386,7 +386,7 @@ requested_preferences = {
 if "analysis_preferences" not in st.session_state:
     st.session_state.analysis_preferences = requested_preferences
 with bc[2]:
-    if st.button("▶ RUN FULL ANALYSIS", key="run_basket", type="primary", use_container_width=True):
+    if st.button("▶ RUN", key="run_basket", type="primary", use_container_width=True):
         st.session_state.analysis_tickers = requested_tickers
         st.session_state.analysis_preferences = requested_preferences
         st.session_state.analysis_requested = True
