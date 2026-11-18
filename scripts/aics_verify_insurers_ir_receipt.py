@@ -27,10 +27,10 @@ ALLOWED_HOSTS = {"www.metlife.com", "investor.prudential.com",
 def verified_raw_insurers_archive(root: Path, manifest: dict) -> set[str]:
     """Count exactly one externally verified research raw-archive receipt."""
     all_rows = manifest.get("independently_recalculated_raw_archive_receipts", [])
-    if (not isinstance(all_rows, list) or len(all_rows) > 3
+    if (not isinstance(all_rows, list) or len(all_rows) > 4
             or any(not isinstance(x, dict)
                    or x.get("node") not in {"Insurers", "Neoclouds+SPV",
-                                           "Hyperscalers+Semiconductors Supply+AI Demand"}
+                                           "Hyperscalers+Semiconductors Supply+AI Demand", "Power/Data Centers"}
                    for x in all_rows)):
         raise ValueError("unknown additional raw source receipt")
     rows = [x for x in all_rows if x["node"] == "Insurers"]
