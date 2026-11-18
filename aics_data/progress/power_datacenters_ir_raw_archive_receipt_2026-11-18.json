@@ -1,0 +1,87 @@
+{
+  "schema_version": "aics-ir-raw-archive-receipt-v1",
+  "as_of": "2026-11-18",
+  "node_group": "Power/Data Centers",
+  "candidate_nodes": [
+    "Power/Data Centers"
+  ],
+  "artifact_run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44375113829",
+  "artifact_id": 14459494653,
+  "artifact_name": "aics-power-datacenters-ir-source-evidence",
+  "artifact_zip_sha256": "76766627f1a5056c1684b1743cda233e71a882360227de9c73bcdd6a9d7590e6",
+  "internal_manifest_sha256": "60730db46f3f0ca9be42775ab9213606c26d4c330c8b7c3e17a20095b419c8cd",
+  "source_registry_sha256": "92ce0b8a1fd79f8c58d9193fd468c998af8305af3129c3555da3532b2a60523b",
+  "source_capture_at_utc": "2026-11-18T18:56:30.455554+00:00",
+  "independent_recalculation": {
+    "method": "Downloaded GitHub Actions artifact ZIP, recalculated ZIP SHA256 and hashes of all 4 current original official IR HTML file entries; checked titles, bytes, manifest.",
+    "checked_files": 4,
+    "verified_hashes_matching": 4,
+    "official_quarterly_earnings_releases": 2,
+    "official_ir_index_pages": 2,
+    "independent_historical_pit_attestation": false,
+    "calibrated_power_stress_score": false
+  },
+  "raw_source_roles": {
+    "Power/Data Centers": [
+      "APLD_FY27Q1",
+      "EQIX_2026Q3"
+    ]
+  },
+  "releases": [
+    {
+      "source_id": "APLD_FY27Q1",
+      "issuer": "Applied Digital",
+      "kind": "issuer_ir_release_html",
+      "html_sha256": "6ea9c370146a6ca1ba2eb80f8b001645c2921b7f3803e212380b623e81220813",
+      "bytes": 264990,
+      "url": "https://ir.applieddigital.com/news-events/press-releases/detail/163/applied-digital-reports-fiscal-first-quarter-2027-results",
+      "release_date": "2026-10-07",
+      "period_end": "2026-08-31",
+      "score_eligible": false
+    },
+    {
+      "source_id": "EQIX_2026Q3",
+      "issuer": "Equinix",
+      "kind": "issuer_ir_release_html",
+      "html_sha256": "60e4d13fbbf3861ba0b9480fc9312de6d4157b695affddb5797e37d03935b5ae",
+      "bytes": 297964,
+      "url": "https://equinix.mediaroom.com/2026-10-28-Equinix-Reports-Third-Quarter-Results-and-Raises-2026-Guidance",
+      "release_date": "2026-10-28",
+      "period_end": "2026-09-30",
+      "score_eligible": false
+    }
+  ],
+  "ir_indexes": [
+    {
+      "issuer": "Applied Digital",
+      "kind": "issuer_ir_landing_html",
+      "html_sha256": "512429568e701a9002656e8cfb18bd13cd1824af5fa36447fd373134f4f934d7",
+      "bytes": 32019,
+      "url": "https://ir.applieddigital.com/news-events/press-releases",
+      "score_eligible": false
+    },
+    {
+      "issuer": "Equinix",
+      "kind": "issuer_ir_landing_html",
+      "html_sha256": "d9a364b8e7b02668485b9f3a6a786d6742dbc24173938a6a53168ab0fcd9a67c",
+      "bytes": 138273,
+      "url": "https://investor.equinix.com/",
+      "score_eligible": false
+    }
+  ],
+  "raw_archive_candidate_milestone_complete": true,
+  "independently_verified_pit": false,
+  "validated_node_score": null,
+  "index_aics": null,
+  "predictive_skill_score": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "limitations": [
+    "These two issuer earnings reports provide capacity and financial commitments candidates; neither is an EIA vintage or regionally validated power stress series.",
+    "Applied Digital delivered data-center phase capacity is not the same as grid capacity, permitted capacity, or actual 24x7 compute utilization.",
+    "Equinix may be a broad interconnection/data-center proxy rather than AI-specific power demand.",
+    "SEC report economics cannot be advanced without dated SEC accession and 14-day availability verification.",
+    "ZIP original raw bytes on GitHub Actions are time-limited to 30 days; source receipt is not permanent binary archival.",
+    "No independent 24-month OOS, 0-100 score or financial action."
+  ]
+}
