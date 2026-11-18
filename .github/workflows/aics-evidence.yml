@@ -9,6 +9,7 @@ on:
       - 'scripts/aics_collect_evidence.py'
       - '.github/workflows/aics-evidence.yml'
       - 'scripts/aics_validate_evidence.py'
+      - 'scripts/aics_audit_node_coverage.py'
   workflow_dispatch:
   schedule:
     - cron: '23 8 * * 1-5'
@@ -27,7 +28,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Compile evidence and validation scripts
-        run: python -m py_compile scripts/aics_collect_evidence.py scripts/aics_validate_evidence.py
+        run: python -m py_compile scripts/aics_collect_evidence.py scripts/aics_validate_evidence.py scripts/aics_audit_node_coverage.py
       - name: Download raw ALFRED and SEC evidence
         if: github.event_name != 'pull_request'
         env:
@@ -37,9 +38,14 @@ jobs:
       - name: Validate provenance, embargo and coverage
         if: github.event_name != 'pull_request' && always()
         run: python scripts/aics_validate_evidence.py
+      - name: Audit fixed-weight 11-node coverage
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_audit_node_coverage.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: aics-raw-evidence
-          path: aics_data/live/
+          path: |
+            aics_data/live/
+            aics_data/research/node_coverage.json
           retention-days: 30
