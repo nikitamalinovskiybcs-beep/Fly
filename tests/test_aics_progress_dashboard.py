@@ -28,10 +28,10 @@ class TestAICSProgress(unittest.TestCase):
         s = build(ROOT, ledger())
         self.assertEqual(s["total_nodes"], 11)
         self.assertEqual(s["registry_nodes"], 11)
-        self.assertEqual(s["archived_candidate_nodes"], 6)
-        self.assertEqual(s["milestones_completed"], 17)
+        self.assertEqual(s["archived_candidate_nodes"], 9)
+        self.assertEqual(s["milestones_completed"], 20)
         self.assertEqual(s["milestones_total"], 66)
-        self.assertEqual(s["project_progress_pct"], 25.8)
+        self.assertEqual(s["project_progress_pct"], 30.3)
         self.assertEqual(s["certification_pct"], 0)
         self.assertEqual(s["independently_certified_nodes"], 0)
 
@@ -41,7 +41,7 @@ class TestAICSProgress(unittest.TestCase):
         self.assertEqual(insurers["completed_milestones"], 2)
         self.assertTrue(insurers["gates"]["raw_candidate_archive"])
         self.assertFalse(insurers["gates"]["independently_attested_pit"])
-        self.assertEqual(status["raw_ir_archive_nodes"], ["Insurers", "Neoclouds", "SPV"])
+        self.assertEqual(status["raw_ir_archive_nodes"], ["AI Demand", "Hyperscalers", "Insurers", "Neoclouds", "SPV", "Semiconductors Supply"])
 
     def test_reject_raw_receipt_node_spoofing(self):
         m=ledger()
@@ -74,6 +74,30 @@ class TestAICSProgress(unittest.TestCase):
     def test_reject_missing_neocloud_spv_archive_receipt(self):
         m=ledger()
         m["independently_recalculated_raw_archive_receipts"][1]["receipt_path"]="../fake.json"
+        with self.assertRaises(ValueError):
+            build(ROOT,m)
+
+    def test_three_new_raw_node_archives_are_not_stress_scores(self):
+        status=build(ROOT,ledger())
+        for name in ("Hyperscalers","Semiconductors Supply","AI Demand"):
+            node=next(x for x in status["node_progress"] if x["node"]==name)
+            self.assertEqual(node["completed_milestones"],2)
+            self.assertTrue(node["gates"]["raw_candidate_archive"])
+            self.assertFalse(node["gates"]["independently_attested_pit"])
+            self.assertFalse(node["gates"]["audited_node_scoring"])
+            self.assertFalse(node["gates"]["untouched_24m_oos"])
+            self.assertFalse(node["gates"]["independent_certification"])
+            self.assertIsNone(node["node_stress_score"])
+
+    def test_reject_third_raw_source_receipt_node_spoofing(self):
+        m=ledger()
+        m["independently_recalculated_raw_archive_receipts"][2]["node"]="AI Equities"
+        with self.assertRaises(ValueError):
+            build(ROOT,m)
+
+    def test_reject_missing_original_seven_issuer_receipt(self):
+        m=ledger()
+        m["independently_recalculated_raw_archive_receipts"][2]["receipt_path"]="../not-a-receipt.json"
         with self.assertRaises(ValueError):
             build(ROOT,m)
 
@@ -130,7 +154,7 @@ class TestAICSProgress(unittest.TestCase):
     def test_markdown_is_explicitly_non_certified(self):
         s = build(ROOT, ledger())
         md = as_markdown(s)
-        self.assertIn("25.8%", md)
+        self.assertIn("30.3%", md)
         self.assertIn("0.0%", md)
         self.assertIn("AICS = **N/A**", md)
         for name in WEIGHTS:
