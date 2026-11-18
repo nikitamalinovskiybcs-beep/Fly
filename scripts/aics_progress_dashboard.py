@@ -14,6 +14,8 @@ import json
 import re
 from pathlib import Path
 
+from scripts.aics_verify_insurers_ir_receipt import verified_raw_insurers_archive
+
 WEIGHTS = {
     "Private Credit": 150,
     "Insurers": 125,
@@ -137,6 +139,11 @@ def build(root: Path, manifest: dict) -> dict:
             fail("archived source is not documented in both registry and report")
         archived_nodes.add(node)
 
+    raw_ir_nodes = verified_raw_insurers_archive(root, manifest)
+    if raw_ir_nodes & archived_nodes or not raw_ir_nodes <= registry_nodes:
+        fail("duplicate or unregistered raw IR node archive")
+    archived_nodes |= raw_ir_nodes
+
     audit = manifest["independent_audit"]
     if not isinstance(audit, dict) or set(audit) != set(AUDIT_FIELDS):
         fail("audit fields changed or missing")
@@ -167,6 +174,7 @@ def build(root: Path, manifest: dict) -> dict:
         "milestones_per_node": len(GATES), "milestones_completed": completed,
         "milestones_total": total, "project_progress_pct": round(100 * completed / total, 1),
         "registry_nodes": len(registry_nodes), "archived_candidate_nodes": len(archived_nodes),
+        "raw_ir_archive_nodes": sorted(raw_ir_nodes),
         "source_pit_attested_nodes": len(stage3),
         "audited_scoring_nodes": len(stage4),
         "untouched_24m_oos_nodes": len(stage5),
@@ -235,8 +243,10 @@ def as_markdown(status: dict) -> str:
         "6. Независимая сертификация узла.",
         "",
         "Исходный архив: [GitHub Actions](" + status["archive"]["workflow_url"] + ").",
-        "Архивные источники могут быть кандидатами сразу для трёх узлов, "
-        "но ни один скор ими не сертифицирован.",
+        "ALFRED поддерживает три кандидатных узла; два оригинальных IR-отчёта "
+        "MetLife и Prudential прошли сверку SHA-256 и добавляют Insurers.",
+        "IR-архив GitHub Actions хранится 30 дней, не является историческим PIT "
+        "и не сертифицирует стресс-скор.",
         "",
         "**Нельзя считать процент основанием для инвестиций или рассчитывать AICS.**",
         "",
