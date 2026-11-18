@@ -37,14 +37,23 @@ for sid, node in SERIES.items():
         params = urlencode({"series_id":sid,"api_key":key,"file_type":"json",
                             "realtime_start":"1776-07-04","realtime_end":TODAY.isoformat(),
                             "observation_start":"2010-01-01"})
-        data = get("https://api.stlouisfed.org/fred/series/observations?"+params)
         rows = []
-        for o in data.get("observations", []):
-            if o.get("value") in ("", "."): continue
-            rows.append({"node":node,"series_id":sid,"date":o["date"],
-                         "realtime_start":o["realtime_start"],
-                         "realtime_end":o["realtime_end"],"value":o["value"],
-                         "source":"ALFRED","verified_pit":False})
+        offset = 0
+        while True:
+            data = get("https://api.stlouisfed.org/fred/series/observations?"+params+
+                       "&"+urlencode({"limit":10000,"offset":offset}))
+            observations = data.get("observations", [])
+            for o in observations:
+                if o.get("value") in ("", "."): continue
+                rows.append({"node":node,"series_id":sid,"date":o["date"],
+                             "realtime_start":o["realtime_start"],
+                             "realtime_end":o["realtime_end"],"value":o["value"],
+                             "source":"ALFRED","verified_pit":False})
+            offset += len(observations)
+            if offset >= int(data.get("count", offset)):
+                break
+            if not observations or offset >= 1000000:
+                raise ValueError("Incomplete ALFRED pagination")
         path = OUT / f"alfred_{sid}.csv"
         with path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=["node","series_id","date","realtime_start",
@@ -74,7 +83,12 @@ for ticker, cik in CIKS.items():
     except (HTTPError, URLError, TimeoutError, ValueError, KeyError) as e:
         results.append({"source":"SEC","id":ticker,"status":"error",
                         "error":type(e).__name__})
+failed = sum(r["status"] in ("error", "missing_secret") for r in results)
 write_json(OUT / "manifest.json",{"as_of":TODAY.isoformat(),"results":results,
+    "failed_sources":failed,
     "index_aics":None,"predictive_model_score":None,"publishable":False,
     "note":"Raw downloads are not independently verified PIT data. Do not score."})
 print(json.dumps({"as_of":TODAY.isoformat(),"results":results},indent=2))
+
+if failed:
+    raise SystemExit(f"AICS evidence incomplete: {failed} failed sources; inspect manifest")
