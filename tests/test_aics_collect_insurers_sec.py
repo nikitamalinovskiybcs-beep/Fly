@@ -176,7 +176,7 @@ class TestInsurerSECPIT(unittest.TestCase):
             self.assertEqual(result["promotion"], "BLOCKED")
             report=json.loads((p/"manifest.json").read_text())
             self.assertEqual(report["candidate_observations"], 2)
-            self.assertIn("current SEC companyfacts", " ".join(report["limitations"]).lower())
+            self.assertIn("current sec companyfacts", " ".join(report["limitations"]).lower())
 
 
 if __name__ == "__main__":
