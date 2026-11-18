@@ -9,6 +9,7 @@ from pathlib import Path
 from scripts.aics_collect_insurers_sec import (
     ISSUERS, COLUMNS, archive_payload, extract_candidates, recent_accessions,
     require_contact, retrieve_json, run, sec_url,
+    historical_submissions_url, history_page_names,
 )
 
 ASOF = dt.date(2026, 11, 18)
@@ -178,6 +179,119 @@ class TestInsurerSECPIT(unittest.TestCase):
             self.assertEqual(report["candidate_observations"], 2)
             self.assertIn("current sec companyfacts", " ".join(report["limitations"]).lower())
 
+
+
+    def test_official_historical_index_filename_allowlist(self):
+        name = "CIK0001099219-submissions-001.json"
+        self.assertEqual(historical_submissions_url(ISSUERS["MET"], name),
+                         "https://data.sec.gov/submissions/" + name)
+        for bad in ("../../bad.json", "CIK0001137774-submissions-001.json",
+                    "https://malicious.invalid/CIK0001099219-submissions-001.json",
+                    "CIK0001099219-submissions-abc.json"):
+            with self.assertRaises(ValueError):
+                historical_submissions_url(ISSUERS["MET"], bad)
+
+    def test_history_pages_respect_declared_research_window(self):
+        sub = dummy_submission()
+        sub["filings"]["files"] = [
+            {"name": "CIK0001099219-submissions-001.json",
+             "filingFrom": "2018-01-01", "filingTo": "2020-12-31"},
+            {"name": "CIK0001099219-submissions-002.json",
+             "filingFrom": "2009-01-01", "filingTo": "2010-12-31"}
+        ]
+        self.assertEqual(
+            history_page_names(sub, ISSUERS["MET"], dt.date(2018, 1, 1), ASOF),
+            ["CIK0001099219-submissions-001.json"]
+        )
+        self.assertEqual(
+            history_page_names(sub, ISSUERS["MET"], dt.date(2021, 1, 1), ASOF),
+            []
+        )
+
+    def test_historical_xbrl_accession_retained_with_appendix_sha(self):
+        accession = "0001099219-19-000011"
+        old_fact = dummy_fact(accn=accession, filed="2019-02-01",
+                              end="2018-12-31")
+        appendix = {
+            "form": ["10-K"], "accessionNumber": [accession],
+            "filingDate": ["2019-02-01"],
+            "primaryDocument": ["met-2018.htm"]
+        }
+        old_fact["facts"]["us-gaap"]["Assets"]["units"]["USD"][0]["form"] = "10-K"
+        rows, stats = extract_candidates(
+            "MET", old_fact, dummy_submission(), ASOF,
+            "companyfacts-sha", "main-submissions-sha",
+            first_period=dt.date(2018, 1, 1),
+            historical_pages=[(appendix, "historic-file-sha")]
+        )
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["available_at"], "2019-02-15")
+        self.assertEqual(rows[0]["accession_index_raw_sha256"],
+                         "historic-file-sha")
+        self.assertEqual(rows[0]["submissions_raw_sha256"],
+                         "main-submissions-sha")
+        self.assertEqual(rows[0]["score_eligible"], "false")
+
+    def test_missing_historical_page_fails_issuer_closed(self):
+        sub = dummy_submission()
+        sub["filings"]["files"] = [{
+            "name": "CIK0001099219-submissions-001.json",
+            "filingFrom": "2018-01-01",
+            "filingTo": "2025-12-31",
+        }]
+        def opener(req, timeout):
+            if "CIK0001099219-submissions-001.json" in req.full_url:
+                raise RuntimeError("SEC appendix unavailable")
+            if "/submissions/" in req.full_url:
+                cik = req.full_url.split("CIK")[1].split(".json")[0]
+                if cik == ISSUERS["MET"]:
+                    return Response(req.full_url, sub)
+                return Response(req.full_url, dummy_submission(
+                    cik=ISSUERS["PRU"],accn="0001137774-26-000050"
+                ))
+            cik = req.full_url.split("CIK")[1].split(".json")[0]
+            return Response(req.full_url,
+                            dummy_fact(cik=cik,
+                                       accn=(ACCESSION if cik == ISSUERS["MET"]
+                                       else "0001137774-26-000050")))
+        with tempfile.TemporaryDirectory() as directory:
+            result = run(Path(directory), ASOF, SEC_UA, opener=opener,
+                         first_period=dt.date(2018, 1, 1))
+        self.assertEqual(result["successful_issuers"], 1)
+        met = next(x for x in result["issuers"] if x["issuer"] == "MET")
+        self.assertEqual(met["status"], "collection_error")
+        self.assertEqual(met["error"], "RuntimeError")
+        self.assertFalse(result["independently_verified_pit"])
+        self.assertIsNone(result["index_aics"])
+
+    def test_historical_index_duplicate_filenames_rejected(self):
+        sub = dummy_submission()
+        row = {"name": "CIK0001099219-submissions-001.json",
+               "filingFrom": "2018-01-01", "filingTo": "2020-01-01"}
+        sub["filings"]["files"] = [row, dict(row)]
+        with self.assertRaises(ValueError):
+            history_page_names(sub, ISSUERS["MET"], dt.date(2018, 1, 1), ASOF)
+
+    def test_conflicting_original_accession_never_accepted(self):
+        appendix = {
+            "form": ["10-Q"], "accessionNumber": [ACCESSION],
+            "filingDate": ["2026-08-01"], "primaryDocument": ["different.htm"]
+        }
+        with self.assertRaises(ValueError):
+            extract_candidates("MET", dummy_fact(), dummy_submission(), ASOF,
+                               "facts", "main", historical_pages=[(appendix, "history")])
+
+    def test_sec_historical_appendix_endpoint_no_redirect(self):
+        url = historical_submissions_url(
+            ISSUERS["MET"], "CIK0001099219-submissions-001.json")
+        def opener(req, timeout):
+            return Response(req.full_url, {
+                "form": [], "accessionNumber": [],
+                "filingDate": [], "primaryDocument": []
+            })
+        raw, decoded = retrieve_json(url, SEC_UA, opener=opener)
+        self.assertEqual(decoded["form"], [])
+        self.assertGreater(len(raw), 0)
 
 if __name__ == "__main__":
     unittest.main()
