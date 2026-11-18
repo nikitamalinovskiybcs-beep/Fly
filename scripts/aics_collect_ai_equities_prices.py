@@ -157,7 +157,9 @@ def collect(output_dir: Path, *, as_of: dt.date,
             row.update(status="raw_candidate_archived_not_pit", sha256=sha,
                        raw_path=str(raw_path), bytes=len(raw))
         except (ValueError, TypeError, OSError, RuntimeError, KeyError) as exc:
-            row.update(status="blocked", error_type=type(exc).__name__)
+            row.update(status="blocked", error_type=type(exc).__name__,
+                       error_code=str(exc)[:140] if isinstance(exc, ValueError)
+                       else type(exc).__name__)
         captured.append(row)
     manifest = {
         "schema_version": "aics-ai-equities-price-capture-v1",
