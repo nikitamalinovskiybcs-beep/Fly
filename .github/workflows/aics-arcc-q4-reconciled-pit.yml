@@ -1,0 +1,83 @@
+name: AICS ARCC source-proven February Q4 PIT correction
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_reconcile_arcc_q4_source_pit.py'
+      - 'tests/test_aics_reconcile_arcc_q4_source_pit.py'
+      - '.github/workflows/aics-arcc-q4-reconciled-pit.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  reconcile-original-sec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test exact SEC 14-day dates, comparative periods and no fake model scores
+        run: |
+          python -m py_compile scripts/aics_reconcile_arcc_q4_source_pit.py
+          python -m unittest discover -s tests -p 'test_aics_reconcile_arcc_q4_source_pit.py' -v
+          python -m unittest discover -s tests -p 'test_aics_collect_arcc_q4_sec_original.py' -v
+      - name: Retrieve immutable ARCC Q4 and Q1-Q3 SEC original archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/aics_arcc"
+          for id in 14476018751 14474764347; do
+            curl --fail --silent --show-error --location --retry 2 --max-time 90 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GH_REPO/actions/artifacts/$id/zip" \
+              -o "$RUNNER_TEMP/aics_arcc/$id.zip"
+          done
+      - name: Reverify 6 original SEC and issuer HTML and correct original 2025 Q4 date
+        run: |
+          python -m scripts.aics_reconcile_arcc_q4_source_pit \
+            --q4-archive "$RUNNER_TEMP/aics_arcc/14476018751.zip" \
+            --q1q3-archive "$RUNNER_TEMP/aics_arcc/14474764347.zip"
+      - name: Explicitly reject retroactive 2024 lookahead or private-credit AICS promotion
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path("docs/audit/aics_arcc_q4_sec_corrected_pit_timeline_2026-11-18.json")
+          d=json.loads(p.read_text(encoding="utf-8"))
+          assert d["distinct_observation_periods"]==5
+          assert d["source_verified_nonaccrual_values"]==10
+          assert d["new_verified_sec_8k_available_at"]=="2026-02-18"
+          assert d["raw_original_html_documents_rehashed"]==6
+          assert d["retrospective_2024_value_visible_in_2024"] is False
+          assert d["SEC_14_calendar_day_rule_enforced"] is True
+          assert d["synthetic_rows_created"]==0
+          assert d["historical_24m_pit_attested"] is False
+          assert d["independent_24m_oos"] is False
+          assert d["one_issuer_not_entire_private_credit_node"] is True
+          assert d["private_credit_node_score"] is None
+          assert d["index_aics"] is None and d["promotion"]=="BLOCKED"
+          levels=[s["visible_source_verified_values"] for s in d["historical_as_of_scenarios"]]
+          assert levels==[0,4,4,6,6,8,8,10,10],levels
+          first=d["source_verified_disclosed_periods"][0]
+          assert first["period_end"]=="2024-12-31"
+          assert first["aics_eligible_date_after_sec_14d"]=="2026-02-18"
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as out:
+              print("## ARCC Q4 SEC original corrected timeline",file=out)
+              print("Authentic original Feb 4 2026 8-K permits Q4 2025 as-of Feb 18 2026 (SEC +14).",file=out)
+              print("Five periods (including 2024 comparative, NOT visible in 2024), 10 non-accrual metrics.",file=out)
+              print("Nine historical as-of checkpoints: 0/4/4/6/6/8/8/10/10 source values visible.",file=out)
+              print("Still one issuer; not PIT/OOS certified node; AICS N/A.",file=out)
+          PY
+      - name: Archive SEC source reverified chronology correction for committee
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-arcc-q4-original-sec-corrected-research-timeline
+          path: docs/audit/aics_arcc_q4_sec_corrected_pit_timeline_2026-11-18.json
+          retention-days: 30
+          if-no-files-found: error
