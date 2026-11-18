@@ -1,0 +1,69 @@
+name: AICS ARCC Q4 2025 exact SEC 8-K original
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_arcc_q4_sec_original.py'
+      - 'tests/test_aics_collect_arcc_q4_sec_original.py'
+      - '.github/workflows/aics-arcc-q4-sec-original.yml'
+permissions:
+  contents: read
+jobs:
+  sec-original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline original SEC source and embargo negative tests
+        run: |
+          python -m py_compile scripts/aics_collect_arcc_q4_sec_original.py
+          python -m unittest discover -s tests -p 'test_aics_collect_arcc_q4_sec_original.py' -v
+      - name: Fetch SEC 8-K index and Exhibit 99.1 with actual GitHub secret
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: python -m scripts.aics_collect_arcc_q4_sec_original
+      - name: Independently rehash original bytes and reject fake PIT/score promotion
+        if: always()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os
+          base=Path('aics_data/research/arcc_q4_2025_sec_original')
+          manifest=base/'manifest.json'
+          if not manifest.is_file():
+              raise SystemExit('BLOCKED: no authentic Q4 SEC original document receipt')
+          d=json.loads(manifest.read_text())
+          assert d['filing_accession']=='0001287750-26-000004'
+          assert d['filing_date']=='2026-02-04'
+          assert d['available_at']=='2026-02-18'
+          assert d['source_values_verified_against_original_sec'] is True
+          assert d['filed_at_plus_14_date_gate_passed'] is True
+          assert d['independently_attested_contemporaneous_publication'] is False
+          assert d['nonaccrual_amortized_cost_pct']=='1.8'
+          assert d['nonaccrual_fair_value_pct']=='1.2'
+          assert d['index_aics'] is None and d['private_credit_node_score'] is None
+          assert d['promotion']=='BLOCKED'
+          i=(base/'sec_q4_index_original.html').read_bytes()
+          e=(base/'sec_q4_exhibit99_1_original.html').read_bytes()
+          assert hashlib.sha256(i).hexdigest()==d['raw_index_sha256']
+          assert hashlib.sha256(e).hexdigest()==d['raw_exhibit_sha256']
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## ARCC original SEC 8-K Q4 2025 99.1',file=f)
+              print('Authentic accession: 0001287750-26-000004, SEC filed 2026-02-04.',file=f)
+              print('Under AICS SEC +14, research available_at 2026-02-18.',file=f)
+              print('Non-accrual: cost 1.8%, fair value 1.2% (original source verified).',file=f)
+              print('Original source captures verified, but complete 24m sector PIT/OOS and score blocked.',file=f)
+          PY
+      - name: Preserve both original SEC HTML documents and immutable SHA metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-arcc-q4-2025-sec-original-plus14
+          path: aics_data/research/arcc_q4_2025_sec_original/
+          retention-days: 30
+          if-no-files-found: warn
