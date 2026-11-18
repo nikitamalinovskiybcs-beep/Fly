@@ -72,7 +72,7 @@ def parse(index: bytes, filing: bytes, exhibit: bytes) -> dict:
         release, flags=re.I,
     )
     if len(fair_matches) != 1 or len(cost_matches) != 1:
-        raise BXSLError("original fair-value or amortized-cost non-accrual definition ambiguous")
+        raise BXSLError(f"original fair-value or amortized-cost non-accrual definition ambiguous fair={len(fair_matches)} cost={len(cost_matches)}")
     if not re.search(
         r"Based on non\s*-\s*accrual debt investments as a percentage of the "
         r"fair market value of total investments", release, re.I
