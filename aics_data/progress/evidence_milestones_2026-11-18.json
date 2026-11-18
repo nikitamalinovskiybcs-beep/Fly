@@ -30,6 +30,14 @@
     "Stage percentages measure completion of 6 documented project milestones, not model accuracy or validated index completeness.",
     "One ALFRED ZIP archive supports three candidate node mappings; those mappings are not independent node stress scores.",
     "No historical series or observations are fabricated or backfilled.",
-    "AICS=NA and predictive_skill=NA unless separate independent scientific gates pass."
+    "AICS=NA and predictive_skill=NA unless separate independent scientific gates pass.",
+    "The Insurers raw IR archive was downloaded from GitHub Actions and all 4 HTML SHA-256 values independently recalculated. This is only archive-stage evidence, not historical PIT or model scoring; GitHub artifact retention is 30 days."
+  ],
+  "independently_recalculated_raw_archive_receipts": [
+    {
+      "node": "Insurers",
+      "receipt_path": "aics_data/progress/insurers_ir_raw_archive_receipt_2026-11-18.json",
+      "evidence_status": "CURRENT_IR_RAW_SHA_VERIFIED_NOT_HISTORICAL_PIT"
+    }
   ]
 }
