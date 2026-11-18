@@ -30,6 +30,8 @@ except (KeyError,ValueError,TypeError):
 expected_dates=completed_month_ends(audit_date)
 if len(manifest.get("results",[]))!=4 or set(by_id)!=set(SERIES):
     errors.append("missing_or_duplicate_series")
+if manifest.get("source") != "ALFRED historical as-of snapshots":
+    errors.append("unexpected_source_classification")
 if manifest.get("verified_pit") is not False or manifest.get("publishable") is not False:
     errors.append("unsafe_promotion_flags")
 if manifest.get("index_aics") is not None or manifest.get("model_score") is not None:
@@ -43,6 +45,10 @@ for sid in SERIES:
         with path.open(newline="",encoding="utf-8") as handle:
             rows=list(csv.DictReader(handle))
         item=by_id.get(sid,{})
+        if item.get("query_mode")!="realtime_start=realtime_end=as_of":
+            errors.append(f"{sid}:unexpected_query_mode")
+        if item.get("source_endpoint")!="https://api.stlouisfed.org/fred/series/observations":
+            errors.append(f"{sid}:unexpected_source_endpoint")
         if item.get("rows")!=len(rows):
             errors.append(f"{sid}:row_count_mismatch")
         if item.get("sha256")!=hashlib.sha256(path.read_bytes()).hexdigest():
@@ -50,6 +56,8 @@ for sid in SERIES:
         snapshots=item.get("snapshots",[])
         if len(snapshots)!=24 or {s.get("as_of") for s in snapshots}!=expected_dates:
             errors.append(f"{sid}:snapshot_dates_incomplete")
+        if item.get("complete") is not True:
+            errors.append(f"{sid}:manifest_incomplete")
         if any(s.get("status")!="downloaded_unverified" for s in snapshots):
             errors.append(f"{sid}:missing_historical_vintage")
         expected={s["as_of"]:s.get("rows") for s in snapshots if s.get("status")=="downloaded_unverified"}
@@ -66,7 +74,7 @@ for sid in SERIES:
                 errors.append(f"{sid}:duplicate_observation")
                 break
             seen.add(key)
-            if (row["series_id"]!=sid or row["source"]!="ALFRED_AS_OF"
+            if (row["as_of"] not in expected_dates or row["series_id"]!=sid or row["source"]!="ALFRED_AS_OF"
                 or row["verified_pit"]!="False" or observed>asof
                 or not start<=asof<=end or not math.isfinite(value)):
                 errors.append(f"{sid}:invalid_asof_lineage")

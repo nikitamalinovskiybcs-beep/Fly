@@ -44,6 +44,14 @@ jobs:
       - name: Report actual historical vintage coverage and gaps
         if: github.event_name != 'pull_request' && always()
         run: python scripts/aics_pit_coverage_report.py
+      - name: Publish PIT coverage summary
+        if: github.event_name != 'pull_request' && always()
+        run: |
+          if [ -f aics_data/pit/coverage_report.json ]; then
+            python -c 'import json; from pathlib import Path; d=json.loads(Path("aics_data/pit/coverage_report.json").read_text()); print("## Historical ALFRED PIT"); [print(x["series_id"]+": "+str(x["snapshots_downloaded_unverified"])+"/24 snapshots") for x in d["series"]]; print("AICS N/A; PIT promotion BLOCKED")' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Historical PIT coverage missing; AICS blocked.' >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Preserve PIT audit and failed-source evidence
         if: always()
         uses: actions/upload-artifact@v4

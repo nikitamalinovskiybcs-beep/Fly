@@ -19,7 +19,12 @@ for sid in required:
     failures=[{"as_of":s.get("as_of"),"status":s.get("status"),
                "http_status":s.get("http_status"),"error":s.get("error")}
               for s in snapshots if s.get("status")!="downloaded_unverified"]
-    series.append({"series_id":sid,"snapshots_requested":24,
+    status_counts={status:sum(s.get("status")==status for s in snapshots)
+                   for status in sorted({s.get("status") for s in snapshots
+                                         if isinstance(s.get("status"),str)})}
+    series.append({"series_id":sid,"status_counts":status_counts,
+                   "source_sha256":item.get("sha256"),
+                   "retrieved_at_utc":item.get("retrieved_at_utc"),"snapshots_requested":24,
                    "snapshots_downloaded_unverified":len(good),
                    "observations_downloaded":item.get("rows",0),
                    "missing_snapshots":failures,
