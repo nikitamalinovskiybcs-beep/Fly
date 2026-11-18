@@ -34,17 +34,29 @@ for sid, node in SERIES.items():
         results.append({"source":"ALFRED","id":sid,"status":"missing_secret"})
         continue
     try:
-        params = urlencode({"series_id":sid,"api_key":key,"file_type":"json",
-                            "realtime_start":"1776-07-04","realtime_end":TODAY.isoformat(),
-                            "observation_start":"2010-01-01"})
-        data = get("https://api.stlouisfed.org/fred/series/observations?"+params)
         rows = []
-        for o in data.get("observations", []):
-            if o.get("value") in ("", "."): continue
-            rows.append({"node":node,"series_id":sid,"date":o["date"],
-                         "realtime_start":o["realtime_start"],
-                         "realtime_end":o["realtime_end"],"value":o["value"],
-                         "source":"ALFRED","verified_pit":False})
+        offset = 0
+        page_size = 1000
+        while True:
+            params = urlencode({"series_id":sid,"api_key":key,"file_type":"json",
+                                "realtime_start":"2010-01-01","realtime_end":TODAY.isoformat(),
+                                "observation_start":"2010-01-01",
+                                "limit":page_size,"offset":offset,"sort_order":"asc"})
+            data = get("https://api.stlouisfed.org/fred/series/observations?"+params)
+            observations = data.get("observations", [])
+            if not isinstance(observations, list):
+                raise ValueError("Missing observations list")
+            for o in observations:
+                if o.get("value") in ("", "."): continue
+                rows.append({"node":node,"series_id":sid,"date":o["date"],
+                             "realtime_start":o["realtime_start"],
+                             "realtime_end":o["realtime_end"],"value":o["value"],
+                             "source":"ALFRED","verified_pit":False})
+            offset += len(observations)
+            if not observations or offset >= int(data["count"]):
+                break
+            if offset >= 1000000:
+                raise ValueError("ALFRED pagination safety limit reached")
         path = OUT / f"alfred_{sid}.csv"
         with path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=["node","series_id","date","realtime_start",
@@ -54,7 +66,8 @@ for sid, node in SERIES.items():
                         "rows":len(rows)})
     except (HTTPError, URLError, TimeoutError, ValueError, KeyError) as e:
         results.append({"source":"ALFRED","id":sid,"status":"error",
-                        "error":type(e).__name__})
+                        "error":type(e).__name__,
+                        "http_status":e.code if isinstance(e, HTTPError) else None})
 identity = os.getenv("EDGAR_IDENTITY", "").strip()
 for ticker, cik in CIKS.items():
     if not identity:
