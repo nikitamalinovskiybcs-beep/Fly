@@ -5,6 +5,7 @@ import datetime as dt
 import hashlib
 import json
 import math
+import calendar
 from pathlib import Path
 
 ROOT=Path("aics_data/pit")
@@ -14,6 +15,19 @@ manifest=json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
 by_id={r.get("series_id"):r for r in manifest.get("results",[])}
 errors=[]
 counts={}
+def completed_month_ends(today):
+    first = today.year*12 + today.month - 2
+    months = range(first-23,first+1)
+    return {dt.date(n//12,n%12+1,calendar.monthrange(n//12,n%12+1)[1]).isoformat()
+            for n in months}
+try:
+    audit_date=dt.date.fromisoformat(manifest["as_of"])
+    if audit_date>dt.date.today():
+        errors.append("future_manifest_as_of")
+except (KeyError,ValueError,TypeError):
+    errors.append("invalid_manifest_as_of")
+    audit_date=dt.date.today()
+expected_dates=completed_month_ends(audit_date)
 if len(manifest.get("results",[]))!=4 or set(by_id)!=set(SERIES):
     errors.append("missing_or_duplicate_series")
 if manifest.get("verified_pit") is not False or manifest.get("publishable") is not False:
@@ -34,7 +48,7 @@ for sid in SERIES:
         if item.get("sha256")!=hashlib.sha256(path.read_bytes()).hexdigest():
             errors.append(f"{sid}:sha256_mismatch")
         snapshots=item.get("snapshots",[])
-        if len(snapshots)!=24 or len({s.get("as_of") for s in snapshots})!=24:
+        if len(snapshots)!=24 or {s.get("as_of") for s in snapshots}!=expected_dates:
             errors.append(f"{sid}:snapshot_dates_incomplete")
         if any(s.get("status")!="downloaded_unverified" for s in snapshots):
             errors.append(f"{sid}:missing_historical_vintage")
