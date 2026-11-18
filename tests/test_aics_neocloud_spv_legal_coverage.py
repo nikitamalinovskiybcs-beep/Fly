@@ -19,6 +19,11 @@ class TestNeocloudSpvContractGaps(unittest.TestCase):
         self.assertEqual(result["spv_company_candidates"], 13)
         self.assertEqual(len(result["private_neocloud_contract_leads"]), 6)
 
+    def test_committed_audit_matches_reproducible_source_calculation(self):
+        pinned = Path("aics_data/progress/neocloud_spv_contract_gap_audit_2026-11-18.json")
+        self.assertTrue(pinned.is_file())
+        self.assertEqual(audit(), json.loads(pinned.read_text(encoding="utf-8")))
+
     def test_date_gate_four_pass_one_embargo(self):
         result = audit()
         self.assertEqual(result["sec_date_eligible_docs"], 4)
@@ -32,10 +37,7 @@ class TestNeocloudSpvContractGaps(unittest.TestCase):
 
     def test_no_unsupported_score_or_financial_aggregation(self):
         result = audit()
-        self.assertEqual(sum([
-            result["candidate_memberships_by_node"]["Private Credit"] * 0,
-            result["candidate_memberships_by_node"]["SPV"] * 0,
-        ]), 0)
+        self.assertGreater(result["candidate_memberships_by_node"]["SPV"], 0)
         self.assertEqual(result["original_private_contracts_confirmed"], 0)
         self.assertEqual(result["independently_verified_spv_legal_recourse_contracts"], 0)
         self.assertIsNone(result["numeric_contractual_exposure_usd"])
