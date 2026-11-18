@@ -30,7 +30,7 @@ jobs:
       - name: Compile evidence and research scripts
         run: python -m py_compile scripts/aics_validate_evidence.py scripts/aics_validate_xbrl.py scripts/aics_audit_node_coverage.py scripts/aics_research_readiness.py scripts/aics_ten_stage_receipt.py scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py scripts/aics_pit_coverage_report.py tests/test_aics_research_safety.py
       - name: Compile insurer SEC + IR evidence collectors
-        run: python -m py_compile scripts/aics_collect_insurers_sec.py scripts/aics_collect_priority_ir.py scripts/aics_archive_arcc_primary_sources.py scripts/aics_progress_dashboard.py
+        run: python -m py_compile scripts/aics_collect_insurers_sec.py scripts/aics_verify_insurers_sec_evidence.py scripts/aics_collect_priority_ir.py scripts/aics_archive_arcc_primary_sources.py scripts/aics_progress_dashboard.py
       - name: Test Insurers long-history SEC accession integrity
         run: python -m unittest discover -s tests -p 'test_aics_collect_insurers_sec.py' -v
       - name: Test official IR archive integrity
