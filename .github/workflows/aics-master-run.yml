@@ -38,8 +38,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Run existing AICS index invariant unit tests
-        run: python -m unittest discover -s tests -p 'test_aics_index.py' -v
+      - name: Run actual arithmetic invariant and fail-closed score gate tests
+        run: |
+          python -m unittest discover -s tests -p 'test_aics_score_reproducibility_gate.py' -v
+          python -m unittest discover -s tests -p 'test_aics_minimal_model.py' -v
       - name: Run AICS frozen evidence and existing 11-node PIT integrity tests
         run: python -m unittest discover -s tests -p 'test_aics_pit_integrity.py' -v
       - name: Run adapted user v1.2.0 SEC+14 ALFRED vintage and multiplier tests
