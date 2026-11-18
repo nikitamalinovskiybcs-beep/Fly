@@ -1,0 +1,50 @@
+name: AICS Neoclouds SPV 37-company contract gap audit
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_audit_neocloud_spv_legal_exposure.py'
+      - 'tests/test_aics_neocloud_spv_legal_coverage.py'
+      - '.github/workflows/aics-neocloud-spv-source-audit.yml'
+      - 'aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json'
+      - 'aics_data/source_registry/sec_spv_neoclouds_filings_2026-11-18.json'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile and test SEC embargo and 37-company claim quarantine
+        run: |
+          python -m py_compile scripts/aics_audit_neocloud_spv_legal_exposure.py
+          python -m unittest discover -s tests -p 'test_aics_neocloud_spv_legal_coverage.py' -v
+      - name: Build research-only as-of entity and SEC date audit
+        run: python -m scripts.aics_audit_neocloud_spv_legal_exposure
+      - name: Publish evidence-only counts, never a score
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          data = json.loads(Path('aics_data/progress/neocloud_spv_contract_gap_audit_2026-11-18.json').read_text(encoding='utf-8'))
+          assert data["index_aics"] is None and data["promotion"] == "BLOCKED"
+          assert not data["independently_attested_pit"]
+          print("## Neoclouds / SPV: legal primary-source gaps")
+          print(f"Research companies: {data['research_company_count']}, OMI {data['omi_named_count']}, Telegram-only {data['telegram_only_count']}")
+          print(f"Candidate name memberships: Neoclouds {data['neocloud_company_candidates']}, SPV {data['spv_company_candidates']}; do NOT add")
+          print(f"SEC +14d date-eligible: {data['sec_date_eligible_docs']}; embargoed: {data['sec_embargoed_docs']}")
+          print("Signed legal contracts and independently verified PIT: 0; certified AICS: N/A")
+          PY
+      - name: Keep exact audited evidence with workflow
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-neocloud-spv-contract-gap-2026-11-18
+          path: aics_data/progress/neocloud_spv_contract_gap_audit_2026-11-18.json
+          retention-days: 30
+          if-no-files-found: error
