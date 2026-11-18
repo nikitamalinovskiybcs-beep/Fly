@@ -18,6 +18,7 @@ ROOT = Path(".")
 STATUS = Path("aics_data/progress/status.json")
 SEC_REGISTRY = Path("aics_data/source_registry/sec_spv_neoclouds_filings_2026-11-18.json")
 NYFED = Path("aics_data/research/nyfed_repo_original_archive_independent_rehash_2026_11_18.json")
+ALFRED_REVISIONS = Path("aics_data/research/alfred_iorb_power_vintage_revision_independent_receipt_2026_11_18.json")
 UNIVERSE = Path("aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json")
 REPORT = Path("docs/audit/aics_11_node_free_source_pit_2026-11-18.json")
 WEIGHTS = {
@@ -50,7 +51,8 @@ def _load(path: Path) -> dict:
 
 
 def audit(status_path: Path = STATUS, sec_path: Path = SEC_REGISTRY,
-          nyfed_path: Path = NYFED, universe_path: Path = UNIVERSE) -> dict:
+          nyfed_path: Path = NYFED, universe_path: Path = UNIVERSE,
+          revision_path: Path = ALFRED_REVISIONS) -> dict:
     status, sec, nyfed, universe = map(_load, (status_path, sec_path, nyfed_path, universe_path))
     as_of_str = "2026-11-18"
     as_of = dt.date.fromisoformat(as_of_str)
@@ -128,6 +130,36 @@ def audit(status_path: Path = STATUS, sec_path: Path = SEC_REGISTRY,
                    for x in archives)):
         raise ValueError("NY Fed original archive integrity metadata incomplete")
 
+    revision = _load(revision_path)
+    revised = revision.get("series", {})
+    if (
+        revision.get("schema_version") != "aics-alfred-vintage-revision-independent-receipt-v1"
+        or revision.get("research_as_of") != as_of_str
+        or revision.get("original_files_rehashed") != 48
+        or revision.get("original_observation_rows_including_repeated_asof_snapshots") != 39934
+        or revision.get("vintage_asof_dates_per_series") != 24
+        or revision.get("adjacent_vintage_pairs_per_series") != 23
+        or revision.get("observed_revision_events_total") != 69
+        or revision.get("synthetic_or_interpolated_rows") != 0
+        or revision.get("project_milestones_promoted") != 0
+        or revision.get("original_provider_historical_publication_timestamps_independently_attested") is not False
+        or revision.get("observed_asof_snapshots_captured_contemporaneously") is not False
+        or revision.get("independent_24_month_out_of_sample_proven") is not False
+        or revision.get("certified_stress_scores") != {"Repo": None, "Power/Data Centers": None}
+        or revision.get("index_aics") is not None
+        or revision.get("promotion") != "BLOCKED"
+        or not SHA256.fullmatch(revision.get("source_original_zip_sha256", ""))
+        or not SHA256.fullmatch(revision.get("revision_report_sha256", ""))
+        or not isinstance(revised, dict)
+        or set(revised) != {"IORB", "WPU0543"}
+        or revised["IORB"].get("changed_value_events") != 0
+        or revised["WPU0543"].get("changed_value_events") != 69
+        or revised["WPU0543"].get("unique_affected_observation_dates") != 25
+        or revised["IORB"].get("compared_existing_nonmissing_pairs") != 35773
+        or revised["WPU0543"].get("compared_existing_nonmissing_pairs") != 2135
+    ):
+        raise ValueError("ALFRED revision gate is incomplete, tampered or erroneously promoted")
+
     companies = universe.get("companies", [])
     if (len(companies) != 37 or len({x["name"] for x in companies}) != 37
             or any(x.get("model_eligible") is not False for x in companies)):
@@ -167,6 +199,17 @@ def audit(status_path: Path = STATUS, sec_path: Path = SEC_REGISTRY,
             "current_capture_not_2018_to_2026_pit": True,
             "model_stress_score": None,
         },
+        "alfred_iorb_power_revision_audit": {
+            "source_original_files_rehashed": revision["original_files_rehashed"],
+            "repeated_source_observation_rows": revision["original_observation_rows_including_repeated_asof_snapshots"],
+            "iorb_changed_value_events": revised["IORB"]["changed_value_events"],
+            "industrial_power_ppi_changed_value_events": revised["WPU0543"]["changed_value_events"],
+            "unique_power_ppi_observation_dates_revised": revised["WPU0543"]["unique_affected_observation_dates"],
+            "revision_report_sha256": revision["revision_report_sha256"],
+            "independent_release_timestamp_pit": False,
+            "node_stress_scores": {"Repo": None, "Power/Data Centers": None},
+            "certification_milestones_advanced": 0,
+        },
         "further_candidate_series": ["IORB", "WPU0543", "VIXCLS", "VXNCLS"],
         "numerai_api": "CONNECTED_READ_ONLY_PRIOR_ACTION_NOT_MARKET_PIT",
         "historical_alFred_monthly_vintage_coverage_from_2018_proven": False,
@@ -184,6 +227,8 @@ def audit(status_path: Path = STATUS, sec_path: Path = SEC_REGISTRY,
             "NY Fed secured-rate effectiveDate is not its historical publication timestamp.",
             "2018 observations from the current archive are not 2018 publication vintages.",
             "Industrial power PPI is not data center-specific negotiated electricity cost.",
+            "WPU0543 has 69 revisions across 25 historical observation dates in the original 24 ALFRED as-of snapshots.",
+            "ALFRED as-of replay snapshots fetched on Nov 18 do not independently prove historical release timestamps.",
             "Numerai Classic/Signals benchmark target eras cannot fill company financial disclosures.",
             "Do not retroactively reweight the fixed 1050 model after issuer IPOs.",
             "No score, look-ahead-adjusted OOS or trade may be published from candidate source coverage.",
