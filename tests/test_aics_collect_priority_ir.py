@@ -158,6 +158,26 @@ class TestAICSOfficialIR(unittest.TestCase):
         self.assertNotIn("UST 30Y", actual)
         self.assertNotIn("Repo", actual)
 
+    def test_targeted_insurer_capture_only_two_candidates_two_indexes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result = run(DEFAULT_REGISTRY, Path(directory), self.as_of,
+                         opener=fake_open,
+                         issuer_filter={"MetLife", "Prudential Financial"})
+            self.assertEqual(result["candidate_count"], 2)
+            self.assertEqual(result["archived_candidates"], 2)
+            self.assertEqual(result["landing_pages_checked"], 2)
+            self.assertEqual(result["landing_pages_archived"], 2)
+            self.assertEqual({r["candidate_node"] for r in result["candidates"]},
+                             {"Insurers"})
+            self.assertFalse(result["all_reports_historically_pit_verified"])
+            self.assertIsNone(result["index_aics"])
+
+    def test_reject_unknown_targeted_ir_issuer(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaises(ValueError):
+                run(DEFAULT_REGISTRY, Path(directory), self.as_of,
+                    opener=fake_open, issuer_filter={"Fake Insurance"})
+
     def test_all_ir_landing_pages_are_official_allowlisted_https(self):
         self.assertTrue(all(check_url(url) for url in IR_INDEX.values()))
 
