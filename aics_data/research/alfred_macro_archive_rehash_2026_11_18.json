@@ -1,0 +1,100 @@
+{
+  "schema_version": "aics-alfred-macro-research-recheck-v1",
+  "checked_at": "2026-11-18",
+  "snapshot_as_of_latest": "2026-10-31",
+  "scope": "REHASHED_ARCHIVED_ALFRED_SNAPSHOTS_NOT_PROVIDER_VINTAGE_ATTESTATION",
+  "github_artifact_run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44313687138",
+  "artifact_id": 14432003774,
+  "artifact_expires_at": "2026-12-18T13:36:43Z",
+  "artifact_zip_sha256": "03d06b287dc591d6830223bd181db401d19ce618a785b40c25a999ab1ddd5cc3",
+  "series_count": 4,
+  "monthly_vintages_per_series": 24,
+  "source_rows_total": 165913,
+  "series": [
+    {
+      "series_id": "DGS30",
+      "candidate_node": "UST 30Y",
+      "provider": "US Treasury/Federal Reserve via FRED/ALFRED",
+      "unit": "percent",
+      "csv_sha256": "413915e59ea11080d5e2e2ae5e386309a0229feff63d2584a8ae6555cc6eff4b",
+      "source_rows": 95246,
+      "snapshot_count": 24,
+      "sept_snapshot": {
+        "as_of": "2026-09-30",
+        "observation_date": "2026-09-29",
+        "value_percent": 5.59
+      },
+      "oct_snapshot": {
+        "as_of": "2026-10-31",
+        "observation_date": "2026-10-29",
+        "value_percent": 5.32
+      },
+      "month_end_asof_change_basis_points": -27,
+      "provider_vintage_independently_attested": false,
+      "node_stress_score": null
+    },
+    {
+      "series_id": "SOFR",
+      "candidate_node": "Repo",
+      "provider": "Federal Reserve Bank of New York via FRED/ALFRED",
+      "unit": "percent",
+      "csv_sha256": "cbf46ad84a6dfcb062d08ff9a7b0d7597987b3c637d0b181b1958b77153c58ff",
+      "source_rows": 45655,
+      "snapshot_count": 24,
+      "sept_snapshot": {
+        "as_of": "2026-09-30",
+        "observation_date": "2026-09-29",
+        "value_percent": 3.88
+      },
+      "oct_snapshot": {
+        "as_of": "2026-10-31",
+        "observation_date": "2026-10-29",
+        "value_percent": 3.94
+      },
+      "month_end_asof_change_basis_points": 6,
+      "provider_vintage_independently_attested": false,
+      "node_stress_score": null
+    },
+    {
+      "series_id": "BAMLH0A0HYM2",
+      "candidate_node": "Private Credit",
+      "provider": "ICE Data Indices via FRED/ALFRED",
+      "unit": "percent",
+      "csv_sha256": "c4bbddb7fbc2afd0f91baec52c3fb168e58dfc25abb053cc467b1957e4d1f113",
+      "source_rows": 12506,
+      "snapshot_count": 24,
+      "numeric_observations_publicly_republished": false,
+      "proxy_not_direct_private_credit": true,
+      "source_license_public_redistribution_cleared": false,
+      "provider_vintage_independently_attested": false,
+      "node_stress_score": null
+    },
+    {
+      "series_id": "BAMLH0A3HYC",
+      "candidate_node": "Private Credit",
+      "provider": "ICE Data Indices via FRED/ALFRED",
+      "unit": "percent",
+      "csv_sha256": "e5dd5b657489e6d9ef90f1c7b16d4bd5e67c0da0f17e0b130a6a2148df0790b8",
+      "source_rows": 12506,
+      "snapshot_count": 24,
+      "numeric_observations_publicly_republished": false,
+      "proxy_not_direct_private_credit": true,
+      "source_license_public_redistribution_cleared": false,
+      "provider_vintage_independently_attested": false,
+      "node_stress_score": null
+    }
+  ],
+  "methodology": "Sept and Oct values are the last available observation separately in each archived month-end as-of snapshot, not same-day contemporaneous publication attestation; basis point difference is 100*(Oct percent - Sept percent). No value extrapolation, backfill, or forward fill.",
+  "independently_recomputed_sha_and_row_count": true,
+  "independent_provider_vintage_attestation": false,
+  "historical_pit_certified": false,
+  "source_license_cleared_for_all_series": false,
+  "approved_investment_signal": false,
+  "score_eligible": false,
+  "additional_project_milestones": 0,
+  "total_weights": 1050,
+  "index_aics": null,
+  "predictive_skill_score": null,
+  "promotion": "BLOCKED",
+  "trades_created": false
+}
