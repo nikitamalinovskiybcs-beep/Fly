@@ -137,8 +137,18 @@ def collect(
                 "Accept": "application/json", "User-Agent": "AICS PIT Source Archive/1.0",
             })
             try:
-                with transport(request, timeout=40) as response:
-                    raw = response.read(MAX_RESPONSE_BYTES + 1)
+                for attempt in range(3):
+                    try:
+                        with transport(request, timeout=40) as response:
+                            raw = response.read(MAX_RESPONSE_BYTES + 1)
+                        break
+                    except urllib.error.HTTPError as exc:
+                        # Retry only temporary upstream errors, never replace or backfill.
+                        if exc.code not in (429, 500, 502, 503, 504) or attempt == 2:
+                            raise
+                        time.sleep(attempt + 1)
+                if key.encode("utf-8") in raw:
+                    raise VintageValidationError("provider response reflects credential")
                 entry = validate_vintage(raw, series, as_of)
                 filename = f"{series}_asof_{as_of.isoformat()}.json"
                 staged.append((filename, raw))
