@@ -6,7 +6,10 @@
 - Publisher report date: **16 October 2026**; research text and figure labels chiefly refer to earlier periods
 - User's PDF: https://www.openmarketsinstitute.org/s/Brace-for-Impact-Scherer-Jenkins-OMI-October2026-WEB-1.pdf
 - Alternate publisher-hosted full text: https://ourfinancialsecurity.org/wp-content/uploads/2026/10/Brace-for-Impact-Scherer-Jenkins-OMI-October2026-WEB.pdf
-- Source PDF byte archive: **NOT YET CERTIFIED** (no original-source SHA-256 verified at initial intake)
+- **User's original 88-page PDF independently SHA-256 rechecked**: `466b8a875752c85e23a41d5e33ad985c44f437ddc5cf801e132310c4e28bff60` (923,981 bytes)
+- **AFREF publisher PDF mirror independently rechecked**: `87f59ab669c766886ab5ade69039d14c04db1dd17e119ae8eb150d0acd4e5693` (927,736 bytes)
+- The two publisher editions are **not byte-identical**: both 88 pages, 34 pages with differences in extracted text (some are reference-number or copyediting differences). Always bind extracted citations to the exact PDF edition
+- [Exact two-PDF archive receipt](../aics_data/research/omi_brace_impact_original_pdf_sha_receipt_2026-11-18.json) and [GitHub Actions source artifact](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44377021236)
 - Machine-readable registry: `aics_data/research/omi_brace_for_impact_oct2026_hypotheses.json`
 
 ## Conclusion relevant to AICS
@@ -78,6 +81,6 @@ Candidate graph edges remain **unvalidated directed hypotheses** until primary c
 4. **AI Demand:** confirm Ramp concentration methodology and distinguish reported backlog from realized external AI revenue.
 5. **AI Equities:** retrieve official S&P top-ten holdings and FINRA margin debt, with point-in-time release records.
 
-**Source status:** PDF full text read through publisher-hosted web indexing; direct source-file download had not succeeded at initial intake. The original binary SHA must be proven separately before marking a raw-document milestone.
+**Source status (updated):** Both authentic publisher PDF byte streams were retrieved via GitHub Actions, then downloaded and independently SHA-256 checked. This authenticates original *report documents only*, not its sources or underlying financial numbers. The user's Open Markets URL is the canonical edition for page-specific verification.
 
 **Progress effect:** **+0 certified milestones** from this secondary paper. It improves model research design, not source-level PIT readiness.
