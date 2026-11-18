@@ -28,7 +28,7 @@ jobs:
         run: python -m unittest discover -s tests -p test_aics_collect_spv_neocloud_sec.py -v
       - name: Fetch original SEC filing HTML after required 14-day lag
         env:
-          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY }}
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
         run: python scripts/aics_collect_spv_neocloud_sec.py
       - name: Assert non-certified source manifest and show source statuses
         if: always()
