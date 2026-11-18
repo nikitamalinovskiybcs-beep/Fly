@@ -22,13 +22,15 @@ jobs:
         with:
           python-version: '3.11'
       - name: Compile MET PRU source collector
-        run: python -m py_compile scripts/aics_collect_insurers_sec.py
+        run: python -m py_compile scripts/aics_collect_insurers_sec.py scripts/aics_verify_insurers_sec_evidence.py
       - name: Run offline PIT, accession and score-gate regression tests
         run: python -m unittest discover -s tests -p test_aics_collect_insurers_sec.py -v
       - name: Download SEC submissions and companyfacts
         env:
           AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT }}
         run: python scripts/aics_collect_insurers_sec.py --as-of 2026-11-18 --first-period 2018-01-01
+      - name: Independently recalculate SEC artifact SHA256 and research PIT eligibility
+        run: python scripts/aics_verify_insurers_sec_evidence.py
       - name: Validate evidence manifest cannot claim node readiness
         if: always()
         run: |
@@ -47,6 +49,7 @@ jobs:
           assert x["promotion"] == "BLOCKED"
           print(f"Real SEC issuer downloads: {x['successful_issuers']}/2")
           print(f"Eligible candidate XBRL observations: {x['candidate_observations']}")
+          print(f"SEC historical filings.files pages: {x.get('historical_index_pages_downloaded', 0)}")
           for v in x["issuers"]:
               print(f"- {v['issuer']}: {v['status']}")
           print("Current SEC companyfacts do not establish historical PIT vintages or calibrated risk.")
