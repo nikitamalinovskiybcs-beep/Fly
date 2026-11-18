@@ -89,6 +89,8 @@ jobs:
           for source, observed in zip(candidates, records):
               assert source['as_of_month_end'] == observed['as_of']
               assert source['nyfed_effective_date'] == observed['market_effective_date']
+              assert source['nyfed_next_business_session_publication_proxy'] == observed['publication_proxy_date']
+              assert observed['publication_proxy_date'] <= observed['as_of']
               for key in ('iorb_pct','sofr_pct','bgcr_pct','tgcr_pct'):
                   assert Decimal(source[key]) == Decimal(observed[key])
               for key in ('sofr_minus_iorb_bps','sofr_minus_bgcr_bps'):
