@@ -77,7 +77,7 @@ class TestReadOnlyNumeraiProbe(unittest.TestCase):
         self.assertFalse(report["historical_pit_vintage_attested"])
 
     def test_authorization_rejected_is_sanitized(self):
-        def reject(_request, _timeout):
+        def reject(*_args, **_kwargs):
             raise urllib.error.HTTPError(
                 API_URL, 401, "TOKEN never-print-secret", hdrs=None, fp=None
             )
