@@ -61,6 +61,7 @@ for sid in ("BAMLH0A0HYM2","BAMLH0A3HYC","DGS30","SOFR"):
         except (KeyError,ValueError):
             vintage_valid=False
             break
+    observation_duplicates[sid] = duplicate_count
 check("07_observation_lineage", vintage_valid and len(csv_counts)==4, csv_counts)
 sec_valid=True
 sec_counts={}
