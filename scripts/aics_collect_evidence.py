@@ -35,10 +35,11 @@ for sid, node in SERIES.items():
         continue
     try:
         rows = []
-        window_start = dt.date(2010, 1, 1)
+        vintage_available = sid == "DGS30"
+        window_start = dt.date(2010, 1, 1) if vintage_available else TODAY
         while window_start <= TODAY:
             # Bound each real-time window below FRED's 2000-vintage limit.
-            window_end = min(TODAY, window_start + dt.timedelta(days=365))
+            window_end = min(TODAY, window_start + dt.timedelta(days=365)) if vintage_available else TODAY
             offset = 0
             page_size = 1000
             while True:
@@ -56,25 +57,29 @@ for sid, node in SERIES.items():
                     rows.append({"node":node,"series_id":sid,"date":o["date"],
                                  "realtime_start":o["realtime_start"],
                                  "realtime_end":o["realtime_end"],"value":o["value"],
-                                 "source":"ALFRED","verified_pit":False})
+                                 "source":"ALFRED" if vintage_available else "FRED_CURRENT_VINTAGE",
+                                 "verified_pit":False})
                 offset += len(observations)
                 if not observations or offset >= int(data["count"]):
                     break
                 if offset >= 1000000:
                     raise ValueError("ALFRED pagination safety limit reached")
             window_start = window_end + dt.timedelta(days=1)
-        path = OUT / f"alfred_{sid}.csv"
+        path = OUT / (f"alfred_{sid}.csv" if vintage_available else f"fred_current_{sid}.csv")
         with path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=["node","series_id","date","realtime_start",
                       "realtime_end","value","source","verified_pit"])
             writer.writeheader(); writer.writerows(rows)
-        results.append({"source":"ALFRED","id":sid,"status":"downloaded_unverified",
+        results.append({"source":"ALFRED" if vintage_available else "FRED_CURRENT_VINTAGE",
+                        "id":sid,"status":"downloaded_unverified",
+                        "historical_pit_available":False if not vintage_available else None,
                         "rows":len(rows)})
     except (HTTPError, URLError, TimeoutError, ValueError, KeyError) as e:
         detail = ""
         if isinstance(e, HTTPError):
             detail = e.read(1024).decode("utf-8", errors="replace")
-        results.append({"source":"ALFRED","id":sid,"status":"error",
+        results.append({"source":"ALFRED" if sid == "DGS30" else "FRED_CURRENT_VINTAGE",
+                        "id":sid,"status":"error",
                         "error":type(e).__name__,
                         "http_status":e.code if isinstance(e, HTTPError) else None,
                         "api_message":detail[:500]})
