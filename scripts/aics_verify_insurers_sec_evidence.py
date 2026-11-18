@@ -76,9 +76,8 @@ def verify_bundle(directory: Path, repository_root: Path) -> dict:
                 or re.fullmatch(r"[a-f0-9]{64}", checksum) is None):
             raise ValueError("missing SEC source path or SHA256")
         untrusted = Path(raw_path)
-        if untrusted.is_absolute():
-            raise ValueError("absolute paths are prohibited in evidence manifest")
-        path = (repository_root / raw_path).resolve()
+        path = (untrusted if untrusted.is_absolute()
+                else repository_root / untrusted).resolve()
         if not path.is_relative_to(directory / "raw") or not path.is_file():
             raise ValueError("SEC source path missing or outside raw directory")
         if sha_file(path) != checksum or path.stat().st_size != item.get("bytes"):
