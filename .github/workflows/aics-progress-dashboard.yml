@@ -1,0 +1,64 @@
+name: AICS 11-node evidence progress dashboard
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'aics_data/progress/evidence_milestones_2026-11-18.json'
+      - 'scripts/aics_progress_dashboard.py'
+      - 'tests/test_aics_progress_dashboard.py'
+      - 'docs/aics_11_node_primary_source_registry_2026-11-18.md'
+      - 'docs/aics_research_credit_monitor_2026-11-18.md'
+      - '.github/workflows/aics-progress-dashboard.yml'
+permissions:
+  contents: write
+concurrency:
+  group: aics-progress-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: devin/1779618014-quant-risk-framework
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify that progress cannot be fabricated from unsupported claims
+        run: python -m unittest discover -s tests -p test_aics_progress_dashboard.py -v
+      - name: Rebuild evidence-based status and Markdown progress bars
+        run: python scripts/aics_progress_dashboard.py
+      - name: Show explicit counts on the workflow summary
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          x=json.load(open('aics_data/progress/status.json',encoding='utf-8'))
+          print('## AICS 11-node project progress')
+          print(f"**Project evidence milestones:** {x['milestones_completed']}/{x['milestones_total']} ({x['project_progress_pct']}%)")
+          print(f"**Independent node certification:** {x['independently_certified_nodes']}/11 ({x['certification_pct']}%)")
+          print('**Certified AICS:** N/A; **Predictive skill:** N/A')
+          print('Project progress is not investment readiness.')
+          PY
+      - name: Upload source-linked status for this exact run
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-eleven-node-progress
+          path: |
+            aics_data/progress/status.json
+            docs/aics_progress.md
+          retention-days: 30
+          if-no-files-found: error
+      - name: Commit generated progress status (no self-trigger loop)
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add aics_data/progress/status.json docs/aics_progress.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh AICS evidence milestone progress dashboard [skip ci]"
+            git push origin "HEAD:devin/1779618014-quant-risk-framework"
+          fi
