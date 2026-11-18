@@ -8,6 +8,7 @@ on:
       - '.github/workflows/aics-alfred-pit.yml'
       - 'scripts/aics_collect_alfred_pit.py'
       - 'scripts/aics_validate_alfred_pit.py'
+      - 'scripts/aics_pit_coverage_report.py'
   workflow_dispatch:
   schedule:
     - cron: '45 11 * * 1'
@@ -31,7 +32,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Compile PIT scripts
-        run: python -m py_compile scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py
+        run: python -m py_compile scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py scripts/aics_pit_coverage_report.py
       - name: Collect actual monthly historical vintages
         if: github.event_name != 'pull_request'
         env:
@@ -40,6 +41,9 @@ jobs:
       - name: Validate as-of chronology and source coverage
         if: github.event_name != 'pull_request' && always()
         run: python scripts/aics_validate_alfred_pit.py
+      - name: Report actual historical vintage coverage and gaps
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_pit_coverage_report.py
       - name: Preserve PIT audit and failed-source evidence
         if: always()
         uses: actions/upload-artifact@v4
