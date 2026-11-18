@@ -68,8 +68,18 @@ Read direct files and latest GitHub Actions job logs on every session; the above
 - `tests/test_aics_telegram_spydell_claim_intake.py`: no double-counting, SEC vs Telegram labels.
 - `scripts/aics_reconcile_company_universe.py` + `tests/test_aics_reconcile_company_universe.py`: 37-company / 3-project fail-closed secondary-source audit; `.github/workflows/aics-research-safety.yml` now runs it with the extended-universe tests. Passing run `44388937687`; **zero** new PIT milestones or scores.
 - `docs/aics_37_company_reconciliation_2026-11-18.md`: committee-ready node candidate counts, exact provenance split and missing original-contract gates.
+- **SEC primary source repair, verified in live GitHub Actions**: `AICS_SEC_USER_AGENT || EDGAR_IDENTITY` fallback in Neocloud/SPV and Insurers workflows; `python -m scripts.aics_verify_insurers_sec_evidence` fixes verifier import. Runs `44389973635` (4/4 eligible SEC HTML archived, CoreWeave 2026-11-12 10-Q still excluded until 2026-11-26) and `44390127352` (2/2 MET/PRU issuer sources, 6 SEC JSON originals, 2 history pages, 521 candidate XBRL rows, local SHA checks successful). No independent historical SEC companyfacts vintage or SPV contract certification. 
+- `aics_data/research/sec_primary_archive_independent_rehash_2026_11_18.json`, `scripts/aics_validate_sec_rehash_receipt.py`, `tests/test_aics_validate_sec_rehash_receipt.py`, `docs/aics_sec_primary_rehash_and_asset_mix_2026_11_18.md`: independently rehashed temporary Actions ZIPs outside CI and pinned hashes; MET (2026Q2) AFS debt securities/GAAP assets 42.4276% and PRU (2026Q3) 41.8031% are different-period research composition metrics, NOT AI exposure or stress scores. Receipt validator is metadata-only and explicitly does not redo artifact bytes. 
+- `aics_data/research/alfred_macro_archive_rehash_2026_11_18.json`, `scripts/aics_validate_alfred_macro_rehash.py`, `tests/test_aics_validate_alfred_macro_rehash.py`, `docs/aics_macro_alfred_rehash_2026_11_18.md`: independent rehash of existing 4 ALFRED CSV snapshots (96 month-ends, 165,913 rows). Public-domain candidate as-of observations DGS30 5.59% -> 5.32% (-27 bp), SOFR 3.88% -> 3.94% (+6 bp) from Sep to Oct 2026 month-end as-of snapshots. ICE BofA series retained as hashes/counts only due license restrictions. All provider PIT attestation and AICS scores blocked.
 - `aics_data/research/omi_brace_impact_original_pdf_sha_receipt_2026-11-18.json`: exact original user's OMI PDF SHA-256 `466b8a875752c85e23a41d5e33ad985c44f437ddc5cf801e132310c4e28bff60`. Partner-hosted copy is not byte-identical.
 - `aics_data/source_registry/*`: official IR and SEC documents; sources might be current-only, not as-of historical.
+
+## 4b. Current unresolved gates / CI scope
+
+- Archive rehashes prove local source-bundle integrity but not original historical provider-release dates, current companyfacts revision history, executed project recourse, or investment-grade model skill.
+- Several raw-source ZIP artifacts expire on **2026-12-18**. Secure legally permitted long-term retention before expiration; licensed ICE top-level data are not approved for public republication.
+- AICS research safety tests, invariant tests, ALFRED metadata gate and SEC source workflows have passed after the targeted fixes; **Phoenix CI still fails on broad repository Ruff lint** (pre-existing unrelated codebase violations). Never report the whole repository's CI green.
+- `aics_data/progress/status.json` stays **22/66 = 33.3% technical**, **0/11 certified**, `index_aics=null`. Do not increase for successfully fetched candidates or for receipt-guard tests.
 
 ## 5. Next tasks, in strict order
 
