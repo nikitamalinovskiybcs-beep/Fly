@@ -14,7 +14,7 @@
   "audited_scoring_nodes": 0,
   "untouched_24m_oos_nodes": 0,
   "independently_certified_nodes": 0,
-  "certification_pct": 0,
+  "certification_pct": 0.0,
   "node_progress": [
     {
       "node": "Private Credit",
