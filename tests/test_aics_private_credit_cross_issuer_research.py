@@ -98,7 +98,7 @@ class TestTwoRealBDCSourcePanels(unittest.TestCase):
     def test_unmatched_denominators_not_aggregated(self):
         a, b = original_receipts()
         p = compare(a, b, dt.date(2026, 11, 19))
-        self.assertTrue(all("cost" in row and "fair" in row
+        self.assertTrue(all({"ARCC_cost_pct", "ARCC_fair_pct", "OBDC_cost_pct", "OBDC_fair_pct"} <= set(row)
                             for row in p["same_quarter_comparisons"]))
         self.assertNotIn("combined_private_credit_nonaccrual_rate", p)
         self.assertNotIn("issuer_weighted_rate", p)
