@@ -30,6 +30,18 @@ class AicsResearchSafetyTests(unittest.TestCase):
             self.assertFalse(data["production_weights_changed"])
             self.assertFalse(data["trades_created"])
 
+    def test_readiness_never_promotes_without_evidence(self):
+        with tempfile.TemporaryDirectory() as folder:
+            proc = subprocess.run([sys.executable, str(ROOT/"scripts/aics_research_readiness.py")],
+                                  cwd=folder, capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            data = json.loads((Path(folder)/"aics_data/research/readiness_report.json").read_text())
+            self.assertFalse(data["ready_for_production"])
+            self.assertIsNone(data["index_aics"])
+            self.assertIsNone(data["model_score"])
+            self.assertIn("chronological_24m_oos_validated", data["blocking_checks"])
+            self.assertIn("committee_approval_recorded", data["blocking_checks"])
+
     def test_evidence_validation_blocks_missing_sources(self):
         proc, _ = self.run_script("aics_validate_evidence.py")
         self.assertNotEqual(proc.returncode, 0)
