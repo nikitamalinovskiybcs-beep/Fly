@@ -25,7 +25,7 @@ jobs:
       - name: Download SEC companyfacts
         if: github.event_name != 'pull_request'
         env:
-          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT || secrets.AICS_SEC_USER_AGENT }}
         run: python scripts/aics_collect_xbrl.py
       - name: Validate SEC XBRL facts and embargo
         if: github.event_name != 'pull_request' && always()
