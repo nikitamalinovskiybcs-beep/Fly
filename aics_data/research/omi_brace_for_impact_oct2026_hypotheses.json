@@ -1,0 +1,442 @@
+{
+  "schema_version": "aics-secondary-research-hypothesis-registry-v1",
+  "as_of": "2026-11-18",
+  "source": {
+    "title": "Brace for Impact: Protecting People and the Economy When the AI Bubble Bursts",
+    "authors": [
+      "Matthew U. Scherer",
+      "Maya Jenkins"
+    ],
+    "publisher": [
+      "Open Markets Institute",
+      "Americans for Financial Reform Education Fund"
+    ],
+    "publication_date": "2026-10-16",
+    "document_month": "2026-10",
+    "user_supplied_url": "https://www.openmarketsinstitute.org/s/Brace-for-Impact-Scherer-Jenkins-OMI-October2026-WEB-1.pdf",
+    "retrievable_publisher_hosted_mirror": "https://ourfinancialsecurity.org/wp-content/uploads/2026/10/Brace-for-Impact-Scherer-Jenkins-OMI-October2026-WEB.pdf",
+    "read_method": "publisher PDF text indexed via web; screenshots supplied by user as context",
+    "original_pdf_bytes_locally_archived": false,
+    "pdf_sha256": null,
+    "independent_primary_numeric_sources_verified": false,
+    "classification": "SECONDARY_POLICY_RESEARCH_NOT_PRIMARY_SOURCE_NUMERIC_EVIDENCE"
+  },
+  "nodes": [
+    {
+      "node": "Private Credit",
+      "weight": 150,
+      "report_pages": [
+        26,
+        42,
+        43
+      ],
+      "research_hypotheses": [
+        "PIK interest and non-accrual prevalence as refinancing stress proxies",
+        "Bank credit commitments to nonbank lenders, disaggregated by AI exposure"
+      ],
+      "direct_proof_needed": [
+        "BDCs 10-Q/10-K original SEC filings",
+        "Federal Reserve Financial Stability Report bank-to-NBFI loan taxonomy"
+      ],
+      "relation": "explicit",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    },
+    {
+      "node": "Insurers",
+      "weight": 125,
+      "report_pages": [
+        43,
+        44
+      ],
+      "research_hypotheses": [
+        "Private and illiquid fixed-income exposure as percentage of total insurer fixed-income holdings",
+        "Affiliate reinsurance and asset-rating concentration"
+      ],
+      "direct_proof_needed": [
+        "NAIC statutory filings and Schedules D, BA, and insurer investment notes",
+        "Verified SEC insurer investment notes and filed_at dates"
+      ],
+      "relation": "explicit",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    },
+    {
+      "node": "UST 30Y",
+      "weight": 125,
+      "report_pages": [
+        30,
+        48
+      ],
+      "research_hypotheses": [
+        "Long-term Treasury refinancing hurdle and financing discount rate",
+        "30-year yield and volatility with ALFRED/PIT provenance"
+      ],
+      "direct_proof_needed": [
+        "US Treasury official par yield and auction records",
+        "Original ALFRED historical vintage, no ex-post revision"
+      ],
+      "relation": "indirect",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    },
+    {
+      "node": "Neoclouds",
+      "weight": 100,
+      "report_pages": [
+        30,
+        33,
+        36
+      ],
+      "research_hypotheses": [
+        "Term SOFR plus debt margins vs actual operating cash and lease collections",
+        "Debt maturity wall and GPU utilization/contract cash conversion"
+      ],
+      "direct_proof_needed": [
+        "SEC neocloud 10-Q/10-K and issuer notes",
+        "Filed debt agreements and operating cash flow"
+      ],
+      "relation": "explicit",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    },
+    {
+      "node": "AI Equities",
+      "weight": 100,
+      "report_pages": [
+        15,
+        16,
+        41
+      ],
+      "research_hypotheses": [
+        "Top-ten S&P 500 concentration and CAPE valuation as context, not node stress score",
+        "Point-in-time AI stock drawdowns and market debt transmission"
+      ],
+      "direct_proof_needed": [
+        "S&P official historical index weights as-of dates",
+        "FINRA reported monthly margin debt with published available_at",
+        "Original dated price history without future split adjustments"
+      ],
+      "relation": "explicit",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    },
+    {
+      "node": "Hyperscalers",
+      "weight": 100,
+      "report_pages": [
+        22,
+        24,
+        36
+      ],
+      "research_hypotheses": [
+        "Noncancelable cloud/lease commitments by maturity and off-balance disclosures",
+        "AI capex versus independently generated AI cash revenue and reported useful-life assumptions"
+      ],
+      "direct_proof_needed": [
+        "Issuer SEC 10-Q, leases, purchase obligations, Item 7/notes",
+        "Original annual report accounting policy GPU depreciation period"
+      ],
+      "relation": "explicit",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    },
+    {
+      "node": "SPV",
+      "weight": 100,
+      "report_pages": [
+        24,
+        34,
+        35
+      ],
+      "research_hypotheses": [
+        "Identify legally separate borrower, guarantees, collateral and cash-flow waterfalls",
+        "Risk retained via leases, guarantees and pledged assets; do not treat mere SPV mention as default probability"
+      ],
+      "direct_proof_needed": [
+        "SEC financing agreements, bond indentures and securitization prospectuses",
+        "Borrower entity structure and recourse documentation"
+      ],
+      "relation": "explicit",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    },
+    {
+      "node": "Repo",
+      "weight": 100,
+      "report_pages": [
+        42,
+        44,
+        45
+      ],
+      "research_hypotheses": [
+        "Potential market funding contagion from NBFI collateral and insurer liquidity",
+        "SOFR level alone is not repo stress: need spreads, repo failures, haircuts and volume"
+      ],
+      "direct_proof_needed": [
+        "NY Fed repo market data and SOFR reference methodology",
+        "Primary repo spread, specials, haircuts, tri-party funding collateral disclosures"
+      ],
+      "relation": "indirect",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    },
+    {
+      "node": "Power/Data Centers",
+      "weight": 50,
+      "report_pages": [
+        27,
+        34,
+        47
+      ],
+      "research_hypotheses": [
+        "Data-center electric capacity/connection queue delays and stranded investment",
+        "Power demand commitments vs actual utilized MW and contracted cash flows"
+      ],
+      "direct_proof_needed": [
+        "EIA actual release-dated historical data and regional grid operator queue vintages",
+        "Issuer original facility energization and MW disclosures"
+      ],
+      "relation": "explicit",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "weight": 50,
+      "report_pages": [
+        24,
+        31,
+        47
+      ],
+      "research_hypotheses": [
+        "GPU useful-life depreciation versus economic obsolescence and chip order commitments",
+        "Semiconductor capacity shortages must be distinguished from issuer sales"
+      ],
+      "direct_proof_needed": [
+        "Chipmakers SEC 10-Q/10-K plus independent foundry/manufacturer disclosures",
+        "Direct shipping/lead-time/capacity source, not stock price proxy"
+      ],
+      "relation": "explicit",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    },
+    {
+      "node": "AI Demand",
+      "weight": 50,
+      "report_pages": [
+        23,
+        30,
+        31
+      ],
+      "research_hypotheses": [
+        "Third-party AI spend versus circular ecosystem transactions",
+        "Verified backlog-to-revenue conversion, independent cash paying customers and paid utilization"
+      ],
+      "direct_proof_needed": [
+        "Issuer SEC notes and contracts revealing customer concentration/related-party relationships",
+        "Independent transaction data with transparent scope and timing"
+      ],
+      "relation": "explicit",
+      "research_only": true,
+      "validated_score": null,
+      "independently_verified_pit": false
+    }
+  ],
+  "reported_quantitative_claims": [
+    {
+      "id": "OMI_CLAIM_OFF_BALANCE_3_1T",
+      "claim": "Nine selected mega tech firms have $3.1 trillion of off-balance commitments/debt",
+      "report_page": 9,
+      "reported_value": 3.1,
+      "reported_unit": "USD trillion",
+      "date_scope": "as described for Sep 2026",
+      "primary_attribution": "Wall Street Journal / company filings",
+      "score_eligible": false,
+      "independently_verified": false
+    },
+    {
+      "id": "OMI_CLAIM_TOTAL_COMMITMENTS_3_7T",
+      "claim": "Nine firms combined $3.7 trillion on- and off-balance debt/commitments",
+      "report_page": 9,
+      "reported_value": 3.7,
+      "reported_unit": "USD trillion",
+      "date_scope": "as described for Sep 2026",
+      "primary_attribution": "Wall Street Journal / company filings",
+      "score_eligible": false,
+      "independently_verified": false
+    },
+    {
+      "id": "OMI_CLAIM_TOP10_40PCT",
+      "claim": "Top 10 S&P 500 companies represent 40 percent of market capitalization",
+      "report_page": 7,
+      "reported_value": 40,
+      "reported_unit": "percent",
+      "date_scope": "Sep 2026",
+      "primary_attribution": "MacroMicro and Slickcharts",
+      "score_eligible": false,
+      "independently_verified": false
+    },
+    {
+      "id": "OMI_CLAIM_MARGIN_DEBT_1_5T",
+      "claim": "FINRA margin debt near $1.5 trillion",
+      "report_page": 9,
+      "reported_value": 1.5,
+      "reported_unit": "USD trillion",
+      "date_scope": "Aug 2026",
+      "primary_attribution": "FINRA",
+      "score_eligible": false,
+      "independently_verified": false
+    },
+    {
+      "id": "OMI_CLAIM_INSURANCE_ILLIQ_20PCT",
+      "claim": "Approximately 20 percent of life insurers' fixed-income assets linked to private/illiquid bonds",
+      "report_page": 43,
+      "reported_value": 20,
+      "reported_unit": "percent",
+      "date_scope": "as cited in Oct 2026 report",
+      "primary_attribution": "secondary sources in report notes 225-228",
+      "score_eligible": false,
+      "independently_verified": false
+    },
+    {
+      "id": "OMI_CLAIM_BANK_NBFI_2_7T",
+      "claim": "US bank drawn and undrawn nonbank lender commitments $2.7 trillion",
+      "report_page": 42,
+      "reported_value": 2.7,
+      "reported_unit": "USD trillion",
+      "date_scope": "Q1 2026",
+      "primary_attribution": "Fed/NY Fed cited secondary report",
+      "score_eligible": false,
+      "independently_verified": false
+    },
+    {
+      "id": "OMI_CLAIM_META_SPV_26B",
+      "claim": "Meta-Blue Owl-PIMCO SPV $26 billion loan described for Louisiana data center",
+      "report_page": 24,
+      "reported_value": 26,
+      "reported_unit": "USD billion",
+      "date_scope": "report as of Oct 2026",
+      "primary_attribution": "issuer and journal sources cited by report",
+      "score_eligible": false,
+      "independently_verified": false
+    },
+    {
+      "id": "OMI_CLAIM_RAMP_TOP1_80PCT",
+      "claim": "Ramp top 1 percent enterprise customers generate ~80 percent of AI providers' enterprise revenue in studied sample",
+      "report_page": 23,
+      "reported_value": 80,
+      "reported_unit": "percent",
+      "date_scope": "analysis published Aug 2026",
+      "primary_attribution": "Ramp research",
+      "score_eligible": false,
+      "independently_verified": false
+    }
+  ],
+  "hypothesized_contagion_edges": [
+    {
+      "from": "AI Demand",
+      "to": "Neoclouds",
+      "channel": "lower paid utilization and lease cash inflows",
+      "direction": "hypothesis",
+      "page": 33
+    },
+    {
+      "from": "Neoclouds",
+      "to": "SPV",
+      "channel": "cloud tenant or lessee nonpayment can impair project debt",
+      "direction": "hypothesis",
+      "page": 35
+    },
+    {
+      "from": "SPV",
+      "to": "Private Credit",
+      "channel": "securitized data-center loan losses transferred to lenders",
+      "direction": "hypothesis",
+      "page": 35
+    },
+    {
+      "from": "Private Credit",
+      "to": "Insurers",
+      "channel": "illiquid credit investments and related reinsurance structures",
+      "direction": "hypothesis",
+      "page": 43
+    },
+    {
+      "from": "Private Credit",
+      "to": "Repo",
+      "channel": "potential NBFI funding/refinancing stress, repo mechanism not established",
+      "direction": "indirect_hypothesis",
+      "page": 44
+    },
+    {
+      "from": "AI Demand",
+      "to": "Hyperscalers",
+      "channel": "customer demand weakness and impaired contracted capex economics",
+      "direction": "hypothesis",
+      "page": 36
+    },
+    {
+      "from": "Hyperscalers",
+      "to": "Semiconductors Supply",
+      "channel": "revised GPU procurement after asset economic obsolescence",
+      "direction": "hypothesis",
+      "page": 24
+    },
+    {
+      "from": "Power/Data Centers",
+      "to": "SPV",
+      "channel": "power connection, project delay and stranded collateral",
+      "direction": "hypothesis",
+      "page": 35
+    },
+    {
+      "from": "AI Equities",
+      "to": "Private Credit",
+      "channel": "equity risk aversion and leveraged unwind spread to credit, not mechanically proven",
+      "direction": "hypothesis",
+      "page": 42
+    },
+    {
+      "from": "UST 30Y",
+      "to": "SPV",
+      "channel": "long rate refinancing discount rate, not direct 30Y funding formula",
+      "direction": "indirect_hypothesis",
+      "page": 30
+    }
+  ],
+  "safety": {
+    "immutable_weight_sum": 1050,
+    "reference_status": "research_hypothesis_only",
+    "sec_available_at": "filed_at_plus_14_calendar_days",
+    "alfred_requires_historical_vintage": true,
+    "add_new_nodes": false,
+    "modify_node_weights": false,
+    "create_score": false,
+    "create_synthetic_history": false,
+    "allow_secondary_claims_as_certified_market_observations": false,
+    "validated_node_scores": 0,
+    "index_aics": null,
+    "model_score": null,
+    "predictive_skill_score": null,
+    "trade_signal": null,
+    "promotion": "BLOCKED"
+  },
+  "notes": [
+    "These values are explicitly as-reported by a policy research paper, which contains normative positions and scenario analysis; they are NOT AICS observed data.",
+    "Reproduce every claimed numeric input from its original primary provider, with vintage, denominators, entity universe and reported period before a score.",
+    "Source paper is dated October 2026; it cannot be retroactively injected into earlier historical research snapshots.",
+    "A look-ahead-safe report ingestion date is separate from market source filed_at and from SEC mandatory lag.",
+    "Book-to-bill, interest expense, and off-balance commitments cannot be directly added; units and stock-versus-flow differ."
+  ]
+}
