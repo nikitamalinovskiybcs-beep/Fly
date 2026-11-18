@@ -93,12 +93,26 @@ for ticker, cik in CIKS.items():
         data=get(f"https://data.sec.gov/submissions/CIK{cik}.json",headers)
         write_json(OUT / f"sec_submissions_{ticker}.json",data)
         recent=data.get("filings",{}).get("recent",{})
-        eligible=0
-        for form,filed in zip(recent.get("form",[]),recent.get("filingDate",[])):
-            if form not in ("10-K","10-Q","8-K"):continue
-            if dt.date.fromisoformat(filed)+dt.timedelta(days=14)<=TODAY:eligible+=1
+        fields = ("form", "filingDate", "reportDate", "accessionNumber", "primaryDocument")
+        counts = [len(recent.get(field, [])) for field in fields]
+        if len(set(counts)) != 1:
+            raise ValueError("SEC filing metadata arrays have inconsistent lengths")
+        filings = []
+        for form, filed, period, accession, document in zip(*(recent[field] for field in fields)):
+            if form not in ("10-K", "10-Q", "8-K"):
+                continue
+            available_at = dt.date.fromisoformat(filed) + dt.timedelta(days=14)
+            if available_at > TODAY:
+                continue
+            filings.append({"ticker":ticker,"cik":cik,"form":form,
+                            "filed_at":filed,"available_at":available_at.isoformat(),
+                            "period_end":period or None,"accession_number":accession,
+                            "primary_document":document,"xbrl_fact_extracted":False,
+                            "verified_pit":False})
+        write_json(OUT / f"sec_eligible_filings_{ticker}.json", filings)
         results.append({"source":"SEC","id":ticker,"status":"downloaded_unverified",
-                        "eligible_filings":eligible,"rule":"filed_at+14_calendar_days"})
+                        "eligible_filings":len(filings),"rule":"filed_at+14_calendar_days",
+                        "xbrl_facts_extracted":False})
     except (HTTPError, URLError, TimeoutError, ValueError, KeyError) as e:
         results.append({"source":"SEC","id":ticker,"status":"error",
                         "error":type(e).__name__})
