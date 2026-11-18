@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from scripts.aics_fill_11_nodes_pit import (
-    NYFED, SEC_REGISTRY, STATUS, UNIVERSE, WEIGHTS, audit,
+    NYFED, ALFRED_REVISIONS, SEC_REGISTRY, STATUS, UNIVERSE, WEIGHTS, audit,
 )
 
 
@@ -87,6 +87,32 @@ class TestElevenNodePITGate(unittest.TestCase):
             UNIVERSE, lambda x: x["companies"][-1].__setitem__("model_eligible", True),
             "universe_path",
         )
+
+    def test_power_ppi_revisions_are_reported_without_pit_promotion(self):
+        out = audit()["alfred_iorb_power_revision_audit"]
+        self.assertEqual(out["source_original_files_rehashed"], 48)
+        self.assertEqual(out["repeated_source_observation_rows"], 39934)
+        self.assertEqual(out["iorb_changed_value_events"], 0)
+        self.assertEqual(out["industrial_power_ppi_changed_value_events"], 69)
+        self.assertEqual(out["unique_power_ppi_observation_dates_revised"], 25)
+        self.assertFalse(out["independent_release_timestamp_pit"])
+        self.assertEqual(out["node_stress_scores"],
+                         {"Repo": None, "Power/Data Centers": None})
+        self.assertEqual(out["certification_milestones_advanced"], 0)
+
+    def test_forged_revision_receipt_or_pit_promotion_fails(self):
+        for field, value in (
+            ("observed_revision_events_total", 0),
+            ("original_provider_historical_publication_timestamps_independently_attested", True),
+            ("independent_24_month_out_of_sample_proven", True),
+            ("index_aics", 499),
+            ("synthetic_or_interpolated_rows", 1),
+        ):
+            with self.subTest(field=field):
+                self._mutated_file(
+                    ALFRED_REVISIONS, lambda x: x.__setitem__(field, value),
+                    "revision_path",
+                )
 
     def test_only_original_weights_allowed(self):
         self.assertEqual(sum(WEIGHTS.values()), 1050)
