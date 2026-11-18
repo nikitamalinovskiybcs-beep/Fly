@@ -14,6 +14,8 @@ TAGS = {"Revenues", "RevenueFromContractWithCustomerExcludingAssessedTax",
         "CashAndCashEquivalentsAtCarryingValue", "LongTermDebtNoncurrent"}
 errors = []
 counts = {}
+EXPECTED_CIKS={"NVDA":"0001045810","MSFT":"0000789019","AMZN":"0001018724",
+               "GOOGL":"0001652044","META":"0001326801","ORCL":"0001341439"}
 manifest_path = ROOT / "manifest.json"
 manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
 try:
@@ -63,7 +65,8 @@ for ticker in TICKERS:
                 or fact["xbrl_tag"] not in TAGS or fact["verified_pit"] is not False
                 or fact["form"] not in ("10-K", "10-Q")
                 or not fact["unit"] or not fact["accession_number"]
-                or not fact["cik"] or len(str(fact["cik"])) != 10
+                or fact["accession_number"].count("-") != 2
+                or fact["cik"] != EXPECTED_CIKS[ticker]
                 or not isinstance(value, (int, float))
                 or isinstance(value, bool) or not math.isfinite(value)
                 or available != filed + dt.timedelta(days=14)
