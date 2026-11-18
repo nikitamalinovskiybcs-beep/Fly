@@ -33,6 +33,8 @@ jobs:
         run: python -m py_compile scripts/aics_collect_insurers_sec.py scripts/aics_verify_insurers_sec_evidence.py scripts/aics_collect_priority_ir.py scripts/aics_archive_arcc_primary_sources.py scripts/aics_progress_dashboard.py
       - name: Compile SPV and Neoclouds original-SEC source collector
         run: python -m py_compile scripts/aics_collect_spv_neocloud_sec.py
+      - name: Verify descriptive CoreWeave 2026Q3 source-to-metric arithmetic and SEC 14-day embargo
+        run: python -m unittest discover -s tests -p test_aics_coreweave_ir_research.py -v
       - name: Validate real Nebius credit facility terms and SEC availability
         run: python -m unittest discover -s tests -p test_aics_nebius_credit_facility_research.py -v
       - name: Test SPV/Neoclouds primary SEC filing embargo and source hashing
