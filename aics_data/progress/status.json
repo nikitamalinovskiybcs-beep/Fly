@@ -5,15 +5,18 @@
   "total_nodes": 11,
   "total_weight": 1050,
   "milestones_per_node": 6,
-  "milestones_completed": 17,
+  "milestones_completed": 20,
   "milestones_total": 66,
-  "project_progress_pct": 25.8,
+  "project_progress_pct": 30.3,
   "registry_nodes": 11,
-  "archived_candidate_nodes": 6,
+  "archived_candidate_nodes": 9,
   "raw_ir_archive_nodes": [
+    "AI Demand",
+    "Hyperscalers",
     "Insurers",
     "Neoclouds",
-    "SPV"
+    "SPV",
+    "Semiconductors Supply"
   ],
   "source_pit_attested_nodes": 0,
   "audited_scoring_nodes": 0,
@@ -111,15 +114,15 @@
       "weight": 100,
       "gates": {
         "primary_source_registry": true,
-        "raw_candidate_archive": false,
+        "raw_candidate_archive": true,
         "independently_attested_pit": false,
         "audited_node_scoring": false,
         "untouched_24m_oos": false,
         "independent_certification": false
       },
-      "completed_milestones": 1,
+      "completed_milestones": 2,
       "milestone_count": 6,
-      "project_progress_pct": 16.7,
+      "project_progress_pct": 33.3,
       "independently_certified": false,
       "node_stress_score": null
     },
@@ -179,15 +182,15 @@
       "weight": 50,
       "gates": {
         "primary_source_registry": true,
-        "raw_candidate_archive": false,
+        "raw_candidate_archive": true,
         "independently_attested_pit": false,
         "audited_node_scoring": false,
         "untouched_24m_oos": false,
         "independent_certification": false
       },
-      "completed_milestones": 1,
+      "completed_milestones": 2,
       "milestone_count": 6,
-      "project_progress_pct": 16.7,
+      "project_progress_pct": 33.3,
       "independently_certified": false,
       "node_stress_score": null
     },
@@ -196,15 +199,15 @@
       "weight": 50,
       "gates": {
         "primary_source_registry": true,
-        "raw_candidate_archive": false,
+        "raw_candidate_archive": true,
         "independently_attested_pit": false,
         "audited_node_scoring": false,
         "untouched_24m_oos": false,
         "independent_certification": false
       },
-      "completed_milestones": 1,
+      "completed_milestones": 2,
       "milestone_count": 6,
-      "project_progress_pct": 16.7,
+      "project_progress_pct": 33.3,
       "independently_certified": false,
       "node_stress_score": null
     }
