@@ -32,7 +32,8 @@
     "No historical series or observations are fabricated or backfilled.",
     "AICS=NA and predictive_skill=NA unless separate independent scientific gates pass.",
     "The Insurers raw IR archive was downloaded from GitHub Actions and all 4 HTML SHA-256 values independently recalculated. This is only archive-stage evidence, not historical PIT or model scoring; GitHub artifact retention is 30 days.",
-    "Neoclouds and SPV receive raw-archive milestone only: 7 original CoreWeave/Nebius/Equinix IR pages were independently downloaded from Actions and rehashed. The legal structure of a true SPV is not established; files have 30-day artifact retention."
+    "Neoclouds and SPV receive raw-archive milestone only: 7 original CoreWeave/Nebius/Equinix IR pages were independently downloaded from Actions and rehashed. The legal structure of a true SPV is not established; files have 30-day artifact retention.",
+    "Seven current issuer IR reports and seven official IR homepages independently SHA256 rechecked. Hyperscalers, Semiconductors Supply, and AI Demand stage 2 only; Alphabet IR HTML is a shell and must be paired with original PDF. No SEC historical vintage or node score."
   ],
   "independently_recalculated_raw_archive_receipts": [
     {
@@ -44,6 +45,11 @@
       "node": "Neoclouds+SPV",
       "receipt_path": "aics_data/progress/neocloud_spv_ir_raw_archive_receipt_2026-11-18.json",
       "evidence_status": "SEVEN_CURRENT_OFFICIAL_IR_SOURCE_HTML_SHA_VERIFIED_NOT_HISTORICAL_SEC_PIT"
+    },
+    {
+      "node": "Hyperscalers+Semiconductors Supply+AI Demand",
+      "receipt_path": "aics_data/progress/hyperscaler_semiconductors_demand_ir_raw_archive_receipt_2026-11-18.json",
+      "evidence_status": "FOURTEEN_CURRENT_IR_HTML_SOURCE_FILES_SHA256_RECHECKED_NOT_PIT"
     }
   ]
 }
