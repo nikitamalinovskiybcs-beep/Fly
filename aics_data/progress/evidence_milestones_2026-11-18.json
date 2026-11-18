@@ -31,13 +31,19 @@
     "One ALFRED ZIP archive supports three candidate node mappings; those mappings are not independent node stress scores.",
     "No historical series or observations are fabricated or backfilled.",
     "AICS=NA and predictive_skill=NA unless separate independent scientific gates pass.",
-    "The Insurers raw IR archive was downloaded from GitHub Actions and all 4 HTML SHA-256 values independently recalculated. This is only archive-stage evidence, not historical PIT or model scoring; GitHub artifact retention is 30 days."
+    "The Insurers raw IR archive was downloaded from GitHub Actions and all 4 HTML SHA-256 values independently recalculated. This is only archive-stage evidence, not historical PIT or model scoring; GitHub artifact retention is 30 days.",
+    "Neoclouds and SPV receive raw-archive milestone only: 7 original CoreWeave/Nebius/Equinix IR pages were independently downloaded from Actions and rehashed. The legal structure of a true SPV is not established; files have 30-day artifact retention."
   ],
   "independently_recalculated_raw_archive_receipts": [
     {
       "node": "Insurers",
       "receipt_path": "aics_data/progress/insurers_ir_raw_archive_receipt_2026-11-18.json",
       "evidence_status": "CURRENT_IR_RAW_SHA_VERIFIED_NOT_HISTORICAL_PIT"
+    },
+    {
+      "node": "Neoclouds+SPV",
+      "receipt_path": "aics_data/progress/neocloud_spv_ir_raw_archive_receipt_2026-11-18.json",
+      "evidence_status": "SEVEN_CURRENT_OFFICIAL_IR_SOURCE_HTML_SHA_VERIFIED_NOT_HISTORICAL_SEC_PIT"
     }
   ]
 }
