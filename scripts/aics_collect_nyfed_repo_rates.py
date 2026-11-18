@@ -19,7 +19,7 @@ from typing import Callable
 
 BASE_URL = "https://markets.newyorkfed.org/api/rates/secured"
 TYPES = ("sofr", "bgcr", "tgcr")
-ROW_LIMIT = 1500
+ROW_LIMIT = 999
 MAX_BYTES = 8_000_000
 FIELDS = ("effectiveDate", "type", "percentRate", "volumeInBillions")
 RAW_DIR = Path("aics_data/nyfed_repo")
