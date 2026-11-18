@@ -13,6 +13,9 @@ on:
       - 'tests/test_aics_research_safety.py'
       - 'tests/test_aics_extended_company_universe.py'
       - 'tests/test_aics_reconcile_company_universe.py'
+      - 'scripts/aics_validate_sec_rehash_receipt.py'
+      - 'tests/test_aics_validate_sec_rehash_receipt.py'
+      - 'aics_data/research/sec_primary_archive_independent_rehash_2026_11_18.json'
       - 'scripts/aics_reconcile_company_universe.py'
       - 'aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json'
       - '.github/workflows/aics-research-safety.yml'
@@ -69,6 +72,11 @@ jobs:
           path: aics_data/source_evidence/omi_telegram_company_reconciliation.json
           retention-days: 30
           if-no-files-found: error
+      - name: Check independently pinned SEC raw receipt lineage and real candidate arithmetic
+        run: |
+          python -m py_compile scripts/aics_validate_sec_rehash_receipt.py
+          python -m unittest discover -s tests -p test_aics_validate_sec_rehash_receipt.py -v
+          python -m scripts.aics_validate_sec_rehash_receipt
       - name: Run offline fail-closed tests
         run: python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
   ir-source-capture:
