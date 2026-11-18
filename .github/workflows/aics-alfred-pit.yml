@@ -10,6 +10,8 @@ on:
       - 'scripts/aics_validate_alfred_pit.py'
       - 'scripts/aics_pit_coverage_report.py'
   workflow_dispatch:
+  issue_comment:
+    types: [created]
   schedule:
     - cron: '45 11 * * 1'
   pull_request:
@@ -24,6 +26,11 @@ concurrency:
   cancel-in-progress: false
 jobs:
   historical-pit:
+    if: >-
+      github.event_name != 'issue_comment' ||
+      (github.event.issue.number == 55 &&
+       github.event.comment.user.login == 'nikitamalinovskiybcs-beep' &&
+       github.event.comment.body == '/run-aics-pit')
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
@@ -31,6 +38,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Identify actual execution event
+        run: |
+          echo "AICS PIT event: ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "AICS PIT ref: ${{ github.ref }}" >> "$GITHUB_STEP_SUMMARY"
       - name: Compile PIT scripts
         run: python -m py_compile scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py scripts/aics_pit_coverage_report.py
       - name: Confirm live run and required FRED credential
