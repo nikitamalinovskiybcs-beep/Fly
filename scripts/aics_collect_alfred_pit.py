@@ -44,7 +44,12 @@ results=[]
 for sid in SERIES:
     rows=[]
     statuses=[]
+    unsupported_vintage=False
     for as_of in DATES:
+        if unsupported_vintage:
+            statuses.append({"as_of":as_of.isoformat(),
+                             "status":"historical_vintage_unavailable"})
+            continue
         if not KEY:
             statuses.append({"as_of":as_of.isoformat(),"status":"missing_secret"})
             continue
@@ -85,9 +90,22 @@ for sid in SERIES:
                              "status":"downloaded_unverified" if snapshot_rows else "empty",
                              "rows":len(snapshot_rows)})
         except (HTTPError,URLError,TimeoutError,ValueError,KeyError,OverflowError) as exc:
-            statuses.append({"as_of":as_of.isoformat(),"status":"error",
-                             "error":type(exc).__name__,
-                             "http_status":exc.code if isinstance(exc,HTTPError) else None})
+            # ALFRED explicitly rejects historical dates for non-vintaged series.
+            # Do not retry the remaining 23 dates or substitute current FRED data.
+            if isinstance(exc, HTTPError) and exc.code == 400:
+                body=exc.read(2048).decode("utf-8","replace")
+                if "does not exist in ALFRED" in body:
+                    unsupported_vintage=True
+                    statuses.append({"as_of":as_of.isoformat(),
+                                     "status":"historical_vintage_unavailable",
+                                     "http_status":400})
+                else:
+                    statuses.append({"as_of":as_of.isoformat(),"status":"error",
+                                     "error":"HTTPError","http_status":400})
+            else:
+                statuses.append({"as_of":as_of.isoformat(),"status":"error",
+                                 "error":type(exc).__name__,
+                                 "http_status":exc.code if isinstance(exc,HTTPError) else None})
         if KEY:
             time.sleep(0.4)
     path=OUT/f"alfred_asof_{sid}.csv"
