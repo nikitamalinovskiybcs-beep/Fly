@@ -11,7 +11,7 @@ from scripts.aics_collect_ai_equities_symbol_directory import (
     BASE, FILENAMES, RESEARCH_SYMBOLS, parse_directory, build_manifest, audit_directory
 )
 
-CLOCK=dt.datetime(2026,11,19,12,0,tzinfo=dt.timezone.utc)
+CLOCK=dt.datetime(2026,11,18,23,0,tzinfo=dt.timezone.utc)
 
 
 def make_directory(filename):
@@ -85,7 +85,7 @@ class TestDirectoryCapture(unittest.TestCase):
     def test_missing_or_duplicate_symbol_fails(self):
         orig=make_directory("nasdaqlisted.txt")
         with self.assertRaisesRegex(ValueError,"duplicate"):
-            parse_directory(orig.replace(b"\nFile Creation Time:",orig.splitlines()[1]+b"\nFile Creation Time:"),"nasdaqlisted.txt")
+            parse_directory(orig.replace(b"\nFile Creation Time:",b"\n"+orig.splitlines()[1]+b"\nFile Creation Time:"),"nasdaqlisted.txt")
         no_msft=orig.replace(b"MSFT|FICTIONAL MSFT Common Stock|Q|N|N|100|N|N\n",b"")
         with tempfile.TemporaryDirectory() as temp:
             def fetch(url):
@@ -95,9 +95,9 @@ class TestDirectoryCapture(unittest.TestCase):
 
     def test_missing_footer_and_truncated_file_fail_closed(self):
         raw=make_directory("nasdaqlisted.txt")
-        with self.assertRaisesRegex(ValueError,"footer"):
+        with self.assertRaisesRegex(ValueError,"creation"):
             parse_directory(raw.rsplit(b"\n",2)[0]+b"\n","nasdaqlisted.txt")
-        with self.assertRaisesRegex(ValueError,"short"):
+        with self.assertRaisesRegex(ValueError,"lacks"):
             parse_directory((raw.splitlines()[0]+b"\n"+raw.splitlines()[-1]+b"\n"),
                             "nasdaqlisted.txt")
 
