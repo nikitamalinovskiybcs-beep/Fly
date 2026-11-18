@@ -3,6 +3,7 @@
 import datetime as dt
 import json
 import os
+import time
 from pathlib import Path
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
@@ -25,8 +26,17 @@ for ticker,cik in CIKS.items():
     try:
         request=Request(f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json",
                         headers={"User-Agent":identity,"Accept":"application/json"})
-        with urlopen(request,timeout=60) as response:
-            payload=json.load(response)
+        for attempt in range(3):
+            try:
+                with urlopen(request,timeout=60) as response:
+                    payload=json.load(response)
+                break
+            except HTTPError as exc:
+                if exc.code != 429 or attempt == 2:
+                    raise
+                time.sleep((attempt + 1) * 10)
+        if str(payload.get("cik","")).lstrip("0") != str(int(cik)):
+            raise ValueError("SEC companyfacts CIK does not match requested company")
         facts=[]
         for tag in TAGS:
             item=payload.get("facts",{}).get("us-gaap",{}).get(tag,{})
@@ -38,6 +48,8 @@ for ticker,cik in CIKS.items():
                     available=filed+dt.timedelta(days=14)
                     if available>AS_OF:
                         continue
+                    if not o.get("accn") or not o.get("end"):
+                        continue
                     facts.append({"ticker":ticker,"cik":cik,"taxonomy":"us-gaap",
                                   "xbrl_tag":tag,"unit":unit,"value":o["val"],
                                   "period_start":o.get("start"),"period_end":o.get("end"),
@@ -48,7 +60,8 @@ for ticker,cik in CIKS.items():
         path=OUT/f"sec_xbrl_{ticker}.json"
         path.write_text(json.dumps(facts,ensure_ascii=False),encoding="utf-8")
         results.append({"ticker":ticker,"status":"downloaded_unverified",
-                        "facts":len(facts),"tags":len(TAGS)})
+                        "facts":len(facts),"tags":len(TAGS),
+                        "matched_tags":len({f["xbrl_tag"] for f in facts})})
     except (HTTPError,URLError,TimeoutError,ValueError,KeyError) as e:
         results.append({"ticker":ticker,"status":"error","error":type(e).__name__,
                         "http_status":e.code if isinstance(e,HTTPError) else None})
