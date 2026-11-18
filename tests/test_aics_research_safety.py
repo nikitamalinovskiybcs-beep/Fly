@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Offline safety tests: no market data, no synthetic price or stress series."""
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -58,6 +59,21 @@ class AicsResearchSafetyTests(unittest.TestCase):
     def test_evidence_validation_blocks_missing_sources(self):
         proc, _ = self.run_script("aics_validate_evidence.py")
         self.assertNotEqual(proc.returncode, 0)
+
+    def test_pit_collector_missing_key_is_explicit_and_safe(self):
+        with tempfile.TemporaryDirectory() as folder:
+            env=os.environ.copy()
+            env.pop("FRED_API_KEY",None)
+            proc=subprocess.run([sys.executable,str(ROOT/"scripts/aics_collect_alfred_pit.py")],
+                                cwd=folder,env=env,capture_output=True,text=True)
+            self.assertNotEqual(proc.returncode,0)
+            manifest=json.loads((Path(folder)/"aics_data/pit/manifest.json").read_text())
+            self.assertEqual(len(manifest["results"]),4)
+            self.assertTrue(all(len(item["snapshots"])==24 for item in manifest["results"]))
+            self.assertTrue(all(all(s["status"]=="missing_secret" for s in item["snapshots"])
+                                for item in manifest["results"]))
+            self.assertFalse(manifest["publishable"])
+            self.assertIsNone(manifest["index_aics"])
 
     def test_pit_coverage_reports_missing_without_imputation(self):
         with tempfile.TemporaryDirectory() as folder:
