@@ -35,28 +35,34 @@ for sid, node in SERIES.items():
         continue
     try:
         rows = []
-        offset = 0
-        page_size = 1000
-        while True:
-            params = urlencode({"series_id":sid,"api_key":key,"file_type":"json",
-                                "realtime_start":"2010-01-01","realtime_end":TODAY.isoformat(),
-                                "observation_start":"2010-01-01",
-                                "limit":page_size,"offset":offset,"sort_order":"asc"})
-            data = get("https://api.stlouisfed.org/fred/series/observations?"+params)
-            observations = data.get("observations", [])
-            if not isinstance(observations, list):
-                raise ValueError("Missing observations list")
-            for o in observations:
-                if o.get("value") in ("", "."): continue
-                rows.append({"node":node,"series_id":sid,"date":o["date"],
-                             "realtime_start":o["realtime_start"],
-                             "realtime_end":o["realtime_end"],"value":o["value"],
-                             "source":"ALFRED","verified_pit":False})
-            offset += len(observations)
-            if not observations or offset >= int(data["count"]):
-                break
-            if offset >= 1000000:
-                raise ValueError("ALFRED pagination safety limit reached")
+        window_start = dt.date(2010, 1, 1)
+        while window_start <= TODAY:
+            # Bound each real-time window below FRED's 2000-vintage limit.
+            window_end = min(TODAY, window_start + dt.timedelta(days=365))
+            offset = 0
+            page_size = 1000
+            while True:
+                params = urlencode({"series_id":sid,"api_key":key,"file_type":"json",
+                                    "realtime_start":window_start.isoformat(),
+                                    "realtime_end":window_end.isoformat(),
+                                    "observation_start":"2010-01-01",
+                                    "limit":page_size,"offset":offset,"sort_order":"asc"})
+                data = get("https://api.stlouisfed.org/fred/series/observations?"+params)
+                observations = data.get("observations", [])
+                if not isinstance(observations, list):
+                    raise ValueError("Missing observations list")
+                for o in observations:
+                    if o.get("value") in ("", "."): continue
+                    rows.append({"node":node,"series_id":sid,"date":o["date"],
+                                 "realtime_start":o["realtime_start"],
+                                 "realtime_end":o["realtime_end"],"value":o["value"],
+                                 "source":"ALFRED","verified_pit":False})
+                offset += len(observations)
+                if not observations or offset >= int(data["count"]):
+                    break
+                if offset >= 1000000:
+                    raise ValueError("ALFRED pagination safety limit reached")
+            window_start = window_end + dt.timedelta(days=1)
         path = OUT / f"alfred_{sid}.csv"
         with path.open("w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=["node","series_id","date","realtime_start",
