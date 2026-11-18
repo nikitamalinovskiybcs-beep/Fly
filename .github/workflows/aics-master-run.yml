@@ -26,6 +26,9 @@ on:
       - 'scripts/aics_audit_node_coverage.py'
       - 'scripts/aics_research_readiness.py'
       - 'scripts/aics_ten_stage_receipt.py'
+      - 'scripts/aics_collect_ai_equities_prices.py'
+      - 'scripts/aics_validate_ai_equities_capture.py'
+      - 'tests/test_aics_ai_equities_capture.py'
       - 'tests/test_aics_research_safety.py'
       - '.github/workflows/aics-evidence.yml'
       - '.github/workflows/aics-ten-stage-auto.yml'
@@ -64,6 +67,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
           python -m unittest discover -s tests -p 'test_aics_progress_dashboard.py' -v
           python -m unittest discover -s tests -p 'test_aics_ai_equities_prices.py' -v
+          python -m unittest discover -s tests -p 'test_aics_ai_equities_capture.py' -v
           python -m unittest discover -s tests -p 'test_aics_extended_company_universe.py' -v
           python -m unittest discover -s tests -p 'test_aics_reconcile_company_universe.py' -v
       - name: Reconfirm fixed node weights and evidence progress without promoting scores
@@ -178,6 +182,12 @@ jobs:
       - name: Preserve 10-gate diagnostics as a receipt, not separate CI runs
         if: always()
         run: python scripts/aics_ten_stage_receipt.py
+      - name: Collect current Nasdaq research price originals, never a historical vintage
+        if: always()
+        run: python scripts/aics_collect_ai_equities_prices.py --out aics_data/source_evidence/ai_equities_live
+      - name: Rehash seven original Nasdaq responses with no look-ahead promotion
+        if: always()
+        run: python -m scripts.aics_validate_ai_equities_capture --out aics_data/source_evidence/ai_equities_live
       - name: Require complete and explicitly unverified source acquisition
         if: always()
         run: |
@@ -195,6 +205,7 @@ jobs:
           coverage=load('research/node_coverage.json')
           readiness=load('research/readiness_report.json')
           receipt=load('research/ten_stage_receipt.json')
+          equities=load('source_evidence/ai_equities_live/prospective_rehash_receipt.json')
           assert len(live.get('results', [])) == 10, 'Missing SEC/FRED source manifest'
           assert all(s.get('status') == 'downloaded_unverified' for s in live['results']), 'Source download failed'
           assert lq.get('total', 0) > 0 and lq.get('passed') == lq['total'], 'Source quality gate blocked'
@@ -206,6 +217,11 @@ jobs:
           assert readiness.get('ready_for_production') is False and readiness.get('index_aics') is None
           assert receipt.get('total') == 10 and receipt.get('ready_for_production') is False
           assert receipt.get('index_aics') is None and receipt.get('promotion') == 'BLOCKED'
+          assert equities.get('local_original_rehashes') == 7, 'Seven original Nasdaq responses not locally rehashed'
+          assert equities.get('historical_price_pit_attested') is False
+          assert equities.get('point_in_time_membership_attested') is False
+          assert equities.get('corporate_action_adjustment_pit_attested') is False
+          assert equities.get('index_aics') is None and equities.get('promotion') == 'BLOCKED'
           assert all(s.get('status') in ('PASS', 'BLOCKED') for s in receipt['stages'])
           with open(Path('/dev/stdout'),'w') as output:
               print('PASS: 10 SEC/FRED and 6 XBRL source candidates acquired and validated.',file=output)
@@ -219,6 +235,7 @@ jobs:
           path: |
             aics_data/live/
             aics_data/xbrl/
+            aics_data/source_evidence/ai_equities_live/
             aics_data/research/node_coverage.json
             aics_data/research/readiness_report.json
             aics_data/research/ten_stage_receipt.json

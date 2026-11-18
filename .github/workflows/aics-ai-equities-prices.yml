@@ -1,13 +1,7 @@
 name: AICS AI Equities primary price candidate capture
+# Manual independent re-capture; scheduled current candidates run in AICS Master.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 'devin/1779618014-quant-risk-framework'
-    paths:
-      - 'scripts/aics_collect_ai_equities_prices.py'
-      - 'tests/test_aics_ai_equities_prices.py'
-      - '.github/workflows/aics-ai-equities-prices.yml'
 permissions:
   contents: read
 jobs:
@@ -23,8 +17,11 @@ jobs:
         run: |
           python -m py_compile scripts/aics_collect_ai_equities_prices.py
           python -m unittest discover -s tests -p test_aics_ai_equities_prices.py -v
+          python -m unittest discover -s tests -p test_aics_ai_equities_capture.py -v
       - name: Collect Nasdaq price candidates (current capture, never historical PIT)
         run: python scripts/aics_collect_ai_equities_prices.py --out aics_data/source_evidence/ai_equities_live
+      - name: Independently rehash local original bytes and refuse historical PIT
+        run: python -m scripts.aics_validate_ai_equities_capture --out aics_data/source_evidence/ai_equities_live
       - name: Report actually retrieved sources and blocked scores
         if: always()
         run: |
