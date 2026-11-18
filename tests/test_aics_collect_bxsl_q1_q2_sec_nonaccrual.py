@@ -26,7 +26,9 @@ def fixture(period: str):
       market value of total investments. Based on amortized cost,
       investments on non - accrual represent {meta['cost']}% of total
       investments.</p></body></html>""".encode()
-    return {"index": index, "filing": filing, "exhibit": exhibit}
+    # Original SEC pages are larger than 250 bytes; pad fixtures only.
+    return {"index": index + b" " * 300, "filing": filing + b" " * 300,
+            "exhibit": exhibit + b" " * 300}
 
 
 class TestBXSLQ1Q2OriginalSEC(unittest.TestCase):
