@@ -182,3 +182,46 @@ jobs:
           path: aics_data/source_evidence/ir_hyperscaler_semis_demand_trial/
           retention-days: 30
           if-no-files-found: warn
+  ir-power-datacenters-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Archive Applied Digital and Equinix official IR capacity evidence
+        run: >
+          python scripts/aics_collect_priority_ir.py
+          --as-of 2026-11-18
+          --issuer "Applied Digital"
+          --issuer Equinix
+          --out aics_data/source_evidence/ir_power_datacenters_trial
+      - name: Show source capture and no-calibration limitations
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("aics_data/source_evidence/ir_power_datacenters_trial/manifest.json")
+          print("## AICS Power/Data Centers IR primary evidence")
+          if not p.exists():
+              print("No genuine source manifest. Capture did not complete.")
+          else:
+              x=json.loads(p.read_text(encoding="utf-8"))
+              assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+              assert not x["all_reports_historically_pit_verified"]
+              print(f"Original earnings pages: {x['archived_candidates']}/{x['candidate_count']}")
+              print(f"Official IR index pages: {x['landing_pages_archived']}/{x['landing_pages_checked']}")
+              for item in x["candidates"]+x["landing_pages"]:
+                  print(f"- {item['issuer']}: {item['status']} {item.get('sha256','no-hash')}")
+              print("No data-center-specific EIA vintages, regional grid connection data or 0-100 score validated.")
+          PY
+      - name: Preserve Power/Data Centers original source HTML and SHA256
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-power-datacenters-ir-source-evidence
+          path: aics_data/source_evidence/ir_power_datacenters_trial/
+          retention-days: 30
+          if-no-files-found: warn
