@@ -30,9 +30,14 @@ def model(data):
     else:
         signal="CASH_EXIT_ZONE_RESEARCH_ONLY"
         band="ABOVE_500"
+    # A boolean assertion in input evidence cannot prove independent provenance.
+    # Never expose a numerical candidate as a certified index or trading signal.
+    if index is not None:
+        signal = "UNVERIFIED_SCORE_CANDIDATE_RESEARCH_ONLY"
     return {
         "as_of":result["as_of"],
-        "index_aics":index,
+        "index_aics":None,
+        "uncertified_arithmetic_candidate":index,
         "signal":signal,
         "band":band,
         "hot_nodes":result["hot_nodes"],
@@ -43,6 +48,7 @@ def model(data):
         "required_weight":1050,
         "errors":result["errors"],
         "model_accuracy":None,
+        "score_provenance_independently_audited":False,
         "out_of_sample_validated":False,
         "committee_approved":False,
         "promotion":"BLOCKED",
@@ -62,7 +68,7 @@ def main():
         target=Path(a.output)
         target.parent.mkdir(parents=True,exist_ok=True)
         target.write_text(payload,encoding="utf-8")
-    return 0 if report["index_aics"] is not None else 2
+    return 0 if report["uncertified_arithmetic_candidate"] is not None else 2
 
 if __name__=="__main__":
     raise SystemExit(main())
