@@ -1,0 +1,61 @@
+{
+  "schema_version": "aics-obdc-original-sec-nonaccrual-permanent-receipt-v1",
+  "research_as_of": "2026-11-19",
+  "issuer": "OBDC",
+  "issuer_cik": "0001655888",
+  "source_actions_run_id": 44415057328,
+  "source_actions_artifact_id": 14478023804,
+  "source_actions_archive_sha256": "3af6fc515102edefe4e533f431b87bc87c25b87d6565616ace3fcc2ca07141e8",
+  "source_manifest_sha256": "9dd4e20d7f019ec4fdf87da695fbe0bf7827949afcc20e0f3e39a0929cc993f1",
+  "original_html_file_count": 6,
+  "source_period_count": 3,
+  "independent_original_sha_recheck": true,
+  "original_periods": [
+    {
+      "period_end": "2026-03-31",
+      "filed_at": "2026-05-06",
+      "available_at": "2026-05-20",
+      "accession": "0001655888-26-000034",
+      "cost_pct": "2.0",
+      "fair_pct": "1.0",
+      "index_sha256": "8d23ec230192e1eaceebeda1865aa2d3b61548cf370d0129100242c472862c93",
+      "exhibit_sha256": "b66f5bb3d98393ac047e3fffa8de5316d74f1a9bf0dd1904e8ba3b3200d4e64a"
+    },
+    {
+      "period_end": "2026-06-30",
+      "filed_at": "2026-08-05",
+      "available_at": "2026-08-19",
+      "accession": "0001655888-26-000055",
+      "cost_pct": "2.8",
+      "fair_pct": "0.8",
+      "index_sha256": "c19530450c960b7bdb15646aa1230ff44b74cdc96b2f794fac41285964815c71",
+      "exhibit_sha256": "08b8d99ae137ff75b2b9466894a1073a4278adca0ac8ade2d4bbe3faf3db6d0b"
+    },
+    {
+      "period_end": "2026-09-30",
+      "filed_at": "2026-11-04",
+      "available_at": "2026-11-18",
+      "accession": "0001655888-26-000070",
+      "cost_pct": "2.9",
+      "fair_pct": "0.8",
+      "index_sha256": "f530b5bda574675548a44268e7ca8cc62b353ce56016f88f77ee07c4ce7ac92d",
+      "exhibit_sha256": "32b8807cdba5faa9e5c7cc4796b1c03f157ad024fdffdda934523bdd6d347093"
+    }
+  ],
+  "source_sec_filing_lag_days": 14,
+  "cost_q1_to_q3_percentage_point_change": "0.9",
+  "fair_q1_to_q3_percentage_point_change": "-0.2",
+  "original_capture_retrieved_in_2026_11": false,
+  "retrospective_source_capture_current": true,
+  "historical_release_pit_independently_attested": false,
+  "untouched_24m_oos": false,
+  "synthetic_rows": 0,
+  "private_credit_score": null,
+  "aics_index": null,
+  "promotion": "BLOCKED",
+  "notes": [
+    "Original issuer filings and index file were rehashed from workflow ZIP, but are current captures of past filings, not independently captured vintage feeds.",
+    "Source percentages are distinct cost and fair-value portfolio denominators; cannot be averaged without predeclared weights and comparable definitions.",
+    "Research-only BDC evidence; do not infer broad private-credit market score from OBDC alone."
+  ]
+}
