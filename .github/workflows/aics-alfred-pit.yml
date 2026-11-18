@@ -1,6 +1,13 @@
 name: AICS historical ALFRED PIT audit
 # Research-only; 24 actual monthly as-of snapshots per series. No backfill.
 on:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - '.github/workflows/aics-alfred-pit.yml'
+      - 'scripts/aics_collect_alfred_pit.py'
+      - 'scripts/aics_validate_alfred_pit.py'
   workflow_dispatch:
   schedule:
     - cron: '45 11 * * 1'
