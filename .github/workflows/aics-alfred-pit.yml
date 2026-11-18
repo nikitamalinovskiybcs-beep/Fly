@@ -43,6 +43,12 @@ jobs:
         run: |
           echo "AICS PIT event: ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"
           echo "AICS PIT ref: ${{ github.ref }}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Declare PR checks are compile-only
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## PR checks only" >> "$GITHUB_STEP_SUMMARY"
+          echo "No ALFRED retrieval, PIT validation or index calculation runs on pull_request events." >> "$GITHUB_STEP_SUMMARY"
+          echo "A green PR check is NOT historical PIT evidence." >> "$GITHUB_STEP_SUMMARY"
       - name: Compile PIT scripts
         run: python -m py_compile scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py scripts/aics_pit_coverage_report.py
       - name: Confirm live run and required FRED credential
@@ -71,11 +77,19 @@ jobs:
       - name: Publish PIT coverage summary
         if: github.event_name != 'pull_request' && always()
         run: |
-          if [ -f aics_data/pit/coverage_report.json ]; then
-            python -c 'import json; from pathlib import Path; d=json.loads(Path("aics_data/pit/coverage_report.json").read_text()); print("## Historical ALFRED PIT"); [print(x["series_id"]+": "+str(x["snapshots_downloaded_unverified"])+"/24 snapshots") for x in d["series"]]; print("AICS N/A; PIT promotion BLOCKED")' >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo 'Historical PIT coverage missing; AICS blocked.' >> "$GITHUB_STEP_SUMMARY"
-          fi
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p = Path("aics_data/pit/coverage_report.json")
+          print("## Historical ALFRED PIT")
+          if not p.exists():
+              print("**BLOCKED:** historical PIT coverage missing. AICS N/A.")
+          else:
+              d = json.loads(p.read_text())
+              for x in d.get("series", []):
+                  print(f'- {x["series_id"]}: {x["snapshots_downloaded_unverified"]}/24 historical snapshots')
+              print("**AICS N/A; PIT promotion BLOCKED; no trading.**")
+          PY
       - name: Post verifiable result back to issue 55
         if: github.event_name == 'issue_comment' && always()
         env:
