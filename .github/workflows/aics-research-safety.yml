@@ -5,6 +5,7 @@ on:
       - 'scripts/aics_validate_evidence.py'
       - 'scripts/aics_validate_xbrl.py'
       - 'scripts/aics_audit_node_coverage.py'
+      - 'scripts/aics_research_readiness.py'
       - 'tests/test_aics_research_safety.py'
       - '.github/workflows/aics-research-safety.yml'
   push:
@@ -23,6 +24,6 @@ jobs:
         with:
           python-version: '3.11'
       - name: Compile evidence and research scripts
-        run: python -m py_compile scripts/aics_validate_evidence.py scripts/aics_validate_xbrl.py scripts/aics_audit_node_coverage.py tests/test_aics_research_safety.py
+        run: python -m py_compile scripts/aics_validate_evidence.py scripts/aics_validate_xbrl.py scripts/aics_audit_node_coverage.py scripts/aics_research_readiness.py tests/test_aics_research_safety.py
       - name: Run offline fail-closed tests
         run: python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
