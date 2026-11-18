@@ -51,6 +51,8 @@ jobs:
         run: python -m unittest discover -s tests -p test_aics_omi_brace_impact_research.py -v
       - name: Test OMI PDF original-byte archival safeguards
         run: python -m unittest discover -s tests -p test_aics_omi_pdf_archive.py -v
+      - name: Test user Telegram screenshot claims against explicit SEC source semantics
+        run: python -m unittest discover -s tests -p test_aics_telegram_spydell_claim_intake.py -v
       - name: Run offline fail-closed tests
         run: python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
   ir-source-capture:
