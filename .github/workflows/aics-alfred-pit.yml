@@ -20,7 +20,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: aics-alfred-pit
+  group: aics-alfred-pit-${{ github.run_id }}
   cancel-in-progress: false
 jobs:
   historical-pit:
