@@ -1,0 +1,54 @@
+{
+  "schema_version": "aics-ai-equities-historical-action-evidence-v1",
+  "node": "AI Equities",
+  "research_symbols": [
+    "NVDA",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "ORCL",
+    "MU"
+  ],
+  "mandatory_facets": [
+    "corporate_action_history",
+    "security_identity_history",
+    "historical_constituency"
+  ],
+  "proof_standard": "Original source bytes + SHA256 + issuer/security identity + publication/capture chronology + provider historical release + rights + independent as-of review",
+  "source_leads": [
+    {
+      "source": "NASDAQ_DAILY_LIST",
+      "url": "https://www.nasdaq.com/products/data/equities/corporate-action-solutions",
+      "category": "CORPORATE_ACTIONS_LISTING_CHANGES",
+      "access": "HISTORICAL_DATA_LICENSE_AND_ENTITLEMENT_UNVERIFIED",
+      "pit_evidence": false
+    },
+    {
+      "source": "NASDAQ_DAILY_LIST_SPEC",
+      "url": "https://nasdaqtrader.com/content/technicalSupport/specifications/dataproducts/dlcompletespec.pdf",
+      "category": "SCHEMA_DOCUMENTATION_ONLY",
+      "access": "PUBLIC_DESCRIPTION_NOT_EVENT_PROOF",
+      "pit_evidence": false
+    },
+    {
+      "source": "SEC_EDGAR",
+      "url": "https://www.sec.gov/edgar/search/",
+      "category": "ISSUER_FILINGS_CANDIDATE",
+      "access": "FILING_PLUS_14_DAYS_REQUIRES_PER_DOCUMENT_ARCHIVE",
+      "pit_evidence": false
+    }
+  ],
+  "original_evidence_records": [],
+  "all_absence_of_actions_assertions": false,
+  "historical_membership_verified": false,
+  "split_dividend_adjustment_pit_verified": false,
+  "corporate_action_history_pit_verified": false,
+  "independently_certified_pit": false,
+  "node_stress_score": null,
+  "index_aics": null,
+  "predictive_skill_score": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "note": "Empty records mean NO historical coverage attested, not evidence of zero splits, zero dividends, or unchanging membership. No price retro-adjustments or look-ahead permitted."
+}
