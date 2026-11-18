@@ -1,5 +1,5 @@
 {
-  "schema_version": "aics-repo-24-matched-source-observed-rates-v1",
+  "schema_version": "aics-repo-24-matched-source-observed-rates-v2",
   "research_as_of": "2026-11-18",
   "date_range": [
     "2024-11-30",
@@ -11,8 +11,8 @@
   "spread_units": "basis points",
   "nyfed_source": "New York Fed SOFR BGCR TGCR current-capture original JSON",
   "alfred_source": "ALFRED IORB 24 dated as-of query original JSON",
-  "verified_github_actions_run": 44404115698,
-  "full_generated_report_sha256": "c34aa5454714559913e8cc5753f983aa87f14452d7536c46144b47f7a5903c81",
+  "verified_github_actions_run": null,
+  "full_generated_report_sha256": null,
   "full_generated_report_artifact_id": 14474038313,
   "raw_provider_archive_sha256": {
     "nyfed": "2c0a8effbb1e0c222bdff4cf9f7141148767d39136b90d874c461cbb42c9e5dd",
@@ -21,17 +21,19 @@
   "monthly_observations": [
     {
       "as_of": "2024-11-30",
-      "market_effective_date": "2024-11-29",
+      "market_effective_date": "2024-11-27",
+      "publication_proxy_date": "2024-11-29",
       "iorb_pct": "4.65",
-      "sofr_pct": "4.59",
-      "bgcr_pct": "4.58",
-      "tgcr_pct": "4.58",
-      "sofr_minus_iorb_bps": -6,
+      "sofr_pct": "4.57",
+      "bgcr_pct": "4.56",
+      "tgcr_pct": "4.56",
+      "sofr_minus_iorb_bps": -8,
       "sofr_minus_bgcr_bps": 1
     },
     {
       "as_of": "2024-12-31",
       "market_effective_date": "2024-12-30",
+      "publication_proxy_date": "2024-12-31",
       "iorb_pct": "4.4",
       "sofr_pct": "4.37",
       "bgcr_pct": "4.35",
@@ -42,6 +44,7 @@
     {
       "as_of": "2025-01-31",
       "market_effective_date": "2025-01-30",
+      "publication_proxy_date": "2025-01-31",
       "iorb_pct": "4.4",
       "sofr_pct": "4.36",
       "bgcr_pct": "4.34",
@@ -52,6 +55,7 @@
     {
       "as_of": "2025-02-28",
       "market_effective_date": "2025-02-27",
+      "publication_proxy_date": "2025-02-28",
       "iorb_pct": "4.4",
       "sofr_pct": "4.36",
       "bgcr_pct": "4.34",
@@ -62,6 +66,7 @@
     {
       "as_of": "2025-03-31",
       "market_effective_date": "2025-03-28",
+      "publication_proxy_date": "2025-03-31",
       "iorb_pct": "4.4",
       "sofr_pct": "4.34",
       "bgcr_pct": "4.33",
@@ -72,6 +77,7 @@
     {
       "as_of": "2025-04-30",
       "market_effective_date": "2025-04-29",
+      "publication_proxy_date": "2025-04-30",
       "iorb_pct": "4.4",
       "sofr_pct": "4.36",
       "bgcr_pct": "4.35",
@@ -81,17 +87,19 @@
     },
     {
       "as_of": "2025-05-31",
-      "market_effective_date": "2025-05-30",
+      "market_effective_date": "2025-05-29",
+      "publication_proxy_date": "2025-05-30",
       "iorb_pct": "4.4",
-      "sofr_pct": "4.35",
-      "bgcr_pct": "4.34",
-      "tgcr_pct": "4.34",
-      "sofr_minus_iorb_bps": -5,
+      "sofr_pct": "4.33",
+      "bgcr_pct": "4.32",
+      "tgcr_pct": "4.32",
+      "sofr_minus_iorb_bps": -7,
       "sofr_minus_bgcr_bps": 1
     },
     {
       "as_of": "2025-06-30",
       "market_effective_date": "2025-06-27",
+      "publication_proxy_date": "2025-06-30",
       "iorb_pct": "4.4",
       "sofr_pct": "4.39",
       "bgcr_pct": "4.37",
@@ -102,6 +110,7 @@
     {
       "as_of": "2025-07-31",
       "market_effective_date": "2025-07-30",
+      "publication_proxy_date": "2025-07-31",
       "iorb_pct": "4.4",
       "sofr_pct": "4.32",
       "bgcr_pct": "4.31",
@@ -111,7 +120,8 @@
     },
     {
       "as_of": "2025-08-31",
-      "market_effective_date": "2025-08-29",
+      "market_effective_date": "2025-08-28",
+      "publication_proxy_date": "2025-08-29",
       "iorb_pct": "4.4",
       "sofr_pct": "4.34",
       "bgcr_pct": "4.33",
@@ -122,6 +132,7 @@
     {
       "as_of": "2025-09-30",
       "market_effective_date": "2025-09-29",
+      "publication_proxy_date": "2025-09-30",
       "iorb_pct": "4.15",
       "sofr_pct": "4.13",
       "bgcr_pct": "4.12",
@@ -132,6 +143,7 @@
     {
       "as_of": "2025-10-31",
       "market_effective_date": "2025-10-30",
+      "publication_proxy_date": "2025-10-31",
       "iorb_pct": "3.9",
       "sofr_pct": "4.04",
       "bgcr_pct": "3.99",
@@ -141,17 +153,19 @@
     },
     {
       "as_of": "2025-11-30",
-      "market_effective_date": "2025-11-28",
+      "market_effective_date": "2025-11-26",
+      "publication_proxy_date": "2025-11-28",
       "iorb_pct": "3.9",
-      "sofr_pct": "4.12",
-      "bgcr_pct": "4.08",
-      "tgcr_pct": "4.08",
-      "sofr_minus_iorb_bps": 22,
-      "sofr_minus_bgcr_bps": 4
+      "sofr_pct": "4.05",
+      "bgcr_pct": "4.02",
+      "tgcr_pct": "4.02",
+      "sofr_minus_iorb_bps": 15,
+      "sofr_minus_bgcr_bps": 3
     },
     {
       "as_of": "2025-12-31",
       "market_effective_date": "2025-12-30",
+      "publication_proxy_date": "2025-12-31",
       "iorb_pct": "3.65",
       "sofr_pct": "3.71",
       "bgcr_pct": "3.69",
@@ -161,27 +175,30 @@
     },
     {
       "as_of": "2026-01-31",
-      "market_effective_date": "2026-01-30",
+      "market_effective_date": "2026-01-29",
+      "publication_proxy_date": "2026-01-30",
       "iorb_pct": "3.65",
-      "sofr_pct": "3.68",
-      "bgcr_pct": "3.66",
-      "tgcr_pct": "3.66",
-      "sofr_minus_iorb_bps": 3,
+      "sofr_pct": "3.65",
+      "bgcr_pct": "3.63",
+      "tgcr_pct": "3.63",
+      "sofr_minus_iorb_bps": 0,
       "sofr_minus_bgcr_bps": 2
     },
     {
       "as_of": "2026-02-28",
-      "market_effective_date": "2026-02-27",
+      "market_effective_date": "2026-02-26",
+      "publication_proxy_date": "2026-02-27",
       "iorb_pct": "3.65",
-      "sofr_pct": "3.68",
-      "bgcr_pct": "3.66",
-      "tgcr_pct": "3.66",
-      "sofr_minus_iorb_bps": 3,
+      "sofr_pct": "3.67",
+      "bgcr_pct": "3.65",
+      "tgcr_pct": "3.65",
+      "sofr_minus_iorb_bps": 2,
       "sofr_minus_bgcr_bps": 2
     },
     {
       "as_of": "2026-03-31",
       "market_effective_date": "2026-03-30",
+      "publication_proxy_date": "2026-03-31",
       "iorb_pct": "3.65",
       "sofr_pct": "3.63",
       "bgcr_pct": "3.62",
@@ -192,6 +209,7 @@
     {
       "as_of": "2026-04-30",
       "market_effective_date": "2026-04-29",
+      "publication_proxy_date": "2026-04-30",
       "iorb_pct": "3.65",
       "sofr_pct": "3.63",
       "bgcr_pct": "3.61",
@@ -201,17 +219,19 @@
     },
     {
       "as_of": "2026-05-31",
-      "market_effective_date": "2026-05-29",
+      "market_effective_date": "2026-05-28",
+      "publication_proxy_date": "2026-05-29",
       "iorb_pct": "3.65",
-      "sofr_pct": "3.63",
-      "bgcr_pct": "3.61",
-      "tgcr_pct": "3.61",
-      "sofr_minus_iorb_bps": -2,
+      "sofr_pct": "3.62",
+      "bgcr_pct": "3.6",
+      "tgcr_pct": "3.6",
+      "sofr_minus_iorb_bps": -3,
       "sofr_minus_bgcr_bps": 2
     },
     {
       "as_of": "2026-06-30",
       "market_effective_date": "2026-06-29",
+      "publication_proxy_date": "2026-06-30",
       "iorb_pct": "3.65",
       "sofr_pct": "3.62",
       "bgcr_pct": "3.6",
@@ -222,6 +242,7 @@
     {
       "as_of": "2026-07-31",
       "market_effective_date": "2026-07-30",
+      "publication_proxy_date": "2026-07-31",
       "iorb_pct": "3.65",
       "sofr_pct": "3.65",
       "bgcr_pct": "3.63",
@@ -232,6 +253,7 @@
     {
       "as_of": "2026-08-31",
       "market_effective_date": "2026-08-28",
+      "publication_proxy_date": "2026-08-31",
       "iorb_pct": "3.65",
       "sofr_pct": "3.65",
       "bgcr_pct": "3.63",
@@ -242,6 +264,7 @@
     {
       "as_of": "2026-09-30",
       "market_effective_date": "2026-09-29",
+      "publication_proxy_date": "2026-09-30",
       "iorb_pct": "3.9",
       "sofr_pct": "3.88",
       "bgcr_pct": "3.87",
@@ -251,22 +274,23 @@
     },
     {
       "as_of": "2026-10-31",
-      "market_effective_date": "2026-10-30",
+      "market_effective_date": "2026-10-29",
+      "publication_proxy_date": "2026-10-30",
       "iorb_pct": "3.9",
-      "sofr_pct": "3.95",
-      "bgcr_pct": "3.93",
-      "tgcr_pct": "3.93",
-      "sofr_minus_iorb_bps": 5,
+      "sofr_pct": "3.94",
+      "bgcr_pct": "3.92",
+      "tgcr_pct": "3.92",
+      "sofr_minus_iorb_bps": 4,
       "sofr_minus_bgcr_bps": 2
     }
   ],
   "observed_months": 24,
   "missing_months": 0,
   "sofr_minus_iorb_min_bps": -8,
-  "sofr_minus_iorb_max_bps": 22,
-  "sofr_minus_iorb_sum_bps": -7,
-  "sofr_minus_iorb_mean_bps": "-0.2916666666666666666666666667",
-  "sofr_minus_iorb_nonpositive_months": 18,
+  "sofr_minus_iorb_max_bps": 15,
+  "sofr_minus_iorb_sum_bps": -24,
+  "sofr_minus_iorb_mean_bps": "-1.00",
+  "sofr_minus_iorb_nonpositive_months": 19,
   "synthetic_market_rows": 0,
   "source_release_timestamp_pit_attested": false,
   "contemporaneous_alfred_snapshots_attested": false,
@@ -274,5 +298,7 @@
   "stress_score": null,
   "index_aics": null,
   "promotion": "BLOCKED",
-  "note": "Source archive derivatives only: NY Fed current retrospective history and ALFRED retrospective as-of API replay do NOT constitute independently attested contemporaneous historical PIT. Market effective_date < monthly as_of, not proof of actual publication. No signal."
+  "note": "Observed retrospective research-only; NY Fed publication occurs after effective date. Month-end selection requires NEXT common market session on/before cutoff, NOT effective date alone. NY Fed current retrospective history and ALFRED retrospective as-of API replay do NOT independently prove historical publication or revisions. No investment signal.",
+  "nyfed_publication_calendar_policy": "next observed common government-securities market session must be <= analysis month end; proxy only, not original posting attestation",
+  "verification_status": "REGENERATE_FROM_ORIGINAL_ARCHIVES_IN_CI"
 }
