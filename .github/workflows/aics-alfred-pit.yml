@@ -9,6 +9,7 @@ on:
       - 'scripts/aics_collect_alfred_pit.py'
       - 'scripts/aics_validate_alfred_pit.py'
       - 'scripts/aics_pit_coverage_report.py'
+      - 'scripts/aics_committee_readiness.py'
   workflow_dispatch:
   issue_comment:
     types: [created]
@@ -50,7 +51,7 @@ jobs:
           echo "No ALFRED retrieval, PIT validation or index calculation runs on pull_request events." >> "$GITHUB_STEP_SUMMARY"
           echo "A green PR check is NOT historical PIT evidence." >> "$GITHUB_STEP_SUMMARY"
       - name: Compile PIT scripts
-        run: python -m py_compile scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py scripts/aics_pit_coverage_report.py
+        run: python -m py_compile scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py scripts/aics_pit_coverage_report.py scripts/aics_committee_readiness.py
       - name: Confirm live run and required FRED credential
         if: github.event_name != 'pull_request'
         env:
@@ -74,6 +75,9 @@ jobs:
       - name: Report actual historical vintage coverage and gaps
         if: github.event_name != 'pull_request' && always()
         run: python scripts/aics_pit_coverage_report.py
+      - name: Generate committee readiness evidence
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_committee_readiness.py
       - name: Publish PIT coverage summary
         if: github.event_name != 'pull_request' && always()
         run: |
