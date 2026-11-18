@@ -11,6 +11,10 @@ on:
       - 'scripts/aics_validate_alfred_pit.py'
       - 'scripts/aics_pit_coverage_report.py'
       - 'tests/test_aics_research_safety.py'
+      - 'tests/test_aics_extended_company_universe.py'
+      - 'tests/test_aics_reconcile_company_universe.py'
+      - 'scripts/aics_reconcile_company_universe.py'
+      - 'aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json'
       - '.github/workflows/aics-research-safety.yml'
   push:
     branches:
@@ -53,6 +57,18 @@ jobs:
         run: python -m unittest discover -s tests -p test_aics_omi_pdf_archive.py -v
       - name: Test user Telegram screenshot claims against explicit SEC source semantics
         run: python -m unittest discover -s tests -p test_aics_telegram_spydell_claim_intake.py -v
+      - name: Audit all 37 OMI/Telegram candidates with original source separation
+        run: |
+          python -m unittest discover -s tests -p test_aics_extended_company_universe.py -v
+          python -m unittest discover -s tests -p test_aics_reconcile_company_universe.py -v
+          python -m scripts.aics_reconcile_company_universe --out aics_data/source_evidence/omi_telegram_company_reconciliation.json
+      - name: Archive research-only company reconciliation with no numerical AICS
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-37-company-provenance-reconciliation
+          path: aics_data/source_evidence/omi_telegram_company_reconciliation.json
+          retention-days: 30
+          if-no-files-found: error
       - name: Run offline fail-closed tests
         run: python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
   ir-source-capture:
