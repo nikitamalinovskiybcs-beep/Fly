@@ -48,6 +48,26 @@ class MinimalModelTests(unittest.TestCase):
         x=test_input(50)
         del x["nodes"]["Repo"]["evidence"]
         self.assertIsNone(model_module.model(x)["index_aics"])
+    def test_100_deterministic_safety_scenarios(self):
+        # 100 arithmetic-only test cases, NOT 100 financial forecasts/backtests.
+        for i in range(100):
+            with self.subTest(case=i):
+                x=test_input(i)
+                if i%4==0:
+                    x["nodes"].pop("Repo")
+                elif i%4==1:
+                    x["nodes"]["Repo"]["evidence"]["available_at"]="2026-12-01"
+                elif i%4==2:
+                    x["nodes"]["Repo"]["evidence"]["independently_verified_pit"]=False
+                r=model_module.model(x)
+                self.assertIsNone(r["index_aics"])
+                self.assertEqual(r["promotion"],"BLOCKED")
+                self.assertFalse(r["trades_created"])
+                self.assertFalse(r["score_provenance_independently_audited"])
+                if i%4!=3:
+                    self.assertIsNone(r["uncertified_arithmetic_candidate"])
+                else:
+                    self.assertIsNotNone(r["uncertified_arithmetic_candidate"])
     def test_hot_multiplier(self):
         x=test_input(50)
         for name in list(model_module.gate.WEIGHTS)[:3]:
