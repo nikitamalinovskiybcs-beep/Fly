@@ -7,6 +7,7 @@ on:
     paths:
       - 'scripts/aics_derive_ust30_privatecredit_research.py'
       - 'tests/test_aics_derive_ust30_privatecredit_research.py'
+      - 'aics_data/research/ust30_24_month_public_observed_panel_2026-11-18.json'
       - 'aics_data/research/alfred_macro_archive_rehash_2026_11_18.json'
       - '.github/workflows/aics-ust30-privatecredit-research.yml'
 permissions:
@@ -68,6 +69,31 @@ jobs:
               print('24 archived historical as-of months; source SHA and 165913 raw rows checked.',file=out)
               print('Private Credit ICE licensed proxies: counts/hashes only, values quarantined.',file=out)
               print('PIT publication dates/OOS not independently attested; AICS N/A.',file=out)
+          PY
+      - name: Cross-check 24 durable real public observations against independent source derivation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from decimal import Decimal
+          generated = json.loads(Path('docs/audit/aics_ust30_private_credit_24_month_source_panel_2026-11-18.json').read_text())
+          pinned = json.loads(Path('aics_data/research/ust30_24_month_public_observed_panel_2026-11-18.json').read_text())
+          assert generated['observed_public_months'] == len(pinned['public_series_observations']) == 24
+          assert pinned['original_csv_zip_sha256'] == generated['original_provider_zip_sha256']
+          assert pinned['source_archive_rows'] == sum(x['source_rows'] for x in generated['source_series'].values())
+          for left, right in zip(generated['monthly_public_observations'],pinned['public_series_observations']):
+              for k in ('as_of_month_end','dgs30_observation_date','sofr_observation_date'):
+                  assert left[k] == right[k]
+              for k in ('dgs30_pct','sofr_pct','dgs30_minus_sofr_bps'):
+                  assert Decimal(left[k]) == Decimal(right[k])
+          for item in pinned['licensed_credit_proxy_series']:
+              assert item['source_rows'] == generated['source_series'][item['series_id']]['source_rows']
+              assert item['raw_sha256'] == generated['source_series'][item['series_id']]['csv_sha256']
+          assert not pinned['copyright_licensed_ice_numeric_values_stored']
+          assert not pinned['independent_provider_historical_release_proven']
+          assert not pinned['untouched_24_month_oos_proven']
+          assert pinned['index_aics'] is None and pinned['promotion'] == 'BLOCKED'
+          print('Verified all 24 durable public UST30/Repo source rows and 2 licensed series receipt hashes.')
           PY
       - name: Preserve real UST30 observations and licensed credit coverage evidence
         uses: actions/upload-artifact@v4
