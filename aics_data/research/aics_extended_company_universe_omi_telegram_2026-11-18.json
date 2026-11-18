@@ -153,8 +153,7 @@
       "origin": "OMI_PDF",
       "original_pdf_pages": [
         19,
-        22,
-        24
+        22
       ],
       "candidate_nodes": [
         "Hyperscalers",
@@ -388,7 +387,11 @@
       "confirmed_financial_exposure_usd": null,
       "stress_score": null,
       "model_eligible": false,
-      "notes": "Abilene co-developer / equity investor, PDI"
+      "notes": "Abilene co-developer / equity investor, PDI",
+      "pdf_name_aliases": [
+        "PRIMARY DIGITAL INFRASTRUCTURE",
+        "PRIMARY DIGITAL"
+      ]
     },
     {
       "name": "Lancium",
@@ -424,7 +427,11 @@
       "confirmed_financial_exposure_usd": null,
       "stress_score": null,
       "model_eligible": false,
-      "notes": "JPMC noted lender to Abilene project, NOT proof of bank repo stress"
+      "notes": "JPMC noted lender to Abilene project, NOT proof of bank repo stress",
+      "pdf_name_aliases": [
+        "JP MORGAN CHASE",
+        "JPMC"
+      ]
     },
     {
       "name": "Apollo",
