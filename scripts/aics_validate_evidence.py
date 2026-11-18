@@ -81,6 +81,9 @@ sec_valid=True
 sec_counts={}
 sec_duplicates={}
 sec_manifest_match=True
+sec_cik_valid=True
+sec_period_valid=True
+sec_accession_shape=True
 for ticker in ("NVDA","MSFT","AMZN","GOOGL","META","ORCL"):
     path=ROOT / f"sec_eligible_filings_{ticker}.json"
     if not path.exists():
@@ -97,8 +100,16 @@ for ticker in ("NVDA","MSFT","AMZN","GOOGL","META","ORCL"):
             sec_duplicates[ticker]+=1
         seen_accessions.add(filing.get("accession_number"))
         try:
+            if filing["cik"] != {"NVDA":"0001045810","MSFT":"0000789019",
+                "AMZN":"0001018724","GOOGL":"0001652044",
+                "META":"0001326801","ORCL":"0001341439"}[ticker]:
+                sec_cik_valid=False
+            if not filing["accession_number"].count("-") == 2:
+                sec_accession_shape=False
             filed=dt.date.fromisoformat(filing["filed_at"])
             available=dt.date.fromisoformat(filing["available_at"])
+            if filing.get("period_end") and dt.date.fromisoformat(filing["period_end"]) > filed:
+                sec_period_valid=False
             if (available != filed+dt.timedelta(days=14) or available >
                 dt.date.fromisoformat(manifest["as_of"]) or
                 filing["ticker"]!=ticker or filing["form"] not in ("10-K","10-Q","8-K")
@@ -119,6 +130,9 @@ check("08_sec_14_day_embargo", sec_valid and len(sec_counts)==6, sec_counts)
 check("08b_sec_manifest_counts", sec_manifest_match, sec_counts)
 check("08c_sec_accession_uniqueness", len(sec_duplicates)==6 and
       all(v==0 for v in sec_duplicates.values()), sec_duplicates)
+check("08d_sec_cik_mapping", sec_cik_valid)
+check("08e_sec_period_end_not_future", sec_period_valid)
+check("08f_sec_accession_format", sec_accession_shape)
 check("09_no_claimed_xbrl_facts", all(r.get("xbrl_facts_extracted") is False
       for r in results if r.get("source")=="SEC"))
 check("10_pit_promotion_blocked", all(r.get("historical_pit_available") is False
