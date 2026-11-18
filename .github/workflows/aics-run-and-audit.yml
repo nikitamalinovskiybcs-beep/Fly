@@ -10,6 +10,7 @@ on:
       - 'aics_data/progress/status.json'
       - 'aics_data/source_registry/sec_spv_neoclouds_filings_2026-11-18.json'
       - 'aics_data/research/nyfed_repo_original_archive_independent_rehash_2026_11_18.json'
+      - 'aics_data/research/alfred_iorb_power_vintage_revision_independent_receipt_2026_11_18.json'
       - 'aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json'
       - '.github/workflows/aics-run-and-audit.yml'
 permissions:
