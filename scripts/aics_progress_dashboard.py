@@ -16,8 +16,10 @@ from pathlib import Path
 
 if __package__:
     from .aics_verify_insurers_ir_receipt import verified_raw_insurers_archive
+    from .aics_verify_neocloud_spv_ir_receipt import verified_neocloud_spv_archives
 else:
     from aics_verify_insurers_ir_receipt import verified_raw_insurers_archive
+    from aics_verify_neocloud_spv_ir_receipt import verified_neocloud_spv_archives
 
 WEIGHTS = {
     "Private Credit": 150,
@@ -142,7 +144,8 @@ def build(root: Path, manifest: dict) -> dict:
             fail("archived source is not documented in both registry and report")
         archived_nodes.add(node)
 
-    raw_ir_nodes = verified_raw_insurers_archive(root, manifest)
+    raw_ir_nodes = (verified_raw_insurers_archive(root, manifest)
+                    | verified_neocloud_spv_archives(root, manifest))
     if raw_ir_nodes & archived_nodes or not raw_ir_nodes <= registry_nodes:
         fail("duplicate or unregistered raw IR node archive")
     archived_nodes |= raw_ir_nodes
@@ -246,10 +249,11 @@ def as_markdown(status: dict) -> str:
         "6. Независимая сертификация узла.",
         "",
         "Исходный архив: [GitHub Actions](" + status["archive"]["workflow_url"] + ").",
-        "ALFRED поддерживает три кандидатных узла; два оригинальных IR-отчёта "
-        "MetLife и Prudential прошли сверку SHA-256 и добавляют Insurers.",
-        "IR-архив GitHub Actions хранится 30 дней, не является историческим PIT "
-        "и не сертифицирует стресс-скор.",
+        "ALFRED поддерживает три кандидатных узла. Оригинальные IR-отчёты "
+        "MetLife/Prudential, CoreWeave/Nebius/Equinix прошли независимую "
+        "повторную проверку SHA-256 и добавляют ещё три узла только на этапе архива.",
+        "IR-архивы GitHub Actions хранятся 30 дней, не являются доказательством "
+        "исторического PIT, структуры SPV или сертифицированных стресс-скоров.",
         "",
         "**Нельзя считать процент основанием для инвестиций или рассчитывать AICS.**",
         "",
