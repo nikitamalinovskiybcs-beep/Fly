@@ -21,6 +21,7 @@ jobs:
       - name: Syntax check
         run: python -m py_compile scripts/aics_collect_xbrl.py
       - name: Download SEC companyfacts
+        if: github.event_name != 'pull_request'
         env:
           EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
         run: python scripts/aics_collect_xbrl.py
