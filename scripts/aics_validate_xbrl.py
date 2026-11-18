@@ -42,6 +42,9 @@ for ticker in TICKERS:
         if not isinstance(facts, list):
             raise ValueError("not a list")
         counts[ticker] = len(facts)
+        matching = [r for r in results if r.get("ticker") == ticker]
+        if len(matching) != 1 or matching[0].get("facts") != len(facts):
+            errors.append(f"{ticker}:manifest_fact_count_mismatch")
         seen = set()
         for fact in facts:
             filed = dt.date.fromisoformat(fact["filed_at"])
@@ -60,7 +63,8 @@ for ticker in TICKERS:
                 or fact["xbrl_tag"] not in TAGS or fact["verified_pit"] is not False
                 or fact["form"] not in ("10-K", "10-Q")
                 or not fact["unit"] or not fact["accession_number"]
-                or not fact["cik"] or not isinstance(value, (int, float))
+                or not fact["cik"] or len(str(fact["cik"])) != 10
+                or not isinstance(value, (int, float))
                 or isinstance(value, bool) or not math.isfinite(value)
                 or available != filed + dt.timedelta(days=14)
                 or available > as_of or end > filed or (start and start > end)):
