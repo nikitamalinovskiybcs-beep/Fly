@@ -33,8 +33,20 @@ jobs:
           python-version: '3.11'
       - name: Compile PIT scripts
         run: python -m py_compile scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py scripts/aics_pit_coverage_report.py
-      - name: Collect actual monthly historical vintages
+      - name: Confirm live run and required FRED credential
         if: github.event_name != 'pull_request'
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          echo "Event: ${{ github.event_name }}; ref: ${{ github.ref }}" >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "$FRED_API_KEY" ]; then
+            echo "::error::FRED_API_KEY is missing; historical PIT cannot run"
+            echo "**BLOCKED: FRED_API_KEY secret missing. No historical vintages retrieved.**" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "FRED_API_KEY present (value never logged)." >> "$GITHUB_STEP_SUMMARY"
+      - name: Collect actual monthly historical vintages
+        if: github.event_name != 'pull_request' && success()
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/aics_collect_alfred_pit.py
