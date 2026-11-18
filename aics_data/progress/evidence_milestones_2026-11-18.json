@@ -1,0 +1,35 @@
+{
+  "schema_version": "aics-progress-milestones-v1",
+  "report_as_of": "2026-11-18",
+  "registry_path": "docs/aics_11_node_primary_source_registry_2026-11-18.md",
+  "research_archive": {
+    "description": "Historical ALFRED as-of snapshot archive documented in repository; primary provider values not independently re-attested",
+    "workflow_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44313687138",
+    "archive_sha256": "03d06b287dc591d6830223bd181db401d19ce618a785b40c25a999ab1ddd5cc3",
+    "supporting_document": "docs/aics_research_credit_monitor_2026-11-18.md",
+    "series_by_node": {
+      "Private Credit": [
+        "BAMLH0A0HYM2",
+        "BAMLH0A3HYC"
+      ],
+      "UST 30Y": [
+        "DGS30"
+      ],
+      "Repo": [
+        "SOFR"
+      ]
+    }
+  },
+  "independent_audit": {
+    "independently_pit_attested_nodes": [],
+    "independently_audited_score_nodes": [],
+    "untouched_oos_24mo_passed_nodes": [],
+    "independently_certified_nodes": []
+  },
+  "limitations": [
+    "Stage percentages measure completion of 6 documented project milestones, not model accuracy or validated index completeness.",
+    "One ALFRED ZIP archive supports three candidate node mappings; those mappings are not independent node stress scores.",
+    "No historical series or observations are fabricated or backfilled.",
+    "AICS=NA and predictive_skill=NA unless separate independent scientific gates pass."
+  ]
+}
