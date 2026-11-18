@@ -12,6 +12,8 @@ on:
       - 'scripts/aics_committee_readiness.py'
       - 'scripts/aics_score_reproducibility_gate.py'
       - 'tests/test_aics_score_reproducibility_gate.py'
+      - 'scripts/aics_minimal_model.py'
+      - 'tests/test_aics_minimal_model.py'
   workflow_dispatch:
   issue_comment:
     types: [created]
@@ -56,6 +58,8 @@ jobs:
         run: python -m py_compile scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py scripts/aics_pit_coverage_report.py scripts/aics_committee_readiness.py
       - name: Verify score arithmetic and PIT fail-closed rules
         run: python -m unittest discover -s tests -p 'test_aics_score_reproducibility_gate.py' -v
+      - name: Test minimal AICS research model
+        run: python -m unittest discover -s tests -p 'test_aics_minimal_model.py' -v
       - name: Confirm live run and required FRED credential
         if: github.event_name != 'pull_request'
         env:
