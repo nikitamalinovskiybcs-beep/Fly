@@ -44,6 +44,7 @@ results=[]
 for sid in SERIES:
     rows=[]
     statuses=[]
+    downloaded_at=dt.datetime.now(dt.timezone.utc).isoformat()
     unsupported_vintage=False
     for as_of in DATES:
         if unsupported_vintage:
@@ -114,6 +115,10 @@ for sid in SERIES:
         writer.writeheader()
         writer.writerows(rows)
     results.append({"series_id":sid,"snapshots":statuses,"rows":len(rows),
+                    "retrieved_at_utc":downloaded_at,
+                    "source_endpoint":"https://api.stlouisfed.org/fred/series/observations",
+                    "observation_start":"2010-01-01",
+                    "query_mode":"realtime_start=realtime_end=as_of",
                     "sha256":hashlib.sha256(path.read_bytes()).hexdigest(),
                     "complete":len(statuses)==24 and
                     all(x["status"]=="downloaded_unverified" for x in statuses)})
