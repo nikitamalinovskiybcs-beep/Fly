@@ -46,7 +46,7 @@
   "synthetic_or_interpolated_rows": 0,
   "original_provider_historical_publication_timestamps_independently_attested": false,
   "observed_asof_snapshots_captured_contemporaneously": false,
-  "indipendent_24_month_out_of_sample_proven": false,
+  "independent_24_month_out_of_sample_proven": false,
   "certified_stress_scores": {
     "Repo": null,
     "Power/Data Centers": null
