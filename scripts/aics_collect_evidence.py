@@ -61,7 +61,7 @@ for ticker, cik in CIKS.items():
         results.append({"source":"SEC","id":ticker,"status":"missing_secret"})
         continue
     try:
-        headers={"User-Agent":identity,"Accept-Encoding":"gzip, deflate"}
+        headers={"User-Agent":identity,"Accept":"application/json"}
         data=get(f"https://data.sec.gov/submissions/CIK{cik}.json",headers)
         write_json(OUT / f"sec_submissions_{ticker}.json",data)
         recent=data.get("filings",{}).get("recent",{})
