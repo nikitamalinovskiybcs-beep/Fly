@@ -84,11 +84,12 @@ for sid in SERIES:
             statuses.append({"as_of":as_of.isoformat(),
                              "status":"downloaded_unverified" if snapshot_rows else "empty",
                              "rows":len(snapshot_rows)})
-        except (HTTPError,URLError,TimeoutError,ValueError,KeyError) as exc:
+        except (HTTPError,URLError,TimeoutError,ValueError,KeyError,OverflowError) as exc:
             statuses.append({"as_of":as_of.isoformat(),"status":"error",
                              "error":type(exc).__name__,
                              "http_status":exc.code if isinstance(exc,HTTPError) else None})
-        time.sleep(0.4)
+        if KEY:
+            time.sleep(0.4)
     path=OUT/f"alfred_asof_{sid}.csv"
     with path.open("w",newline="",encoding="utf-8") as handle:
         writer=csv.DictWriter(handle,fieldnames=HEADERS)
