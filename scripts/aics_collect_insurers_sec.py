@@ -109,7 +109,7 @@ def recent_accessions(submissions: dict) -> dict:
     for form, accn, filed, primary in zip(forms, accessions, filed_dates, primaries):
         if form not in FORMS:
             continue
-        if (not isinstance(accn, str) or not re.fullmatch(r"\\d{10}-\\d{2}-\\d{6}", accn)
+        if (not isinstance(accn, str) or not re.fullmatch(r"\d{10}-\d{2}-\d{6}", accn)
                 or not isinstance(filed, str) or not isinstance(primary, str)
                 or not re.fullmatch(r"[A-Za-z0-9_.-]{1,255}", primary)):
             continue
