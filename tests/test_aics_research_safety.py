@@ -42,6 +42,19 @@ class AicsResearchSafetyTests(unittest.TestCase):
             self.assertIn("chronological_24m_oos_validated", data["blocking_checks"])
             self.assertIn("committee_approval_recorded", data["blocking_checks"])
 
+    def test_ten_stage_receipt_blocks_missing_sources(self):
+        with tempfile.TemporaryDirectory() as folder:
+            proc = subprocess.run([sys.executable, str(ROOT/"scripts/aics_ten_stage_receipt.py")],
+                                  cwd=folder, capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            data = json.loads((Path(folder)/"aics_data/research/ten_stage_receipt.json").read_text())
+            self.assertEqual(data["total"], 10)
+            self.assertEqual(data["passed"], 0)
+            self.assertEqual(len(data["stages"]), 10)
+            self.assertFalse(data["ready_for_production"])
+            self.assertIsNone(data["index_aics"])
+            self.assertFalse(data["trades_created"])
+
     def test_evidence_validation_blocks_missing_sources(self):
         proc, _ = self.run_script("aics_validate_evidence.py")
         self.assertNotEqual(proc.returncode, 0)
