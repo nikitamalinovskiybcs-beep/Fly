@@ -21,6 +21,7 @@ on:
       - 'scripts/aics_validate_alfred_pit.py'
 permissions:
   contents: read
+  issues: write
 concurrency:
   group: aics-alfred-pit-${{ github.run_id }}
   cancel-in-progress: false
@@ -75,6 +76,28 @@ jobs:
           else
             echo 'Historical PIT coverage missing; AICS blocked.' >> "$GITHUB_STEP_SUMMARY"
           fi
+      - name: Post verifiable result back to issue 55
+        if: github.event_name == 'issue_comment' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY' > /tmp/aics_pit_receipt.md
+          import json, os
+          from pathlib import Path
+          p=Path("aics_data/pit/coverage_report.json")
+          print("### AICS historical PIT execution receipt")
+          print("Run:", os.environ["RUN_URL"])
+          if not p.exists():
+              print("**BLOCKED**: no PIT coverage report; AICS N/A.")
+          else:
+              d=json.loads(p.read_text())
+              for item in d.get("series",[]):
+                  print(f'- {item["series_id"]}: {item["snapshots_downloaded_unverified"]}/24 snapshots; statuses {item.get("status_counts",{})}')
+              print("**PIT promotion: BLOCKED; AICS N/A; no trades.**")
+          PY
+          gh issue comment 55 --body-file /tmp/aics_pit_receipt.md
       - name: Preserve PIT audit and failed-source evidence
         if: always()
         uses: actions/upload-artifact@v4
