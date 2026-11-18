@@ -1,0 +1,62 @@
+name: AICS SPV and Neoclouds SEC primary document evidence
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_spv_neocloud_sec.py'
+      - 'tests/test_aics_collect_spv_neocloud_sec.py'
+      - 'aics_data/source_registry/sec_spv_neoclouds_filings_2026-11-18.json'
+      - '.github/workflows/aics-spv-neocloud-sec-evidence.yml'
+  schedule:
+    - cron: '45 13 * * 4'
+permissions:
+  contents: read
+jobs:
+  archive-sec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile fixed-source SEC archiver
+        run: python -m py_compile scripts/aics_collect_spv_neocloud_sec.py
+      - name: Test SEC +14-day lag, SHA256, accession and false-SPV prevention
+        run: python -m unittest discover -s tests -p test_aics_collect_spv_neocloud_sec.py -v
+      - name: Fetch original SEC filing HTML after required 14-day lag
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT }}
+        run: python scripts/aics_collect_spv_neocloud_sec.py
+      - name: Assert non-certified source manifest and show source statuses
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path('aics_data/source_evidence/sec_spv_neoclouds/manifest.json')
+          print('## AICS SPV + Neoclouds: SEC filing originals')
+          if not p.exists():
+              print('No real-source manifest. Check previous steps.')
+              raise SystemExit(0)
+          x=json.loads(p.read_text())
+          assert x['index_aics'] is None
+          assert x['spv_node_score'] is None
+          assert x['neoclouds_node_score'] is None
+          assert not x['independently_verified_pit']
+          print(f"Original HTML archived: {x['raw_documents_archived']}/{x['date_eligible_documents']} eligible documents")
+          print(f"14-day embargo exclusions: {x['date_excluded_documents']}")
+          for item in x['documents']:
+              print(f"- {item['source_id']}: {item['status']}")
+          print('Raw SEC archival does not establish historical PIT or quantified SPV exposures.')
+          PY
+      - name: Preserve source bytes and SHA-256 metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-spv-neocloud-sec-unverified-raw
+          path: aics_data/source_evidence/sec_spv_neoclouds/
+          retention-days: 30
+          if-no-files-found: warn
