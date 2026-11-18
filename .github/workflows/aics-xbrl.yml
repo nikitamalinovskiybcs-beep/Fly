@@ -6,7 +6,11 @@ on:
   pull_request:
     paths:
       - 'scripts/aics_collect_xbrl.py'
+      - 'scripts/aics_validate_xbrl.py'
       - '.github/workflows/aics-xbrl.yml'
+concurrency:
+  group: aics-sec-xbrl
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
@@ -19,12 +23,15 @@ jobs:
         with:
           python-version: '3.11'
       - name: Syntax check
-        run: python -m py_compile scripts/aics_collect_xbrl.py
+        run: python -m py_compile scripts/aics_collect_xbrl.py scripts/aics_validate_xbrl.py
       - name: Download SEC companyfacts
         if: github.event_name != 'pull_request'
         env:
           EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
         run: python scripts/aics_collect_xbrl.py
+      - name: Validate SEC XBRL facts and embargo
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_validate_xbrl.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
