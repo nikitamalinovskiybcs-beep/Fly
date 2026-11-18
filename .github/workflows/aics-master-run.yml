@@ -22,6 +22,7 @@ on:
       - 'aics_data/progress/status.json'
       - 'aics_data/source_registry/sec_spv_neoclouds_filings_2026-11-18.json'
       - 'aics_data/research/nyfed_repo_original_archive_independent_rehash_2026_11_18.json'
+      - 'aics_data/research/alfred_iorb_power_vintage_revision_independent_receipt_2026_11_18.json'
 permissions:
   contents: read
 concurrency:
@@ -69,6 +70,11 @@ jobs:
           assert report['weights_fixed'] == 1050
           assert report['independently_certified_nodes'] == 0
           assert report['index_aics'] is None
+          assert report['alfred_power_ppi_revision_events'] == 69
+          assert report['alfred_power_ppi_unique_economic_dates_revised'] == 25
+          assert report['alfred_iorb_revision_events'] == 0
+          assert report['alfred_original_asof_source_files_rehashed'] == 48
+          assert not report['alfred_revision_historical_release_pit_attested']
           assert report['promotion'] == 'BLOCKED'
           assert data['reweight_after_ipo_permitted'] is False
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as output:
