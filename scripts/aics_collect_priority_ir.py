@@ -33,7 +33,10 @@ HOSTS = frozenset({
     "www.microsoft.com", "abc.xyz", "ir.aboutamazon.com",
     "investor.atmeta.com", "investor.oracle.com",
 })
-CANDIDATE_NODES = frozenset({"Insurers", "SPV", "Neoclouds"})
+CANDIDATE_NODES = frozenset({
+    "Insurers", "SPV", "Neoclouds",
+    "Hyperscalers", "Semiconductors Supply", "AI Demand",
+})
 MAX_BYTES = 8_000_000
 DISCOVERY_PATTERN = re.compile(
     r"(quarter|financial|earning|results|investor|filing|facility|credit|financing|"
