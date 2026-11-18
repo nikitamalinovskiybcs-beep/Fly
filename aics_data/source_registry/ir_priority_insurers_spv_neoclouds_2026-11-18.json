@@ -86,6 +86,90 @@
       "primary_publisher": "Equinix official media room",
       "disclosure_basis": "issuer_release_not_sec_filing",
       "certified_metrics": []
+    },
+    {
+      "source_id": "MSFT_FY27Q1",
+      "issuer": "Microsoft",
+      "candidate_node": "Hyperscalers",
+      "role": "hyperscaler_current_earnings",
+      "publication_date_claim": "2026-10-28",
+      "period_end": "2026-09-30",
+      "url": "https://www.microsoft.com/en-us/investor/earnings/fy-2027-q1/press-release-webcast",
+      "primary_publisher": "Microsoft official investor relations",
+      "disclosure_basis": "issuer_release_not_sec_filing",
+      "certified_metrics": []
+    },
+    {
+      "source_id": "GOOGL_2026Q3",
+      "issuer": "Alphabet",
+      "candidate_node": "Hyperscalers",
+      "role": "hyperscaler_current_earnings",
+      "publication_date_claim": "2026-10-28",
+      "period_end": "2026-09-30",
+      "url": "https://abc.xyz/investor/news/news-details/2026/Alphabet-Announces-Third-Quarter-2026-Results-2026-FCcqxfIfmh/default.aspx",
+      "primary_publisher": "Alphabet official investor relations",
+      "disclosure_basis": "issuer_release_not_sec_filing",
+      "certified_metrics": []
+    },
+    {
+      "source_id": "AMZN_2026Q3",
+      "issuer": "Amazon",
+      "candidate_node": "Hyperscalers",
+      "role": "hyperscaler_current_earnings",
+      "publication_date_claim": "2026-10-29",
+      "period_end": "2026-09-30",
+      "url": "https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-Third-Quarter-Results/default.aspx",
+      "primary_publisher": "Amazon official investor relations",
+      "disclosure_basis": "issuer_release_not_sec_filing",
+      "certified_metrics": []
+    },
+    {
+      "source_id": "META_2026Q3",
+      "issuer": "Meta",
+      "candidate_node": "Hyperscalers",
+      "role": "hyperscaler_current_earnings",
+      "publication_date_claim": "2026-10-21",
+      "period_end": "2026-09-30",
+      "url": "https://investor.atmeta.com/investor-news/press-release-details/2026/Meta-Reports-Third-Quarter-2026-Results/default.aspx",
+      "primary_publisher": "Meta official investor relations",
+      "disclosure_basis": "issuer_release_not_sec_filing",
+      "certified_metrics": []
+    },
+    {
+      "source_id": "NVDA_FY27Q3",
+      "issuer": "NVIDIA",
+      "candidate_node": "Semiconductors Supply",
+      "role": "semiconductor_sales_supply_demand_proxy_not_capacity",
+      "publication_date_claim": "2026-11-17",
+      "period_end": "2026-10-25",
+      "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/default.aspx",
+      "primary_publisher": "NVIDIA official investor relations",
+      "disclosure_basis": "issuer_release_not_sec_filing",
+      "certified_metrics": []
+    },
+    {
+      "source_id": "MU_FY26Q4",
+      "issuer": "Micron",
+      "candidate_node": "Semiconductors Supply",
+      "role": "memory_supply_sales_proxy_not_capacity",
+      "publication_date_claim": "2026-09-30",
+      "period_end": "2026-09-03",
+      "url": "https://investors.micron.com/news/press-release/2026/Micron-Technology-Inc--Reports-Record-Fiscal-Fourth-Quarter-and-Full-Year-2026-Results/default.aspx",
+      "primary_publisher": "Micron official investor relations",
+      "disclosure_basis": "issuer_release_not_sec_filing",
+      "certified_metrics": []
+    },
+    {
+      "source_id": "ORCL_FY27Q1",
+      "issuer": "Oracle",
+      "candidate_node": "AI Demand",
+      "role": "cloud_rpo_ai_demand_proxy_not_ai_specific_orders",
+      "publication_date_claim": "2026-09-10",
+      "period_end": "2026-08-31",
+      "url": "https://investor.oracle.com/investor-news/news-details/2026/Oracle-Announces-Q1-Results-Driven-by-Triple-Digit-Growth-in-Cloud-Infrastructure-Revenues/default.aspx",
+      "primary_publisher": "Oracle official investor relations",
+      "disclosure_basis": "issuer_release_not_sec_filing",
+      "certified_metrics": []
     }
   ],
   "policy": {
@@ -105,6 +189,18 @@
     "https://nebius.com/newsroom/nebius-reports-third-quarter-2026-financial-results",
     "https://ir.applieddigital.com/news-events/press-releases/detail/163/applied-digital-reports-fiscal-first-quarter-2027-results",
     "https://nebius.com/newsroom/nebius-secures-3-5-billion-financing-facility-with-citi",
-    "https://equinix.mediaroom.com/2026-10-28-Equinix-Reports-Third-Quarter-Results-and-Raises-2026-Guidance"
+    "https://equinix.mediaroom.com/2026-10-28-Equinix-Reports-Third-Quarter-Results-and-Raises-2026-Guidance",
+    "https://www.microsoft.com/en-us/investor/earnings/fy-2027-q1/press-release-webcast",
+    "https://abc.xyz/investor/news/news-details/2026/Alphabet-Announces-Third-Quarter-2026-Results-2026-FCcqxfIfmh/default.aspx",
+    "https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-Third-Quarter-Results/default.aspx",
+    "https://investor.atmeta.com/investor-news/press-release-details/2026/Meta-Reports-Third-Quarter-2026-Results/default.aspx",
+    "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/default.aspx",
+    "https://investors.micron.com/news/press-release/2026/Micron-Technology-Inc--Reports-Record-Fiscal-Fourth-Quarter-and-Full-Year-2026-Results/default.aspx",
+    "https://investor.oracle.com/investor-news/news-details/2026/Oracle-Announces-Q1-Results-Driven-by-Triple-Digit-Growth-in-Cloud-Infrastructure-Revenues/default.aspx"
+  ],
+  "notes": [
+    "Corporate issuer releases are current original IR HTML archive candidates, not independent historical PIT vintages.",
+    "SEC filed_at + 14 calendar days must be applied separately when an issuer release includes or references SEC-filed facts.",
+    "AI Demand, semiconductor supply, and hyperscaler IR earnings releases are candidate evidence only; no 0-100 model score or independent OOS is inferred."
   ]
 }
