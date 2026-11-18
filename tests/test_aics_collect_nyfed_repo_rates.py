@@ -46,7 +46,7 @@ class TestNyFedRates(unittest.TestCase):
         self.assertEqual(result["rate_type"], "SOFR")
         self.assertEqual(result["row_count"], 1)
         self.assertEqual(result["raw_sha256"], hashlib.sha256(raw).hexdigest())
-        self.assertTrue(result["source_url"].endswith("/sofr/last/1500.json"))
+        self.assertTrue(result["source_url"].endswith("/sofr/last/999.json"))
         self.assertFalse(result["independently_attested_historical_pit"])
 
     def test_future_effective_date_blocked(self):
