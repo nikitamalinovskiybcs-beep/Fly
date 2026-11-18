@@ -1,0 +1,31 @@
+{
+  "schema_version": "aics-neocloud-ir-descriptive-research-v1",
+  "observed_as_of": "2026-11-18",
+  "issuer": "CoreWeave",
+  "source_id": "CRWV_2026Q3",
+  "source_url": "https://investors.coreweave.com/news/news-details/2026/CoreWeave-Reports-Strong-Third-Quarter-2026-Results/",
+  "source_release_date": "2026-11-10",
+  "source_archive_run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44371061805",
+  "original_ir_html_sha256": "b49ab90435c7debdc5d7ac85ac9db69bf6fee7f6ecb5b1edd93bbc8b2dd85edc",
+  "source_bytes_independently_hash_checked": true,
+  "sec_10q_filed_at": "2026-11-12",
+  "sec_10q_aics_available_at": "2026-11-26",
+  "quarter_end": "2026-09-30",
+  "quarter_revenue_usd_millions": 3661,
+  "quarter_net_interest_expense_usd_millions": 846,
+  "descriptive_net_interest_expense_divided_by_revenue_pct": 23.1,
+  "arithmetic_unrounded_pct": 23.10844031685332,
+  "approximate_revenue_backlog_usd_billions": 132.5,
+  "footnotes": {
+    "revenue_backlog": "Includes remaining performance obligations plus other estimated amounts expected to be recognized as revenue under committed customer contracts, contingent on service delivery/availability",
+    "net_interest_expense": "Quarterly net interest expense as displayed in the issuer's September 30 2026 earnings release; ratio is not interest coverage",
+    "data_use": "Issuer IR release publicly dated 2026-11-10, but matching SEC 10-Q data are not eligible for AICS PIT until 2026-11-26"
+  },
+  "original_sec_filing_pit_certified": false,
+  "independent_source_vintage_certified": false,
+  "neocloud_stress_score": null,
+  "index_aics": null,
+  "model_predictive_skill": null,
+  "promotion": "BLOCKED",
+  "trades_created": false
+}
