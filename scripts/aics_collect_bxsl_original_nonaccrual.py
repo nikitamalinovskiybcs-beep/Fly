@@ -71,7 +71,8 @@ def parse(index: bytes, filing: bytes, exhibit: bytes) -> dict:
         r"(\d+(?:\.\d+)?)%\s+of total investments",
         release, flags=re.I,
     )
-    if len(fair_matches) != 1 or len(cost_matches) != 1:
+    if (len(fair_matches) != 1 or not 1 <= len(cost_matches) <= 2
+            or len(set(cost_matches)) != 1):
         raise BXSLError(f"original fair-value or amortized-cost non-accrual definition ambiguous fair={len(fair_matches)} cost={len(cost_matches)}")
     if not re.search(
         r"Based on non\s*-\s*accrual debt investments as a percentage of the "
@@ -92,6 +93,7 @@ def parse(index: bytes, filing: bytes, exhibit: bytes) -> dict:
         "sec_available_at": candidate.isoformat(),
         "source_fair_nonaccrual_pct": str(fair),
         "source_cost_nonaccrual_pct": str(cost),
+        "identical_cost_footnote_mentions": len(cost_matches),
         "fair_denominator": "fair_market_value_of_total_investments",
         "cost_denominator": "amortized_cost_of_total_investments",
         "raw_sec_sha256": {
