@@ -18,17 +18,32 @@ class TestOMIHypotheses(unittest.TestCase):
     def setUpClass(cls):
         cls.d=json.loads(DATA.read_text(encoding="utf-8"))
 
+    def test_both_pdf_versions_are_sha_verified_but_not_numeric_source_proof(self):
+        receipt=ROOT / "aics_data/research/omi_brace_impact_original_pdf_sha_receipt_2026-11-18.json"
+        data=json.loads(receipt.read_text(encoding="utf-8"))
+        checks=data["independent_sha_recalculation"]
+        self.assertEqual(checks["pdfs_checked"],2)
+        self.assertEqual(checks["pdf_hashes_matching_manifest"],2)
+        self.assertNotEqual(checks["original_openmarkets_pdf_sha256"],
+                            checks["mirror_afref_pdf_sha256"])
+        self.assertFalse(data["claims_from_pdf_primary_source_verified"])
+        self.assertFalse(data["metrics_from_financial_primary_sources_verified"])
+        self.assertIsNone(data["index_aics"])
+        self.assertEqual(data["promotion"],"BLOCKED")
+
     def test_11_immutable_nodes_and_weights(self):
         nodes=self.d["nodes"]
         self.assertEqual(len(nodes),11)
         self.assertEqual({x["node"]:x["weight"] for x in nodes},FIXED)
         self.assertEqual(sum(x["weight"] for x in nodes),1050)
 
-    def test_policy_paper_is_secondary_and_unhashed(self):
+    def test_policy_paper_bytes_verified_but_market_numbers_unverified(self):
         s=self.d["source"]
         self.assertEqual(s["classification"],"SECONDARY_POLICY_RESEARCH_NOT_PRIMARY_SOURCE_NUMERIC_EVIDENCE")
-        self.assertFalse(s["original_pdf_bytes_locally_archived"])
-        self.assertIsNone(s["pdf_sha256"])
+        self.assertTrue(s["original_pdf_bytes_locally_archived"])
+        self.assertEqual(s["pdf_sha256"],"466b8a875752c85e23a41d5e33ad985c44f437ddc5cf801e132310c4e28bff60")
+        self.assertFalse(s["alternate_publisher_pdf_identical"])
+        self.assertEqual(s["original_source_pdf_pages"],88)
         self.assertFalse(s["independent_primary_numeric_sources_verified"])
         self.assertEqual(s["publication_date"],"2026-10-16")
 
