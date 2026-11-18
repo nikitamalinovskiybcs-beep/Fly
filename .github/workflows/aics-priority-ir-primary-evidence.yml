@@ -1,0 +1,63 @@
+name: AICS official IR reports - Insurers SPV Neoclouds
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'aics_data/source_registry/ir_priority_insurers_spv_neoclouds_2026-11-18.json'
+      - 'scripts/aics_collect_priority_ir.py'
+      - 'tests/test_aics_collect_priority_ir.py'
+      - '.github/workflows/aics-priority-ir-primary-evidence.yml'
+  schedule:
+    - cron: '25 9 * * *'
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run offline IR safety and no-score-certification tests
+        run: python -m unittest discover -s tests -p test_aics_collect_priority_ir.py -v
+      - name: Fetch current official IR evidence and discover fresh publication links
+        id: fetch
+        continue-on-error: true
+        env:
+          AICS_IR_USER_AGENT: ${{ vars.AICS_IR_USER_AGENT }}
+        run: python scripts/aics_collect_priority_ir.py
+      - name: Assert fail-closed output and expose concrete retrieval status
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path('aics_data/source_evidence/ir_priority/manifest.json')
+          print('## AICS official IR primary-source evidence')
+          if not p.is_file():
+              print('No manifest. See preceding job logs. **No sources certified.**')
+              raise SystemExit(0)
+          x=json.loads(p.read_text(encoding='utf-8'))
+          assert x['index_aics'] is None
+          assert x['predictive_skill_score'] is None
+          assert x['promotion']=='BLOCKED'
+          assert x['independently_certified_nodes']==0
+          assert all(i['score_eligible'] is False and i['pit_verified'] is False for i in x['candidates'])
+          print(f"Archive candidates: {x['archived_candidates']}/{x['candidate_count']}")
+          print(f"IR landing pages: {x['landing_pages_archived']}/{x['landing_pages_checked']}")
+          for row in x['candidates']:
+              print(f"- {row['source_id']} ({row['candidate_node']}): {row['status']}")
+          print('IR indexing is NOT SEC PIT attestation or an AICS score.')
+          PY
+      - name: Keep raw pages with SHA-256 and evidence manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-priority-ir-primary-evidence
+          path: aics_data/source_evidence/ir_priority/
+          retention-days: 30
+          if-no-files-found: warn
