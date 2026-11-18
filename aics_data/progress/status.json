@@ -5,11 +5,14 @@
   "total_nodes": 11,
   "total_weight": 1050,
   "milestones_per_node": 6,
-  "milestones_completed": 14,
+  "milestones_completed": 15,
   "milestones_total": 66,
-  "project_progress_pct": 21.2,
+  "project_progress_pct": 22.7,
   "registry_nodes": 11,
-  "archived_candidate_nodes": 3,
+  "archived_candidate_nodes": 4,
+  "raw_ir_archive_nodes": [
+    "Insurers"
+  ],
   "source_pit_attested_nodes": 0,
   "audited_scoring_nodes": 0,
   "untouched_24m_oos_nodes": 0,
@@ -38,15 +41,15 @@
       "weight": 125,
       "gates": {
         "primary_source_registry": true,
-        "raw_candidate_archive": false,
+        "raw_candidate_archive": true,
         "independently_attested_pit": false,
         "audited_node_scoring": false,
         "untouched_24m_oos": false,
         "independent_certification": false
       },
-      "completed_milestones": 1,
+      "completed_milestones": 2,
       "milestone_count": 6,
-      "project_progress_pct": 16.7,
+      "project_progress_pct": 33.3,
       "independently_certified": false,
       "node_stress_score": null
     },
