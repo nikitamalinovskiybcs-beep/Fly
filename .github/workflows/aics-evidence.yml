@@ -1,0 +1,27 @@
+name: AICS evidence collection
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 8 * * 1-5'
+permissions:
+  contents: read
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download raw ALFRED and SEC evidence
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
+        run: python scripts/aics_collect_evidence.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aics-raw-evidence
+          path: aics_data/live/
+          retention-days: 30
