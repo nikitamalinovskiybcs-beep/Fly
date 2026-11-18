@@ -22,7 +22,7 @@ from urllib.request import Request, urlopen
 RESEARCH_SYMBOLS = ("NVDA", "MSFT", "GOOGL", "AMZN", "META", "ORCL", "MU")
 HOST = "https://api.nasdaq.com"
 MAX_BYTES = 3_000_000
-MAX_ROWS = 5000
+MAX_ROWS = 500
 
 
 def quote_url(symbol: str, start: dt.date, end: dt.date) -> str:
@@ -30,7 +30,7 @@ def quote_url(symbol: str, start: dt.date, end: dt.date) -> str:
         raise ValueError("symbol or date window is not in the research protocol")
     query = urlencode({
         "assetclass": "stocks", "fromdate": start.strftime("%m/%d/%Y"),
-        "todate": end.strftime("%m/%d/%Y"), "limit": "5000"
+        "todate": end.strftime("%m/%d/%Y"), "limit": "500"
     })
     return f"{HOST}/api/quote/{symbol}/historical?{query}"
 
@@ -67,8 +67,13 @@ def validate_price_response(raw: bytes, start: dt.date, end: dt.date) -> dict:
         payload = json.loads(raw)
     except (ValueError, UnicodeDecodeError) as exc:
         raise ValueError("invalid JSON response") from exc
-    if not isinstance(payload, dict) or payload.get("status", {}).get("rCode", 200) != 200:
-        raise ValueError("provider returned an error")
+    if not isinstance(payload, dict):
+        raise ValueError("provider returned an invalid envelope")
+    status = payload.get("status")
+    code = status.get("rCode", 200) if isinstance(status, dict) else None
+    if str(code) != "200":
+        label = str(code)[:8] if str(code).isdigit() else "unknown"
+        raise ValueError("provider rejected request: status " + label)
     data = payload.get("data")
     table = data.get("tradesTable") if isinstance(data, dict) else None
     rows = table.get("rows") if isinstance(table, dict) else None
