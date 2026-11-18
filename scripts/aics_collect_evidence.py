@@ -74,7 +74,10 @@ for ticker, cik in CIKS.items():
     except (HTTPError, URLError, TimeoutError, ValueError, KeyError) as e:
         results.append({"source":"SEC","id":ticker,"status":"error",
                         "error":type(e).__name__})
+failed = sum(r["status"] != "downloaded_unverified" for r in results)
 write_json(OUT / "manifest.json",{"as_of":TODAY.isoformat(),"results":results,
+    "failed_sources":failed,
     "index_aics":None,"predictive_model_score":None,"publishable":False,
     "note":"Raw downloads are not independently verified PIT data. Do not score."})
 print(json.dumps({"as_of":TODAY.isoformat(),"results":results},indent=2))
+\nif failed:\n    raise SystemExit(f"AICS incomplete: {failed} source(s) failed; see artifact manifest")\n
