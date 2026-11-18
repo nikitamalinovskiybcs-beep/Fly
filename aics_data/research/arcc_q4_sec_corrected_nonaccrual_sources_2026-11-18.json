@@ -1,0 +1,144 @@
+{
+  "schema_version": "aics-arcc-q4-sec-corrected-durable-source-panel-v1",
+  "research_as_of": "2026-11-18",
+  "entity": "ARCC",
+  "node": "Private Credit",
+  "node_weight": 150,
+  "new_original_sec_filing_accession": "0001287750-26-000004",
+  "new_original_sec_filed_at": "2026-02-04",
+  "new_verified_2025q4_model_available_at": "2026-02-18",
+  "source_correction": "Original SEC 8-K EX-99.1 validates previously unverified Feb source website shell. Supersedes May 2026 first availability for 2025Q4.",
+  "original_2025q4_html_sha256": "58172fa5f02ce5b3a69f2aa61a036bc899920338022664a8e5a7e7bcda114aa9",
+  "original_2025q4_sec_index_sha256": "b5b8c3352e0ab69ea461ddf4bcffb530df6b7240c526c377d56ae7517b9baed2",
+  "source_archives": {
+    "q4": {
+      "actions_run_id": 44410046163,
+      "artifact_id": 14476018751,
+      "archive_sha256": "b06e94299ccb723174341fef2dc678e9f3924028bedf044646685b94f2e944d8"
+    },
+    "q1q3": {
+      "actions_run_id": 44406901597,
+      "artifact_id": 14474764347,
+      "archive_sha256": "805c1b5d692625b1d2d7c0c9ebb56986187d92eb6f10015e1bb3e79ce103d7d6"
+    }
+  },
+  "reverified_timeline_run_id": 44410609866,
+  "reverified_timeline_artifact_id": 14476383379,
+  "reverified_timeline_report_sha256": "38e6c0bb5ba64ed2edb1a76728cca3e74c455dfc1104e5b66cce2f9def79a5d1",
+  "observed_source_periods": [
+    {
+      "period_end": "2024-12-31",
+      "source_filed_at": "2026-02-04",
+      "available_at": "2026-02-18",
+      "cost_pct": "1.7",
+      "fair_value_pct": "1.0",
+      "source_sha256": "58172fa5f02ce5b3a69f2aa61a036bc899920338022664a8e5a7e7bcda114aa9",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1287750/000128775026000004/arccq4-2025exhibit991.htm",
+      "evidence_kind": "RETROSPECTIVE_PRIOR_YEAR_COMPARATIVE_IN_2025Q4_8K",
+      "model_eligible": false
+    },
+    {
+      "period_end": "2025-12-31",
+      "source_filed_at": "2026-02-04",
+      "available_at": "2026-02-18",
+      "cost_pct": "1.8",
+      "fair_value_pct": "1.2",
+      "source_sha256": "58172fa5f02ce5b3a69f2aa61a036bc899920338022664a8e5a7e7bcda114aa9",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1287750/000128775026000004/arccq4-2025exhibit991.htm",
+      "evidence_kind": "CURRENT_QUARTER_AUTHENTIC_2025Q4_8K",
+      "model_eligible": false
+    },
+    {
+      "period_end": "2026-03-31",
+      "source_filed_at": "2026-04-28",
+      "available_at": "2026-05-12",
+      "cost_pct": "2.1",
+      "fair_value_pct": "1.2",
+      "source_sha256": "82667870a0d2223383e915627a18c733bb8da5821a572ffb32570d09ca1b1d4a",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1287750/000162828026027685/arccq1-2026exhibit991.htm",
+      "evidence_kind": "CURRENT_QUARTER_AUTHENTIC_SEC_EXHIBIT",
+      "model_eligible": false
+    },
+    {
+      "period_end": "2026-06-30",
+      "source_filed_at": "2026-07-29",
+      "available_at": "2026-08-12",
+      "cost_pct": "2.4",
+      "fair_value_pct": "1.4",
+      "source_sha256": "b74f8c6bb8f0f07f5ac5ff774d60f18aab9298e79fbac9940c47d3febd4869a1",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1287750/000162828026050303/arccq2-2026exhibit991.htm",
+      "evidence_kind": "CURRENT_QUARTER_AUTHENTIC_SEC_EXHIBIT",
+      "model_eligible": false
+    },
+    {
+      "period_end": "2026-09-30",
+      "source_filed_at": "2026-10-27",
+      "available_at": "2026-11-10",
+      "cost_pct": "2.4",
+      "fair_value_pct": "1.4",
+      "source_sha256": "0123a741c18e21a4eb19898bb2d5668e23ba35a144f5ac551f149f0bf9d48323",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1287750/000162828026067382/arccq3-2026exhibit991.htm",
+      "evidence_kind": "CURRENT_QUARTER_AUTHENTIC_SEC_EXHIBIT",
+      "model_eligible": false
+    }
+  ],
+  "as_of_visibility": [
+    {
+      "as_of_date": "2026-02-17",
+      "values_visible": 0
+    },
+    {
+      "as_of_date": "2026-02-18",
+      "values_visible": 4
+    },
+    {
+      "as_of_date": "2026-05-11",
+      "values_visible": 4
+    },
+    {
+      "as_of_date": "2026-05-12",
+      "values_visible": 6
+    },
+    {
+      "as_of_date": "2026-08-11",
+      "values_visible": 6
+    },
+    {
+      "as_of_date": "2026-08-12",
+      "values_visible": 8
+    },
+    {
+      "as_of_date": "2026-11-09",
+      "values_visible": 8
+    },
+    {
+      "as_of_date": "2026-11-10",
+      "values_visible": 10
+    },
+    {
+      "as_of_date": "2026-11-18",
+      "values_visible": 10
+    }
+  ],
+  "confirmed_source_values": 10,
+  "dated_original_documents": 6,
+  "source_periods": 5,
+  "latest_2026q3_cost_pct": "2.4",
+  "latest_2026q3_fair_value_pct": "1.4",
+  "first_2025q4_to_last_2026q3_cost_change_pp": "0.6",
+  "first_2025q4_to_last_2026q3_fair_value_change_pp": "0.2",
+  "retrospective_2024_source_date_not_backdated": true,
+  "independently_verified_release_time_archive": false,
+  "complete_24_month_market_pit": false,
+  "independent_24_month_predictive_oos": false,
+  "synthetic_market_rows": 0,
+  "private_credit_node_stress_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "limitations": [
+    "The 2024Q4 comparative was actually disclosed in the 2026-02-04 SEC release, not in 2024.",
+    "An authentic original filing plus +14-day embargo establishes issuer candidate availability, not independently archived contemporaneous provider feed.",
+    "Only one BDC and five reporting periods; no 24-month cross-issuer Private Credit node certification.",
+    "No model score or trading signal."
+  ]
+}
