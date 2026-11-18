@@ -7,6 +7,8 @@ on:
     paths:
       - 'scripts/aics_arcc_pit_research_timeline.py'
       - 'tests/test_aics_arcc_pit_research_timeline.py'
+      - 'tests/test_aics_arcc_pinned_research.py'
+      - 'aics_data/research/arcc_conservative_observed_nonaccrual_2026-11-18.json'
       - 'scripts/aics_verify_arcc_original_nonaccrual.py'
       - '.github/workflows/aics-arcc-pit-timeline.yml'
 permissions:
@@ -25,6 +27,7 @@ jobs:
         run: |
           python -m py_compile scripts/aics_arcc_pit_research_timeline.py
           python -m unittest discover -s tests -p 'test_aics_arcc_pit_research_timeline.py' -v
+          python -m unittest discover -s tests -p 'test_aics_arcc_pinned_research.py' -v
           python -m unittest discover -s tests -p 'test_aics_verify_arcc_original_nonaccrual.py' -v
       - name: Download immutable source SEC originals from the earlier audited GitHub run
         env:
@@ -78,6 +81,39 @@ jobs:
               print("Latest 2026-09-30: 2.4% cost nonaccrual, 1.4% fair-value nonaccrual.", file=f)
               print("December-to-September change: +0.6 pp cost and +0.2 pp fair value.", file=f)
               print("Not an independently attested 24m PIT, standalone sector node score or AICS.", file=f)
+          PY
+      - name: Independently cross-check durable public ARCC panel against original SEC HTML
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from decimal import Decimal
+          import json
+          pinned=json.loads(Path('aics_data/research/arcc_conservative_observed_nonaccrual_2026-11-18.json').read_text())
+          verified=json.loads(Path('docs/audit/aics_arcc_primary_sec_nonaccrual_verified_2026-11-18.json').read_text())
+          timeline=json.loads(Path('docs/audit/aics_arcc_conservative_pit_timeline_2026-11-18.json').read_text())
+          assert pinned['original_sec_html_archive_sha256']==verified['primary_original_archive_sha256']
+          assert pinned['original_sec_value_confirmations']==verified['independently_verified_source_transcription_values']==8
+          assert len(pinned['observations'])==len(verified['source_values'])==4
+          for p,v in zip(pinned['observations'],verified['source_values']):
+              assert p['period_end']==v['period_end']
+              assert Decimal(p['nonaccrual_cost_pct'])==Decimal(v['nonaccrual_amortized_cost_percent'])
+              assert Decimal(p['nonaccrual_fair_value_pct'])==Decimal(v['nonaccrual_fair_value_percent'])
+              if p['source_current_quarter']:
+                  assert p['first_verified_sec_filed_at']==v['SEC_filed_at']
+                  assert p['conservative_available_at']==v['SEC_available_at']
+                  assert p['source_sec_exhibit_url']==v['SEC_exhibit_url']
+                  assert p['original_html_sha256']==v['SEC_source_sha256']
+              else:
+                  assert p['first_verified_sec_filed_at']==v['earliest_verified_sec_filed_at']
+                  assert p['conservative_available_at']==v['earliest_verified_sec_available_at']
+          assert [
+              s['eligible_verified_value_count'] for s in timeline['historical_asof_scenarios']
+          ]==[s['verified_candidate_values_visible'] for s in pinned['as_of_cumulative_visibility']]
+          assert timeline['private_credit_node_stress_score'] is None
+          assert pinned['node_score'] is None
+          assert pinned['index_aics'] is None
+          assert pinned['promotion']=='BLOCKED'
+          print('Verified 8 durable public ARCC source values and 8 as-of visibility scenarios against archived SEC.')
           PY
       - name: Archive source-reverified quantitative history and PIT gap report
         if: always()
