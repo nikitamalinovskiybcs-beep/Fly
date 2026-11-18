@@ -1,0 +1,108 @@
+name: AICS 3 BDC original SEC source comparison
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_private_credit_three_bdc_asof.py'
+      - 'tests/test_aics_private_credit_three_bdc_asof.py'
+      - 'aics_data/research/bxsl_original_nonaccrual_source_receipt_2026-11-19.json'
+      - 'aics_data/research/arcc_q4_sec_corrected_nonaccrual_sources_2026-11-18.json'
+      - 'aics_data/research/obdc_original_nonaccrual_source_receipt_2026-11-19.json'
+      - '.github/workflows/aics-private-credit-three-bdcs.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-sec-three-bdcs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test strict original source receipt chronology without financial fixtures
+        run: |
+          python -m py_compile scripts/aics_private_credit_three_bdc_asof.py
+          python -m unittest discover -s tests -p 'test_aics_private_credit_three_bdc_asof.py' -v
+      - name: Retrieve all actual issuer SEC source ZIPs including BXSL
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          for id in 14478269295 14478023804 14476018751 14474764347; do
+            curl --fail --silent --show-error --location --retry 2 --max-time 90 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GH_REPO/actions/artifacts/$id/zip" \
+              -o "$RUNNER_TEMP/$id.zip"
+          done
+      - name: Independently rehash all 4 authentic original SEC ZIPs and BXSL original files
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,zipfile
+          from pathlib import Path
+          base=Path(os.environ['RUNNER_TEMP'])
+          bxsl=json.loads(Path('aics_data/research/bxsl_original_nonaccrual_source_receipt_2026-11-19.json').read_text())
+          obdc=json.loads(Path('aics_data/research/obdc_original_nonaccrual_source_receipt_2026-11-19.json').read_text())
+          arcc=json.loads(Path('aics_data/research/arcc_q4_sec_corrected_nonaccrual_sources_2026-11-18.json').read_text())
+          checks = [
+              (14478269295, bxsl['source_archive_zip_sha256']),
+              (14478023804, obdc['source_actions_archive_sha256']),
+              (14476018751, arcc['source_archives']['q4']['archive_sha256']),
+              (14474764347, arcc['source_archives']['q1q3']['archive_sha256']),
+          ]
+          for aid,digest in checks:
+              assert hashlib.sha256((base/f'{aid}.zip').read_bytes()).hexdigest()==digest
+          with zipfile.ZipFile(base/'14478269295.zip') as z:
+              assert len(z.namelist())==4
+              assert hashlib.sha256(z.read('manifest.json')).hexdigest()==bxsl['source_archive_manifest_sha256']
+              raw=json.loads(z.read('manifest.json'))
+              assert raw['source_cost_nonaccrual_pct']==bxsl['nonaccrual_amortized_cost_pct']=='2.8'
+              assert raw['source_fair_nonaccrual_pct']==bxsl['nonaccrual_fair_value_pct']=='2.1'
+              for label,sha in (
+                  ('index',bxsl['source_index_html_sha256']),
+                  ('filing',bxsl['source_8k_html_sha256']),
+                  ('exhibit',bxsl['source_exhibit_html_sha256']),
+              ):
+                  assert hashlib.sha256(z.read(sha+'.html')).hexdigest()==sha
+                  assert sha==raw['raw_sec_sha256'][label]
+          assert bxsl['source_available_at']=='2026-11-18'
+          print('4 authenticated source archives and 3 BXSL original HTML files independently SHA verified.')
+          PY
+      - name: Calculate three BDC original-data as-of quarterly comparison without aggregating
+        run: |
+          python -m scripts.aics_private_credit_three_bdc_asof --as-of 2026-11-19
+      - name: Enforce genuine 18 values, fixed issuer labels, no PIT scoring or OOS fabrication
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads(Path('docs/audit/aics_private_credit_three_bdcs_asof_2026-11-19.json').read_text())
+          assert x['proven_original_sec_issuers']==['ARCC','BXSL','OBDC']
+          assert x['source_filing_periods_across_issuers']==9
+          assert x['genuine_source_nonaccrual_values_across_issuers']==18
+          assert x['source_values_visible_by_asof']==18
+          assert x['source_values_visible_per_issuer']=={'ARCC':10,'OBDC':6,'BXSL':2}
+          assert len(x['2026Q3_nonaccrual_source_matrix'])==3
+          assert x['issuer_percentages_aggregated'] is False
+          assert x['synthetic_observations_created']==0
+          assert x['independent_contemporaneous_feed_PIT'] is False
+          assert x['untouched_24_month_predictive_oos'] is False
+          assert x['private_credit_node_score'] is None
+          assert x['aics_index'] is None and x['promotion']=='BLOCKED'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## Private Credit expanded original SEC research: 3 listed BDC issuers',file=f)
+              print('ARCC 10 values + OBDC 6 values + BXSL 2 values = 18 original disclosure percentages.',file=f)
+              print('Nine distinct issuer-period source rows; Q3 2026 3-way cost/fair matrix.',file=f)
+              print('Four original SEC ZIP archives rehashed; no pooling, no fabricated PIT, no AICS promotion.',file=f)
+          PY
+      - name: Archive three source-proven BDC quarterly research panel
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-private-credit-three-sec-bdc-18-original-values
+          path: docs/audit/aics_private_credit_three_bdcs_asof_2026-11-19.json
+          if-no-files-found: error
+          retention-days: 30
