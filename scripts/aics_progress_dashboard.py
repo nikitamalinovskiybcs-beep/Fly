@@ -14,7 +14,10 @@ import json
 import re
 from pathlib import Path
 
-from scripts.aics_verify_insurers_ir_receipt import verified_raw_insurers_archive
+if __package__:
+    from .aics_verify_insurers_ir_receipt import verified_raw_insurers_archive
+else:
+    from aics_verify_insurers_ir_receipt import verified_raw_insurers_archive
 
 WEIGHTS = {
     "Private Credit": 150,
