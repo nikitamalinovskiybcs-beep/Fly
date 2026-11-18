@@ -35,6 +35,10 @@ on:
       - 'tests/test_aics_ai_equities_action_pit.py'
       - 'tests/test_aics_ai_equities_capture.py'
       - 'tests/test_aics_research_safety.py'
+      - 'tests/test_aics_reconcile_company_universe.py'
+      - 'scripts/aics_reconcile_company_universe.py'
+      - 'aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json'
+      - 'aics_data/research/spydell_telegram_nvidia_circular_financing_claims_2026-11-18.json'
       - '.github/workflows/aics-evidence.yml'
       - '.github/workflows/aics-ten-stage-auto.yml'
       - 'aics_data/progress/status.json'
@@ -77,6 +81,25 @@ jobs:
           python -m unittest discover -s tests -p 'test_aics_ai_equities_symbol_directory.py' -v
           python -m unittest discover -s tests -p 'test_aics_extended_company_universe.py' -v
           python -m unittest discover -s tests -p 'test_aics_reconcile_company_universe.py' -v
+      - name: Audit complete 37-company OMI/Telegram research-chain scope
+        run: |
+          python -m scripts.aics_reconcile_company_universe --out aics_data/research/aics_full_37_company_scope.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from scripts.aics_collect_ai_equities_prices import RESEARCH_SYMBOLS
+          reg=json.loads(Path('aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json').read_text())
+          graph=json.loads(Path('aics_data/research/aics_full_37_company_scope.json').read_text())
+          assert graph['counts']=={'all_candidates':37,'omi_pdf_named':26,'telegram_only':11,'separate_project_groups':3}
+          assert len(graph['nodes'])==11
+          assert len(RESEARCH_SYMBOLS)==7
+          assert sum('AI Equities' in c['candidate_nodes'] for c in reg['companies'])==8
+          assert len(reg['companies'])==37 and len(reg['reported_relationships'])==3
+          assert graph['milestones_added']==0 and graph['independently_certified_nodes']==0
+          assert graph['aggregated_exposure_usd'] is None and graph['index_aics'] is None
+          assert graph['node_stress_scores'] is None and graph['promotion']=='BLOCKED'
+          print('Separate 7 price tickers, 8 secondary PDF equity candidates and 37 company risk-chain candidates.')
+          PY
       - name: Audit corporate actions and historical constituents without market backfill
         run: python -m scripts.aics_audit_ai_equities_action_pit
       - name: Reconfirm fixed node weights and evidence progress without promoting scores
@@ -138,6 +161,7 @@ jobs:
           path: |
             docs/audit/aics_*_2026-11-18.json
             aics_data/research/ai_equities_action_pit_gap_report.json
+            aics_data/research/aics_full_37_company_scope.json
           if-no-files-found: warn
           retention-days: 30
 
