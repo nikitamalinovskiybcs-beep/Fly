@@ -42,7 +42,7 @@
 6. Независимая сертификация узла.
 
 Исходный архив: [GitHub Actions](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44313687138).
-ALFRED поддерживает три кандидатных узла. Оригинальные IR-отчёты MetLife/Prudential, CoreWeave/Nebius/Equinix прошли независимую повторную проверку SHA-256 и добавляют ещё три узла только на этапе архива.
+ALFRED поддерживает три кандидатных узла. Верифицированные по SHA-256 IR-архивы добавляют Insurers, Neoclouds, SPV, Hyperscalers, Semiconductors Supply и AI Demand лишь на этапе архива (2/6).
 IR-архивы GitHub Actions хранятся 30 дней, не являются доказательством исторического PIT, структуры SPV или сертифицированных стресс-скоров.
 
 **Нельзя считать процент основанием для инвестиций или рассчитывать AICS.**
