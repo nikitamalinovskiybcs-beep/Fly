@@ -28,12 +28,32 @@ class TestAICSProgress(unittest.TestCase):
         s = build(ROOT, ledger())
         self.assertEqual(s["total_nodes"], 11)
         self.assertEqual(s["registry_nodes"], 11)
-        self.assertEqual(s["archived_candidate_nodes"], 3)
-        self.assertEqual(s["milestones_completed"], 14)
+        self.assertEqual(s["archived_candidate_nodes"], 4)
+        self.assertEqual(s["milestones_completed"], 15)
         self.assertEqual(s["milestones_total"], 66)
-        self.assertEqual(s["project_progress_pct"], 21.2)
+        self.assertEqual(s["project_progress_pct"], 22.7)
         self.assertEqual(s["certification_pct"], 0)
         self.assertEqual(s["independently_certified_nodes"], 0)
+
+    def test_insurers_stage2_depends_on_real_source_archive_receipt(self):
+        status=build(ROOT, ledger())
+        insurers=next(x for x in status["node_progress"] if x["node"] == "Insurers")
+        self.assertEqual(insurers["completed_milestones"], 2)
+        self.assertTrue(insurers["gates"]["raw_candidate_archive"])
+        self.assertFalse(insurers["gates"]["independently_attested_pit"])
+        self.assertEqual(status["raw_ir_archive_nodes"], ["Insurers"])
+
+    def test_reject_raw_receipt_node_spoofing(self):
+        m=ledger()
+        m["independently_recalculated_raw_archive_receipts"][0]["node"]="SPV"
+        with self.assertRaises(ValueError):
+            build(ROOT,m)
+
+    def test_reject_missing_original_ir_archive_receipt(self):
+        m=ledger()
+        m["independently_recalculated_raw_archive_receipts"][0]["receipt_path"]="../receipt.json"
+        with self.assertRaises(ValueError):
+            build(ROOT,m)
 
     def test_raw_archive_is_not_node_or_index_certification(self):
         s = build(ROOT, ledger())
@@ -88,7 +108,7 @@ class TestAICSProgress(unittest.TestCase):
     def test_markdown_is_explicitly_non_certified(self):
         s = build(ROOT, ledger())
         md = as_markdown(s)
-        self.assertIn("21.2%", md)
+        self.assertIn("22.7%", md)
         self.assertIn("0.0%", md)
         self.assertIn("AICS = **N/A**", md)
         for name in WEIGHTS:
