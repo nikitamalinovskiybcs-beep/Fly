@@ -1,0 +1,91 @@
+name: AICS ARCC source-proven SEC PIT timeline
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_arcc_pit_research_timeline.py'
+      - 'tests/test_aics_arcc_pit_research_timeline.py'
+      - 'scripts/aics_verify_arcc_original_nonaccrual.py'
+      - '.github/workflows/aics-arcc-pit-timeline.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  sec-14-day-historical-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run adversarial unit tests for source-restricted ARCC history
+        run: |
+          python -m py_compile scripts/aics_arcc_pit_research_timeline.py
+          python -m unittest discover -s tests -p 'test_aics_arcc_pit_research_timeline.py' -v
+          python -m unittest discover -s tests -p 'test_aics_verify_arcc_original_nonaccrual.py' -v
+      - name: Download immutable source SEC originals from the earlier audited GitHub run
+        env:
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl --fail --silent --show-error --location --retry 2 --max-time 90 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GH_REPO/actions/artifacts/14474764347/zip" \
+            -o "$RUNNER_TEMP/arcc-original-sec.zip"
+      - name: Reverify all eight ARCC values against original SEC HTML and source SHA
+        run: |
+          python -m scripts.aics_verify_arcc_original_nonaccrual \
+            --archive "$RUNNER_TEMP/arcc-original-sec.zip"
+      - name: Build conservative as-of visibility timeline and quarterly changes
+        run: python -m scripts.aics_arcc_pit_research_timeline
+      - name: Reject February look-ahead, fake OOS, or Private Credit node score
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          p = Path("docs/audit/aics_arcc_conservative_pit_timeline_2026-11-18.json")
+          x = json.loads(p.read_text(encoding="utf-8"))
+          assert x["original_verified_metric_values"] == 8
+          assert len(x["disclosures"]) == 8
+          assert len(x["historical_asof_scenarios"]) == 8
+          assert not x["baseline_issuer_feb_2026_pit_proven"]
+          assert x["first_conservative_baseline_sec_available_at"] == "2026-05-12"
+          assert not x["source_pit_historical_release_independently_attested"]
+          assert not x["private_credit_sector_representative"]
+          assert not x["untouched_24_month_oos"]
+          assert x["synthetic_market_rows"] == 0
+          assert x["private_credit_node_stress_score"] is None
+          assert x["aics_index"] is None and x["promotion"] == "BLOCKED"
+          d = {s["historical_eval_date"]: s for s in x["historical_asof_scenarios"]}
+          assert d["2026-02-18"]["eligible_verified_value_count"] == 0
+          assert d["2026-05-11"]["eligible_verified_value_count"] == 0
+          assert d["2026-05-12"]["eligible_verified_value_count"] == 4
+          assert d["2026-08-11"]["eligible_verified_value_count"] == 4
+          assert d["2026-08-12"]["eligible_verified_value_count"] == 6
+          assert d["2026-11-09"]["eligible_verified_value_count"] == 6
+          assert d["2026-11-10"]["eligible_verified_value_count"] == 8
+          assert x["metrics"]["nonaccrual_amortized_cost_pct"]["latest_verified_value_pct"] == "2.4"
+          assert x["metrics"]["nonaccrual_fair_value_pct"]["latest_verified_value_pct"] == "1.4"
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              print("## AICS Private Credit: conservative ARCC source chronology", file=f)
+              print("8 SEC original-verified observations (4 reporting periods, 2 separate denominators).", file=f)
+              print("2025-12-31 prior comparative first documented SEC+14: 2026-05-12; NOT Feb 18.", file=f)
+              print("Latest 2026-09-30: 2.4% cost nonaccrual, 1.4% fair-value nonaccrual.", file=f)
+              print("December-to-September change: +0.6 pp cost and +0.2 pp fair value.", file=f)
+              print("Not an independently attested 24m PIT, standalone sector node score or AICS.", file=f)
+          PY
+      - name: Archive source-reverified quantitative history and PIT gap report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-arcc-source-verified-conservative-pit-research
+          path: |
+            docs/audit/aics_arcc_primary_sec_nonaccrual_verified_2026-11-18.json
+            docs/audit/aics_arcc_conservative_pit_timeline_2026-11-18.json
+          retention-days: 30
+          if-no-files-found: warn
