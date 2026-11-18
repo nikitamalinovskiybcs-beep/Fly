@@ -12,6 +12,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '23 8 * * 1-5'
+concurrency:
+  group: aics-fred-evidence
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
@@ -26,12 +29,13 @@ jobs:
       - name: Compile evidence and validation scripts
         run: python -m py_compile scripts/aics_collect_evidence.py scripts/aics_validate_evidence.py
       - name: Download raw ALFRED and SEC evidence
+        if: github.event_name != 'pull_request'
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
         run: python scripts/aics_collect_evidence.py
       - name: Validate provenance, embargo and coverage
-        if: always()
+        if: github.event_name != 'pull_request' && always()
         run: python scripts/aics_validate_evidence.py
       - uses: actions/upload-artifact@v4
         if: always()
