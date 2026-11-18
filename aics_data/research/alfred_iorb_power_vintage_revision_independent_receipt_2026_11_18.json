@@ -1,0 +1,65 @@
+{
+  "schema_version": "aics-alfred-vintage-revision-independent-receipt-v1",
+  "research_as_of": "2026-11-18",
+  "primary_provider": "FRED/ALFRED historical as-of API response archive",
+  "source_original_zip_id": 14471917435,
+  "source_original_zip_sha256": "8565519b21979e7d13475d954122fc651d65baa6025a0ef55b9b4b34f83ff627",
+  "source_merged_workflow_run_id": 44398846009,
+  "independent_revision_workflow_run_id": 44401901826,
+  "independent_revision_artifact_id": 14473955626,
+  "revision_artifact_zip_sha256": "3b60cb1eb0aadf5ecaa3c76b3643df79ac906973a57f32a30ee069d0c5670dcc",
+  "revision_report_sha256": "225fab69a7c269ae1858c7553a0a98836bbd053dcde6c78d0bb2fb77c0fafa3c",
+  "original_files_rehashed": 48,
+  "original_observation_rows_including_repeated_asof_snapshots": 39934,
+  "vintage_asof_dates_per_series": 24,
+  "adjacent_vintage_pairs_per_series": 23,
+  "series": {
+    "IORB": {
+      "compared_existing_nonmissing_pairs": 35773,
+      "changed_value_events": 0,
+      "unique_affected_observation_dates": 0,
+      "newly_present_observation_dates_across_monthly_comparisons": 700,
+      "latest_asof": "2026-10-31",
+      "most_recent_observation_date": "2026-10-31",
+      "latest_observed_value_percent": "3.9"
+    },
+    "WPU0543": {
+      "compared_existing_nonmissing_pairs": 2135,
+      "changed_value_events": 69,
+      "unique_affected_observation_dates": 25,
+      "newly_present_observation_dates_across_monthly_comparisons": 23,
+      "latest_asof": "2026-10-31",
+      "most_recent_observation_date": "2026-09-01",
+      "latest_observed_index_points": "344.639",
+      "maximum_absolute_adjacent_revision_index_points": "9.115",
+      "largest_revision": {
+        "observation_date": "2025-06-01",
+        "before": "326.930",
+        "after": "317.815",
+        "change_index_points": "-9.115",
+        "compared_asof_start": "2025-07-31",
+        "compared_asof_end": "2025-08-31"
+      }
+    }
+  },
+  "observed_revision_events_total": 69,
+  "synthetic_or_interpolated_rows": 0,
+  "original_provider_historical_publication_timestamps_independently_attested": false,
+  "observed_asof_snapshots_captured_contemporaneously": false,
+  "indipendent_24_month_out_of_sample_proven": false,
+  "certified_stress_scores": {
+    "Repo": null,
+    "Power/Data Centers": null
+  },
+  "index_aics": null,
+  "project_milestones_promoted": 0,
+  "promotion": "BLOCKED",
+  "warnings": [
+    "The 39,934 rows count repeated observations across 48 original as-of provider JSON snapshots, not 39,934 distinct economic observations.",
+    "The 69 revision events concern 25 unique historical economic dates; revised monthly index values cannot be replaced by today's history in walk-forward tests.",
+    "All historical as-of requests were executed retrospectively on 2026-11-18; source as-of metadata is not independent contemporaneous publication proof.",
+    "IORB zero observed changes across these 23 adjacent as-of comparisons does not prove absence of all other revisions.",
+    "The latest recorded WPU0543 figure is from September 2026 at an October 31 as-of and is not a data center-specific electricity contract rate.",
+    "No production AICS node scores, independent OOS or investment recommendations follow from source-vintage diagnostics."
+  ]
+}
