@@ -59,6 +59,17 @@ class AicsResearchSafetyTests(unittest.TestCase):
         proc, _ = self.run_script("aics_validate_evidence.py")
         self.assertNotEqual(proc.returncode, 0)
 
+    def test_pit_coverage_reports_missing_without_imputation(self):
+        with tempfile.TemporaryDirectory() as folder:
+            proc = subprocess.run([sys.executable, str(ROOT/"scripts/aics_pit_coverage_report.py")],
+                                  cwd=folder, capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            report=json.loads((Path(folder)/"aics_data/pit/coverage_report.json").read_text())
+            self.assertEqual(len(report["series"]),4)
+            self.assertFalse(report["historical_snapshot_coverage_complete"])
+            self.assertTrue(all(s["snapshots_downloaded_unverified"]==0 for s in report["series"]))
+            self.assertIsNone(report["index_aics"])
+
     def test_alfred_historical_pit_blocks_missing_vintages(self):
         proc, _ = self.run_script("aics_validate_alfred_pit.py")
         self.assertNotEqual(proc.returncode, 0)
