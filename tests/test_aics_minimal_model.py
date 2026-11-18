@@ -24,19 +24,24 @@ class MinimalModelTests(unittest.TestCase):
         r=model_module.model({"as_of":"2026-11-18","nodes":{}})
         self.assertIsNone(r["index_aics"])
         self.assertEqual(r["signal"],"INSUFFICIENT_VERIFIED_DATA")
+        self.assertIsNone(r["uncertified_arithmetic_candidate"])
         self.assertFalse(r["trades_created"])
     def test_entry_band(self):
         r=model_module.model(test_input(20))
-        self.assertEqual(r["index_aics"],210)
+        self.assertIsNone(r["index_aics"])
+        self.assertEqual(r["uncertified_arithmetic_candidate"],210)
         self.assertEqual(r["band"],"BELOW_450")
         self.assertEqual(r["promotion"],"BLOCKED")
+        self.assertEqual(r["signal"],"UNVERIFIED_SCORE_CANDIDATE_RESEARCH_ONLY")
     def test_watch_band(self):
         r=model_module.model(test_input(45))
-        self.assertEqual(r["index_aics"],472.5)
+        self.assertIsNone(r["index_aics"])
+        self.assertEqual(r["uncertified_arithmetic_candidate"],472.5)
         self.assertEqual(r["band"],"450_TO_500")
     def test_cash_zone(self):
         r=model_module.model(test_input(50))
-        self.assertEqual(r["index_aics"],525)
+        self.assertIsNone(r["index_aics"])
+        self.assertEqual(r["uncertified_arithmetic_candidate"],525)
         self.assertEqual(r["band"],"ABOVE_500")
         self.assertFalse(r["trades_created"])
     def test_missing_evidence_fails_closed(self):
