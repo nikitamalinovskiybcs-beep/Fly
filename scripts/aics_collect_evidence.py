@@ -65,9 +65,13 @@ for sid, node in SERIES.items():
         results.append({"source":"ALFRED","id":sid,"status":"downloaded_unverified",
                         "rows":len(rows)})
     except (HTTPError, URLError, TimeoutError, ValueError, KeyError) as e:
+        detail = ""
+        if isinstance(e, HTTPError):
+            detail = e.read(1024).decode("utf-8", errors="replace")
         results.append({"source":"ALFRED","id":sid,"status":"error",
                         "error":type(e).__name__,
-                        "http_status":e.code if isinstance(e, HTTPError) else None})
+                        "http_status":e.code if isinstance(e, HTTPError) else None,
+                        "api_message":detail[:500]})
 identity = os.getenv("EDGAR_IDENTITY", "").strip()
 for ticker, cik in CIKS.items():
     if not identity:
