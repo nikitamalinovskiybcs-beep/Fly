@@ -15,11 +15,15 @@
     "document_month": "2026-10",
     "user_supplied_url": "https://www.openmarketsinstitute.org/s/Brace-for-Impact-Scherer-Jenkins-OMI-October2026-WEB-1.pdf",
     "retrievable_publisher_hosted_mirror": "https://ourfinancialsecurity.org/wp-content/uploads/2026/10/Brace-for-Impact-Scherer-Jenkins-OMI-October2026-WEB.pdf",
-    "read_method": "publisher PDF text indexed via web; screenshots supplied by user as context",
-    "original_pdf_bytes_locally_archived": false,
-    "pdf_sha256": null,
+    "read_method": "Web full text and two genuine publisher PDF byte copies downloaded through GitHub Actions; original user URL selected and independently SHA-256 rehashed",
+    "original_pdf_bytes_locally_archived": true,
+    "pdf_sha256": "466b8a875752c85e23a41d5e33ad985c44f437ddc5cf801e132310c4e28bff60",
     "independent_primary_numeric_sources_verified": false,
-    "classification": "SECONDARY_POLICY_RESEARCH_NOT_PRIMARY_SOURCE_NUMERIC_EVIDENCE"
+    "classification": "SECONDARY_POLICY_RESEARCH_NOT_PRIMARY_SOURCE_NUMERIC_EVIDENCE",
+    "pdf_sha_receipt_path": "aics_data/research/omi_brace_impact_original_pdf_sha_receipt_2026-11-18.json",
+    "alternate_publisher_pdf_sha256": "87f59ab669c766886ab5ade69039d14c04db1dd17e119ae8eb150d0acd4e5693",
+    "alternate_publisher_pdf_identical": false,
+    "original_source_pdf_pages": 88
   },
   "nodes": [
     {
@@ -437,6 +441,7 @@
     "Reproduce every claimed numeric input from its original primary provider, with vintage, denominators, entity universe and reported period before a score.",
     "Source paper is dated October 2026; it cannot be retroactively injected into earlier historical research snapshots.",
     "A look-ahead-safe report ingestion date is separate from market source filed_at and from SEC mandatory lag.",
-    "Book-to-bill, interest expense, and off-balance commitments cannot be directly added; units and stock-versus-flow differ."
+    "Book-to-bill, interest expense, and off-balance commitments cannot be directly added; units and stock-versus-flow differ.",
+    "Original publisher PDF source bytes verified SHA256 and 88 pages on 2026-11-18; the AFREF publisher mirror is a separate PDF version (different bytes, some citation references). This is only document-origin verification, NOT numeric primary-source audit."
   ]
 }
