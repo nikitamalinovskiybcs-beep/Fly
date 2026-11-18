@@ -135,6 +135,26 @@ class TestAlfredFreeGapVintage(unittest.TestCase):
                     entry["raw_sha256"]
                 )
 
+    def test_transient_502_retried_and_exact_provider_bytes_kept(self):
+        attempts = []
+        def transport(request, timeout):
+            attempts.append(request.full_url)
+            query = urllib.parse.parse_qs(urllib.parse.urlsplit(request.full_url).query)
+            if query["series_id"][0] == "IORB" and len(attempts) == 1:
+                raise urllib.error.HTTPError(request.full_url, 502, "temporary", None, None)
+            return FakeResponse(raw_asof(self.DAY))
+        with tempfile.TemporaryDirectory() as tmp:
+            report = collect(
+                "test-api-key", dest=Path(tmp), snapshots=(self.DAY,),
+                transport=transport, captured_at=self.CAPTURED_AT, pace_seconds=0
+            )
+            self.assertEqual(report["successful_snapshots"], 2)
+            self.assertEqual(len(attempts), 3)
+            self.assertFalse(report["blocked"])
+            self.assertEqual((Path(tmp) / "IORB_asof_2026-10-31.json").read_bytes(),
+                             raw_asof(self.DAY))
+            self.assertNotIn("test-api-key", json.dumps(report))
+
     def test_provider_failure_is_explicit_and_no_fabricated_snapshot(self):
         def transport(request, timeout):
             query = urllib.parse.parse_qs(urllib.parse.urlsplit(request.full_url).query)
