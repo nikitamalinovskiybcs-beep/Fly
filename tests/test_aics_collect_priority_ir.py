@@ -9,7 +9,7 @@ from pathlib import Path
 
 from scripts.aics_collect_priority_ir import (
     DEFAULT_REGISTRY, check_url, discover_links, load_registry,
-    retrieve, run, MAX_BYTES,
+    retrieve, run, MAX_BYTES, IR_INDEX, IR_NODE_MAP,
 )
 
 class FakeHTTP:
@@ -144,6 +144,22 @@ class TestAICSOfficialIR(unittest.TestCase):
             data = run(DEFAULT_REGISTRY, out, self.as_of, opener=fake_open, landing_pages={})
             self.assertEqual(data["archived_candidates"], 0)
             self.assertEqual(sum(e["status"] == "fetch_failed" for e in data["candidates"]), 7)
+
+    def test_ir_catalog_covers_nine_corporate_linked_nodes(self):
+        self.assertEqual(len(IR_INDEX), 15)
+        self.assertEqual(set(IR_INDEX), set(IR_NODE_MAP))
+        expected = {
+            "Private Credit", "Insurers", "Neoclouds", "AI Equities",
+            "Hyperscalers", "SPV", "Power/Data Centers",
+            "Semiconductors Supply", "AI Demand",
+        }
+        actual = {node for nodes in IR_NODE_MAP.values() for node in nodes}
+        self.assertEqual(actual, expected)
+        self.assertNotIn("UST 30Y", actual)
+        self.assertNotIn("Repo", actual)
+
+    def test_all_ir_landing_pages_are_official_allowlisted_https(self):
+        self.assertTrue(all(check_url(url) for url in IR_INDEX.values()))
 
 if __name__ == "__main__":
     unittest.main()
