@@ -7,6 +7,8 @@ on:
     paths:
       - 'scripts/aics_derive_repo_spread_research.py'
       - 'tests/test_aics_derive_repo_spread_research.py'
+      - 'tests/test_aics_repo_pinned_research.py'
+      - 'aics_data/research/repo_24_month_observed_research_2026-11-18.json'
       - 'aics_data/research/alfred_iorb_power_cross_run_independent_rehash_2026_11_18.json'
       - 'aics_data/research/nyfed_repo_original_archive_independent_rehash_2026_11_18.json'
       - '.github/workflows/aics-repo-observed-spreads.yml'
@@ -26,6 +28,7 @@ jobs:
         run: |
           python -m py_compile scripts/aics_derive_repo_spread_research.py
           python -m unittest discover -s tests -p 'test_aics_derive_repo_spread_research.py' -v
+          python -m unittest discover -s tests -p 'test_aics_repo_pinned_research.py' -v
       - name: Fetch immutable NY Fed and ALFRED original GitHub ZIP bytes
         env:
           GH_TOKEN: ${{ github.token }}
@@ -69,6 +72,32 @@ jobs:
                     +data['summary']['maximum_sofr_minus_iorb_bps']+'; mean '
                     +data['summary']['mean_sofr_minus_iorb_bps'], file=f)
               print('Observed spreads only; no independently attested historical release PIT or certified AICS.', file=f)
+          PY
+      - name: Compare durable 24-month panel against regenerated original source archives
+        run: |
+          python - <<'PY'
+          import json
+          from decimal import Decimal
+          from pathlib import Path
+          generated = json.loads(Path('docs/audit/aics_repo_market_spreads_research_2026-11-18.json').read_text())
+          pinned = json.loads(Path('aics_data/research/repo_24_month_observed_research_2026-11-18.json').read_text())
+          src = generated['provider_archive_sha256']
+          assert pinned['raw_provider_archive_sha256'] == {'nyfed': src['NYFED'], 'alfred': src['ALFRED']}
+          candidates = generated['monthly_source_aligned_observations']
+          records = pinned['monthly_observations']
+          assert len(candidates) == len(records) == 24
+          for source, observed in zip(candidates, records):
+              assert source['as_of_month_end'] == observed['as_of']
+              assert source['nyfed_effective_date'] == observed['market_effective_date']
+              for key in ('iorb_pct','sofr_pct','bgcr_pct','tgcr_pct'):
+                  assert Decimal(source[key]) == Decimal(observed[key])
+              for key in ('sofr_minus_iorb_bps','sofr_minus_bgcr_bps'):
+                  assert Decimal(source[key]) == Decimal(observed[key])
+          assert pinned['synthetic_market_rows'] == 0
+          assert pinned['source_release_timestamp_pit_attested'] is False
+          assert pinned['stress_score'] is None and pinned['index_aics'] is None
+          assert pinned['promotion'] == 'BLOCKED'
+          print('PASS: 24 pinned original-derived market research matches regenerated ZIP inputs')
           PY
       - name: Archive 24 matched observed metrics and source-hash provenance
         uses: actions/upload-artifact@v4
