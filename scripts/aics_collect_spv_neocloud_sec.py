@@ -217,7 +217,8 @@ def main() -> int:
     args = p.parse_args()
     result = run(args.registry, args.out, args.as_of,
                  contact=os.getenv("AICS_SEC_USER_AGENT", ""))
-    print(json.dumps({"archived_raw": result["raw_documents_archived"],
+    print(json.dumps({"source_statuses": {row["source_id"]: row["status"] for row in result["documents"]},
+                      "archived_raw": result["raw_documents_archived"],
                       "date_eligible": result["date_eligible_documents"],
                       "date_excluded": result["date_excluded_documents"],
                       "index_aics": None, "promotion": "BLOCKED"}))
