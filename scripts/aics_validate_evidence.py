@@ -64,6 +64,8 @@ for sid in ("BAMLH0A0HYM2","BAMLH0A3HYC","DGS30","SOFR"):
 check("07_observation_lineage", vintage_valid and len(csv_counts)==4, csv_counts)
 sec_valid=True
 sec_counts={}
+sec_duplicates={}
+sec_manifest_match=True
 for ticker in ("NVDA","MSFT","AMZN","GOOGL","META","ORCL"):
     path=ROOT / f"sec_eligible_filings_{ticker}.json"
     if not path.exists():
@@ -71,7 +73,14 @@ for ticker in ("NVDA","MSFT","AMZN","GOOGL","META","ORCL"):
         continue
     filings=json.loads(path.read_text(encoding="utf-8"))
     sec_counts[ticker]=len(filings)
+    if by_id.get(ticker,{}).get("eligible_filings") != len(filings):
+        sec_manifest_match=False
+    seen_accessions=set()
+    sec_duplicates[ticker]=0
     for filing in filings:
+        if filing.get("accession_number") in seen_accessions:
+            sec_duplicates[ticker]+=1
+        seen_accessions.add(filing.get("accession_number"))
         try:
             filed=dt.date.fromisoformat(filing["filed_at"])
             available=dt.date.fromisoformat(filing["available_at"])
@@ -88,6 +97,9 @@ check("07b_no_duplicate_observations", len(observation_duplicates)==4 and
       all(n==0 for n in observation_duplicates.values()), observation_duplicates)
 check("07c_observation_dates", observation_order_valid)
 check("08_sec_14_day_embargo", sec_valid and len(sec_counts)==6, sec_counts)
+check("08b_sec_manifest_counts", sec_manifest_match, sec_counts)
+check("08c_sec_accession_uniqueness", len(sec_duplicates)==6 and
+      all(v==0 for v in sec_duplicates.values()), sec_duplicates)
 check("09_no_claimed_xbrl_facts", all(r.get("xbrl_facts_extracted") is False
       for r in results if r.get("source")=="SEC"))
 check("10_pit_promotion_blocked", all(r.get("historical_pit_available") is False
