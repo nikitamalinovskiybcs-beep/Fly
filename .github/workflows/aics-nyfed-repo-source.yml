@@ -23,7 +23,7 @@ jobs:
         run: |
           python -m py_compile scripts/aics_collect_nyfed_repo_rates.py
           python -m unittest discover -s tests -p 'test_aics_collect_nyfed_repo_rates.py' -v
-      - name: Capture original 1500-row maximum NY Fed JSON responses, 3 rate types
+      - name: Capture original 999-row maximum NY Fed JSON responses, 3 rate types
         run: python -m scripts.aics_collect_nyfed_repo_rates
       - name: Independently verify original file SHA-256 against capture manifest
         run: |
