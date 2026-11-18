@@ -39,7 +39,7 @@ def doc_record(tmp, *, source="EXCHANGE_BULLETIN"):
         "source":source,
         "url":"https://www.nasdaqtrader.com/Trader.aspx?id=DailyListPD",
         "published_at_utc":"2026-11-17T12:00:00Z",
-        "retrieved_at_utc":"2026-11-19T12:00:00+00:00",
+        "retrieved_at_utc":"2026-11-18T12:00:00+00:00",
         "coverage_start":"2026-11-01",
         "coverage_end":"2026-11-17",
         "original_path":str(path.relative_to(tmp)),
