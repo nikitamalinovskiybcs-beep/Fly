@@ -53,7 +53,7 @@ def build(verified: dict, cutoff: dt.date) -> dict:
                 raise PanelError("non-original or falsely PIT-certified SEC exhibit")
             filed = dt.date.fromisoformat(item["SEC_filed_at"])
             available = dt.date.fromisoformat(item["SEC_available_at"])
-        if available != filed + dt.timedelta(days=14) or filed <= period is False:
+        if available != filed + dt.timedelta(days=14) or filed <= period:
             raise PanelError("SEC 14-day embargo or reporting chronology failed")
         if period > cutoff or available > cutoff:
             continue
