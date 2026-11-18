@@ -1,0 +1,74 @@
+name: AICS ARCC original SEC nonaccrual value verification
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_verify_arcc_original_nonaccrual.py'
+      - 'tests/test_aics_verify_arcc_original_nonaccrual.py'
+      - 'aics_data/research/arcc_primary_disclosures_2026-11-18.csv'
+      - '.github/workflows/aics-arcc-original-values.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-sec-paragraphs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 11
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test exact original-text parsing, filing dates, and fixture tampering
+        run: |
+          python -m py_compile scripts/aics_verify_arcc_original_nonaccrual.py
+          python -m unittest discover -s tests -p 'test_aics_verify_arcc_original_nonaccrual.py' -v
+      - name: Retrieve original four issuer and SEC HTML source archive bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          curl --fail --silent --show-error --location --retry 2 --max-time 90 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GH_REPO/actions/artifacts/14474764347/zip" \
+            -o "$RUNNER_TEMP/aics_arcc_originals.zip"
+      - name: Independently extract and verify eight ARCC source figures from three SEC originals
+        run: |
+          python -m scripts.aics_verify_arcc_original_nonaccrual \
+            --archive "$RUNNER_TEMP/aics_arcc_originals.zip"
+      - name: Confirm December 2025 earlier February source still unverified
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          d = json.loads(Path('docs/audit/aics_arcc_primary_sec_nonaccrual_verified_2026-11-18.json').read_text())
+          assert d['independently_verified_source_transcription_values'] == 8
+          assert d['verified_sec_exhibit_originals'] == 3
+          assert d['original_source_html_rehashed'] == 4
+          assert d['dec_2025_prior_values_independent_sec_crosschecks'] == 3
+          assert d['earliest_verified_dec2025_disclosure_PIT_from_original'] == '2026-05-12'
+          assert d['earlier_february_issuer_release_PIT_attested'] is False
+          assert d['cost_nonaccrual_change_since_dec2025_percentage_points'] == '0.6'
+          assert d['fair_value_nonaccrual_change_since_dec2025_percentage_points'] == '0.2'
+          assert d['synthetic_financial_observations'] == 0
+          assert d['historical_24mo_PIT_complete'] is False
+          assert d['private_credit_node_stress_score'] is None
+          assert d['index_aics'] is None
+          assert d['promotion'] == 'BLOCKED'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## ARCC Private Credit original SEC disclosure verification',file=f)
+              print('8/8 numbers matched raw SEC exhibits for 4 periods;',file=f)
+              print('Dec 2025 corroborated in 3 subsequent SEC exhibits;',file=f)
+              print('unverified Feb issuer news shell cannot establish early PIT.',file=f)
+              print('No independent 24m PIT/OOS or AICS score.',file=f)
+          PY
+      - name: Preserve source-verified descriptive values and PIT caveats
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-arcc-sec-original-nonaccrual-values
+          path: docs/audit/aics_arcc_primary_sec_nonaccrual_verified_2026-11-18.json
+          if-no-files-found: error
+          retention-days: 30
