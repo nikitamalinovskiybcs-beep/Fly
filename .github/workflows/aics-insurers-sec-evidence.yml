@@ -30,7 +30,7 @@ jobs:
           AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY }}
         run: python scripts/aics_collect_insurers_sec.py --as-of 2026-11-18 --first-period 2018-01-01
       - name: Independently recalculate SEC artifact SHA256 and research PIT eligibility
-        run: python scripts/aics_verify_insurers_sec_evidence.py
+        run: python -m scripts.aics_verify_insurers_sec_evidence
       - name: Validate evidence manifest cannot claim node readiness
         if: always()
         run: |
