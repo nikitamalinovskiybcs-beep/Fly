@@ -20,7 +20,8 @@ by_id = {r.get("id"): r for r in results}
 check("01_manifest_exists", manifest_path.exists())
 check("02_as_of_date", bool(manifest.get("as_of")) and
       dt.date.fromisoformat(manifest["as_of"]) <= dt.date.today() if manifest.get("as_of") else False)
-check("03_expected_sources", set(by_id) == EXPECTED, sorted(set(EXPECTED)-set(by_id)))
+check("03_expected_sources", len(results)==len(EXPECTED) and set(by_id) == EXPECTED,
+      {"missing":sorted(EXPECTED-set(by_id)),"duplicates":len(results)-len(by_id)})
 check("04_source_downloads", len(results)==10 and all(r.get("status")=="downloaded_unverified" for r in results),
       [r.get("id") for r in results if r.get("status")!="downloaded_unverified"])
 check("05_no_production_index", manifest.get("index_aics") is None and
@@ -30,6 +31,8 @@ check("06_source_classification", all(by_id.get(sid,{}).get("source")=="FRED_CUR
       by_id.get("DGS30",{}).get("source")=="ALFRED")
 csv_counts = {}
 vintage_valid = True
+observation_duplicates = {}
+observation_order_valid = True
 for sid in ("BAMLH0A0HYM2","BAMLH0A3HYC","DGS30","SOFR"):
     name = f"alfred_{sid}.csv" if sid=="DGS30" else f"fred_current_{sid}.csv"
     path = ROOT / name
@@ -39,8 +42,17 @@ for sid in ("BAMLH0A0HYM2","BAMLH0A3HYC","DGS30","SOFR"):
     with path.open(newline="",encoding="utf-8") as handle:
         rows=list(csv.DictReader(handle))
     csv_counts[sid]=len(rows)
+    seen = set()
+    duplicate_count = 0
     for row in rows:
         try:
+            key = (row["series_id"], row["date"], row["realtime_start"], row["realtime_end"])
+            if key in seen:
+                duplicate_count += 1
+            seen.add(key)
+            if (dt.date.fromisoformat(row["date"]) >
+                dt.date.fromisoformat(row["realtime_end"])):
+                observation_order_valid = False
             if (row["series_id"] != sid or row["verified_pit"] != "False" or
                 dt.date.fromisoformat(row["realtime_start"]) >
                 dt.date.fromisoformat(row["realtime_end"])):
@@ -72,6 +84,9 @@ for ticker in ("NVDA","MSFT","AMZN","GOOGL","META","ORCL"):
         except (KeyError,ValueError):
             sec_valid=False
             break
+check("07b_no_duplicate_observations", len(observation_duplicates)==4 and
+      all(n==0 for n in observation_duplicates.values()), observation_duplicates)
+check("07c_observation_dates", observation_order_valid)
 check("08_sec_14_day_embargo", sec_valid and len(sec_counts)==6, sec_counts)
 check("09_no_claimed_xbrl_facts", all(r.get("xbrl_facts_extracted") is False
       for r in results if r.get("source")=="SEC"))
