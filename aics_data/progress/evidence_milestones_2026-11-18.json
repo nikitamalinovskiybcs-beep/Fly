@@ -34,7 +34,8 @@
     "The Insurers raw IR archive was downloaded from GitHub Actions and all 4 HTML SHA-256 values independently recalculated. This is only archive-stage evidence, not historical PIT or model scoring; GitHub artifact retention is 30 days.",
     "Neoclouds and SPV receive raw-archive milestone only: 7 original CoreWeave/Nebius/Equinix IR pages were independently downloaded from Actions and rehashed. The legal structure of a true SPV is not established; files have 30-day artifact retention.",
     "Seven current issuer IR reports and seven official IR homepages independently SHA256 rechecked. Hyperscalers, Semiconductors Supply, and AI Demand stage 2 only; Alphabet IR HTML is a shell and must be paired with original PDF. No SEC historical vintage or node score.",
-    "Power/Data Centers receives source archive stage only: four original Applied Digital and Equinix IR pages re-hashed; not regionally validated EIA power/stress observations."
+    "Power/Data Centers receives source archive stage only: four original Applied Digital and Equinix IR pages re-hashed; not regionally validated EIA power/stress observations.",
+    "Nasdaq AI Equities current-capture originals: 7 securities × 63 real daily price rows, 441 original observations for 2026-08-20 through 2026-11-17. All original JSON SHA256 and identity rechecked independently; this proves archive stage only and not historical PIT, constituent membership, split adjustment, node score, or OOS."
   ],
   "independently_recalculated_raw_archive_receipts": [
     {
@@ -56,6 +57,11 @@
       "node": "Power/Data Centers",
       "receipt_path": "aics_data/progress/power_datacenters_ir_raw_archive_receipt_2026-11-18.json",
       "evidence_status": "FOUR_OFFICIAL_APLD_EQIX_IR_HTML_BYTES_SHA256_RECHECKED_NOT_HISTORICAL_PIT"
+    },
+    {
+      "node": "AI Equities",
+      "receipt_path": "aics_data/progress/ai_equities_nasdaq_raw_archive_receipt_2026-11-18.json",
+      "evidence_status": "NASDAQ_DATED_RAW_PRICE_BYTES_SHA256_RECHECKED_NOT_PIT"
     }
   ]
 }

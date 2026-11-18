@@ -1,6 +1,6 @@
 # AICS AI Equities — first real-price capture gate (research only)
 
-Date established: 2026-11-18. **Current certified AI Equities progress: 1/6.**
+Date established: 2026-11-18. **Evidence-stage progress: 2/6; independently certified: NO.**
 
 The existing 11-node AICS source inventory identifies Nasdaq historical market
 activity as the primary price discovery route. A separate source capture has
@@ -40,3 +40,9 @@ No 0–100 node stress score, AICS aggregate, predictive skill, or trade is
 generated. SEC fundamentals still require filed_at + 14 calendar days;
 revisable FRED series still require genuine ALFRED vintages. The immutable
 AICS node weight total remains 1050.
+
+## Source archive verified on 2026-11-18
+
+Official Nasdaq raw JSON downloaded for NVDA, MSFT, GOOGL, AMZN, META, ORCL and MU, 63 genuine daily bars each (2026-08-20 to 2026-11-17). Seven original JSON SHA-256s were independently rechecked; total 441 rows. GitHub Actions run [44387147503](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44387147503), artifact ID 14466941540, retains the original bytes until 2026-12-18. Pinned receipts are in `aics_data/progress/ai_equities_nasdaq_raw_archive_receipt_2026-11-18.json`.
+
+This is **raw candidate archive gate 2/6** only: historical source vintages, contemporaneous corporate-action adjustments, actual historical basket membership, source licensing and long-term archival remain unverified. The original 0–100 score remains unavailable and cannot be estimated from the 441 current-capture rows alone.

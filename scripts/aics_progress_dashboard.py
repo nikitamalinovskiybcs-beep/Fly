@@ -16,6 +16,7 @@ from pathlib import Path
 
 if __package__:
     from .aics_verify_insurers_ir_receipt import verified_raw_insurers_archive
+    from .aics_verify_ai_equities_nasdaq_receipt import verified_ai_equities_archive
     from .aics_verify_neocloud_spv_ir_receipt import verified_neocloud_spv_archives
     from .aics_verify_hyperscaler_semis_demand_ir_receipt import (
         verified_hyperscaler_semis_demand_archives
@@ -23,6 +24,7 @@ if __package__:
     from .aics_verify_power_datacenters_ir_receipt import verified_power_datacenters_archive
 else:
     from aics_verify_insurers_ir_receipt import verified_raw_insurers_archive
+    from aics_verify_ai_equities_nasdaq_receipt import verified_ai_equities_archive
     from aics_verify_neocloud_spv_ir_receipt import verified_neocloud_spv_archives
     from aics_verify_hyperscaler_semis_demand_ir_receipt import (
         verified_hyperscaler_semis_demand_archives
@@ -159,6 +161,10 @@ def build(root: Path, manifest: dict) -> dict:
     if raw_ir_nodes & archived_nodes or not raw_ir_nodes <= registry_nodes:
         fail("duplicate or unregistered raw IR node archive")
     archived_nodes |= raw_ir_nodes
+    raw_price_nodes = verified_ai_equities_archive(root, manifest)
+    if raw_price_nodes & archived_nodes or not raw_price_nodes <= registry_nodes:
+        fail("duplicate or unregistered raw Nasdaq price archive")
+    archived_nodes |= raw_price_nodes
 
     audit = manifest["independent_audit"]
     if not isinstance(audit, dict) or set(audit) != set(AUDIT_FIELDS):
@@ -191,6 +197,7 @@ def build(root: Path, manifest: dict) -> dict:
         "milestones_total": total, "project_progress_pct": round(100 * completed / total, 1),
         "registry_nodes": len(registry_nodes), "archived_candidate_nodes": len(archived_nodes),
         "raw_ir_archive_nodes": sorted(raw_ir_nodes),
+        "raw_price_archive_nodes": sorted(raw_price_nodes),
         "source_pit_attested_nodes": len(stage3),
         "audited_scoring_nodes": len(stage4),
         "untouched_24m_oos_nodes": len(stage5),
@@ -262,6 +269,7 @@ def as_markdown(status: dict) -> str:
         "ALFRED поддерживает три кандидатных узла. Верифицированные по SHA-256 "
         "IR-архивы добавляют Insurers, Neoclouds, SPV, Hyperscalers, "
         "Semiconductors Supply, AI Demand и Power/Data Centers лишь на этапе архива (2/6).",
+        "Отдельно: 7 JSON Nasdaq, 441 исходная запись — AI Equities только 2/6, не PIT.",
         "IR-архивы GitHub Actions хранятся 30 дней, не являются доказательством "
         "исторического PIT, структуры SPV или сертифицированных стресс-скоров.",
         "",

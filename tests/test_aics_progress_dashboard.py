@@ -28,10 +28,10 @@ class TestAICSProgress(unittest.TestCase):
         s = build(ROOT, ledger())
         self.assertEqual(s["total_nodes"], 11)
         self.assertEqual(s["registry_nodes"], 11)
-        self.assertEqual(s["archived_candidate_nodes"], 10)
-        self.assertEqual(s["milestones_completed"], 21)
+        self.assertEqual(s["archived_candidate_nodes"], 11)
+        self.assertEqual(s["milestones_completed"], 22)
         self.assertEqual(s["milestones_total"], 66)
-        self.assertEqual(s["project_progress_pct"], 31.8)
+        self.assertEqual(s["project_progress_pct"], 33.3)
         self.assertEqual(s["certification_pct"], 0)
         self.assertEqual(s["independently_certified_nodes"], 0)
 
@@ -124,6 +124,23 @@ class TestAICSProgress(unittest.TestCase):
         with self.assertRaises(ValueError):
             build(ROOT,m)
 
+    def test_nasdaq_price_stage_two_has_no_pit_or_score(self):
+        status = build(ROOT, ledger())
+        self.assertEqual(status["raw_price_archive_nodes"], ["AI Equities"])
+        equity = next(x for x in status["node_progress"] if x["node"] == "AI Equities")
+        self.assertEqual(equity["completed_milestones"], 2)
+        self.assertFalse(equity["gates"]["independently_attested_pit"])
+        self.assertFalse(equity["gates"]["audited_node_scoring"])
+        self.assertFalse(equity["gates"]["untouched_24m_oos"])
+        self.assertFalse(equity["gates"]["independent_certification"])
+        self.assertIsNone(equity["node_stress_score"])
+
+    def test_reject_fake_equity_receipt_path(self):
+        x = ledger()
+        x["independently_recalculated_raw_archive_receipts"][-1]["receipt_path"] = "../fake.json"
+        with self.assertRaises(ValueError):
+            build(ROOT, x)
+
     def test_raw_archive_is_not_node_or_index_certification(self):
         s = build(ROOT, ledger())
         self.assertFalse(s["archive"]["independently_verified"])
@@ -177,7 +194,7 @@ class TestAICSProgress(unittest.TestCase):
     def test_markdown_is_explicitly_non_certified(self):
         s = build(ROOT, ledger())
         md = as_markdown(s)
-        self.assertIn("31.8%", md)
+        self.assertIn("33.3%", md)
         self.assertIn("0.0%", md)
         self.assertIn("AICS = **N/A**", md)
         for name in WEIGHTS:

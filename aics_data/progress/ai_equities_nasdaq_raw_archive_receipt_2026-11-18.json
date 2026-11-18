@@ -1,0 +1,107 @@
+{
+  "schema_version": "aics-ai-equities-raw-archive-receipt-v1",
+  "node": "AI Equities",
+  "as_of": "2026-11-18",
+  "captured_at_utc": "2026-11-18T20:04:42.909182+00:00",
+  "scope": "RAW_PRICE_CANDIDATE_NOT_HISTORICAL_PIT",
+  "artifact_run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44387147503",
+  "artifact_id": 14466941540,
+  "archive_expires_at": "2026-12-18T20:04:45Z",
+  "artifact_zip_sha256": "0354dea8f0507a770afc4dcfcbb7ce9d4ddf33539d774664b62fa1b04464e9b8",
+  "internal_manifest_sha256": "9bccc1d37085816c13be3f709ae5a4cfc81eb939b8edaf0fc7a8a4636c869120",
+  "independent_recalculation": {
+    "method": "Downloaded the real GitHub Actions ZIP; recomputed ZIP SHA256, manifest SHA256, and all 7 original Nasdaq JSON SHA256s; compared source response symbol and row count",
+    "checked_files": 7,
+    "matching_source_hashes": 7,
+    "matching_response_symbols": 7,
+    "validated_original_rows": 441,
+    "historical_pit_verified": false,
+    "split_dividend_adjustment_pit_verified": false,
+    "historical_constituents_verified": false,
+    "source_license_cleared": false
+  },
+  "original_files": [
+    {
+      "symbol": "NVDA",
+      "url": "https://api.nasdaq.com/api/quote/NVDA/historical?assetclass=stocks&fromdate=2026-08-20&todate=2026-11-18&limit=100",
+      "raw_json_sha256": "f6640ca7e5e806c74e077bd6ffc42178fced0a03ec1cda341cd210ffecd01092",
+      "bytes": 7403,
+      "rows": 63,
+      "first_date": "2026-08-20",
+      "last_date": "2026-11-17",
+      "score_eligible": false
+    },
+    {
+      "symbol": "MSFT",
+      "url": "https://api.nasdaq.com/api/quote/MSFT/historical?assetclass=stocks&fromdate=2026-08-20&todate=2026-11-18&limit=100",
+      "raw_json_sha256": "3a43904adcd0b4e9f77d9d3717e644affa0f53127cd9008a2a6a5af9d56acd8e",
+      "bytes": 7366,
+      "rows": 63,
+      "first_date": "2026-08-20",
+      "last_date": "2026-11-17",
+      "score_eligible": false
+    },
+    {
+      "symbol": "GOOGL",
+      "url": "https://api.nasdaq.com/api/quote/GOOGL/historical?assetclass=stocks&fromdate=2026-08-20&todate=2026-11-18&limit=100",
+      "raw_json_sha256": "906b51190955fc7148500e3b7cd61cc9bb1cf70aa9b157f8e60b2bdf1b8613ef",
+      "bytes": 7374,
+      "rows": 63,
+      "first_date": "2026-08-20",
+      "last_date": "2026-11-17",
+      "score_eligible": false
+    },
+    {
+      "symbol": "AMZN",
+      "url": "https://api.nasdaq.com/api/quote/AMZN/historical?assetclass=stocks&fromdate=2026-08-20&todate=2026-11-18&limit=100",
+      "raw_json_sha256": "bd280aea245107ba3a1498e0a593957cbd3f012c4be0fa647dc5248e58aac67a",
+      "bytes": 7376,
+      "rows": 63,
+      "first_date": "2026-08-20",
+      "last_date": "2026-11-17",
+      "score_eligible": false
+    },
+    {
+      "symbol": "META",
+      "url": "https://api.nasdaq.com/api/quote/META/historical?assetclass=stocks&fromdate=2026-08-20&todate=2026-11-18&limit=100",
+      "raw_json_sha256": "ba54c37df4e7b9c7c4b19333f9e5c9c21e5dd43ff6f8306bc5d2379d08723b34",
+      "bytes": 7380,
+      "rows": 63,
+      "first_date": "2026-08-20",
+      "last_date": "2026-11-17",
+      "score_eligible": false
+    },
+    {
+      "symbol": "ORCL",
+      "url": "https://api.nasdaq.com/api/quote/ORCL/historical?assetclass=stocks&fromdate=2026-08-20&todate=2026-11-18&limit=100",
+      "raw_json_sha256": "151ac422b532e2239b932143afca4bb06c1c93fa444a3a99f7f3d9bb87b71e09",
+      "bytes": 7355,
+      "rows": 63,
+      "first_date": "2026-08-20",
+      "last_date": "2026-11-17",
+      "score_eligible": false
+    },
+    {
+      "symbol": "MU",
+      "url": "https://api.nasdaq.com/api/quote/MU/historical?assetclass=stocks&fromdate=2026-08-20&todate=2026-11-18&limit=100",
+      "raw_json_sha256": "b5b914e41482630d6c0044c169d1f439e5aa398698bff08f03fb8174d9a66196",
+      "bytes": 7516,
+      "rows": 63,
+      "first_date": "2026-08-20",
+      "last_date": "2026-11-17",
+      "score_eligible": false
+    }
+  ],
+  "raw_archive_candidate_milestone_complete": true,
+  "node_stress_score": null,
+  "index_aics": null,
+  "predictive_skill_score": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "limitations": [
+    "Current Nasdaq responses are retrospectively served market history, not recorded historical vintages.",
+    "Split/dividend restatements and historical constituents remain unverified.",
+    "Exact raw files are retained temporarily in the official 30-day GitHub Actions artifact; source use rights are unreviewed.",
+    "No model score, PIT, untouched OOS, or independent certification exists."
+  ]
+}
