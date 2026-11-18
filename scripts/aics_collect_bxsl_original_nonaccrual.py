@@ -172,7 +172,8 @@ def main():
         d = run(args.out, os.environ.get("AICS_SEC_USER_AGENT", ""),
                 dt.date.fromisoformat(args.as_of))
     except (OSError, ValueError, KeyError) as exc:
-        print(json.dumps({"status": "BLOCKED", "error_type": type(exc).__name__}))
+        print(json.dumps({"status": "BLOCKED", "error_type": type(exc).__name__,
+                          "evidence_gate": str(exc) if isinstance(exc, BXSLError) else "source unavailable"}))
         return 2
     print(json.dumps({
         "verified_original_sec_html": d["original_sec_html_count"],
