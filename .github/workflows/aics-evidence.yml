@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - 'devin/1779618014-quant-risk-framework'
+  pull_request:
+    paths:
+      - 'scripts/aics_collect_evidence.py'
+      - '.github/workflows/aics-evidence.yml'
   workflow_dispatch:
   schedule:
     - cron: '23 8 * * 1-5'
