@@ -20,12 +20,14 @@ if __package__:
     from .aics_verify_hyperscaler_semis_demand_ir_receipt import (
         verified_hyperscaler_semis_demand_archives
     )
+    from .aics_verify_power_datacenters_ir_receipt import verified_power_datacenters_archive
 else:
     from aics_verify_insurers_ir_receipt import verified_raw_insurers_archive
     from aics_verify_neocloud_spv_ir_receipt import verified_neocloud_spv_archives
     from aics_verify_hyperscaler_semis_demand_ir_receipt import (
         verified_hyperscaler_semis_demand_archives
     )
+    from aics_verify_power_datacenters_ir_receipt import verified_power_datacenters_archive
 
 WEIGHTS = {
     "Private Credit": 150,
@@ -152,7 +154,8 @@ def build(root: Path, manifest: dict) -> dict:
 
     raw_ir_nodes = (verified_raw_insurers_archive(root, manifest)
                     | verified_neocloud_spv_archives(root, manifest)
-                    | verified_hyperscaler_semis_demand_archives(root, manifest))
+                    | verified_hyperscaler_semis_demand_archives(root, manifest)
+                    | verified_power_datacenters_archive(root, manifest))
     if raw_ir_nodes & archived_nodes or not raw_ir_nodes <= registry_nodes:
         fail("duplicate or unregistered raw IR node archive")
     archived_nodes |= raw_ir_nodes
@@ -258,7 +261,7 @@ def as_markdown(status: dict) -> str:
         "Исходный архив: [GitHub Actions](" + status["archive"]["workflow_url"] + ").",
         "ALFRED поддерживает три кандидатных узла. Верифицированные по SHA-256 "
         "IR-архивы добавляют Insurers, Neoclouds, SPV, Hyperscalers, "
-        "Semiconductors Supply и AI Demand лишь на этапе архива (2/6).",
+        "Semiconductors Supply, AI Demand и Power/Data Centers лишь на этапе архива (2/6).",
         "IR-архивы GitHub Actions хранятся 30 дней, не являются доказательством "
         "исторического PIT, структуры SPV или сертифицированных стресс-скоров.",
         "",
