@@ -39,15 +39,18 @@ class TestAICSOfficialIR(unittest.TestCase):
     def setUp(self):
         self.as_of = dt.date(2026, 11, 18)
 
-    def test_seven_discoverable_official_releases(self):
+    def test_fourteen_discoverable_official_releases(self):
         reg = load_registry(DEFAULT_REGISTRY, self.as_of)
         rows = reg["source_entries"]
-        self.assertEqual(len(rows), 7)
+        self.assertEqual(len(rows), 14)
         self.assertEqual(set(e["candidate_node"] for e in rows),
-                         {"Insurers", "Neoclouds", "SPV"})
+                         {"Insurers", "Neoclouds", "SPV", "Hyperscalers", "Semiconductors Supply", "AI Demand"})
         self.assertEqual(sum(e["candidate_node"] == "Insurers" for e in rows), 2)
         self.assertEqual(sum(e["candidate_node"] == "Neoclouds" for e in rows), 3)
         self.assertEqual(sum(e["candidate_node"] == "SPV" for e in rows), 2)
+        self.assertEqual(sum(e["candidate_node"] == "Hyperscalers" for e in rows), 4)
+        self.assertEqual(sum(e["candidate_node"] == "Semiconductors Supply" for e in rows), 2)
+        self.assertEqual(sum(e["candidate_node"] == "AI Demand" for e in rows), 1)
 
     def test_all_sites_https_and_allowlisted(self):
         for e in load_registry(DEFAULT_REGISTRY, self.as_of)["source_entries"]:
@@ -61,9 +64,9 @@ class TestAICSOfficialIR(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             r = run(DEFAULT_REGISTRY, Path(directory), self.as_of, opener=fake_open,
                     landing_pages={"CoreWeave": "https://investors.coreweave.com/news/default.aspx"})
-            self.assertEqual(r["archived_candidates"], 7)
+            self.assertEqual(r["archived_candidates"], 14)
             self.assertEqual(r["landing_pages_archived"], 1)
-            self.assertEqual(r["candidate_count"], 7)
+            self.assertEqual(r["candidate_count"], 14)
             self.assertEqual(r["independently_certified_nodes"], 0)
             self.assertEqual(r["node_scores"], {"Insurers": None, "Neoclouds": None, "SPV": None})
             self.assertIsNone(r["index_aics"])
@@ -85,7 +88,7 @@ class TestAICSOfficialIR(unittest.TestCase):
             registry.write_text(json.dumps(reg))
             result = run(registry, Path(d)/"raw", self.as_of,
                          opener=fake_open, landing_pages={})
-            self.assertEqual(result["archived_candidates"], 6)
+            self.assertEqual(result["archived_candidates"], 13)
             self.assertEqual(result["candidates"][0]["status"], "future_publication_excluded")
             self.assertIsNone(result["index_aics"])
 
@@ -143,7 +146,7 @@ class TestAICSOfficialIR(unittest.TestCase):
             (out/"raw"/(digest+".html")).write_bytes(b"tampered")
             data = run(DEFAULT_REGISTRY, out, self.as_of, opener=fake_open, landing_pages={})
             self.assertEqual(data["archived_candidates"], 0)
-            self.assertEqual(sum(e["status"] == "fetch_failed" for e in data["candidates"]), 7)
+            self.assertEqual(sum(e["status"] == "fetch_failed" for e in data["candidates"]), 14)
 
     def test_ir_catalog_covers_nine_corporate_linked_nodes(self):
         self.assertEqual(len(IR_INDEX), 15)
@@ -157,6 +160,20 @@ class TestAICSOfficialIR(unittest.TestCase):
         self.assertEqual(actual, expected)
         self.assertNotIn("UST 30Y", actual)
         self.assertNotIn("Repo", actual)
+
+    def test_targeted_hyperscaler_semis_and_ai_demand_issuer_sources(self):
+        subset={"Microsoft", "Alphabet", "Amazon", "Meta", "NVIDIA", "Micron", "Oracle"}
+        with tempfile.TemporaryDirectory() as directory:
+            result=run(DEFAULT_REGISTRY,Path(directory),self.as_of,
+                       opener=fake_open,issuer_filter=subset)
+            self.assertEqual(result["candidate_count"],7)
+            self.assertEqual(result["archived_candidates"],7)
+            self.assertEqual(result["landing_pages_checked"],7)
+            self.assertEqual(result["landing_pages_archived"],7)
+            self.assertEqual(set(x["candidate_node"] for x in result["candidates"]),
+                             {"Hyperscalers","Semiconductors Supply","AI Demand"})
+            self.assertFalse(result["all_reports_historically_pit_verified"])
+            self.assertIsNone(result["index_aics"])
 
     def test_targeted_insurer_capture_only_two_candidates_two_indexes(self):
         with tempfile.TemporaryDirectory() as directory:
