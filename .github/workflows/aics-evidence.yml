@@ -1,5 +1,8 @@
 name: AICS evidence collection
 on:
+  push:
+    branches:
+      - 'aics/pit-data-connectors-20261118'
   workflow_dispatch:
   schedule:
     - cron: '23 8 * * 1-5'
