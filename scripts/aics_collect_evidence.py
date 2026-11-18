@@ -80,4 +80,6 @@ write_json(OUT / "manifest.json",{"as_of":TODAY.isoformat(),"results":results,
     "index_aics":None,"predictive_model_score":None,"publishable":False,
     "note":"Raw downloads are not independently verified PIT data. Do not score."})
 print(json.dumps({"as_of":TODAY.isoformat(),"results":results},indent=2))
-\nif failed:\n    raise SystemExit(f"AICS incomplete: {failed} source(s) failed; see artifact manifest")\n
+
+if failed:
+    raise SystemExit(f"AICS incomplete: {failed} source(s) failed; see artifact manifest")
