@@ -115,3 +115,102 @@ jobs:
           path: docs/audit/aics_*_2026-11-18.json
           if-no-files-found: warn
           retention-days: 30
+
+  aics-live-source-collection:
+    name: Live SEC/FRED research source receipts (never certified PIT)
+    # A single scheduled/manual AICS run collects once; ordinary code pushes stay offline.
+    needs: aics-pit-verify-and-audit
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[aics-live]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile evidence acquisition and audit scripts
+        run: >-
+          python -m py_compile
+          scripts/aics_collect_evidence.py
+          scripts/aics_validate_evidence.py
+          scripts/aics_collect_xbrl.py
+          scripts/aics_validate_xbrl.py
+          scripts/aics_audit_node_coverage.py
+          scripts/aics_research_readiness.py
+          scripts/aics_ten_stage_receipt.py
+      - name: Collect SEC submissions and FRED candidate rows
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY || secrets.AICS_SEC_USER_AGENT || secrets.SEC_USER_AGENT }}
+        run: python scripts/aics_collect_evidence.py
+      - name: Validate raw source lineage and SEC plus 14 days
+        if: always()
+        run: python scripts/aics_validate_evidence.py
+      - name: Collect original SEC companyfacts candidates
+        if: always()
+        env:
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY || secrets.AICS_SEC_USER_AGENT || secrets.SEC_USER_AGENT }}
+        run: python scripts/aics_collect_xbrl.py
+      - name: Verify XBRL source lineage and SEC embargo
+        if: always()
+        run: python scripts/aics_validate_xbrl.py
+      - name: Audit all 11 research nodes without synthetic scores
+        if: always()
+        run: python scripts/aics_audit_node_coverage.py
+      - name: Rebuild fail-closed readiness
+        if: always()
+        run: python scripts/aics_research_readiness.py
+      - name: Preserve 10-gate diagnostics as a receipt, not separate CI runs
+        if: always()
+        run: python scripts/aics_ten_stage_receipt.py
+      - name: Require complete and explicitly unverified source acquisition
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('aics_data')
+          def load(path):
+              p=root/path
+              return json.loads(p.read_text(encoding='utf-8')) if p.is_file() else {}
+          live=load('live/manifest.json')
+          xbrl=load('xbrl/manifest.json')
+          lq=load('live/quality_report.json')
+          xq=load('xbrl/quality_report.json')
+          coverage=load('research/node_coverage.json')
+          readiness=load('research/readiness_report.json')
+          receipt=load('research/ten_stage_receipt.json')
+          assert len(live.get('results', [])) == 10, 'Missing SEC/FRED source manifest'
+          assert all(s.get('status') == 'downloaded_unverified' for s in live['results']), 'Source download failed'
+          assert lq.get('total', 0) > 0 and lq.get('passed') == lq['total'], 'Source quality gate blocked'
+          assert len(xbrl.get('results', [])) == 6, 'Missing SEC XBRL manifest'
+          assert all(s.get('status') == 'downloaded_unverified' for s in xbrl['results']), 'XBRL download failed'
+          assert xq.get('passed') is True, 'XBRL quality gate blocked'
+          assert coverage.get('fixed_weight_sum') == 1050 and len(coverage.get('nodes', [])) == 11
+          assert coverage.get('validated_nodes') == 0 and coverage.get('index_aics') is None
+          assert readiness.get('ready_for_production') is False and readiness.get('index_aics') is None
+          assert receipt.get('total') == 10 and receipt.get('ready_for_production') is False
+          assert receipt.get('index_aics') is None and receipt.get('promotion') == 'BLOCKED'
+          assert all(s.get('status') in ('PASS', 'BLOCKED') for s in receipt['stages'])
+          with open(Path('/dev/stdout'),'w') as output:
+              print('PASS: 10 SEC/FRED and 6 XBRL source candidates acquired and validated.',file=output)
+              print('PIT attestation, score, independent OOS and AICS certification remain BLOCKED.',file=output)
+          PY
+      - name: Retain raw evidence and audit even when acquisition is blocked
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-master-live-original-evidence-${{ github.run_id }}
+          path: |
+            aics_data/live/
+            aics_data/xbrl/
+            aics_data/research/node_coverage.json
+            aics_data/research/readiness_report.json
+            aics_data/research/ten_stage_receipt.json
+          if-no-files-found: warn
+          retention-days: 30
