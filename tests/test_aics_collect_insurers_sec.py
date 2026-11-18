@@ -6,6 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from scripts.aics_verify_insurers_sec_evidence import verify_bundle
+
 from scripts.aics_collect_insurers_sec import (
     ISSUERS, COLUMNS, archive_payload, extract_candidates, recent_accessions,
     require_contact, retrieve_json, run, sec_url,
@@ -178,6 +180,16 @@ class TestInsurerSECPIT(unittest.TestCase):
             report=json.loads((p/"manifest.json").read_text())
             self.assertEqual(report["candidate_observations"], 2)
             self.assertIn("current sec companyfacts", " ".join(report["limitations"]).lower())
+            integrity=verify_bundle(p,p)
+            self.assertEqual(integrity["checked_issuers"],2)
+            self.assertEqual(integrity["checked_files"],4)
+            self.assertEqual(integrity["checked_candidate_rows"],2)
+            self.assertIsNone(integrity["index_aics"])
+            self.assertFalse(integrity["independently_verified_pit"])
+            # A locally stored altered JSON must never pass evidence checking.
+            victim=next((p/"raw").glob("met_submissions_*.json"))
+            victim.write_bytes(b"tampered archival bytes")
+            with self.assertRaises(ValueError):verify_bundle(p,p)
 
 
 
