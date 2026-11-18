@@ -104,8 +104,8 @@ def build(root: Path, manifest: dict) -> dict:
     registry = strict_repo_path(root, manifest["registry_path"]).read_text(encoding="utf-8")
     registry_nodes = {
         node for node, weight in WEIGHTS.items()
-        if re.search(r"^\\|\\s*" + re.escape(node) + r"\\s*\\|\\s*"
-                     + str(weight) + r"\\s*\\|", registry, flags=re.M)
+        if re.search(r"^\|\s*" + re.escape(node) + r"\s*\|\s*"
+                     + str(weight) + r"\s*\|", registry, flags=re.M)
     }
     archive = manifest["research_archive"]
     refdoc_path = strict_repo_path(root, archive["supporting_document"])
@@ -117,7 +117,7 @@ def build(root: Path, manifest: dict) -> dict:
         fail("archive SHA-256 is not documented in research report")
     url = archive["workflow_url"]
     if not isinstance(url, str) or not re.fullmatch(
-        r"https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]+", url
+        r"https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/[0-9]+", url
     ):
         fail("archive run URL missing or malformed")
     series_by_node = archive["series_by_node"]
