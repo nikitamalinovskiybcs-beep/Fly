@@ -1,4 +1,5 @@
 name: AICS evidence collection
+# Evidence-only workflow; no index publication or trading decisions.
 on:
   push:
     branches:
