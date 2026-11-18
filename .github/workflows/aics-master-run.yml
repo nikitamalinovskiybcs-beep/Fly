@@ -49,6 +49,29 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_aics_pit_integrity_v1_2_0.py' -v
       - name: Test master runner never promotes unverified raw sources
         run: python -m unittest discover -s tests -p 'test_aics_master_pipeline.py' -v
+      - name: Unified AICS offline source, PIT-safety and provenance regression
+        run: |
+          python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
+          python -m unittest discover -s tests -p 'test_aics_progress_dashboard.py' -v
+          python -m unittest discover -s tests -p 'test_aics_ai_equities_prices.py' -v
+          python -m unittest discover -s tests -p 'test_aics_extended_company_universe.py' -v
+          python -m unittest discover -s tests -p 'test_aics_reconcile_company_universe.py' -v
+      - name: Reconfirm fixed node weights and evidence progress without promoting scores
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          status=json.loads(Path('aics_data/progress/status.json').read_text(encoding='utf-8'))
+          assert status['total_nodes'] == 11 and status['total_weight'] == 1050
+          assert status['milestones_total'] == 66
+          assert sum(n['completed_milestones'] for n in status['node_progress']) == status['milestones_completed']
+          assert len(status['node_progress']) == 11
+          assert all(sum(bool(g) for g in n['gates'].values()) == n['completed_milestones'] for n in status['node_progress'])
+          if status['independently_certified_nodes'] < 11:
+              assert status['index_aics'] is None and status['promotion'] == 'BLOCKED'
+          assert status['trades_created'] is False
+          print('AICS workboard integrity OK; technical progress is not independent PIT or certification.')
+          PY
       - name: Reconcile 11 node evidence at frozen historical cutoff
         env:
           AICS_AS_OF_DATE: ${{ inputs.as_of_date || '2026-11-18' }}
