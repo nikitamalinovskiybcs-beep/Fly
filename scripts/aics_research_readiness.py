@@ -12,6 +12,8 @@ live_quality=read(ROOT/"live"/"quality_report.json")
 xbrl=read(ROOT/"xbrl"/"manifest.json")
 xbrl_quality=read(ROOT/"xbrl"/"quality_report.json")
 coverage=read(ROOT/"research"/"node_coverage.json")
+pit=read(ROOT/"pit"/"manifest.json")
+pit_quality=read(ROOT/"pit"/"quality_report.json")
 checks=[
     {"name":"evidence_manifest_present","passed":bool(live.get("results"))},
     {"name":"evidence_quality_passed","passed":bool(live_quality.get("gates")) and
@@ -20,6 +22,9 @@ checks=[
     {"name":"xbrl_quality_passed","passed":xbrl_quality.get("passed") is True},
     {"name":"fixed_node_weights","passed":coverage.get("fixed_weight_sum")==1050 and
      len(coverage.get("nodes",[]))==11},
+    {"name":"alfred_historical_snapshots_complete","passed":len(pit.get("results",[]))==4 and
+     all(r.get("complete") is True for r in pit.get("results",[]))},
+    {"name":"alfred_asof_structural_validation","passed":pit_quality.get("structurally_valid") is True},
     {"name":"all_nodes_pit_validated","passed":coverage.get("validated_nodes")==11},
     {"name":"chronological_24m_oos_validated","passed":False},
     {"name":"committee_approval_recorded","passed":False},
