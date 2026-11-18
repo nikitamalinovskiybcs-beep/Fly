@@ -26,7 +26,6 @@ jobs:
         run: python -m unittest discover -s tests -p test_aics_collect_priority_ir.py -v
       - name: Fetch current official IR evidence and discover fresh publication links
         id: fetch
-        continue-on-error: true
         env:
           AICS_IR_USER_AGENT: ${{ vars.AICS_IR_USER_AGENT }}
         run: python scripts/aics_collect_priority_ir.py
