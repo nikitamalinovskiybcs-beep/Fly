@@ -37,6 +37,8 @@ class TestDurableObservedRepoPanel(unittest.TestCase):
         spreads = []
         for row in self.data["monthly_observations"]:
             self.assertLess(row["market_effective_date"], row["as_of"])
+            self.assertLess(row["market_effective_date"], row["publication_proxy_date"])
+            self.assertLessEqual(row["publication_proxy_date"], row["as_of"])
             self.assertLessEqual(
                 (dt.date.fromisoformat(row["as_of"]) - dt.date.fromisoformat(
                     row["market_effective_date"])).days, 7
@@ -46,10 +48,10 @@ class TestDurableObservedRepoPanel(unittest.TestCase):
             self.assertEqual(a, Decimal(row["sofr_minus_iorb_bps"]))
             self.assertEqual(b, Decimal(row["sofr_minus_bgcr_bps"]))
             spreads.append(a)
-        self.assertEqual(sum(spreads), Decimal("-7"))
+        self.assertEqual(sum(spreads), Decimal("-24"))
         self.assertEqual(min(spreads), Decimal("-8"))
-        self.assertEqual(max(spreads), Decimal("22"))
-        self.assertEqual(sum(x <= 0 for x in spreads), 18)
+        self.assertEqual(max(spreads), Decimal("15"))
+        self.assertEqual(sum(x <= 0 for x in spreads), 19)
 
     def test_requires_original_source_archive_hashes(self):
         hashes = self.data["raw_provider_archive_sha256"]
