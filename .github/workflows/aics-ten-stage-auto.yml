@@ -1,9 +1,7 @@
 name: AICS automated ten-stage evidence audit
-# Runs research diagnostics only; never publishes an index or creates trades.
+# Legacy manual/PR diagnostics. Master owns live schedule; never publishes AICS or trades.
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '15 10 * * 1-5'
   pull_request:
     paths:
       - '.github/workflows/aics-ten-stage-auto.yml'

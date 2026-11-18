@@ -25,6 +25,14 @@ on:
   push:
     branches:
       - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_*.py'
+      - 'tests/test_aics_*.py'
+      - 'aics_data/research/**'
+      - 'aics_data/progress/**'
+      - 'aics_data/source_registry/**'
+      - 'docs/aics_*.md'
+      - '.github/workflows/aics-research-safety.yml'
   workflow_dispatch:
 permissions:
   contents: read

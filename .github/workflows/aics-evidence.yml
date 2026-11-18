@@ -1,9 +1,6 @@
 name: AICS evidence collection
-# Evidence-only workflow; no index publication or trading decisions.
+# Evidence-only manual or PR diagnostic. Scheduled live acquisition now belongs to AICS Master.
 on:
-  push:
-    branches:
-      - 'devin/1779618014-quant-risk-framework'
   pull_request:
     paths:
       - 'scripts/aics_collect_evidence.py'
