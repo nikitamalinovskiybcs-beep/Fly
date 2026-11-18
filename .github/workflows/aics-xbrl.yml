@@ -1,0 +1,32 @@
+name: AICS SEC XBRL evidence
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '12 9 * * 1-5'
+  pull_request:
+    paths:
+      - 'scripts/aics_collect_xbrl.py'
+      - '.github/workflows/aics-xbrl.yml'
+permissions:
+  contents: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Syntax check
+        run: python -m py_compile scripts/aics_collect_xbrl.py
+      - name: Download SEC companyfacts
+        env:
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
+        run: python scripts/aics_collect_xbrl.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aics-sec-xbrl-evidence
+          path: aics_data/xbrl/
+          retention-days: 30
