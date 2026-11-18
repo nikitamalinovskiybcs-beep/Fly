@@ -34,6 +34,7 @@ class TestEquityPriceArchive(unittest.TestCase):
                          ("NVDA", "MSFT", "GOOGL", "AMZN", "META", "ORCL", "MU"))
         self.assertIn("api.nasdaq.com/api/quote/NVDA/historical?",
                       quote_url("NVDA", START, ASOF))
+        self.assertIn("limit=500", quote_url("NVDA", START, ASOF))
         with self.assertRaises(ValueError):
             quote_url("BAD", START, ASOF)
 
