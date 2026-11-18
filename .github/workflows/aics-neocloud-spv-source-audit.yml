@@ -10,6 +10,7 @@ on:
       - '.github/workflows/aics-neocloud-spv-source-audit.yml'
       - 'aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json'
       - 'aics_data/source_registry/sec_spv_neoclouds_filings_2026-11-18.json'
+      - 'aics_data/progress/neocloud_spv_contract_gap_audit_2026-11-18.json'
 permissions:
   contents: read
 jobs:
