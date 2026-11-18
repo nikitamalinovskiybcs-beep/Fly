@@ -111,12 +111,23 @@ def derive(alfred_zip: Path, nyfed_zip: Path,
                 r["date"]: r["value"] for r in json.loads(raw)["observations"]
                 if r.get("value") not in (".", "", None)
             }
+    # NY Fed says the rate for trade date t is first released on the following
+    # government securities business day. Infer that business-day boundary from
+    # the NEXT common market-session date in the original official rate archive.
+    # This is only a conservative date proxy, not independently archived release proof.
+    shared_sessions = sorted(set.intersection(*(set(prices[t]) for t in TYPES)))
+    next_session_proxy = {
+        d: next_d for d, next_d in zip(shared_sessions, shared_sessions[1:])
+    }
     for asof in month_ends():
-        cutoff = asof - dt.timedelta(days=1)  # NEVER same-day effective date; release timing unproved
-        shared = set.intersection(*(set(prices[t]) for t in TYPES))
-        shared = {day for day in shared if dt.date.fromisoformat(day) <= cutoff}
+        cutoff = asof - dt.timedelta(days=1)
+        shared = {
+            day for day, next_d in next_session_proxy.items()
+            if dt.date.fromisoformat(day) <= cutoff
+            and dt.date.fromisoformat(next_d) <= asof
+        }
         if not shared:
-            missing.append({"as_of": asof.isoformat(), "reason": "no matched NY Fed effective date"})
+            missing.append({"as_of": asof.isoformat(), "reason": "no already-publishable official rate session"})
             continue
         date = max(shared)
         iorb = source_asof_records[asof.isoformat()].get(date)
@@ -132,6 +143,8 @@ def derive(alfred_zip: Path, nyfed_zip: Path,
         result.append({
             "as_of_month_end": asof.isoformat(),
             "nyfed_effective_date": date,
+            "nyfed_next_business_session_publication_proxy": next_session_proxy[date],
+            "provider_original_publication_proof": False,
             "effective_date_to_asof_days": (asof - dt.date.fromisoformat(date)).days,
             "ibor_source_vintage_as_of": asof.isoformat(),
             "iorb_pct": str(ir),
@@ -183,7 +196,8 @@ def derive(alfred_zip: Path, nyfed_zip: Path,
         "limitations": [
             "NY Fed past effective-date rate history was fetched in a current 2026-11-18 capture; retrospective revisions are possible.",
             "ALFRED 2024-2026 as-of vintages were queried and archived together on 2026-11-18.",
-            "A conservative previous-effective-date filter reduces same-day leakage but does not independently certify original release times.",
+            "Rate for NY Fed effective day t is published the following government-securities business day; the next observed market session is only a conservative publication-date proxy.",
+            "A next-market-session date filter removes foreseeable Friday/month-end look-ahead but does not independently attest exact original posting or revision time.",
             "Repo sampled-rate volumes overlap. Do not add SOFR BGCR TGCR volumes.",
             "These are observed basis-point research spreads, NOT AICS 0-100 node scores or a 24-month untouched OOS.",
         ],
