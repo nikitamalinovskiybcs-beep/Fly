@@ -134,3 +134,51 @@ jobs:
           path: aics_data/source_evidence/ir_neocloud_spv_trial/
           retention-days: 30
           if-no-files-found: warn
+  ir-hyperscaler-semiconductors-demand-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Archive genuine hyperscaler, semiconductor and cloud-demand IR releases
+        run: >
+          python scripts/aics_collect_priority_ir.py
+          --as-of 2026-11-18
+          --issuer Microsoft
+          --issuer Alphabet
+          --issuer Amazon
+          --issuer Meta
+          --issuer NVIDIA
+          --issuer Micron
+          --issuer Oracle
+          --out aics_data/source_evidence/ir_hyperscaler_semis_demand_trial
+      - name: Publish exact source provenance, failures and no-score gate
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("aics_data/source_evidence/ir_hyperscaler_semis_demand_trial/manifest.json")
+          print("## AICS Hyperscalers / Semiconductors / AI Demand IR originals")
+          if not p.exists():
+              print("BLOCKED: source capture emitted no original source manifest.")
+          else:
+              x=json.loads(p.read_text(encoding="utf-8"))
+              assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+              assert not x["all_reports_historically_pit_verified"]
+              print(f"Original IR releases: {x['archived_candidates']}/{x['candidate_count']}")
+              print(f"Official landing pages: {x['landing_pages_archived']}/{x['landing_pages_checked']}")
+              for row in x["candidates"]+x["landing_pages"]:
+                  print(f"- {row['issuer']}: {row['status']} {row.get('sha256','no-hash')}")
+              print("No issuer release is a certified historical SEC vintage or independently validated 0-100 node score.")
+          PY
+      - name: Preserve original source bytes SHA256 and manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-hyperscaler-semiconductors-demand-ir-research
+          path: aics_data/source_evidence/ir_hyperscaler_semis_demand_trial/
+          retention-days: 30
+          if-no-files-found: warn
