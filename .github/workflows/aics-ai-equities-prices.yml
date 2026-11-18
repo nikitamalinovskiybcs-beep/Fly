@@ -50,5 +50,5 @@ jobs:
         with:
           name: aics-ai-equities-raw-current-price-research
           path: aics_data/source_evidence/ai_equities_live/
-          retention-days: 7
+          retention-days: 30
           if-no-files-found: warn
