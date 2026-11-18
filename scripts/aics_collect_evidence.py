@@ -4,6 +4,7 @@ import csv
 import datetime as dt
 import json
 import os
+import time
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -23,8 +24,16 @@ CIKS = {"NVDA": "0001045810", "MSFT": "0000789019", "AMZN": "0001018724",
 results = []
 def get(url, headers=None):
     req = Request(url, headers=headers or {"User-Agent": "AICS research evidence collector"})
-    with urlopen(req, timeout=35) as response:
-        return json.load(response)
+    for attempt in range(3):
+        try:
+            with urlopen(req, timeout=35) as response:
+                return json.load(response)
+        except HTTPError as exc:
+            if exc.code != 429 or attempt == 2:
+                raise
+            # Bounded retry; never silently replace missing observations.
+            time.sleep((attempt + 1) * 10)
+    raise RuntimeError("Unreachable HTTP retry state")
 def write_json(path, obj):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")
