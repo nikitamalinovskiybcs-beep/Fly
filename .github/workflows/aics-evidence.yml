@@ -12,8 +12,6 @@ on:
       - 'scripts/aics_audit_node_coverage.py'
       - 'scripts/aics_research_readiness.py'
   workflow_dispatch:
-  schedule:
-    - cron: '23 8 * * 1-5'
 concurrency:
   group: aics-fred-evidence
   cancel-in-progress: false
