@@ -45,3 +45,46 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_aics_progress_dashboard.py' -v
       - name: Run offline fail-closed tests
         run: python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
+  ir-source-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Archive genuine MetLife and Prudential IR pages without API secrets
+        run: >
+          python scripts/aics_collect_priority_ir.py
+          --as-of 2026-11-18
+          --issuer MetLife
+          --issuer "Prudential Financial"
+          --out aics_data/source_evidence/ir_insurers_trial
+      - name: Show exactly which external sources were retrieved
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("aics_data/source_evidence/ir_insurers_trial/manifest.json")
+          print("## AICS Insurers: real official IR source retrieval trial")
+          if not p.exists():
+              print("BLOCKED: No IR source manifest was produced.")
+          else:
+              x=json.loads(p.read_text(encoding="utf-8"))
+              assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+              assert not x["all_reports_historically_pit_verified"]
+              print(f"Original IR earnings pages archived: {x['archived_candidates']}/{x['candidate_count']}")
+              print(f"Official landing pages archived: {x['landing_pages_archived']}/{x['landing_pages_checked']}")
+              for row in x["candidates"]+x["landing_pages"]:
+                  print(f"- {row['issuer']}: {row['status']} {row.get('sha256','no-hash')}")
+              print("Current HTML archival is not historical-PIT verification or certified Insurers stress.")
+          PY
+      - name: Preserve original HTML bytes, SHA256 and receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-met-pru-ir-live-research
+          path: aics_data/source_evidence/ir_insurers_trial/
+          retention-days: 30
+          if-no-files-found: warn
