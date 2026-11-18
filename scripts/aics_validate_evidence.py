@@ -4,6 +4,7 @@ import csv
 import datetime as dt
 import hashlib
 import json
+import math
 from pathlib import Path
 
 ROOT = Path("aics_data/live")
@@ -33,6 +34,10 @@ csv_counts = {}
 vintage_valid = True
 observation_duplicates = {}
 observation_order_valid = True
+numeric_valid = True
+snapshot_cutoff_valid = True
+manifest_counts_valid = True
+vintage_rows_present = True
 for sid in ("BAMLH0A0HYM2","BAMLH0A3HYC","DGS30","SOFR"):
     name = f"alfred_{sid}.csv" if sid=="DGS30" else f"fred_current_{sid}.csv"
     path = ROOT / name
@@ -42,6 +47,10 @@ for sid in ("BAMLH0A0HYM2","BAMLH0A3HYC","DGS30","SOFR"):
     with path.open(newline="",encoding="utf-8") as handle:
         rows=list(csv.DictReader(handle))
     csv_counts[sid]=len(rows)
+    if by_id.get(sid,{}).get("rows") != len(rows):
+        manifest_counts_valid=False
+    if not rows:
+        vintage_rows_present=False
     seen = set()
     duplicate_count = 0
     for row in rows:
@@ -53,12 +62,17 @@ for sid in ("BAMLH0A0HYM2","BAMLH0A3HYC","DGS30","SOFR"):
             if (dt.date.fromisoformat(row["date"]) >
                 dt.date.fromisoformat(row["realtime_end"])):
                 observation_order_valid = False
+            value = float(row["value"])
+            if not math.isfinite(value):
+                numeric_valid = False
+            if sid != "DGS30" and row["realtime_start"] != manifest.get("as_of"):
+                snapshot_cutoff_valid = False
             if (row["series_id"] != sid or row["verified_pit"] != "False" or
                 dt.date.fromisoformat(row["realtime_start"]) >
                 dt.date.fromisoformat(row["realtime_end"])):
                 vintage_valid=False
                 break
-        except (KeyError,ValueError):
+        except (KeyError,ValueError,OverflowError):
             vintage_valid=False
             break
     observation_duplicates[sid] = duplicate_count
@@ -94,6 +108,10 @@ for ticker in ("NVDA","MSFT","AMZN","GOOGL","META","ORCL"):
         except (KeyError,ValueError):
             sec_valid=False
             break
+check("07d_manifest_observation_counts", manifest_counts_valid, csv_counts)
+check("07e_numeric_finite", numeric_valid)
+check("07f_nonempty_sources", vintage_rows_present)
+check("07g_current_snapshot_cutoff", snapshot_cutoff_valid)
 check("07b_no_duplicate_observations", len(observation_duplicates)==4 and
       all(n==0 for n in observation_duplicates.values()), observation_duplicates)
 check("07c_observation_dates", observation_order_valid)
