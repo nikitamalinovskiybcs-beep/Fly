@@ -205,12 +205,18 @@ def archive(outdir: Path, raw: bytes) -> tuple[str, str]:
 
 
 def run(registry: Path, output_dir: Path, as_of: dt.date,
-        user_agent: str = "", opener=urlopen, landing_pages: dict | None = None) -> dict:
+        user_agent: str = "", opener=urlopen, landing_pages: dict | None = None,
+        issuer_filter: set[str] | None = None) -> dict:
     info = load_registry(registry, as_of)
+    valid_issuers = set(IR_INDEX)
+    if issuer_filter is not None and (not issuer_filter or issuer_filter - valid_issuers):
+        raise ValueError("unknown or empty IR issuer filter")
     output_dir.mkdir(parents=True, exist_ok=True)
     now = dt.datetime.now(dt.timezone.utc).isoformat()
     items = []
     for e in info["source_entries"]:
+        if issuer_filter is not None and e["issuer"] not in issuer_filter:
+            continue
         entry = {
             "source_id": e["source_id"],
             "issuer": e["issuer"],
@@ -242,6 +248,8 @@ def run(registry: Path, output_dir: Path, as_of: dt.date,
 
     watches = []
     for issuer, url in (landing_pages if landing_pages is not None else IR_INDEX).items():
+        if issuer_filter is not None and issuer not in issuer_filter:
+            continue
         entry = {"issuer": issuer, "url": url, "retrieved_at_utc": now,
                  "candidate_nodes": list(IR_NODE_MAP.get(issuer, ())),
                  "status": "not_fetched", "new_report_date_proven": False,
@@ -290,8 +298,12 @@ def main():
     p.add_argument("--out", type=Path, default=DEFAULT_OUTPUT)
     p.add_argument("--as-of", type=dt.date.fromisoformat,
                    default=dt.datetime.now(dt.timezone.utc).date())
+    p.add_argument("--issuer", action="append", default=None,
+                   help="Restrict to exact official IR issuer; repeatable")
     args = p.parse_args()
-    data = run(args.registry, args.out, args.as_of, os.getenv("AICS_IR_USER_AGENT", ""))
+    data = run(args.registry, args.out, args.as_of,
+               os.getenv("AICS_IR_USER_AGENT", ""),
+               issuer_filter=set(args.issuer) if args.issuer is not None else None)
     print(json.dumps({
         "archived_candidates": data["archived_candidates"],
         "total_candidates": data["candidate_count"],
