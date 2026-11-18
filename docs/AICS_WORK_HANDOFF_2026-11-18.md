@@ -42,9 +42,9 @@ Internal research thresholds `<450` entry, `450–500` watch, `>500` exit-to-cas
 
 ## 3. Verifiable project state AS OF 2026-11-18
 
-- `aics_data/progress/status.json`: **21 / 66 milestones = 31.8% technical workflow progress**, **0 / 11 independently certified**, `index_aics=null`.
+- `aics_data/progress/status.json`: **22 / 66 milestones = 33.3% technical workflow progress**, **0 / 11 independently certified**, `index_aics=null`.
 - `docs/aics_progress.md`: human-readable bar and 11-node rows; `aics_data/progress/evidence_milestones_2026-11-18.json`: source-linked ledger.
-- Raw candidate evidence stage (2/6) documented for **10 of 11** nodes; **AI Equities** currently has no standalone archived price-data candidate that passes project's archival gate.
+- Raw candidate evidence stage (2/6) documented for **11 of 11** nodes; **AI Equities** now has seven independently rehashed Nasdaq JSON originals (441 genuine rows, current 2026-11-18 capture), which do NOT establish historical PIT, historical membership, source license or audited scores.
 - No node has separately proven independently verified historic PIT, validated 0–100 stress score, untouched 24-month OOS, and certification.
 - Archived ALFRED monthly research snapshots: DGS30, SOFR, BAMLH0A0HYM2, BAMLH0A3HYC (4 × 24 monthly). Authentic provider vintage attestation remains open.
 - True current-period IR originals were downloaded to GitHub Actions artifacts and SHA-256 rechecked. **Artifacts expire after 30 days**; permanently preserve legally permitted raw source bytes and repeat source audits. Files named `aics_data/progress/*receipt*.json` pin source SHA evidence; receipt != historical PIT.
@@ -66,14 +66,16 @@ Read direct files and latest GitHub Actions job logs on every session; the above
 - `aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json`: **37 research-universe companies (26 OMI names + 11 unique Telegram-only entities)** mapped to existing nodes; project-specific finance/legal contracts remain largely unverified.
 - `tests/test_aics_extended_company_universe.py`: prevent source-name discovery from automatically promoting market evidence.
 - `tests/test_aics_telegram_spydell_claim_intake.py`: no double-counting, SEC vs Telegram labels.
+- `scripts/aics_reconcile_company_universe.py` + `tests/test_aics_reconcile_company_universe.py`: 37-company / 3-project fail-closed secondary-source audit; `.github/workflows/aics-research-safety.yml` now runs it with the extended-universe tests. Passing run `44388937687`; **zero** new PIT milestones or scores.
+- `docs/aics_37_company_reconciliation_2026-11-18.md`: committee-ready node candidate counts, exact provenance split and missing original-contract gates.
 - `aics_data/research/omi_brace_impact_original_pdf_sha_receipt_2026-11-18.json`: exact original user's OMI PDF SHA-256 `466b8a875752c85e23a41d5e33ad985c44f437ddc5cf801e132310c4e28bff60`. Partner-hosted copy is not byte-identical.
 - `aics_data/source_registry/*`: official IR and SEC documents; sources might be current-only, not as-of historical.
 
 ## 5. Next tasks, in strict order
 
 1. **Sanity-check repo and tests** on the selected feature branch. Reproduce the progress percentage; identify any mismatch between workboard, branch and latest GitHub Actions. Make reliable CI rather than accumulating green but skipped collection jobs.
-2. **AI Equities raw history stage**: source trustworthy historical point-in-time price/constituent/corporate-action data, with no split-adjusted future leakage; avoid assigning 2/6 based on earnings IR articles alone.
-3. **Reconcile extended company universe**, prioritize private small neoclouds (Crusoe, Lambda, Firmus, SharonAI, GMI, Nscale, etc.) and SPV legal entities using dated primary contracts. Clearly distinguish PDF-only / Telegram-only leads.
+2. **AI Equities PIT gate beyond the completed raw archive stage (2/6)**: source dated point-in-time price vintages, constituent membership and corporate actions with permissions and no split-adjusted future leakage; do not infer PIT from 441 retrospectively served price rows.
+3. **Extend independently checked company reconciliation**: the 37-name OMI/Telegram mapping, three unverified project graphs and no-promotion safeguards now pass CI. Obtain dated original contracts for Crusoe, Lambda, Firmus, SharonAI, GMI, Nscale, etc. and exact SPV borrower/guarantor identities. Keep PDF-only / Telegram-only leads quarantined.
 4. **PIT audit and metrics**: Insurers NAIC + Level 3/private loans and reinsurance; SPV parent guarantees/drawn debt/credit recourse; Neoclouds cash conversion and debt maturity; NVIDIA 10-Q guarantee ceiling vs drawn exposure; macro Repo/UST ALFRED vintages.
 5. **Derive genuinely documented node score methodology** with held-out OOS; certification only after independent data integrity review, do not add synthetic observations to fill missing nodes.
 6. **Committee deliverable Nov 30**: clear caveats, observed candidate metrics vs unavailable full AICS, verified history, risk graph, source evidence, and next validation gates.
