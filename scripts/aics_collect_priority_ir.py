@@ -27,7 +27,11 @@ DEFAULT_OUTPUT = Path("aics_data/source_evidence/ir_priority")
 HOSTS = frozenset({
     "www.metlife.com", "investor.metlife.com", "investor.prudential.com",
     "investors.coreweave.com", "nebius.com", "ir.applieddigital.com",
-    "investor.equinix.com", "equinix.mediaroom.com"
+    "investor.equinix.com", "equinix.mediaroom.com",
+    "arcc.ares.com", "www.blueowlcapitalcorporation.com",
+    "investor.nvidia.com", "investors.micron.com",
+    "www.microsoft.com", "abc.xyz", "ir.aboutamazon.com",
+    "investor.atmeta.com", "investor.oracle.com",
 })
 CANDIDATE_NODES = frozenset({"Insurers", "SPV", "Neoclouds"})
 MAX_BYTES = 8_000_000
@@ -42,6 +46,33 @@ IR_INDEX = {
     "Nebius Group": "https://nebius.com/investor-hub",
     "Applied Digital": "https://ir.applieddigital.com/news-events/press-releases",
     "Equinix": "https://investor.equinix.com/",
+    "Ares Capital (ARCC)": "https://arcc.ares.com/financials",
+    "Blue Owl Capital Corporation (OBDC)": "https://www.blueowlcapitalcorporation.com/investors/financial-results",
+    "NVIDIA": "https://investor.nvidia.com/financial-info/financial-reports/default.aspx",
+    "Micron": "https://investors.micron.com/financials/quarterly-results/default.aspx",
+    "Microsoft": "https://www.microsoft.com/en-us/investor/earnings",
+    "Alphabet": "https://abc.xyz/investor/",
+    "Amazon": "https://ir.aboutamazon.com/quarterly-results/default.aspx",
+    "Meta": "https://investor.atmeta.com/home/default.aspx",
+    "Oracle": "https://investor.oracle.com/home/default.aspx",
+}
+
+IR_NODE_MAP = {
+    "MetLife": ("Insurers",),
+    "Prudential Financial": ("Insurers",),
+    "CoreWeave": ("Neoclouds",),
+    "Nebius Group": ("Neoclouds", "SPV"),
+    "Applied Digital": ("Neoclouds", "Power/Data Centers", "SPV"),
+    "Equinix": ("Power/Data Centers", "SPV"),
+    "Ares Capital (ARCC)": ("Private Credit",),
+    "Blue Owl Capital Corporation (OBDC)": ("Private Credit",),
+    "NVIDIA": ("Semiconductors Supply", "AI Demand", "AI Equities"),
+    "Micron": ("Semiconductors Supply", "AI Equities"),
+    "Microsoft": ("Hyperscalers", "AI Demand", "AI Equities"),
+    "Alphabet": ("Hyperscalers", "AI Demand", "AI Equities"),
+    "Amazon": ("Hyperscalers", "AI Demand", "AI Equities"),
+    "Meta": ("Hyperscalers", "AI Equities"),
+    "Oracle": ("Hyperscalers", "AI Demand", "SPV", "AI Equities"),
 }
 
 
@@ -212,6 +243,7 @@ def run(registry: Path, output_dir: Path, as_of: dt.date,
     watches = []
     for issuer, url in (landing_pages if landing_pages is not None else IR_INDEX).items():
         entry = {"issuer": issuer, "url": url, "retrieved_at_utc": now,
+                 "candidate_nodes": list(IR_NODE_MAP.get(issuer, ())),
                  "status": "not_fetched", "new_report_date_proven": False,
                  "score_eligible": False, "discovered_links": []}
         try:
