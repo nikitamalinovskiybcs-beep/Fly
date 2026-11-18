@@ -1,0 +1,207 @@
+{
+  "schema_version": "aics-ir-raw-archive-receipt-v1",
+  "as_of": "2026-11-18",
+  "node_group": "Hyperscalers+Semiconductors Supply+AI Demand",
+  "candidate_nodes": [
+    "Hyperscalers",
+    "Semiconductors Supply",
+    "AI Demand"
+  ],
+  "artifact_run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44373944211",
+  "artifact_id": 14460201430,
+  "artifact_name": "aics-hyperscaler-semiconductors-demand-ir-research",
+  "artifact_zip_sha256": "3e70ca77fc14d4f14ace2cb5dd483f9bdf878b160acd3b7ccf4a51192b4d8580",
+  "internal_manifest_sha256": "f44fd7b722b255216c68af8f1007f4ed728a3f8a66e1f1e7eb94ff967b69f0fa",
+  "source_registry_sha256": "92ce0b8a1fd79f8c58d9193fd468c998af8305af3129c3555da3532b2a60523b",
+  "source_capture_at_utc": "2026-11-18T18:50:01.371847+00:00",
+  "independent_recalculation": {
+    "method": "Independent download of GitHub Actions artifact ZIP, SHA256 of ZIP, 14 original HTML entries and raw-source manifest, all rechecked against embedded claimed digests and sizes; source HTML titles reviewed separately.",
+    "checked_files": 14,
+    "verified_hashes_matching": 14,
+    "official_quarterly_or_fiscal_earnings_release_pages": 7,
+    "official_ir_index_pages": 7,
+    "historical_pit_independently_verified": false,
+    "sec_14_day_source_filing_verified": false,
+    "source_to_metric_scoring_validated": false,
+    "audited_node_scores": 0
+  },
+  "raw_source_roles": {
+    "Hyperscalers": [
+      "MSFT_FY27Q1",
+      "GOOGL_2026Q3",
+      "AMZN_2026Q3",
+      "META_2026Q3"
+    ],
+    "Semiconductors Supply": [
+      "NVDA_FY27Q3",
+      "MU_FY26Q4"
+    ],
+    "AI Demand": [
+      "ORCL_FY27Q1"
+    ]
+  },
+  "releases": [
+    {
+      "kind": "issuer_ir_release_html",
+      "source_id": "MSFT_FY27Q1",
+      "issuer": "Microsoft",
+      "candidate_node": "Hyperscalers",
+      "release_date": "2026-10-28",
+      "period_end": "2026-09-30",
+      "html_sha256": "bfcfb04637d8caa8ffbcc5d017c7d7a4d26a01677f6fa8913fff81210d5c1e7e",
+      "bytes": 464850,
+      "url": "https://www.microsoft.com/en-us/investor/earnings/fy-2027-q1/press-release-webcast",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_release_html",
+      "source_id": "GOOGL_2026Q3",
+      "issuer": "Alphabet",
+      "candidate_node": "Hyperscalers",
+      "release_date": "2026-10-28",
+      "period_end": "2026-09-30",
+      "html_sha256": "7b5b344f9e950e620b7f6dfeced6b3a0396364271cb3abdc6a0497bc31f6ea30",
+      "bytes": 67016,
+      "url": "https://abc.xyz/investor/news/news-details/2026/Alphabet-Announces-Third-Quarter-2026-Results-2026-FCcqxfIfmh/default.aspx",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_release_html",
+      "source_id": "AMZN_2026Q3",
+      "issuer": "Amazon",
+      "candidate_node": "Hyperscalers",
+      "release_date": "2026-10-29",
+      "period_end": "2026-09-30",
+      "html_sha256": "a94780073899490af9aebfa6236cb7710a111e735f67605735ff0e295650d445",
+      "bytes": 637317,
+      "url": "https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-Third-Quarter-Results/default.aspx",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_release_html",
+      "source_id": "META_2026Q3",
+      "issuer": "Meta",
+      "candidate_node": "Hyperscalers",
+      "release_date": "2026-10-21",
+      "period_end": "2026-09-30",
+      "html_sha256": "1748bc0838ed07d0c6861e18da65ae416a7d029b356c13ed2a37429b848d3b5d",
+      "bytes": 278266,
+      "url": "https://investor.atmeta.com/investor-news/press-release-details/2026/Meta-Reports-Third-Quarter-2026-Results/default.aspx",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_release_html",
+      "source_id": "NVDA_FY27Q3",
+      "issuer": "NVIDIA",
+      "candidate_node": "Semiconductors Supply",
+      "release_date": "2026-11-17",
+      "period_end": "2026-10-25",
+      "html_sha256": "386488d69782db8f6ed4a493770e0ab98059e7de5e0c6b7ec61305865e0143a2",
+      "bytes": 421496,
+      "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-Third-Quarter-Fiscal-2027/default.aspx",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_release_html",
+      "source_id": "MU_FY26Q4",
+      "issuer": "Micron",
+      "candidate_node": "Semiconductors Supply",
+      "release_date": "2026-09-30",
+      "period_end": "2026-09-03",
+      "html_sha256": "b4b7d01967abf31ed88be1e0cc573a54f40a5d9016ab8ce999172923a0e61d65",
+      "bytes": 771767,
+      "url": "https://investors.micron.com/news/press-release/2026/Micron-Technology-Inc--Reports-Record-Fiscal-Fourth-Quarter-and-Full-Year-2026-Results/default.aspx",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_release_html",
+      "source_id": "ORCL_FY27Q1",
+      "issuer": "Oracle",
+      "candidate_node": "AI Demand",
+      "release_date": "2026-09-10",
+      "period_end": "2026-08-31",
+      "html_sha256": "b97fa5e901a418f6eae98ef20c62f16b4681f2a9bdce0c3a7f92177fe64d662f",
+      "bytes": 388901,
+      "url": "https://investor.oracle.com/investor-news/news-details/2026/Oracle-Announces-Q1-Results-Driven-by-Triple-Digit-Growth-in-Cloud-Infrastructure-Revenues/default.aspx",
+      "score_eligible": false
+    }
+  ],
+  "ir_indexes": [
+    {
+      "kind": "issuer_ir_landing_html",
+      "issuer": "NVIDIA",
+      "html_sha256": "1ce135168f3aa0a38a75a99555559b63c9da991c451890570e8f379f64a56847",
+      "bytes": 127959,
+      "url": "https://investor.nvidia.com/financial-info/financial-reports/default.aspx",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_landing_html",
+      "issuer": "Micron",
+      "html_sha256": "d968cd9d328cf86decea23392b5fd4157705c3aa7d865863ec4f07a0d8ef75b3",
+      "bytes": 527745,
+      "url": "https://investors.micron.com/financials/quarterly-results/default.aspx",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_landing_html",
+      "issuer": "Microsoft",
+      "html_sha256": "b1b260d04729110a04fc23c7a3fb1bf103208c3631a03ad877b3863e2e80a758",
+      "bytes": 114693,
+      "url": "https://www.microsoft.com/en-us/investor/earnings",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_landing_html",
+      "issuer": "Alphabet",
+      "html_sha256": "fa3a5ef5955111105eb1ccb3363d74cbed437578a1f02d4406043f669a32929d",
+      "bytes": 159171,
+      "url": "https://abc.xyz/investor/",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_landing_html",
+      "issuer": "Amazon",
+      "html_sha256": "c69f1673e5c9c4976b5939ce3c106e7698871363fda0230a5300c39caaca6836",
+      "bytes": 33519,
+      "url": "https://ir.aboutamazon.com/quarterly-results/default.aspx",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_landing_html",
+      "issuer": "Meta",
+      "html_sha256": "b8bddfe1d2e96499d0448de7274d75bb26370e0efcb0a175b00cfb267f63d06f",
+      "bytes": 75216,
+      "url": "https://investor.atmeta.com/home/default.aspx",
+      "score_eligible": false
+    },
+    {
+      "kind": "issuer_ir_landing_html",
+      "issuer": "Oracle",
+      "html_sha256": "895094ceddb1dd71321edff339698779a89619bda45244d31160a6a63767b1bf",
+      "bytes": 69603,
+      "url": "https://investor.oracle.com/home/default.aspx",
+      "score_eligible": false
+    }
+  ],
+  "raw_archive_candidate_milestone_complete": true,
+  "independently_verified_pit": false,
+  "historic_sec_vintage_verified": false,
+  "audit_node_scores": {
+    "Hyperscalers": null,
+    "Semiconductors Supply": null,
+    "AI Demand": null
+  },
+  "index_aics": null,
+  "predictive_skill_score": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "limitations": [
+    "Current original issuer IR HTML files are not full historical PIT archives; source publication dates are claims from official issuer pages.",
+    "Alphabet IR HTML is largely page shell rather than full earnings financial statements; independently acquire linked official PDF before extraction.",
+    "The NVIDIA 2026-11-17 IR release is a discovery/archive candidate; the separate SEC 10-Q filing time and SEC +14 days have not been authenticated.",
+    "Oracle broad cloud revenue/RPO is not AI-only booked demand; Micron/NVIDIA sales are not direct verified semiconductor production capacity or supply chain shortages.",
+    "Raw byte archive completion is stage 2 of six only; no validated node stress, independent OOS or AICS certification.",
+    "GitHub Actions ZIP retention is 30 days; receipt alone is not durable original source byte preservation."
+  ]
+}
