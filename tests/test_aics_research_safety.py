@@ -59,6 +59,19 @@ class AicsResearchSafetyTests(unittest.TestCase):
         proc, _ = self.run_script("aics_validate_evidence.py")
         self.assertNotEqual(proc.returncode, 0)
 
+    def test_alfred_historical_pit_blocks_missing_vintages(self):
+        proc, _ = self.run_script("aics_validate_alfred_pit.py")
+        self.assertNotEqual(proc.returncode, 0)
+
+    def test_readiness_requires_historical_alfred(self):
+        with tempfile.TemporaryDirectory() as folder:
+            proc = subprocess.run([sys.executable, str(ROOT/"scripts/aics_research_readiness.py")],
+                                  cwd=folder, capture_output=True, text=True)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            data = json.loads((Path(folder)/"aics_data/research/readiness_report.json").read_text())
+            self.assertIn("alfred_historical_snapshots_complete",data["blocking_checks"])
+            self.assertIn("alfred_asof_structural_validation",data["blocking_checks"])
+
     def test_xbrl_validation_blocks_missing_sources(self):
         proc, _ = self.run_script("aics_validate_xbrl.py")
         self.assertNotEqual(proc.returncode, 0)
