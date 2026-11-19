@@ -1,0 +1,28 @@
+{
+  "issuer": "Broadcom Inc.",
+  "candidate_node": "AI Demand",
+  "measure": "Company-reported AI semiconductor revenue, rounded",
+  "unit": "USD million",
+  "records": [
+    {
+      "period_end": "2026-05-03",
+      "filed_at": "2026-06-03",
+      "available_at": "2026-06-17",
+      "actual": 10800,
+      "next_quarter_guidance": 16000,
+      "source": "https://www.sec.gov/Archives/edgar/data/1730168/000173016826000051/avgo-05032026x8kxex99.htm"
+    },
+    {
+      "period_end": "2026-08-02",
+      "filed_at": "2026-09-02",
+      "available_at": "2026-09-16",
+      "actual": 16700,
+      "next_quarter_guidance": 21700,
+      "source": "https://www.sec.gov/Archives/edgar/data/1730168/000173016826000076/avgo-08022026x8kxex99.htm"
+    }
+  ],
+  "q3_increase": 5900,
+  "q3_actual_less_prior_guidance": 700,
+  "issuer_reported_q3_qoq_pct": 54,
+  "scope": "Issuer sales of AI semiconductors. Orders, end-user consumption and node-level stress remain unmeasured."
+}
