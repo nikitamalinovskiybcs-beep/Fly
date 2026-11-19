@@ -1,4 +1,5 @@
 """SEC PIT tests use arithmetic-only fixtures, never claimed market observations."""
+import csv
 import datetime as dt
 import hashlib
 import json
@@ -184,8 +185,38 @@ class TestInsurerSECPIT(unittest.TestCase):
             self.assertEqual(integrity["checked_issuers"],2)
             self.assertEqual(integrity["checked_files"],4)
             self.assertEqual(integrity["checked_candidate_rows"],2)
+            self.assertEqual(integrity["candidate_rows_replayed_from_raw_sec"], 2)
             self.assertIsNone(integrity["index_aics"])
             self.assertFalse(integrity["independently_verified_pit"])
+            # Rehashing a manipulated CSV and matching manifest used to pass
+            # a checksum-only verifier. Compare against original SEC content.
+            csv_path = p / "insurer_balance_sheet_candidates.csv"
+            original_csv = csv_path.read_text(encoding="utf-8")
+            manifest_path = p / "manifest.json"
+            original_manifest = manifest_path.read_text(encoding="utf-8")
+            for field, forged_value in (
+                ("value", "101"),
+                ("sec_filing_url",
+                 "https://www.sec.gov/Archives/edgar/data/"
+                 "1099219/000109921926000050/forged-primary.htm"),
+            ):
+                with self.subTest(field=field):
+                    csv_path.write_text(original_csv, encoding="utf-8")
+                    with csv_path.open(newline="", encoding="utf-8") as source:
+                        rows = list(csv.DictReader(source))
+                    rows[0][field] = forged_value
+                    with csv_path.open("w", newline="", encoding="utf-8") as target:
+                        writer = csv.DictWriter(target, fieldnames=COLUMNS)
+                        writer.writeheader()
+                        writer.writerows(rows)
+                    manifest = json.loads(original_manifest)
+                    manifest["csv_sha256"] = hashlib.sha256(
+                        csv_path.read_bytes()).hexdigest()
+                    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+                    with self.assertRaisesRegex(ValueError, "exactly replay"):
+                        verify_bundle(p, p)
+            csv_path.write_text(original_csv, encoding="utf-8")
+            manifest_path.write_text(original_manifest, encoding="utf-8")
             # A locally stored altered JSON must never pass evidence checking.
             victim=next((p/"raw").glob("met_submissions_*.json"))
             victim.write_bytes(b"tampered archival bytes")
