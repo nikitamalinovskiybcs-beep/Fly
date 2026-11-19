@@ -62,6 +62,39 @@ class TestNVDASplitOriginalChronology(unittest.TestCase):
             self.assertFalse(data["independent_historical_release_time_attested"])
             self.assertIsNone(data["index_aics"])
 
+    def test_pinned_original_may_and_june_sec_hashes_and_review_receipt(self):
+        self.assertEqual(gate.DOCUMENTS[0]["pinned_original_sha256"],
+                         "573766d04062164181061703da05e0c4e5984fedf190c68222f23f6487a44a8d")
+        self.assertEqual(gate.DOCUMENTS[0]["pinned_original_bytes"],664599)
+        self.assertEqual(gate.DOCUMENTS[0]["pinned_document_text_sha256"],
+                         "64c5877bd9bb8161bd549a43f264fe337bb4128721abe23e39d069408794b045")
+        self.assertEqual(gate.DOCUMENTS[1]["pinned_original_bytes"],166014)
+        path=Path("aics_data/research/nvda_2024_split_two_sec_originals_rehash_2026-11-19.json")
+        report=json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(report["source_capture_run_id"],44496137457)
+        self.assertEqual(report["source_artifact_id"],14515686627)
+        self.assertEqual(report["artifact_zip_sha256"],
+                         "ae2f0a0acde34886e5f43c8d8bc472ecf0c0f1b1ca672f9132524fdb3d37cd1c")
+        self.assertEqual(report["artifact_manifest_sha256"],
+                         "762051a1795ad5c0836d6054060286fb268cc87a656934d2f22b624c065020b9")
+        self.assertTrue(report["artifact_zip_crc_test_passed"])
+        self.assertEqual(report["independently_rehashed_original_submissions_outside_actions"],2)
+        self.assertEqual([row["sha256"] for row in report["originals"]],
+                         [item["pinned_original_sha256"] for item in gate.DOCUMENTS])
+        self.assertEqual([row["bytes"] for row in report["originals"]],
+                         [item["pinned_original_bytes"] for item in gate.DOCUMENTS])
+        self.assertEqual(report["completed_seven_security_three_facet_pit_slots"],0)
+        self.assertEqual(report["issuer_specific_paired_split_event_cases_with_primary_originals"],1)
+        self.assertEqual(report["new_project_milestones_credited"],0)
+        self.assertEqual(report["total_project_milestones_completed"],22)
+        self.assertFalse(report["independent_historical_original_release_time_attested"])
+        self.assertFalse(report["historical_basket_membership_attested"])
+        self.assertFalse(report["provider_adjustment_factors_pit_attested"])
+        self.assertFalse(report["provider_license_approved"])
+        self.assertIsNone(report["node_stress_score"])
+        self.assertIsNone(report["index_aics"])
+        self.assertEqual(report["promotion"],"BLOCKED")
+
     def test_immutable_june_8k_hash_rejects_valid_semantic_fake(self):
         expected=gate.DOCUMENTS[1]
         raw=fake_submission(expected)
@@ -115,7 +148,14 @@ class TestNVDASplitOriginalChronology(unittest.TestCase):
             original=(root/"manifest.json").read_bytes()
             for key,value in (
                 ("historical_constituency_attested",True),
+                ("corporate_action_historical_completeness_attested",True),
+                ("security_identity_history_attested",True),
+                ("provider_price_data_license_cleared",True),
                 ("historical_adjustment_factors_pit_attested",True),
+                ("historical_price_adjustments_generated",True),
+                ("historical_basket_price_returns_calculated",True),
+                ("trades_created",True),
+                ("score_eligible",True),
                 ("independent_historical_release_time_attested",True),
                 ("node_stress_score",63),
                 ("index_aics",503),
