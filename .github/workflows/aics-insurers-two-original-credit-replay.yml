@@ -6,6 +6,7 @@ on:
       - 'devin/1779618014-quant-risk-framework'
     paths:
       - 'scripts/aics_insurers_mixed_credit_originals.py'
+      - 'scripts/aics_pru_level3_original.py'
       - 'tests/test_aics_insurers_mixed_credit_originals.py'
       - 'scripts/aics_insurers_met_june_original.py'
       - 'scripts/aics_insurers_pru_credit_asof.py'
@@ -47,6 +48,29 @@ jobs:
             --pru-directory aics_data/source_evidence/insurers_pru_credit_original \
             --met-directory aics_data/source_evidence/insurers_met_june_original \
             --out aics_data/source_evidence/insurers_mixed_original_credit_research.json
+      - name: Replay real PRU Level 3 private placements from original SEC 10-Q
+        run: |
+          python -m py_compile scripts/aics_pru_level3_original.py
+          python -m scripts.aics_pru_level3_original \
+            --pru-directory aics_data/source_evidence/insurers_pru_credit_original \
+            --as-of 2026-11-19 \
+            --out aics_data/source_evidence/insurers_pru_credit_original/pru_level3_original_replay.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("aics_data/source_evidence/insurers_pru_credit_original/pru_level3_original_replay.json").read_text())
+          s=x["september_2026"];d=x["december_2025_comparative_in_november_2026_filing"]
+          assert s["private_fixed_maturities_level3"]==12510
+          assert s["public_fixed_maturities_level3"]==1154
+          assert s["afs_fixed_maturities_level3"]+s["trading_fixed_maturities_level3"]==13664
+          assert s["private_share_of_level3_fixed_maturities_pct"]=="91.55"
+          assert d["fixed_maturities_level3_total"]==11282
+          assert x["observed_change_dec_to_sept"]["level3_fixed_maturities_millions"]==2382
+          assert x["observed_change_dec_to_sept"]["level3_fixed_maturities_pct"]=="21.11"
+          assert x["sec_eligible_at"]=="2026-11-18"
+          assert x["met_q3_embargo_until"]=="2026-11-20"
+          assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+          PY
       - name: Publish observations and explicit incomparability
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
