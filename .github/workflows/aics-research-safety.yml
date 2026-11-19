@@ -53,6 +53,16 @@ jobs:
         run: |
           python -m py_compile scripts/aics_validate_alfred_macro_rehash.py
           python -m scripts.aics_validate_alfred_macro_rehash
+      - name: Reconcile original SEC Nscale SPV contract lineage without inventing drawn debt
+        run: |
+          python -m scripts.aics_spv_nscale_contract_gate --out aics_data/source_evidence/spv_nscale_contract_gate_2026-11-19.json
+      - name: Preserve Nscale contract-only research evidence (not PIT or AICS)
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-spv-nscale-original-contract-research-not-pit
+          path: aics_data/source_evidence/spv_nscale_contract_gate_2026-11-19.json
+          retention-days: 30
+          if-no-files-found: error
   ir-source-capture:
     runs-on: ubuntu-latest
     timeout-minutes: 8
