@@ -172,7 +172,7 @@ def main() -> int:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n")
     except (OSError, ValueError, TypeError, KeyError) as exc:
-        print(json.dumps({"promotion":"BLOCKED","reason":type(exc).__name__}))
+        print(json.dumps({"promotion":"BLOCKED","reason":type(exc).__name__,"detail":str(exc)[:220]}))
         return 2
     print(json.dumps({
         "private_level3_usd_millions": result["september_2026"]["private_fixed_maturities_level3"],
