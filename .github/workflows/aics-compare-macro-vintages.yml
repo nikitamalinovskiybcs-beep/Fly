@@ -1,0 +1,28 @@
+name: AICS independent ALFRED export comparison
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/aics-compare-macro-vintages.yml'
+      - 'scripts/aics_compare_macro_vintages.py'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the pinned candidate archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/14432003774/zip" > "$RUNNER_TEMP/candidates.zip"
+      - name: Compare 48 provider exports against archived observations
+        run: python scripts/aics_compare_macro_vintages.py "$RUNNER_TEMP/candidates.zip" "$RUNNER_TEMP/receipts.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macro-vintage-comparison
+          path: ${{ runner.temp }}/receipts.json
+          if-no-files-found: ignore
