@@ -1,0 +1,76 @@
+{
+  "schema_version": "aics-ai-equities-prospective-official-directories-external-rehash-v1",
+  "node": "AI Equities",
+  "research_as_of": "2026-11-19",
+  "original_snapshot_capture_utc": "2026-11-19T16:08:45.120158+00:00",
+  "sec_plus_14_for_issuer_filings_unchanged": true,
+  "workflow_run_id": 44562741837,
+  "artifact_id": 14548319201,
+  "artifact_name": "aics-ai-equities-live-nasdaq-directories-not-historical-pit",
+  "independently_downloaded_artifact_zip_bytes": 225931,
+  "independently_calculated_zip_sha256": "158916ab3515524192916598b41bc489ec868978a0432e913f4e5d1815f0cebc",
+  "zip_crc_test_passed": true,
+  "manifest_bytes": 4604,
+  "manifest_sha256": "45e6736a64266742523c1b0cf22bfbd25d081639b543e28ee4b1cc090594940d",
+  "embedded_rehash_receipt_bytes": 637,
+  "embedded_rehash_receipt_sha256": "3bb77ee0845b12dd7bf4d0d8fda7fbaff230f0dded3162e4fa57edaa524dc697",
+  "original_directory_source_rehashes": [
+    {
+      "filename": "nasdaqlisted.txt",
+      "url": "https://www.nasdaqtrader.com/dynamic/symdir/nasdaqlisted.txt",
+      "bytes": 348493,
+      "sha256": "f42831290925f08088f5ed2acb0404e4923a41475080ee9db07e5fbc2b5e6c19",
+      "listed_instruments": 5610,
+      "source_file_creation_wallclock": "2026-11-19T11:01:00"
+    },
+    {
+      "filename": "otherlisted.txt",
+      "url": "https://www.nasdaqtrader.com/dynamic/symdir/otherlisted.txt",
+      "bytes": 544575,
+      "sha256": "0032e6d08325291a67e3bb9acd8cad0218eedb393330cf84b46457451a7f5801",
+      "listed_instruments": 7692,
+      "source_file_creation_wallclock": "2026-11-19T11:01:00"
+    }
+  ],
+  "research_symbols": [
+    "NVDA",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "ORCL",
+    "MU"
+  ],
+  "observed_current_exchange_by_symbol": {
+    "NVDA": "NASDAQ",
+    "MSFT": "NASDAQ",
+    "GOOGL": "NASDAQ",
+    "AMZN": "NASDAQ",
+    "META": "NASDAQ",
+    "ORCL": "NYSE",
+    "MU": "NASDAQ"
+  },
+  "seven_current_research_instruments_observed": true,
+  "historical_basket_membership_attested": false,
+  "source_wallclock_timezone_independently_attested": false,
+  "historical_exchange_directory_vintages_independently_attested": false,
+  "historical_identity_transitions_attested": false,
+  "historical_corporate_actions_attested": false,
+  "provider_license_approved": false,
+  "retrospectively_adjusted_prices_approved": false,
+  "independent_historical_pit_attested": false,
+  "complete_24_month_untouched_oos": false,
+  "independently_certified_nodes": 0,
+  "node_stress_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "milestones_completed_after_capture": 22,
+  "limitations": [
+    "The current Nasdaq Trader snapshot lists trading securities at capture, not historical membership or time-vintaged listings.",
+    "The official source-file creation marker has no independently attested timezone or historical release instant.",
+    "The raw original bytes were independently SHA-256 rehashed from the downloaded Actions artifact; only digests persist in Git.",
+    "Oracle NYSE listing is the single otherlisted roster member; no historic benchmark inclusion is inferred.",
+    "No licensed historical action feed or historical quote-vintage provenance was added; AICS progress gates do not advance."
+  ]
+}
