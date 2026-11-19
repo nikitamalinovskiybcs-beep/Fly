@@ -1,0 +1,117 @@
+{
+  "schema_version": "aics-met-2026q3-primary-sec-balance-acl-review-v1",
+  "as_of": "2026-11-20",
+  "node": "Insurers",
+  "issuer": "MetLife, Inc.",
+  "ticker": "MET",
+  "unit": "USD millions unless percent",
+  "sources": {
+    "q3": {
+      "form": "10-Q",
+      "cik": "1099219",
+      "accession": "0001099219-26-000062",
+      "period_end": "2026-09-30",
+      "filed_at": "2026-11-06",
+      "sec_available_at_filed_plus_14_days": "2026-11-20",
+      "primary_url": "https://www.sec.gov/Archives/edgar/data/1099219/000109921926000062/met-20260930.htm",
+      "sec_index_url": "https://www.sec.gov/Archives/edgar/data/1099219/000109921926000062/0001099219-26-000062-index.htm",
+      "full_submission_url": "https://www.sec.gov/Archives/edgar/data/1099219/000109921926000062/0001099219-26-000062.txt",
+      "source_locations": [
+        "Consolidated Balance Sheets, mortgage loan line",
+        "Note 9: Investments, Rollforward of ACL for Mortgage Loans by Portfolio Segment"
+      ],
+      "original_full_sec_sha256": null,
+      "independent_original_bytes_replay": false,
+      "original_source_delivery_pit_attested": false
+    },
+    "q2": {
+      "form": "10-Q",
+      "cik": "1099219",
+      "accession": "0001099219-26-000050",
+      "period_end": "2026-06-30",
+      "filed_at": "2026-08-06",
+      "sec_available_at_filed_plus_14_days": "2026-08-20",
+      "primary_url": "https://www.sec.gov/Archives/edgar/data/1099219/000109921926000050/met-20260630.htm",
+      "previously_independently_rehashed_full_submission_sha256": "a2b5359da635b89ffb3ab39908538328d52d4dac6099073ffcc4b4636fc3209b",
+      "prior_archived_receipt": "aics_data/research/met_2026q2_original_sec_acl_independent_rehash_2026-11-19.json",
+      "historical_provider_delivery_pit_attested": false
+    }
+  },
+  "observed": {
+    "2026-06-30": {
+      "mortgage_loans_net_m": 82856,
+      "mortgage_acl_m": 1358,
+      "acl_by_segment_m": {
+        "commercial": 1016,
+        "agricultural": 107,
+        "residential": 235
+      },
+      "half_year_acl_provision_m": 316,
+      "half_year_net_chargeoffs_m": 151
+    },
+    "2026-09-30": {
+      "mortgage_loans_net_m": 83839,
+      "mortgage_acl_m": 1521,
+      "held_for_sale_m": 65,
+      "acl_by_segment_m": {
+        "commercial": 1127,
+        "agricultural": 126,
+        "residential": 268
+      },
+      "nine_month_acl_provision_m": 546,
+      "nine_month_net_chargeoffs_m": 218
+    },
+    "2025-12-31_comparative_in_later_filings": {
+      "mortgage_loans_net_m": 84593,
+      "mortgage_acl_m": 1193
+    }
+  },
+  "derived_q3_from_two_eligible_filing_disclosures": {
+    "mortgage_loans_net_change_m": 983,
+    "mortgage_loans_net_change_pct": "1.19",
+    "mortgage_acl_change_m": 163,
+    "mortgage_acl_change_pct": "12.00",
+    "q3_acl_provision_m": 230,
+    "q3_net_chargeoffs_m": 67,
+    "q3_acl_rollforward": "1358 + (546 - 316) - (218 - 151) = 1521",
+    "q3_acl_by_segment_change_m": {
+      "commercial": 111,
+      "agricultural": 19,
+      "residential": 33
+    },
+    "acl_over_net_loans_plus_acl_descriptive_proxy_pct": {
+      "2026-06-30": "1.61",
+      "2026-09-30": "1.78"
+    },
+    "acl_coverage_proxy_change_percentage_points": "0.17",
+    "commercial_share_of_ending_q3_acl_pct": "74.10"
+  },
+  "reconciliation": {
+    "q3_acl_total_equals_segment_sum": true,
+    "q3_year_to_date_acl_rollforward": "1193 + 546 - 218 = 1521",
+    "q3_incremental_acl_matches_provision_less_chargeoffs": true,
+    "q3_segment_increments_sum_to_total_change": true,
+    "manual_primary_web_review_only": true,
+    "q3_full_original_downloaded_and_independently_rehashed": false,
+    "q3_original_sha256": null
+  },
+  "limits": {
+    "comparative_dec_2025_is_not_an_original_dec_2025_point_in_time_vintage": true,
+    "q2_vs_q3_separate_sec_documents_first_eligible_aug_20_and_nov_20": true,
+    "not_ai_specific": true,
+    "not_a_default_rate": true,
+    "pru_commercial_mortgage_and_other_loans_scope_is_not_directly_comparable": true,
+    "met_q3_filing_did_not_exist_at_nov_19_sec_plus_14_cutoff": true,
+    "independent_historical_provider_release_attestation": false,
+    "statutory_naic_rbc_and_reinsurance_credit_risk_not_certified": true,
+    "untouched_24_month_oos": false,
+    "node_stress_score": null,
+    "index_aics": null,
+    "promotion": "BLOCKED",
+    "trades_created": false,
+    "milestones_completed": 22,
+    "milestones_total": 66,
+    "weights_total_unchanged": 1050
+  },
+  "next_gate": "Capture full 43,289,538-byte SEC submission in an independently rehashed source bundle; replay embedded Q3 primary tables; obtain time-stamped archival provider delivery and statutory NAIC/RBC sources before PIT or score promotion."
+}
