@@ -19,10 +19,12 @@ jobs:
         run: gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/14432003774/zip" > "$RUNNER_TEMP/input.zip"
       - env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-        run: python scripts/aics_ust_release.py "$RUNNER_TEMP/input.zip"
+        run: |
+          python scripts/aics_ust_release.py "$RUNNER_TEMP/input.zip"
+          python scripts/aics_ust_release.py "$RUNNER_TEMP/input.zip" SOFR
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ust-release-dates
-          path: ust_release_dates.json
+          path: "*_release_dates.json"
           if-no-files-found: ignore
