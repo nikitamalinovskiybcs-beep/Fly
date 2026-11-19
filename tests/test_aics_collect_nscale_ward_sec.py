@@ -62,6 +62,39 @@ class TestNscaleWardSEC(unittest.TestCase):
             self.assertIsNone(report["index_aics"])
             self.assertEqual(report["promotion"], "BLOCKED")
 
+    def test_durable_independent_original_rehash_receipt_is_not_pit(self):
+        p = Path("aics_data/research/nscale_ward_original_sec_independent_rehash_2026-11-19.json")
+        record = json.loads(p.read_text(encoding="utf-8"))
+        self.assertEqual(record["source_run_id"], 44472197069)
+        self.assertEqual(record["source_artifact_id"], 14505066061)
+        self.assertEqual(record["zip_sha256"],
+                         "784af25b39401b95700a91f0ac0047a2548f950e6d07b043ff07abbc1b5954b2")
+        self.assertEqual(record["manifest_sha256"],
+                         "287226cfd5d828858a21f48abc4c8e22dd8423d841f1dcbe77392b3f31570fff")
+        self.assertEqual(
+            [(row["source_id"],row["bytes"],row["sha256"]) for row in record["source_originals"]],
+            [
+              ("ward_ex10_23",2063726,
+               "9f2c58438f85705ea9cd69180c38e2c54ddb3979ee8d47f03218464f7a298ba6"),
+              ("nscale_s1_narrative",7958866,
+               "82ca06374fb97f55f66e334679103e8153b9686a44a86dae425ab0bfc1074020"),
+            ]
+        )
+        self.assertEqual(record["fixed_delayed_draw_commitment_usd"],630_000_000)
+        self.assertEqual(record["floating_delayed_draw_commitment_usd"],1_220_000_000)
+        self.assertEqual(record["facility_commitment_ceiling_usd"],1_850_000_000)
+        self.assertEqual(record["distinct_two_facility_commitments_total_usd"],3_050_000_000)
+        self.assertIsNone(record["drawn_principal_for_either_facility_usd"])
+        self.assertIsNone(record["parent_guarantee_amount_usd"])
+        self.assertIsNone(record["additive_economic_risk_usd"])
+        self.assertFalse(record["independent_historical_provider_pit_attestation"])
+        self.assertFalse(record["independently_certified_spv_node"])
+        self.assertFalse(record["untouched_24_month_oos"])
+        self.assertEqual(record["synthetic_historical_observations"],0)
+        self.assertIsNone(record["spv_node_score"])
+        self.assertIsNone(record["index_aics"])
+        self.assertEqual(record["promotion"],"BLOCKED")
+
     def test_sec_embargo_exactly_fourteen_calendar_days(self):
         self.assertEqual(AVAILABLE.isoformat(), "2026-10-02")
         with tempfile.TemporaryDirectory() as folder:
