@@ -49,7 +49,7 @@ def doc_record(tmp, *, source="EXCHANGE_BULLETIN"):
         "licensed_for_model_use":False,
     }
     if source=="SEC_EDGAR":
-        record["url"]="https://www.sec.gov/Archives/edgar/data/1234567/000123456726000001/filing.htm"
+        record["url"]="https://www.sec.gov/Archives/edgar/data/1045810/000123456726000001/filing.htm"
         record["filed_at"]="2026-11-01"
         record["available_at"]="2026-11-15"
     return record,path
@@ -110,6 +110,41 @@ class TestActionsPIT(unittest.TestCase):
             row["available_at"]="2026-11-14"
             document=template();document["original_evidence_records"]=[row]
             with self.assertRaisesRegex(ValueError,"14-day"):
+                run(tmp,document)
+
+    def test_sec_original_matching_cik_is_still_not_pit(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp=Path(d);row,_=doc_record(tmp,source="SEC_EDGAR")
+            document=template();document["original_evidence_records"]=[row]
+            result=run(tmp,document)
+            self.assertEqual(result["source_facets_with_local_originals"],1)
+            self.assertFalse(result["historical_pit_verified"])
+            self.assertFalse(result["score_eligible"])
+            self.assertIsNone(result["index_aics"])
+
+    def test_sec_cross_issuer_original_rejected_even_with_valid_hash(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp=Path(d);row,_=doc_record(tmp,source="SEC_EDGAR")
+            # 789019 is Microsoft, not the NVDA row's CIK 1045810.
+            row["url"]="https://www.sec.gov/Archives/edgar/data/789019/000123456726000001/filing.htm"
+            document=template();document["original_evidence_records"]=[row]
+            with self.assertRaisesRegex(ValueError,"issuer CIK"):
+                run(tmp,document)
+
+    def test_sec_noncanonical_accession_path_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp=Path(d);row,_=doc_record(tmp,source="SEC_EDGAR")
+            row["url"]="https://www.sec.gov/Archives/edgar/data/1045810/123/filing.htm"
+            document=template();document["original_evidence_records"]=[row]
+            with self.assertRaisesRegex(ValueError,"accession-specific"):
+                run(tmp,document)
+
+    def test_sec_publication_before_filing_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp=Path(d);row,_=doc_record(tmp,source="SEC_EDGAR")
+            row["published_at_utc"]="2026-10-31T23:59:00Z"
+            document=template();document["original_evidence_records"]=[row]
+            with self.assertRaisesRegex(ValueError,"predates filing"):
                 run(tmp,document)
 
     def test_escapes_source_archive_are_rejected(self):

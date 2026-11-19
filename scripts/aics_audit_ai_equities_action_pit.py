@@ -15,6 +15,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from scripts.aics_collect_ai_equities_prices import RESEARCH_SYMBOLS
+from scripts.aics_collect_public_chain_sec_filings import CIKS
 
 FACETS = ("corporate_action_history", "security_identity_history",
           "historical_constituency")
@@ -27,7 +28,9 @@ SOURCE_HOSTS = {
     "EXCHANGE_BULLETIN": ("www.nasdaqtrader.com", "nasdaqtrader.com",
                           "www.nasdaq.com", "www.nyse.com"),
 }
-SEC_ARCHIVE_PATH = re.compile(r"^/Archives/edgar/data/[0-9]+/[0-9]+/[^/]+$", re.I)
+SEC_ARCHIVE_PATH = re.compile(
+    r"^/Archives/edgar/data/(?P<cik>[0-9]+)/(?P<accession>[0-9]{18})/[^/]+$", re.I
+)
 REGISTRY_PATH = Path("aics_data/source_registry/ai_equities_action_pit_registry_2026-11-19.json")
 OUT_PATH = Path("aics_data/research/ai_equities_action_pit_gap_report.json")
 
@@ -89,8 +92,13 @@ def audit_action_registry(registry_path: Path, *, out_path: Path | None = None) 
         if url.scheme != "https" or url.hostname not in SOURCE_HOSTS[source]:
             raise ValueError("Untrusted, mislabeled or non-HTTPS original source")
         if source == "SEC_EDGAR":
-            if not SEC_ARCHIVE_PATH.fullmatch(url.path):
+            match = SEC_ARCHIVE_PATH.fullmatch(url.path)
+            if match is None:
                 raise ValueError("SEC original requires an accession-specific archive document")
+            # Rehashed bytes cannot satisfy an AI Equity slot for the wrong issuer.
+            # The CIKs come from the independently maintained primary SEC collector.
+            if int(match.group("cik")) != int(CIKS[symbol]):
+                raise ValueError("SEC issuer CIK does not match research security")
         elif (url.path in ("", "/") or url.path.lower() == "/trader.aspx"
               or url.path.lower().startswith("/products/data/")):
             raise ValueError("Exchange source portal is not an original dated event")
@@ -105,6 +113,8 @@ def audit_action_registry(registry_path: Path, *, out_path: Path | None = None) 
         if source == "SEC_EDGAR":
             filed = dt.date.fromisoformat(row["filed_at"])
             available = dt.date.fromisoformat(row["available_at"])
+            if release.date() < filed:
+                raise ValueError("SEC original publication predates filing")
             if (available != filed + dt.timedelta(days=14)
                     or capture.date() < available or start > filed):
                 raise ValueError("SEC original violates the 14-day embargo")
