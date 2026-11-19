@@ -192,10 +192,12 @@ def main()->int:
         else:
             raw=fetch(os.getenv("AICS_SEC_USER_AGENT") or os.getenv("EDGAR_IDENTITY")
                       or os.getenv("SEC_USER_AGENT") or "")
-        result=build(raw,x.as_of)
+        # Preserve original SEC bytes even if the strict extraction fails.
+        # An unsuccessful parse must not destroy the primary audit evidence.
         x.out.mkdir(parents=True,exist_ok=True)
         if not x.verify_existing:
             (x.out/"met_q2_original_full_submission.txt").write_bytes(raw)
+        result=build(raw,x.as_of)
         (x.out/"research.json").write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
     except (OSError,ValueError,TypeError,KeyError) as exc:
         print(json.dumps({"promotion":"BLOCKED","reason":type(exc).__name__,
