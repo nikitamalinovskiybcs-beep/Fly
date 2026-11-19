@@ -80,6 +80,37 @@ class TestMixedInsurerOriginals(unittest.TestCase):
         self.assertIsNone(r["index_aics"])
         self.assertEqual(r["promotion"],"BLOCKED")
 
+    def test_two_real_originals_external_artifact_rehash_receipt(self):
+        import json
+        receipt = json.loads(Path(
+            "aics_data/research/insurers_pru_met_mixed_original_sec_external_rehash_2026-11-19.json"
+        ).read_text(encoding="utf-8"))
+        self.assertEqual(receipt["workflow_run_id"],44588952381)
+        self.assertEqual(receipt["workflow_artifact_id"],14563770502)
+        self.assertTrue(receipt["external_independent_download_and_rehash"])
+        self.assertEqual(receipt["artifact_zip_crc_check"],"PASS")
+        self.assertEqual(receipt["artifact_zip_sha256"],
+                         "627ae6220ac0d5ea354c56aca0be7884d49720bdf9216d91483a28cb77a23778")
+        self.assertEqual(receipt["joint_replay"]["sha256"],
+                         "5e16f271abafae3ee2ebc826bdd534e9f83ef42561625862f7b7c5ee1448fb7a")
+        self.assertEqual([x["sha256"] for x in receipt["originals"]],
+                         [gate.PRU_SOURCE_SHA,gate.MET_SOURCE_SHA])
+        self.assertEqual([x["balance_date"] for x in receipt["originals"]],
+                         ["2026-09-30","2026-06-30"])
+        self.assertEqual(receipt["joint_replay"]["pru_nonaccrual_without_related_acl_subset_change_pct"],
+                         "38.01")
+        self.assertEqual(receipt["met_q3_2026"]["sec_plus_14_available_at"],"2026-11-20")
+        self.assertFalse(receipt["met_q3_2026"]["available_on_frozen_cutoff"])
+        self.assertIsNone(receipt["met_q3_2026"]["metrics"])
+        for field in ("comparable_portfolio_scopes","synchronized_2026_september_panel",
+                      "independent_provider_pit_attested","statutory_naic_capital_attested",
+                      "untouched_24_month_oos","ai_private_loan_attribution_attested"):
+            self.assertFalse(receipt[field],field)
+        self.assertEqual(receipt["milestones_completed"],22)
+        self.assertIsNone(receipt["insurers_node_stress_score"])
+        self.assertIsNone(receipt["index_aics"])
+        self.assertEqual(receipt["promotion"],"BLOCKED")
+
     def test_false_q3_met_eligibility_fails_closed(self):
         altered=copy.deepcopy(MET_FIXTURE)
         altered["met_september_q3_available_at"]="2026-11-19"
