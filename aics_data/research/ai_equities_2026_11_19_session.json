@@ -1,0 +1,69 @@
+{
+  "session": "2026-11-19",
+  "universe_receipt": "ai_equities_2026_11_19_nasdaq_current_directory_rehash.json",
+  "status": "research_vendor_snapshot",
+  "weight_rule": "Equal opening notional across the seven previously identified research securities. Research convention selected retrospectively.",
+  "currency": "USD",
+  "session_return_rule": "Arithmetic mean of regular-session close/open minus one for each security. Require all seven final regular-session closes on the same raw-share basis as their opens. Verify any within-session corporate action before use. Excludes overnight returns and dividends.",
+  "rows": [
+    {
+      "symbol": "NVDA",
+      "reported_open": 152.92,
+      "source": "https://www.stockquote.io/stocks/NVDA/history",
+      "verified_close": null,
+      "vendor_regular_close": 145.98,
+      "close_source": "https://public.com/stocks/nvda/after-hours"
+    },
+    {
+      "symbol": "MSFT",
+      "reported_open": 519.5,
+      "source": "https://www.stockquote.io/stocks/MSFT/history",
+      "verified_close": null,
+      "vendor_regular_close": 498.3,
+      "close_source": "https://public.com/stocks/msft/after-hours"
+    },
+    {
+      "symbol": "GOOGL",
+      "reported_open": 294.12,
+      "source": "https://www.stockquote.io/stocks/GOOGL/history",
+      "verified_close": null,
+      "vendor_regular_close": 272.66,
+      "close_source": "https://public.com/stocks/googl/after-hours"
+    },
+    {
+      "symbol": "AMZN",
+      "reported_open": 272.58,
+      "source": "https://finance.yahoo.com/quote/AMZN/history/?p=AMZN",
+      "verified_close": null,
+      "vendor_regular_close": 257.37,
+      "close_source": "https://public.com/stocks/amzn/after-hours"
+    },
+    {
+      "symbol": "META",
+      "reported_open": 625,
+      "source": "https://www.stockquote.io/stocks/META/history",
+      "verified_close": null,
+      "vendor_regular_close": 596.22,
+      "close_source": "https://public.com/stocks/meta/after-hours"
+    },
+    {
+      "symbol": "ORCL",
+      "reported_open": 116.67,
+      "source": "https://www.stockquote.io/stocks/ORCL/history",
+      "verified_close": null,
+      "vendor_regular_close": 110.51,
+      "close_source": "https://public.com/stocks/orcl/after-hours"
+    },
+    {
+      "symbol": "MU",
+      "reported_open": 740.43,
+      "source": "https://www.stockquote.io/stocks/MU/history",
+      "verified_close": null,
+      "vendor_regular_close": 690.44,
+      "close_source": "https://public.com/stocks/mu/after-hours"
+    }
+  ],
+  "note": "Public.com regular-close field in its 16:30 EST snapshot, not after-hours transaction prices. Vendor versions differ for some names; exchange certification pending. No split in these tickers identified in reviewed calendar for the session.",
+  "corporate_action_calendar": "https://stockanalysis.com/actions/splits/2026/",
+  "quote_snapshot": "2026-11-19T16:30:00-05:00"
+}
