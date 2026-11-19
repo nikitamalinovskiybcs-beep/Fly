@@ -10,9 +10,13 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from aics_fred_cutoff import fred_realtime_day
+
 OUT = Path("aics_data/live")
 OUT.mkdir(parents=True, exist_ok=True)
-TODAY = dt.date.today()
+UTC_NOW = dt.datetime.now(dt.timezone.utc)
+TODAY = UTC_NOW.date()
+FRED_TODAY = fred_realtime_day(UTC_NOW)
 SERIES = {
     "BAMLH0A0HYM2": "neoclouds_proxy",
     "BAMLH0A3HYC": "private_credit_proxy",
@@ -45,10 +49,10 @@ for sid, node in SERIES.items():
     try:
         rows = []
         vintage_available = sid == "DGS30"
-        window_start = dt.date(2010, 1, 1) if vintage_available else TODAY
-        while window_start <= TODAY:
+        window_start = dt.date(2010, 1, 1) if vintage_available else FRED_TODAY
+        while window_start <= FRED_TODAY:
             # Bound each real-time window below FRED's 2000-vintage limit.
-            window_end = min(TODAY, window_start + dt.timedelta(days=365)) if vintage_available else TODAY
+            window_end = min(FRED_TODAY, window_start + dt.timedelta(days=365)) if vintage_available else FRED_TODAY
             offset = 0
             page_size = 1000
             while True:
@@ -89,6 +93,7 @@ for sid, node in SERIES.items():
             detail = e.read(1024).decode("utf-8", errors="replace")
         results.append({"source":"ALFRED" if sid == "DGS30" else "FRED_CURRENT_VINTAGE",
                         "id":sid,"status":"error",
+                        "historical_pit_available":False,
                         "error":type(e).__name__,
                         "http_status":e.code if isinstance(e, HTTPError) else None,
                         "api_message":detail[:500]})
@@ -126,7 +131,8 @@ for ticker, cik in CIKS.items():
         results.append({"source":"SEC","id":ticker,"status":"error",
                         "error":type(e).__name__})
 failed = sum(r["status"] != "downloaded_unverified" for r in results)
-write_json(OUT / "manifest.json",{"as_of":TODAY.isoformat(),"results":results,
+write_json(OUT / "manifest.json",{"as_of":TODAY.isoformat(),
+    "fred_realtime_as_of":FRED_TODAY.isoformat(),"results":results,
     "failed_sources":failed,
     "index_aics":None,"predictive_model_score":None,"publishable":False,
     "note":"Raw downloads are not independently verified PIT data. Do not score."})

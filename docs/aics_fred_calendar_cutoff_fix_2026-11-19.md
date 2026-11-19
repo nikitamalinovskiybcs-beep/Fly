@@ -1,0 +1,7 @@
+# 2026-11-19 AICS midnight UTC / FRED St Louis business calendar repair
+
+Observed production failure in AICS Master live run [44425563842](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44425563842): at `2026-11-19T00:02Z`, FRED/ALFRED returned HTTP 400 for all four rates because its API calendar still reported **2026-11-18** (US Central local date). The earlier collector used `datetime.date.today()` in UTC to request `realtime_start=2026-11-19`, which FRED rejected as a future date. It was a clock boundary error, *not* evidence of missing market data or an ALFRED revision.
+
+`scripts/aics_fred_cutoff.py` uses the IANA `America/Chicago` calendar date (bounded no later than UTC date) as `fred_realtime_as_of`. The independent manifest still records the UTC collection date as `as_of`; they are **deliberately separate**. Source rows retain their actual FRED/ALFRED `realtime_start` and `realtime_end` and are **never forward-filled, backfilled or synthesized**. The validator verifies local/UTC day difference <=1 and current-vintage rows align with the actual requested FRED day. Four clock-only unit tests cover UTC crossing and summer DST. Error responses remain explicit blockers.
+
+This fix changes *requests to provider*, not economic historical observations or model stress. Raw FRED current-vintage data remain unverified historical PIT; revised series require original ALFRED vintage evidence. All 11 AICS weights remain 1050; 22/66 milestones, 0/11 independently certified, AICS index N/A.

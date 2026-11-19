@@ -20,6 +20,8 @@ on:
       - 'tests/test_aics_pit_integrity.py'
       - 'tests/test_aics_pit_integrity_v1_2_0.py'
       - 'scripts/aics_collect_evidence.py'
+      - 'scripts/aics_fred_cutoff.py'
+      - 'tests/test_aics_fred_cutoff.py'
       - 'scripts/aics_validate_evidence.py'
       - 'scripts/aics_collect_xbrl.py'
       - 'scripts/aics_validate_xbrl.py'
@@ -76,6 +78,7 @@ jobs:
       - name: Unified AICS offline source, PIT-safety and provenance regression
         run: |
           python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
+          python -m unittest discover -s tests -p 'test_aics_fred_cutoff.py' -v
           python -m unittest discover -s tests -p 'test_aics_progress_dashboard.py' -v
           python -m unittest discover -s tests -p 'test_aics_ai_equities_prices.py' -v
           python -m unittest discover -s tests -p 'test_aics_ai_equities_capture.py' -v
@@ -189,6 +192,7 @@ jobs:
         run: >-
           python -m py_compile
           scripts/aics_collect_evidence.py
+          scripts/aics_fred_cutoff.py
           scripts/aics_validate_evidence.py
           scripts/aics_collect_xbrl.py
           scripts/aics_validate_xbrl.py

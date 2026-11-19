@@ -16,6 +16,13 @@ def check(name, passed, detail="", blocking=True):
                    "blocking":blocking})
 manifest_path = ROOT / "manifest.json"
 manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+try:
+    utc_day = dt.date.fromisoformat(manifest["as_of"])
+    fred_day = dt.date.fromisoformat(manifest["fred_realtime_as_of"])
+    fred_clock_consistent = dt.timedelta(days=0) <= (utc_day-fred_day) <= dt.timedelta(days=1)
+except (ValueError, KeyError, TypeError):
+    fred_clock_consistent = False
+check("02b_fred_calendar_day_not_future", fred_clock_consistent)
 results = manifest.get("results", [])
 by_id = {r.get("id"): r for r in results}
 check("01_manifest_exists", manifest_path.exists())
@@ -65,7 +72,7 @@ for sid in ("BAMLH0A0HYM2","BAMLH0A3HYC","DGS30","SOFR"):
             value = float(row["value"])
             if not math.isfinite(value):
                 numeric_valid = False
-            if sid != "DGS30" and row["realtime_start"] != manifest.get("as_of"):
+            if sid != "DGS30" and row["realtime_start"] != manifest.get("fred_realtime_as_of"):
                 snapshot_cutoff_valid = False
             if (row["series_id"] != sid or row["verified_pit"] != "False" or
                 dt.date.fromisoformat(row["realtime_start"]) >
