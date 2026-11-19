@@ -24,6 +24,41 @@ EXPECTED_BXSL = {
     "2026-03-31": ("2026-05-07", "2026-05-21", "4.7", "3.1", "0001213900-26-053022"),
     "2026-06-30": ("2026-08-06", "2026-08-20", "3.6", "1.8", "0001213900-26-085889"),
 }
+# Frozen values independently rehashed in the 2026-11-19 research receipt.
+# This validates receipt consistency; it does NOT rehash absent original HTML or certify PIT.
+PINNED_BXSL_ARCHIVE = {
+    "zip": "63e68b50de6ab08527a90cf1a16703b21c20d818fc8c022af9c7c75accc3a6c3",
+    "manifest": "1fe95615b947ef68fe950a42425b89c8544a35f8c27c028fcde794a6367a9d89"
+}
+PINNED_BXSL_ORIGINALS = {
+    "2026-03-31": {
+        "original_file_sha256": {
+            "index": "66f37784c24fe75267f0ddaf640dcc773835ab872ece7f26574fa23698c79d59",
+            "filing": "d2e62fce7dbf8297f4258d8d89204f29559bfd1bbb517d403febc0898d3265b3",
+            "exhibit": "ecf7c7c3ee222588d3d996b3b46bf4ad710eddd83e23ef740a4f9c58b3361e86"
+        },
+        "original_file_bytes": {
+            "index": 16193,
+            "filing": 60461,
+            "exhibit": 52049
+        },
+        "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1736035/000121390026053022/ea0289403-01_ex991.htm"
+    },
+    "2026-06-30": {
+        "original_file_sha256": {
+            "index": "84602d6ad707c04693d412794f01c0b66aa1a10ec1f4c459d2868d9d4b60fcae",
+            "filing": "073a8957f14cd8f839735420a0dddd74e76ee683f0da0b03e448854cbd213ba8",
+            "exhibit": "7c5d383da677426691b9a9975c0c80d388f79b43b2ccead2e9eabab5df90cfe2"
+        },
+        "original_file_bytes": {
+            "index": 16192,
+            "filing": 55464,
+            "exhibit": 52392
+        },
+        "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1736035/000121390026085889/ea0300654-01_ex991.htm"
+    }
+}
+
 QUARTERS = ("2026-03-31", "2026-06-30", "2026-09-30")
 ISSUERS = ("ARCC", "BXSL", "OBDC")
 
@@ -53,6 +88,8 @@ def _source_bxsl_q1q2(receipt: dict) -> list[dict]:
         or receipt.get("promotion") != "BLOCKED"
         or not _sha(receipt.get("source_archive_zip_sha256"))
         or not _sha(receipt.get("source_archive_manifest_sha256"))
+        or receipt.get("source_archive_zip_sha256") != PINNED_BXSL_ARCHIVE["zip"]
+        or receipt.get("source_archive_manifest_sha256") != PINNED_BXSL_ARCHIVE["manifest"]
     ):
         raise ComparisonError("BXSL earlier originals receipt incomplete or unsafe")
     x = receipt.get("source_periods")
@@ -79,6 +116,11 @@ def _source_bxsl_q1q2(receipt: dict) -> list[dict]:
         if (set(item.get("original_file_sha256", {})) != {"index", "filing", "exhibit"}
                 or set(item.get("original_file_bytes", {})) != {"index", "filing", "exhibit"}):
             raise ComparisonError("original SEC file inventory mismatch")
+        pinned = PINNED_BXSL_ORIGINALS[date]
+        if (item.get("original_file_sha256") != pinned["original_file_sha256"]
+                or item.get("original_file_bytes") != pinned["original_file_bytes"]
+                or item.get("exhibit_url") != pinned["exhibit_url"]):
+            raise ComparisonError("BXSL independently pinned source-byte receipt mismatch")
         if any(n < 250 for n in item["original_file_bytes"].values()):
             raise ComparisonError("original SEC document unexpectedly short")
         found[date] = {
