@@ -1,0 +1,64 @@
+name: AICS NVDA 2024 split announcement and effect SEC originals
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_nvda_split_sec_originals.py'
+      - 'tests/test_aics_collect_nvda_split_sec_originals.py'
+      - '.github/workflows/aics-nvda-two-split-sec-originals.yml'
+permissions:
+  contents: read
+jobs:
+  split-originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Confirm synthetic parser tests never promote source as historical PIT
+        run: |
+          python -m py_compile scripts/aics_collect_nvda_split_sec_originals.py
+          python -m unittest discover -s tests -p test_aics_collect_nvda_split_sec_originals.py -v
+      - name: Fetch exact two original NVIDIA SEC 8-K submissions and rehash
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_collect_nvda_split_sec_originals \
+            --as-of 2026-11-19 \
+            --out aics_data/source_evidence/ai_equities_nvda_split_sec
+      - name: Verify original split events and safe dates without price adjustment
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          from pathlib import Path
+          from scripts.aics_collect_nvda_split_sec_originals import verify_archive
+          root=Path("aics_data/source_evidence/ai_equities_nvda_split_sec")
+          r=verify_archive(root)
+          assert r["original_filings_rehashed"]==2
+          assert r["announcement_sec_available_at"]=="2024-06-05"
+          assert r["effectuation_sec_available_at"]=="2024-06-21"
+          assert r["first_expected_split_basis_market_session"]=="2024-06-10"
+          assert not r["independent_historical_release_time_attested"]
+          assert not r["historical_adjustment_factors_pit_attested"]
+          assert not r["historical_constituency_attested"]
+          assert not r["historical_price_adjustments_generated"]
+          assert r["node_stress_score"] is None and r["index_aics"] is None
+          assert r["promotion"]=="BLOCKED"
+          print("## NVIDIA two SEC 8-K original split events")
+          for s in r["source_records"]:
+              print(f"- {s['source_id']}: {s['bytes']} bytes; SHA256 {s['sha256']}; AICS SEC +14 {s['available_at']}")
+          print("First announcement 2024-05-22, conservative +14 2024-06-05.")
+          print("Effectuation 2024-06-07, independent 8-K +14 2024-06-21.")
+          print("No historical benchmark constituency, returns, look-ahead, or certified PIT.")
+          PY
+      - name: Save original full SEC submissions and their hash receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-nvda-split-two-full-sec-originals-not-pit
+          path: aics_data/source_evidence/ai_equities_nvda_split_sec/
+          retention-days: 30
+          if-no-files-found: warn
