@@ -40,11 +40,22 @@ def main():
                    and r["frequency_short"] == "D" and r["units"] == "Percent"]
             if len(ids) > 1:
                 raise ValueError("ambiguous FRED series match")
+            if ids:
+                vintage_url = "https://api.stlouisfed.org/fred/series/vintagedates?"
+                vintage_params = dict(series_id=ids[0], sort_order="asc", limit=1,
+                                      realtime_start="1776-07-04", file_type="json")
+                with urlopen(vintage_url + urlencode(dict(vintage_params, api_key=os.environ["FRED_API_KEY"])), timeout=60) as response:
+                    first_catalog_vintage = json.load(response)["vintage_dates"][0]
             for anchor in panel:
                 day, cutoff = anchor["observation"], anchor["cutoff"]
                 if not ids:
                     results.append(dict(series=series, cutoff=cutoff, observation=day,
                                         status="no_exact_FRED_catalog_match", first_vintage=None))
+                    continue
+                if cutoff < first_catalog_vintage:
+                    results.append(dict(series=series, cutoff=cutoff, observation=day, first_vintage=None,
+                                        status="before_first_catalog_vintage", catalog_start=first_catalog_vintage,
+                                        query=vintage_url + urlencode(vintage_params)))
                     continue
                 params = dict(series_id=ids[0], observation_start=day, observation_end=day,
                               realtime_start=(date.fromisoformat(day)-timedelta(days=1)).isoformat(),
