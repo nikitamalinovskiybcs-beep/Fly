@@ -25,6 +25,9 @@ PRU_FIXTURE = {
             "loan_net_change_pct":"3.54",
             "nonaccrual_no_related_allowance_change_millions":168,
             "nonaccrual_no_related_allowance_change_pct":"38.01",
+            "nonaccrual_without_acl_over_reported_net_loans_pct_proxy":{
+                "2025-12-31":"0.68","2026-09-30":"0.91"},
+            "nonaccrual_without_acl_share_change_percentage_points":"0.23",
         },
     },
     "met_september_10q":{"eligible_at_frozen_cutoff":False},
@@ -65,6 +68,10 @@ class TestMixedInsurerOriginals(unittest.TestCase):
     def test_descriptive_changes_without_cross_issuer_risk_ranking(self):
         r=exercise()
         self.assertEqual(r["pru_q3"]["nonaccrual_subset_change_pct"],"38.01")
+        self.assertEqual(
+            r["pru_q3"]["nonaccrual_without_acl_share_of_reported_net_loans_pct_proxy"],
+            {"2025-12-31":"0.68","2026-09-30":"0.91"})
+        self.assertEqual(r["pru_q3"]["nonaccrual_without_acl_share_change_percentage_points"],"0.23")
         self.assertEqual(r["pru_q3"]["acl_change_pct"],"-4.26")
         self.assertEqual(r["pru_q3"]["loan_change_pct"],"3.54")
         self.assertEqual(r["met_q2"]["loan_change_pct"],"-2.05")
