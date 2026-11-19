@@ -1,0 +1,301 @@
+{
+  "review_date": "2026-11-19",
+  "pdf_sha256": "466b8a875752c85e23a41d5e33ad985c44f437ddc5cf801e132310c4e28bff60",
+  "pdf_pages": 88,
+  "telegram_zip_sha256": "b0c3f02e751798e0b3a5794d56db8846a6136b02cb5280cae90b933b1b63d0d1",
+  "screenshot_hashes_matched_to_registry_and_zip_manifest": 11,
+  "omi_company_page_references_matched": 51,
+  "companies": [
+    {
+      "name": "CoreWeave",
+      "printed_name": "CoreWeave",
+      "physical_pdf_pages": [
+        21
+      ]
+    },
+    {
+      "name": "Nebius Group",
+      "printed_name": "Nebius",
+      "physical_pdf_pages": [
+        21
+      ]
+    },
+    {
+      "name": "Crusoe Energy",
+      "printed_name": "Crusoe Energy",
+      "physical_pdf_pages": [
+        8,
+        35
+      ]
+    },
+    {
+      "name": "Oracle",
+      "printed_name": "Oracle",
+      "physical_pdf_pages": [
+        25,
+        35,
+        36
+      ]
+    },
+    {
+      "name": "Microsoft",
+      "printed_name": "Microsoft",
+      "physical_pdf_pages": [
+        19,
+        22,
+        35
+      ]
+    },
+    {
+      "name": "Alphabet",
+      "printed_name": "Alphabet",
+      "physical_pdf_pages": [
+        19,
+        22,
+        24
+      ]
+    },
+    {
+      "name": "Amazon",
+      "printed_name": "Amazon",
+      "physical_pdf_pages": [
+        19,
+        22
+      ]
+    },
+    {
+      "name": "Meta",
+      "printed_name": "Meta",
+      "physical_pdf_pages": [
+        19,
+        24
+      ]
+    },
+    {
+      "name": "NVIDIA",
+      "printed_name": "NVIDIA",
+      "physical_pdf_pages": [
+        24,
+        25,
+        35
+      ]
+    },
+    {
+      "name": "AMD",
+      "printed_name": "AMD",
+      "physical_pdf_pages": [
+        20,
+        21
+      ]
+    },
+    {
+      "name": "Broadcom",
+      "printed_name": "Broadcom",
+      "physical_pdf_pages": [
+        20,
+        21,
+        24
+      ]
+    },
+    {
+      "name": "OpenAI",
+      "printed_name": "OpenAI",
+      "physical_pdf_pages": [
+        20,
+        21,
+        35
+      ]
+    },
+    {
+      "name": "Anthropic",
+      "printed_name": "Anthropic",
+      "physical_pdf_pages": [
+        20,
+        21,
+        24
+      ]
+    },
+    {
+      "name": "xAI",
+      "printed_name": "xAI",
+      "physical_pdf_pages": [
+        20
+      ]
+    },
+    {
+      "name": "SpaceX",
+      "printed_name": "SpaceX",
+      "physical_pdf_pages": [
+        20,
+        21
+      ]
+    },
+    {
+      "name": "SoftBank",
+      "printed_name": "SoftBank",
+      "physical_pdf_pages": [
+        8,
+        35
+      ]
+    },
+    {
+      "name": "Blue Owl Capital",
+      "printed_name": "Blue Owl Capital",
+      "physical_pdf_pages": [
+        8,
+        24,
+        35
+      ]
+    },
+    {
+      "name": "PIMCO",
+      "printed_name": "PIMCO",
+      "physical_pdf_pages": [
+        24
+      ]
+    },
+    {
+      "name": "Primary Digital Infrastructure",
+      "printed_name": "Primary Digital Infrastructure",
+      "physical_pdf_pages": [
+        8,
+        35
+      ]
+    },
+    {
+      "name": "Lancium",
+      "printed_name": "Lancium",
+      "physical_pdf_pages": [
+        8,
+        35
+      ]
+    },
+    {
+      "name": "JPMorgan Chase",
+      "printed_name": "JP Morgan Chase",
+      "physical_pdf_pages": [
+        8,
+        35
+      ]
+    },
+    {
+      "name": "Apollo",
+      "printed_name": "Apollo",
+      "physical_pdf_pages": [
+        44
+      ]
+    },
+    {
+      "name": "TIAA",
+      "printed_name": "TIAA",
+      "physical_pdf_pages": [
+        44
+      ]
+    },
+    {
+      "name": "MassMutual",
+      "printed_name": "MassMutual",
+      "physical_pdf_pages": [
+        44
+      ]
+    },
+    {
+      "name": "Principal Financial Group",
+      "printed_name": "Principal Financial Group",
+      "physical_pdf_pages": [
+        44
+      ]
+    },
+    {
+      "name": "Egan Jones",
+      "printed_name": "Egan Jones",
+      "physical_pdf_pages": [
+        44
+      ]
+    },
+    {
+      "name": "Lambda",
+      "registered_transcription_images": [
+        "1000052507.jpg"
+      ]
+    },
+    {
+      "name": "Firmus",
+      "registered_transcription_images": [
+        "1000052507.jpg"
+      ]
+    },
+    {
+      "name": "SharonAI",
+      "registered_transcription_images": [
+        "1000052507.jpg"
+      ]
+    },
+    {
+      "name": "GMI",
+      "registered_transcription_images": [
+        "1000052507.jpg"
+      ]
+    },
+    {
+      "name": "Nscale",
+      "registered_transcription_images": [
+        "1000052508.jpg"
+      ]
+    },
+    {
+      "name": "SB Energy",
+      "registered_transcription_images": [
+        "1000052508.jpg"
+      ]
+    },
+    {
+      "name": "Lumentum",
+      "registered_transcription_images": [
+        "1000052509.jpg"
+      ]
+    },
+    {
+      "name": "Coherent",
+      "registered_transcription_images": [
+        "1000052509.jpg"
+      ]
+    },
+    {
+      "name": "Intel",
+      "registered_transcription_images": [
+        "1000052509.jpg"
+      ]
+    },
+    {
+      "name": "Nokia",
+      "registered_transcription_images": [
+        "1000052509.jpg"
+      ]
+    },
+    {
+      "name": "Groq",
+      "registered_transcription_images": [
+        "1000052509.jpg"
+      ]
+    }
+  ],
+  "telegram_scope": {
+    "transcript_names": 23,
+    "in_fixed_roster": 17,
+    "outside_fixed_roster": [
+      "Blackstone",
+      "Brookfield",
+      "Macquarie",
+      "Magnetar",
+      "Synopsys",
+      "Valor Equity"
+    ],
+    "alias": {
+      "Crusoe": "Crusoe Energy"
+    }
+  },
+  "scope": "PDF name occurrences and bytes behind the existing visual Telegram transcription",
+  "contractual_exposures_verified_by_attachments": false,
+  "index_aics": null
+}

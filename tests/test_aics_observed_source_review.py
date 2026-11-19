@@ -11,6 +11,8 @@ from decimal import Decimal
 from pathlib import Path
 from unittest.mock import patch
 
+from scripts.aics_audit_company_attachments import RECEIPT as ATTACHMENTS
+from scripts.aics_audit_company_attachments import pdf_pages
 from scripts.aics_observed_source_review import (
     FROZEN_DATE,
     REGISTRY,
@@ -105,6 +107,21 @@ class ObservedReviewTests(unittest.TestCase):
         self.assertIsNone(nvda["drawn_or_paid_usd_bn"])
         self.assertIsNone(self.rows["oracle_company_wide_rpo"]["ai_specific_paid_revenue_usd"])
         self.assertEqual(self.rows["fed_naics_3344_utilization"]["change_within_release_pp"], "0.9")
+
+    def test_all_37_company_references_trace_to_the_supplied_attachments(self):
+        receipt = json.loads(ATTACHMENTS.read_text())
+        companies = json.loads(COMPANIES.read_text())["companies"]
+        self.assertEqual([c["name"] for c in companies], [r["name"] for r in receipt["companies"]])
+        for company, checked in zip(companies, receipt["companies"], strict=True):
+            if company["original_pdf_pages"]:
+                self.assertEqual(company["original_pdf_pages"], checked["physical_pdf_pages"])
+            else:
+                self.assertEqual(company["telegram_image_ids"], checked["registered_transcription_images"])
+        self.assertEqual(receipt["omi_company_page_references_matched"], 51)
+        self.assertEqual(receipt["screenshot_hashes_matched_to_registry_and_zip_manifest"], 11)
+        self.assertFalse(receipt["contractual_exposures_verified_by_attachments"])
+        with self.assertRaisesRegex(ValueError, "Wrong edition"):
+            pdf_pages(b"not the original PDF")
 
     def test_telegram_names_reconcile_without_expanding_the_company_roster(self):
         companies = json.loads(COMPANIES.read_text())["companies"]
