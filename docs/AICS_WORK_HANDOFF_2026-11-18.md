@@ -85,6 +85,14 @@ Read direct files and latest GitHub Actions job logs on every session; the above
 
 The [eleven-node source review](aics_observed_nodes_2026-11-19.md) reproduces dated issuer, Federal Reserve and macro observations and reconciles the Telegram transcript to the 37-name roster. The Nscale executed agreement identifies a specific SPV borrower, affiliate guarantor and contractual ceiling. Independent PIT, audited scoring and the 24-month OOS remain open for all eleven nodes.
 
+## 19 November 2026 — Insurers raw-source replay checkpoint
+
+- Insurers SEC integrity audit now re-extracts the research CSV from locally archived, SHA-256-checked SEC companyfacts, submissions and historical submission appendices with the original +14 calendar-day cutoff and original filing/accession metadata.
+- A modified value or primary-document URL, even when an attacker recomputes the CSV hash and edits its manifest, fails the exact row replay. Added negative tests for both manipulations.
+- Verified GitHub Actions at commit `f126a91f0050710486185c821af0547caac1913a`: [Insurers MET/PRU SEC source workflow](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44470456047) and [AICS research safety suite](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44470456021) both **success**.
+- This is a local archival source-to-CSV consistency check, not an independent historical release-time archive or Level 3/private-credit exposure validation. Therefore **22/66 technical milestones, 0/11 PIT attested, 0/11 certified, index AICS null** remain unchanged.
+- Further work: verify historical delivery/published-at with independent provenance and non-overlapping sector metrics before any Insurers node score.
+
 ## 5. Next tasks, in strict order
 
 1. **Sanity-check repo and tests** on the selected feature branch. Reproduce the progress percentage; identify any mismatch between workboard, branch and latest GitHub Actions. Make reliable CI rather than accumulating green but skipped collection jobs.
