@@ -93,6 +93,14 @@ The [eleven-node source review](aics_observed_nodes_2026-11-19.md) reproduces da
 - This is a local archival source-to-CSV consistency check, not an independent historical release-time archive or Level 3/private-credit exposure validation. Therefore **22/66 technical milestones, 0/11 PIT attested, 0/11 certified, index AICS null** remain unchanged.
 - Further work: verify historical delivery/published-at with independent provenance and non-overlapping sector metrics before any Insurers node score.
 
+## 19 November 2026 — Nscale two-SPV executed contract evidence
+
+- Added an actual second executed Nscale credit agreement: **Ward County EX-10.23** (`0001193125-26-395475`) distinct from existing **North Carolina EX-10.24**. Ward: `Nscale Ward County Borrower SPV, LLC` borrower, `Nscale Ward County, LLC` affiliate guarantor; fixed delayed-draw commitments **$630m**, floating **$1.22bn**, overall ceiling **$1.85bn**; SEC +14 eligibility **2026-10-02**. Nscale Limited **limited** parent guarantees are mentioned, not monetary parent recourse.
+- North Carolina separately limits $370m + $830m = **$1.2bn**. **$3.05bn is sum of two distinct facility ceilings only**, not drawn debt, guarantees or model exposure.
+- New `scripts/aics_collect_nscale_ward_sec.py`, `tests/test_aics_collect_nscale_ward_sec.py` and `.github/workflows/aics-nscale-ward-original-sec.yml` enforce exact original SEC URLs, date cutoff, source wording, document contents, proper UTC retrieval timestamps, no numeric risk-model promotion, raw source SHA-256 and explicit no-PIT.
+- GitHub successful actual original capture [run 44472197069](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44472197069), artifact 14505066061; the ZIP and both SEC HTML documents were independently rehashed **outside CI** in the working container. Durable SHA receipt `aics_data/research/nscale_ward_original_sec_independent_rehash_2026-11-19.json`; rehashed ZIP SHA-256 `784af25b39401b95700a91f0ac0047a2548f950e6d07b043ff07abbc1b5954b2`. Later code and [tests](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44472421043) and [capture](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44472420986) passed.
+- The raw-source rehash is not independent historic provider release attestation. Original bytes still live in short-lived Actions artifacts. **22/66 technical milestones, 0/11 historic PIT attestation, 0/11 certified, `index_aics=null`** remain. Next: obtain original dated draw records and enforceable parent guarantee limits, and only after independent release-time PIT consider stage 3.
+
 ## 5. Next tasks, in strict order
 
 1. **Sanity-check repo and tests** on the selected feature branch. Reproduce the progress percentage; identify any mismatch between workboard, branch and latest GitHub Actions. Make reliable CI rather than accumulating green but skipped collection jobs.
