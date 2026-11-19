@@ -80,7 +80,10 @@ def replay(pru_directory: Path, met_directory: Path,
         or pct_change(m_loans[met_date],m_loans[before]) != mf["mortgage_loans_net_change_pct"]
         or pct_change(m_acl[met_date],m_acl[before]) != mf["mortgage_acl_change_pct"]
         or pct_change(p_nonaccrual[pru_date],p_nonaccrual[before])
-             != pf["nonaccrual_no_related_allowance_change_pct"]):
+             != pf["nonaccrual_no_related_allowance_change_pct"]
+        or pf["nonaccrual_without_acl_over_reported_net_loans_pct_proxy"]
+             != {before: "0.68", pru_date: "0.91"}
+        or pf["nonaccrual_without_acl_share_change_percentage_points"] != "0.23"):
         raise ValueError("Original insurer credit arithmetic inconsistent")
     if (mf["acl_segment_six_month_provision_millions"]["total"] != 316
         or mf["net_six_month_chargeoffs_millions"] != 151
@@ -109,6 +112,10 @@ def replay(pru_directory: Path, met_directory: Path,
                 p_nonaccrual[pru_date]-p_nonaccrual[before],
             "nonaccrual_subset_change_pct":
                 pct_change(p_nonaccrual[pru_date],p_nonaccrual[before]),
+            "nonaccrual_without_acl_share_of_reported_net_loans_pct_proxy":
+                pf["nonaccrual_without_acl_over_reported_net_loans_pct_proxy"],
+            "nonaccrual_without_acl_share_change_percentage_points":
+                pf["nonaccrual_without_acl_share_change_percentage_points"],
             "all_nonaccrual_loans_millions": None,
         },
         "met_q2": {
