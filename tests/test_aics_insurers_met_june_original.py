@@ -34,7 +34,7 @@ class TestMETQ2CreditOriginal(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,"Only exact"):
                 audit.check_cutoff(date)
     def test_original_fixture_rollforward_arithmetic_and_no_score(self):
-        data=audit.build(fake())
+        data=audit.build(fake(),allow_synthetic_test_fixture=True)
         f=data["facts"]
         self.assertEqual(f["mortgage_loans_net_change_millions"],-1737)
         self.assertEqual(f["mortgage_acl_change_millions"],165)
@@ -56,20 +56,29 @@ class TestMETQ2CreditOriginal(unittest.TestCase):
             (b"CENTRAL INDEX KEY: 0001099219",b"CENTRAL INDEX KEY: 0001137774"),
             (b"FILED AS OF DATE: 20260806",b"FILED AS OF DATE: 20260805")):
             with self.subTest(change=new),self.assertRaisesRegex(ValueError,"mismatch"):
-                audit.build(fake().replace(old,new))
+                audit.build(fake().replace(old,new),allow_synthetic_test_fixture=True)
     def test_forged_mortgage_loan_and_acl_numbers_fail_closed(self):
         for old,new in ((b"82,856",b"90,856"),(b"1,358",b"1,458"),
                         (b"84,593",b"74,593"),(b"1,193",b"1,293"),
                         (b"316",b"315"),(b"1,016",b"1,017")):
             with self.subTest(change=new),self.assertRaises(ValueError):
-                audit.build(fake().replace(old,new))
+                audit.build(fake().replace(old,new),allow_synthetic_test_fixture=True)
     def test_missing_primary_html_and_wrong_document_form_rejected(self):
         for old,new in ((b"<TYPE>10-Q",b"<TYPE>EX-99"),
                         (b"<FILENAME>met-20260630.htm",b"<FILENAME>unrelated.htm"),
                         (b"Rollforward of ACL for Mortgage Loans by Portfolio Segment",
                          b"Unknown credit disclosure")):
             with self.subTest(change=new),self.assertRaises(ValueError):
-                audit.build(fake().replace(old,new))
+                audit.build(fake().replace(old,new),allow_synthetic_test_fixture=True)
+    def test_exact_primary_original_hash_is_required_in_production(self):
+        self.assertEqual(audit.PINNED_FULL_ORIGINAL_BYTES,42939093)
+        self.assertEqual(audit.PINNED_FULL_ORIGINAL_SHA256,
+                         "a2b5359da635b89ffb3ab39908538328d52d4dac6099073ffcc4b4636fc3209b")
+        self.assertEqual(audit.PINNED_PRIMARY_DOCUMENT_SHA256,
+                         "363dd1ce87ef01168f4bda0c02c7ad1779f5f3b81d698a3c8e0bb4db6d7638d6")
+        with self.assertRaisesRegex(ValueError,"SHA256"):
+            audit.build(fake())
+
     def test_unlicensed_capture_agent_is_rejected(self):
         for agent in ("","AICS fake@example.com","AICS"):
             with self.assertRaises(ValueError):
