@@ -79,7 +79,15 @@
     "prior_year_q1_cash_capex_m": 8502,
     "prior_year_q1_fcf_m": -362,
     "unpaid_capital_expenditures_non_cash_disclosure_m": 6247,
-    "note": "$11,363m is embedded IN GAAP CFO; do not add to CFO or RPO. CFO less this specific item is only arithmetic sensitivity, NOT recalculated GAAP CFO or recurring cash generation. $19,909m ATM is financing cash flow, NOT revenue. Unpaid capex $6,247m is noncash disclosure and must not be added to paid capex as if already disbursed."
+    "note": "$11,363m is embedded IN GAAP CFO; do not add to CFO or RPO. CFO less this specific item is only arithmetic sensitivity, NOT recalculated GAAP CFO or recurring cash generation. $19,909m ATM is financing cash flow, NOT revenue. Unpaid capex $6,247m is noncash disclosure and must not be added to paid capex as if already disbursed.",
+    "year_over_year_reconciliation": {
+      "unit": "USD millions",
+      "cfo_change": 14963,
+      "paid_capex_change": 19997,
+      "fcf_change": -5034,
+      "customer_prepayment_share_of_cfo_growth_pct": 75.94,
+      "source": "SEC 10-Q, comparative quarterly cash flow statement and MD&A free cash flow reconciliation. Prior comparative prepayment line is a dash. Both periods use this filing vintage, available 2026-09-25."
+    }
   },
   "node_attribution": {
     "AI_Demand": "Observed company-wide signed remaining performance obligations only; not AI-only",
