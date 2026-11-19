@@ -21,6 +21,8 @@ from scripts.aics_observed_source_review import (
 REGISTRY = Path("aics_data/source_registry/neocloud_cash_h1_sec.json")
 REPORT = Path("aics_data/research/neocloud_cash_coverage_2026_h1.json")
 CUTOFF = date(2026, 11, 18)
+CASH_SOURCES = ("crwv_25_h1", "crwv_26_q1", "crwv_26_release", "crwv_26_h1",
+                "nbis_25_h1", "nbis_26_q1", "nbis_26_release", "nbis_26_h1")
 
 
 class Cash(NamedTuple):
@@ -43,7 +45,7 @@ def rows(doc):
             for tr in re.findall(rb"<tr\b[^>]*>.*?</tr>", doc, re.IGNORECASE | re.DOTALL)]
 
 
-def column(table, label, index, width, growth_columns=False):
+def column(table, label, index, width, growth_columns=False, *, reported_nil=False):
     values = set()
     for row in table:
         if not row.startswith(label + " "):
@@ -52,6 +54,8 @@ def column(table, label, index, width, growth_columns=False):
         if growth_columns:  # The 2025 Nebius summary interleaves percentage columns.
             rest = re.sub(r"\d+\s*%", "", rest)
         cells = re.sub(r"\(\s*(\d+(?:\.\d+)?)\s*\)", r"-\1", rest).split()
+        if reported_nil:
+            cells = ["0" if cell == "—" else cell for cell in cells]
         if len(cells) == width and all(re.fullmatch(r"-?\d+(?:\.\d+)?", v) for v in cells):
             values.add(Decimal(cells[index]))
     if len(values) != 1:
@@ -91,15 +95,26 @@ def facility_rows(doc):
     return result
 
 
-def build(originals, fetch):
-    registry = json.loads(REGISTRY.read_text())
+def source_documents(registry, keys, originals, fetch, *, reuse_verified=False):
     docs = {}
-    for key, item in registry.items():
+    for key in keys:
+        item = registry[key]
         available = date.fromisoformat(item["filed_at"]) + timedelta(days=14)
         if available.isoformat() != item["available_at"] or available > CUTOFF:
             raise ValueError("SEC availability outside the review cutoff")
-        raw = read_original(originals, key, item["original"], fetch)
+        try:
+            raw = read_original(originals, key, item["original"], fetch and not reuse_verified)
+        except (FileNotFoundError, ValueError):
+            if not (fetch and reuse_verified):
+                raise
+            raw = read_original(originals, key, item["original"], True)
         docs[key] = filing_document(raw, item, item["source_page"].rsplit("/", 1)[1])
+    return docs
+
+
+def build(originals, fetch):
+    registry = json.loads(REGISTRY.read_text())
+    docs = source_documents(registry, CASH_SOURCES, originals, fetch)
 
     c_prior = core_cash(docs["crwv_25_h1"], "2025-06-30")
     c_q1 = core_cash(docs["crwv_26_q1"], "2026-03-31")

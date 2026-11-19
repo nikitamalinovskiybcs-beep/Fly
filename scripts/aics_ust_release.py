@@ -11,7 +11,10 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 from zipfile import ZipFile
 
-from aics_compare_macro_vintages import ARCHIVE_SHA, archived_rows
+if __package__:
+    from .aics_compare_macro_vintages import ARCHIVE_SHA, archived_rows
+else:
+    from aics_compare_macro_vintages import ARCHIVE_SHA, archived_rows
 
 
 def fetch(url):
@@ -19,10 +22,10 @@ def fetch(url):
         return response.read()
 
 
-def treasury_year(year):
+def treasury_year(year, directory=None):
     url = "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?" + urlencode(
         {"data": "daily_treasury_yield_curve", "field_tdr_date_value": year})
-    raw = fetch(url)
+    raw = fetch(url) if directory is None else (directory / f"treasury_{year}.xml").read_bytes()
     values = {}
     for row in ET.fromstring(raw).findall(".//{*}properties"):
         day = row.findtext("{*}NEW_DATE")[:10]
@@ -63,9 +66,9 @@ def main():
         if year not in cached:
             cached[year] = loaders[series](year)
         values, publisher_sha, publisher_url = cached[year]
-        params = dict(series_id=series, observation_start=day, observation_end=day,
-                      realtime_start=(date.fromisoformat(day)-timedelta(days=1)).isoformat(),
-                      realtime_end=cutoff, file_type="json")
+        params = {"series_id": series, "observation_start": day, "observation_end": day,
+                  "realtime_start": (date.fromisoformat(day)-timedelta(days=1)).isoformat(),
+                  "realtime_end": cutoff, "file_type": "json"}
         url = "https://api.stlouisfed.org/fred/series/observations?"
         raw = fetch(url + urlencode(dict(params, api_key=os.environ["FRED_API_KEY"])))
         versions = [row for row in json.loads(raw)["observations"] if row["value"] != "."]
@@ -74,10 +77,10 @@ def main():
             raise ValueError(f"missing release interval at {cutoff}")
         if Decimal(versions[-1]["value"]) != observations[day] or values.get(day) != observations[day]:
             raise ValueError(f"value disagreement at {cutoff}")
-        receipts.append(dict(cutoff=cutoff, observation=day, percent=str(observations[day]),
-                             first_nonmissing_vintage=versions[0]["realtime_start"],
-                             alfred_query=url + urlencode(params), alfred_sha256=hashlib.sha256(raw).hexdigest(),
-                             publisher_source=publisher_url, publisher_sha256=publisher_sha))
+        receipts.append({"cutoff": cutoff, "observation": day, "percent": str(observations[day]),
+                         "first_nonmissing_vintage": versions[0]["realtime_start"],
+                         "alfred_query": url + urlencode(params), "alfred_sha256": hashlib.sha256(raw).hexdigest(),
+                         "publisher_source": publisher_url, "publisher_sha256": publisher_sha})
         Path("ust_release_dates.json" if series == "DGS30" else "sofr_release_dates.json").write_text(json.dumps(receipts, indent=2) + "\n")
         print(cutoff, day, versions[0]["realtime_start"], flush=True)
 

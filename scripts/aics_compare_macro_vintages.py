@@ -40,7 +40,7 @@ def archived_rows(archive, series):
     return result
 
 
-def compare_export(series, cutoff, expected, raw):
+def export_values(series, cutoff, raw):
     rows = csv.reader(io.StringIO(raw.decode("utf-8-sig")))
     header = next(rows)
     check(header[1:] == [series + "_" + cutoff.replace("-", "")], "provider vintage mismatch")
@@ -49,6 +49,11 @@ def compare_export(series, cutoff, expected, raw):
         if value not in {"", "."} and "2010-01-01" <= day <= cutoff:
             check(day not in actual, "duplicate provider date")
             actual[day] = Decimal(value)
+    return actual
+
+
+def compare_export(series, cutoff, expected, raw):
+    actual = export_values(series, cutoff, raw)
     check(actual == expected, f"{series} {cutoff} observations differ")
     return {"series": series, "vintage": cutoff, "observations": len(actual),
             "provider_sha256": hashlib.sha256(raw).hexdigest()}
@@ -61,7 +66,7 @@ def main():
     with zipfile.ZipFile(path) as archive:
         for series in ("DGS30", "SOFR"):
             for cutoff, expected in sorted(archived_rows(archive, series).items()):
-                query = urlencode(dict(id=series, vintage_date=cutoff, cosd="2010-01-01", coed=cutoff))
+                query = urlencode({"id": series, "vintage_date": cutoff, "cosd": "2010-01-01", "coed": cutoff})
                 url = "https://alfred.stlouisfed.org/graph/alfredgraph.csv?" + query
                 with urlopen(url, timeout=60) as response:
                     receipt = compare_export(series, cutoff, expected, response.read())

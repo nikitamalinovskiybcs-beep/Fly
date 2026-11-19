@@ -1,0 +1,145 @@
+{
+  "as_of": "2026-11-18",
+  "units": "USD million unless specified",
+  "source_registry": "aics_data/source_registry/neocloud_cash_h1_sec.json",
+  "cash_bridges": [
+    {
+      "issuer": "CoreWeave",
+      "period": "2026-Q2",
+      "sources": [
+        "crwv_26_q1",
+        "crwv_26_release",
+        "crwv_26_h1"
+      ],
+      "available_with_all_checks": "2026-08-26",
+      "cash_purchases_less_operating_cash": "5743",
+      "q2_percent_of_h1_purchase_gap": "54.94",
+      "other_net_investing_cash_beyond_purchases": "-744",
+      "net_investing_cash": "-7166",
+      "financing_components_signed": {
+        "debt_issuance_net_of_costs": "13457",
+        "debt_repayments": "-3884",
+        "private_placement_net_of_costs": "997",
+        "capped_calls": "-492",
+        "other_financing": "-7"
+      },
+      "net_financing_cash": "10071",
+      "separately_reported_exchange_effect": null,
+      "cash_including_restricted": {
+        "start": "3320",
+        "end": "6904",
+        "change": "3584"
+      },
+      "cash_and_equivalents_excluding_restricted": {
+        "start": "2244",
+        "end": "5524",
+        "change": "3280"
+      },
+      "restricted_cash_and_equivalents": {
+        "start": "1076",
+        "end": "1380",
+        "change": "304"
+      }
+    },
+    {
+      "issuer": "Nebius",
+      "period": "2026-Q2",
+      "sources": [
+        "nbis_26_q1",
+        "nbis_26_release",
+        "nbis_26_h1"
+      ],
+      "available_with_all_checks": "2026-08-26",
+      "cash_purchases_less_operating_cash": "3411.3",
+      "q2_percent_of_h1_purchase_gap": "94.07",
+      "other_net_investing_cash_beyond_purchases": "11.7",
+      "net_investing_cash": "-5645.7",
+      "financing_components_signed": {
+        "convertible_notes_issued": "0",
+        "convertible_notes_issuance_costs": "0",
+        "treasury_share_sale": "2846.7",
+        "treasury_share_issuance_costs": "-35.6",
+        "prefunded_warrant_issuance": "0",
+        "option_exercises": "53.8",
+        "withholding_tax": "0"
+      },
+      "net_financing_cash": "2864.9",
+      "separately_reported_exchange_effect": "5.9",
+      "cash_including_restricted": {
+        "start": "9626.9",
+        "end": "9098.1",
+        "change": "-528.8"
+      },
+      "cash_and_equivalents_excluding_restricted": {
+        "start": "9298.2",
+        "end": "8042.1",
+        "change": "-1256.1"
+      },
+      "restricted_cash_and_equivalents": {
+        "start": "328.7",
+        "end": "1056.0",
+        "change": "727.3"
+      }
+    }
+  ],
+  "counterparty_disclosures": [
+    {
+      "payer": "Jane Street",
+      "recipient": "CoreWeave",
+      "type": "service_payments_approximate",
+      "2025-FY": "100.0",
+      "2026-Q1": "220.6",
+      "source": "crwv_proxy",
+      "available_from_cited_source": "2026-05-06"
+    },
+    {
+      "payer": "NVIDIA",
+      "recipient": "CoreWeave",
+      "type": "service_payments_approximate",
+      "2025-FY": "326.3",
+      "2026-Q1": "59.6",
+      "source": "crwv_proxy",
+      "available_from_cited_source": "2026-05-06"
+    },
+    {
+      "payer": "Jane Street Global Trading, LLC",
+      "recipient": "CoreWeave",
+      "type": "common_stock_purchase",
+      "event_date": "2026-04-15",
+      "shares": 9174311,
+      "price_usd_per_share": "109.00",
+      "reported_gross_proceeds_usd_m": "1000.0",
+      "source": "crwv_jane_8k",
+      "available_from_cited_source": "2026-04-29"
+    },
+    {
+      "payer": "NVIDIA",
+      "recipient": "CoreWeave",
+      "type": "common_stock_purchase",
+      "event_date": "2026-01-23",
+      "shares": 22935780,
+      "price_usd_per_share": "87.20",
+      "reported_gross_proceeds_usd_m": "2000",
+      "source": "crwv_proxy",
+      "available_from_cited_source": "2026-05-06"
+    },
+    {
+      "payer": "NVIDIA",
+      "recipient": "Nebius",
+      "type": "pre_funded_warrant_purchase",
+      "event_date": "2026-03-11",
+      "shares_underlying_warrants": 21065936,
+      "reported_gross_proceeds_usd_m": "2000.0",
+      "sources": [
+        "nbis_26_h1",
+        "nbis_26_q1"
+      ],
+      "available_with_all_checks": "2026-08-26"
+    }
+  ],
+  "node_score": null,
+  "index_aics": null,
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}
