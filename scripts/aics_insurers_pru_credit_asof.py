@@ -123,6 +123,17 @@ def parse_pru_credit(original_xml: bytes) -> dict:
         "nonaccrual_no_related_allowance_change_millions": now - previous,
         "nonaccrual_no_related_allowance_change_pct": percent(
             now - previous, previous),
+        # A narrowly scoped observed subset: loans on non-accrual status
+        # WITHOUT related credit-loss allowance.  Dividing it by all reported
+        # commercial mortgage and other loans does NOT measure total NPL,
+        # issuer default probability, or AI private-credit exposure.
+        "nonaccrual_without_acl_over_reported_net_loans_pct_proxy": {
+            prior: percent(previous, loan[prior]),
+            current: percent(now, loan[current])},
+        "nonaccrual_without_acl_share_change_percentage_points": str((
+            Decimal(now) * 100 / Decimal(loan[current])
+            - Decimal(previous) * 100 / Decimal(loan[prior])
+        ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
         "all_nonaccrual_loans_total_millions": None,
         "private_credit_exposure_millions": None,
         "ai_related_loan_exposure_millions": None,
