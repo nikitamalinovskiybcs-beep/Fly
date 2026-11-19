@@ -37,6 +37,8 @@ on:
       - 'tests/test_aics_research_safety.py'
       - 'tests/test_aics_reconcile_company_universe.py'
       - 'scripts/aics_reconcile_company_universe.py'
+      - 'scripts/aics_collect_public_chain_sec_filings.py'
+      - 'tests/test_aics_collect_public_chain_sec_filings.py'
       - 'aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json'
       - 'aics_data/research/spydell_telegram_nvidia_circular_financing_claims_2026-11-18.json'
       - '.github/workflows/aics-evidence.yml'
@@ -81,6 +83,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_aics_ai_equities_symbol_directory.py' -v
           python -m unittest discover -s tests -p 'test_aics_extended_company_universe.py' -v
           python -m unittest discover -s tests -p 'test_aics_reconcile_company_universe.py' -v
+          python -m unittest discover -s tests -p 'test_aics_collect_public_chain_sec_filings.py' -v
       - name: Audit complete 37-company OMI/Telegram research-chain scope
         run: |
           python -m scripts.aics_reconcile_company_universe --out aics_data/research/aics_full_37_company_scope.json
@@ -194,6 +197,7 @@ jobs:
           scripts/aics_ten_stage_receipt.py
           scripts/aics_audit_ai_equities_action_pit.py
           scripts/aics_collect_ai_equities_symbol_directory.py
+          scripts/aics_collect_public_chain_sec_filings.py
       - name: Collect SEC submissions and FRED candidate rows
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
@@ -234,6 +238,14 @@ jobs:
       - name: Independently rehash original exchange files and seven current symbols
         if: always()
         run: python -m scripts.aics_collect_ai_equities_symbol_directory --mode audit --out aics_data/source_evidence/ai_equities_directory_live
+      - name: Capture SEC submissions originals for nine public AI-chain issuers
+        if: always()
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: python -m scripts.aics_collect_public_chain_sec_filings --mode collect --out aics_data/source_evidence/public_chain_sec_live
+      - name: Independently rehash nine SEC originals and enforce eligible filed plus 14 days
+        if: always()
+        run: python -m scripts.aics_collect_public_chain_sec_filings --mode audit --out aics_data/source_evidence/public_chain_sec_live
       - name: Require complete and explicitly unverified source acquisition
         if: always()
         run: |
@@ -254,6 +266,7 @@ jobs:
           equities=load('source_evidence/ai_equities_live/prospective_rehash_receipt.json')
           actions=load('source_evidence/ai_equities_live/action_pit_gap_report.json')
           directory=load('source_evidence/ai_equities_directory_live/rehash_receipt.json')
+          issuersec=load('source_evidence/public_chain_sec_live/rehash_receipt.json')
           assert len(live.get('results', [])) == 10, 'Missing SEC/FRED source manifest'
           assert all(s.get('status') == 'downloaded_unverified' for s in live['results']), 'Source download failed'
           assert lq.get('total', 0) > 0 and lq.get('passed') == lq['total'], 'Source quality gate blocked'
@@ -281,6 +294,10 @@ jobs:
           assert directory.get('historical_constituency_attested') is False
           assert directory.get('corporate_actions_pit_attested') is False
           assert directory.get('index_aics') is None and directory.get('promotion') == 'BLOCKED'
+          assert issuersec.get('original_sec_issuers_rehashed') == 9
+          assert issuersec.get('historical_pit_attested') is False
+          assert issuersec.get('node_stress_scores') is None and issuersec.get('index_aics') is None
+          assert issuersec.get('promotion') == 'BLOCKED'
           assert all(s.get('status') in ('PASS', 'BLOCKED') for s in receipt['stages'])
           with open(Path('/dev/stdout'),'w') as output:
               print('PASS: 10 SEC/FRED and 6 XBRL source candidates acquired and validated.',file=output)
@@ -296,6 +313,7 @@ jobs:
             aics_data/xbrl/
             aics_data/source_evidence/ai_equities_live/
             aics_data/source_evidence/ai_equities_directory_live/
+            aics_data/source_evidence/public_chain_sec_live/
             aics_data/research/node_coverage.json
             aics_data/research/readiness_report.json
             aics_data/research/ten_stage_receipt.json

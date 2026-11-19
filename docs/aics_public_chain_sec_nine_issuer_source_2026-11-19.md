@@ -1,0 +1,11 @@
+# SEC original submissions for nine public participants in the 37-name NVIDIA chain
+
+**Nine public issuer candidates, not nine verified counterparty relationships:** NVDA, MSFT, GOOGL, AMZN, META, ORCL, MU, AMD, AVGO. The first seven are the unchanged Nasdaq price research roster, while AMD and Broadcom/AVGO are **PDF-listed semiconductor equity research names**. The broader full 37-name chain (26 OMI + 11 Telegram-only) remains separately reconciled in AICS Master. These nine are not a substitute for 37 issuer reports or contract proof.
+
+Source: original [SEC company submissions JSON](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data), per-issuer CIK. Collection saves unaltered bytes with SHA-256, CIK, SEC ticker mapping, retrieval timestamp, and eligible **recent-filing metadata** within a declared 730-day research window. Eligible means only that the observed filing date plus 14 calendar days was no later than the capture cutoff; recently filed material is excluded. 8-K item markers are **possible human review leads**, not proof that a split, dividend, corporate action or legally drawn financing took place. The source is an API snapshot today, not guaranteed unchanged prior historical SEC vintages. Historical filing appendix coverage is not asserted.
+
+The independent local verification reads *each of the nine original bytes again*, rehashes and recomputes all eligible filing metadata without trusting the collector's JSON summary. It blocks altered SHA, masquerading CIK/ticker, mismatched source metadata, future as-of, or false historical/PIT claims.
+
+No dollar exposures, adjusted-price histories, constituent membership, independent model score or aggregate AICS is calculated. The full 37-company contagion risk remains research only and cannot be inferred from nine public listings. Original files reside in a temporary Actions artifact (30-day retention); lawful long-term source retention and signed contracts are separate tasks.
+
+Model invariants: 11 nodes, total weights 1050; all SEC inputs embargoed 14 days, revised FRED requires ALFRED vintages, no look-ahead/backfill/synthetic rows, no independent 24m OOS, 0/11 independently certified, **index N/A**.
