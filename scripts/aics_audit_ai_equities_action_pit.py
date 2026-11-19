@@ -21,8 +21,13 @@ FACETS = ("corporate_action_history", "security_identity_history",
 SCHEMA = "aics-ai-equities-historical-action-evidence-v1"
 HASH_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 MAX_DOCUMENT_BYTES = 8_000_000
-PRIMARY_HOSTS = ("www.nasdaq.com", "www.nasdaqtrader.com", "nasdaqtrader.com",
-                 "data.nasdaq.com", "www.sec.gov", "sec.gov", "www.nyse.com")
+SOURCE_HOSTS = {
+    "SEC_EDGAR": ("www.sec.gov", "sec.gov"),
+    "NASDAQ_DAILY_LIST": ("www.nasdaqtrader.com", "nasdaqtrader.com"),
+    "EXCHANGE_BULLETIN": ("www.nasdaqtrader.com", "nasdaqtrader.com",
+                          "www.nasdaq.com", "www.nyse.com"),
+}
+SEC_ARCHIVE_PATH = re.compile(r"^/Archives/edgar/data/[0-9]+/[0-9]+/[^/]+$", re.I)
 REGISTRY_PATH = Path("aics_data/source_registry/ai_equities_action_pit_registry_2026-11-19.json")
 OUT_PATH = Path("aics_data/research/ai_equities_action_pit_gap_report.json")
 
@@ -76,12 +81,19 @@ def audit_action_registry(registry_path: Path, *, out_path: Path | None = None) 
         if row.get("licensed_for_model_use") is not False:
             raise ValueError("Uncleared provider rights cannot be auto-approved")
         source = row.get("source")
-        if source not in ("NASDAQ_DAILY_LIST", "NASDAQ_DAILY_LIST_SPEC",
-                          "SEC_EDGAR", "EXCHANGE_BULLETIN"):
+        if source == "NASDAQ_DAILY_LIST_SPEC":
+            raise ValueError("Format specification is a source lead, not historical action evidence")
+        if source not in SOURCE_HOSTS:
             raise ValueError("Unsupported primary source class")
         url = urlparse(row.get("url", ""))
-        if url.scheme != "https" or url.hostname not in PRIMARY_HOSTS:
-            raise ValueError("Untrusted or non-HTTPS original source")
+        if url.scheme != "https" or url.hostname not in SOURCE_HOSTS[source]:
+            raise ValueError("Untrusted, mislabeled or non-HTTPS original source")
+        if source == "SEC_EDGAR":
+            if not SEC_ARCHIVE_PATH.fullmatch(url.path):
+                raise ValueError("SEC original requires an accession-specific archive document")
+        elif (url.path in ("", "/") or url.path.lower() == "/trader.aspx"
+              or url.path.lower().startswith("/products/data/")):
+            raise ValueError("Exchange source portal is not an original dated event")
         release = _timestamp(row.get("published_at_utc"))
         capture = _timestamp(row.get("retrieved_at_utc"))
         if release > capture or capture > dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=5):
