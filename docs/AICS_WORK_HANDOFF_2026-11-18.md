@@ -81,6 +81,10 @@ Read direct files and latest GitHub Actions job logs on every session; the above
 - AICS research safety tests, invariant tests, ALFRED metadata gate and SEC source workflows have passed after the targeted fixes; **Phoenix CI still fails on broad repository Ruff lint** (pre-existing unrelated codebase violations). Never report the whole repository's CI green.
 - `aics_data/progress/status.json` stays **22/66 = 33.3% technical**, **0/11 certified**, `index_aics=null`. Do not increase for successfully fetched candidates or for receipt-guard tests.
 
+## Follow-up on 19 November 2026
+
+The [eleven-node source review](aics_observed_nodes_2026-11-19.md) reproduces dated issuer, Federal Reserve and macro observations and reconciles the Telegram transcript to the 37-name roster. The Nscale executed agreement identifies a specific SPV borrower, affiliate guarantor and contractual ceiling. Independent PIT, audited scoring and the 24-month OOS remain open for all eleven nodes.
+
 ## 5. Next tasks, in strict order
 
 1. **Sanity-check repo and tests** on the selected feature branch. Reproduce the progress percentage; identify any mismatch between workboard, branch and latest GitHub Actions. Make reliable CI rather than accumulating green but skipped collection jobs.

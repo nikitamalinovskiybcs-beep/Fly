@@ -14,6 +14,10 @@ on:
     paths:
       - '.github/workflows/aics-master-run.yml'
       - 'scripts/aics_master_pipeline.py'
+      - 'scripts/aics_observed_source_review.py'
+      - 'tests/test_aics_observed_source_review.py'
+      - 'aics_data/source_registry/observed_review_2026-11-19.json'
+      - 'aics_data/research/observed_source_review_2026-11-19.json'
       - 'scripts/aics_pit_research_slice.py'
       - 'scripts/aics_fill_11_nodes_pit.py'
       - 'tests/test_aics_master_pipeline.py'
@@ -188,6 +192,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Reproduce frozen issuer and G.17 observations from dated originals
+        if: github.event_name != 'schedule'
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_observed_source_review --fetch \
+            --originals aics_data/source_evidence/observed_review/originals \
+            --out aics_data/source_evidence/observed_review/report.json
+          cmp aics_data/source_evidence/observed_review/report.json aics_data/research/observed_source_review_2026-11-19.json
       - name: Compile evidence acquisition and audit scripts
         run: >-
           python -m py_compile
@@ -318,6 +331,7 @@ jobs:
             aics_data/source_evidence/ai_equities_live/
             aics_data/source_evidence/ai_equities_directory_live/
             aics_data/source_evidence/public_chain_sec_live/
+            aics_data/source_evidence/observed_review/
             aics_data/research/node_coverage.json
             aics_data/research/readiness_report.json
             aics_data/research/ten_stage_receipt.json

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Reconcile the 37-company OMI/Telegram research universe without score leakage.
 
 All entities and relationships remain research leads. A mention, IR archive,
@@ -16,6 +15,7 @@ from scripts.aics_progress_dashboard import WEIGHTS
 
 REGISTRY = Path("aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json")
 STATUS = Path("aics_data/progress/status.json")
+TELEGRAM_CLAIMS = Path("aics_data/research/spydell_telegram_nvidia_circular_financing_claims_2026-11-18.json")
 OMI = "OMI_PDF"
 TELEGRAM = "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF"
 PDF_SHA256 = "466b8a875752c85e23a41d5e33ad985c44f437ddc5cf801e132310c4e28bff60"
@@ -156,9 +156,9 @@ def audit(data: dict, status: dict) -> dict:
     require(all(r.get("node_stress_score") is None
                 and r.get("independently_certified") is False for r in rows),
             "a research-only node was promoted")
-    for node in by_node:
-        for field in by_node[node]:
-            by_node[node][field].sort()
+    for fields in by_node.values():
+        for names in fields.values():
+            names.sort()
     return {
         "schema_version": "aics-company-source-reconciliation-v1",
         "as_of": status["as_of"],
@@ -182,13 +182,28 @@ def audit(data: dict, status: dict) -> dict:
     }
 
 
+def telegram_membership(companies, claims):
+    """Reconcile the transcript with the fixed company roster, including its recorded alias."""
+    roster = {row["name"] for row in companies}
+    names = [row["name"] for row in claims["extracted_company_names"]]
+    canonical = {"Crusoe Energy" if name == "Crusoe" else name for name in names}
+    require(len(names) == len(canonical), "duplicate Telegram issuer or alias")
+    return {
+        "transcript_names": len(names), "in_fixed_roster": len(canonical & roster),
+        "outside_fixed_roster": sorted(canonical - roster),
+        "alias": {"Crusoe": "Crusoe Energy"},
+    }
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--registry", type=Path, default=REGISTRY)
     p.add_argument("--status", type=Path, default=STATUS)
     p.add_argument("--out", type=Path, default=None)
+    p.add_argument("--telegram", type=Path, default=TELEGRAM_CLAIMS)
     args = p.parse_args()
-    result = audit(json.loads(args.registry.read_text(encoding="utf-8")),
+    registry = json.loads(args.registry.read_text(encoding="utf-8"))
+    result = audit(registry,
                    json.loads(args.status.read_text(encoding="utf-8")))
     output = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
     if args.out is None:

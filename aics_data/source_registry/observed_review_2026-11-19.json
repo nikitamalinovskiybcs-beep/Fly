@@ -1,0 +1,135 @@
+{
+  "evidence_cutoff": "2026-11-18",
+  "review_date": "2026-11-19",
+  "sources": {
+    "nvda_split": {
+      "cik": "1045810",
+      "accession": "0001045810-24-000144",
+      "form": "8-K",
+      "filed_at": "2024-06-07",
+      "available_at": "2024-06-21",
+      "source_page": "https://www.sec.gov/Archives/edgar/data/1045810/000104581024000144/nvda-20240607.htm",
+      "original": {
+        "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581024000144/0001045810-24-000144.txt",
+        "bytes": 166014,
+        "sha256": "249aae37369da9451cc512733ffd65202e8d675cea56dc5e12ad2edf1c7fd010"
+      },
+      "document_type": "8-K",
+      "document_text_sha256": "09ea10fc06c73c00b583eb1a279392a57fb2594a0679211e91fd840d6dc06061"
+    },
+    "nscale": {
+      "cik": "2110365",
+      "accession": "0001193125-26-395475",
+      "form": "S-1",
+      "filed_at": "2026-09-18",
+      "available_at": "2026-10-02",
+      "source_page": "https://www.sec.gov/Archives/edgar/data/2110365/000119312526395475/ck0002110365-ex10_24.htm",
+      "original": {
+        "url": "https://www.sec.gov/Archives/edgar/data/2110365/000119312526395475/0001193125-26-395475.txt",
+        "bytes": 64469423,
+        "sha256": "b56c25775e3f7e3637f91380d25a02927c713d30675ba31c43fc67efafbb70e9"
+      },
+      "document_type": "EX-10.24",
+      "document_text_sha256": "b7d2dd391a2c843f58ea84d17b664f934af3350e1e5361e1672aa3b9891657df"
+    },
+    "msft": {
+      "cik": "789019",
+      "accession": "0001193125-26-436133",
+      "form": "10-Q",
+      "filed_at": "2026-10-28",
+      "available_at": "2026-11-11",
+      "source_page": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436133/msft-20260930.htm",
+      "original": {
+        "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436133/0001193125-26-436133.txt",
+        "bytes": 24310972,
+        "sha256": "ffccb87dda210fd462f177077620c3a15436b4aabf9ee8ff6f2baf0b929ead82"
+      },
+      "document_type": "10-Q",
+      "document_text_sha256": "76263a34384fd20237018552f0750d888b455c03fa1906d018063f8effd43c84"
+    },
+    "apld": {
+      "cik": "1144879",
+      "accession": "0001144879-26-000059",
+      "form": "10-Q",
+      "filed_at": "2026-10-07",
+      "available_at": "2026-10-21",
+      "source_page": "https://www.sec.gov/Archives/edgar/data/1144879/000114487926000059/apld-20260831.htm",
+      "original": {
+        "url": "https://www.sec.gov/Archives/edgar/data/1144879/000114487926000059/0001144879-26-000059.txt",
+        "bytes": 11978648,
+        "sha256": "9404416c3a0df6f5190c0dd461d0a07e856a2890821f7531fe51eef7d21dc4b5"
+      },
+      "document_type": "10-Q",
+      "document_text_sha256": "e436879ccb55884f679fa43d886720615f757579d4c2dfd4bd101153807163c7"
+    },
+    "orcl": {
+      "cik": "1341439",
+      "accession": "0001193125-26-389274",
+      "form": "10-Q",
+      "filed_at": "2026-09-11",
+      "available_at": "2026-09-25",
+      "source_page": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/orcl-20260831.htm",
+      "original": {
+        "url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/0001193125-26-389274.txt",
+        "bytes": 10806151,
+        "sha256": "78399754d5b5f49d693606da359985811d1f53ae349b9850383886261e92d559"
+      },
+      "document_type": "10-Q",
+      "document_text_sha256": "4bb691351942599b2f9eadcd4f3e8734eb4db7ab0d24e37c6bfb9510e7e0875e"
+    },
+    "pru": {
+      "cik": "1137774",
+      "accession": "0001137774-26-000221",
+      "form": "10-Q",
+      "filed_at": "2026-11-04",
+      "available_at": "2026-11-18",
+      "source_page": "https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/pru-20260930.htm",
+      "original": {
+        "url": "https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/0001137774-26-000221.txt",
+        "bytes": 56649032,
+        "sha256": "49947c62bc026ff11df94e2c157ac67c18a073c7ec2f4e87f95f7c1645d59b41"
+      },
+      "document_type": "10-Q",
+      "document_text_sha256": "82e0dff4a16a095626ad12b4882f35a405041578d63aca98e2584cdaded08a81"
+    },
+    "nvda_q1": {
+      "cik": "1045810",
+      "accession": "0001045810-26-000052",
+      "form": "10-Q",
+      "filed_at": "2026-05-20",
+      "available_at": "2026-06-03",
+      "source_page": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000052/nvda-20260426.htm",
+      "original": {
+        "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000052/0001045810-26-000052.txt",
+        "bytes": 7515560,
+        "sha256": "fd15a270c0b4ebbfcec982749f940b5cf703e2571e10bd74bc484f233cc68b67"
+      },
+      "document_type": "10-Q",
+      "document_text_sha256": "36619d451425b583b85af0d49e5816421bc1356c0a54c2d7bcdd3300e4b08921"
+    },
+    "nvda_q2": {
+      "cik": "1045810",
+      "accession": "0001045810-26-000075",
+      "form": "10-Q",
+      "filed_at": "2026-08-26",
+      "available_at": "2026-09-09",
+      "source_page": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+      "original": {
+        "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/0001045810-26-000075.txt",
+        "bytes": 9044060,
+        "sha256": "27de5f3a6af821a4cfc029811cf4a5724c0f71d63d6d7892abc8ab7d0a959e07"
+      },
+      "document_type": "10-Q",
+      "document_text_sha256": "7af2287613013674988cf13c95ed085ecaa53a44f18df0c609bb06aef3d11177"
+    },
+    "fed_3344": {
+      "release_date": "2026-11-17",
+      "source_page": "https://www.federalreserve.gov/releases/G17/20261117/table2_sup.htm",
+      "original": {
+        "url": "https://www.federalreserve.gov/releases/G17/20261117/g17_sup.txt",
+        "bytes": 108375,
+        "sha256": "60ae363efb0c7a601409e44bb3701ba159960cf8e23df3914b3bb54264bf4b8c"
+      }
+    }
+  }
+}
