@@ -1,6 +1,11 @@
 name: AICS AI Equities prospective Nasdaq security directory originals
 on:
   workflow_dispatch:
+  # Prospective observations only. GitHub scheduled jobs run on default branch.
+  # 03:35 UTC Tue-Sat follows the previous US trading day; holidays may
+  # produce stale source dates and MUST fail closed, never be backfilled.
+  schedule:
+    - cron: '35 3 * * 2-6'
   push:
     branches:
       - 'devin/1779618014-quant-risk-framework'
@@ -56,6 +61,8 @@ jobs:
               print(f"- {s['filename']}: original raw SHA256 {s['sha256']}, {s['bytes']} bytes")
           for s in x["observed_securities"]:
               print(f"- {s['symbol']}: {s['directory']} / {s['market_code']}, current snapshot ONLY")
+          print(f"Prospective original capture UTC: {x['captured_at_utc']} (not provider release timestamp)")
+          assert x["scope"]=="PROSPECTIVE_CURRENT_DIRECTORY_NOT_HISTORICAL_MEMBERSHIP"
           print("Current listing snapshot cannot prove historical stock universe or corporate actions.")
           PY
       - name: Preserve original Nasdaq listing text and SHA256 receipt
