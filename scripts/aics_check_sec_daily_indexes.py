@@ -21,6 +21,7 @@ def main():
     destination = Path("sec-index-evidence")
     destination.mkdir(exist_ok=True)
     receipts = []
+    missing = []
     for day in sorted({item[0] for item in FILINGS}):
         filed = date.fromisoformat(day)
         filename = "master." + filed.strftime("%Y%m%d") + ".idx"
@@ -34,13 +35,18 @@ def main():
         for _, cik, form, accession in (item for item in FILINGS if item[0] == day):
             path = f"edgar/data/{cik}/{accession}.txt"
             matches = [row for row in rows if len(row) == 5 and row[0] == cik
-                       and row[2:] == [form, day, path]]
+                       and row[2] == form and row[3].replace("-", "") == filed.strftime("%Y%m%d")
+                       and row[4].strip() == path]
             if len(matches) != 1:
-                raise ValueError(f"{accession} matched {len(matches)} daily index records")
+                missing.append(accession)
+                print(filename, accession, [row for row in rows if accession in "|".join(row)][:3], flush=True)
+                continue
             receipts.append(dict(accession=accession, index_url=url, row=matches[0],
                                  sha256=hashlib.sha256(raw).hexdigest(),
                                  available_at=(filed + timedelta(days=14)).isoformat()))
     (destination / "matches.json").write_text(json.dumps(receipts, indent=2) + "\n")
+    if missing:
+        raise ValueError(f"Daily index match missing or ambiguous: {missing}")
 
 
 if __name__ == "__main__":
