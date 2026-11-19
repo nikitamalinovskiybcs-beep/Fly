@@ -114,13 +114,28 @@ def fetch_original(url: str, agent: str, opener=urlopen) -> bytes:
     return data
 
 
-def archive(out: Path, sources: dict[str, bytes], as_of: dt.date) -> dict:
+def archive(out: Path, sources: dict[str, bytes], as_of: dt.date,
+            retrieved_at_utc: dict[str, str] | None = None) -> dict:
     if as_of < AVAILABLE:
         raise SourceError("SEC +14 embargo: source not yet eligible")
     if set(sources) != set(DOCUMENTS):
         raise SourceError("Both independent SEC pages required")
     out = out.resolve()
     rows = []
+    captured = retrieved_at_utc or {
+        kind: dt.datetime.now(dt.timezone.utc).isoformat() for kind in DOCUMENTS
+    }
+    if set(captured) != set(DOCUMENTS):
+        raise SourceError("Missing original SEC retrieval timestamps")
+    for value in captured.values():
+        try:
+            moment = dt.datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except (TypeError, ValueError, AttributeError) as exc:
+            raise SourceError("Invalid retrieval timestamp") from exc
+        if (moment.tzinfo is None or moment.utcoffset() is None
+                or moment.date() < AVAILABLE
+                or moment > dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=5)):
+            raise SourceError("Missing timezone or invalid source capture chronology")
     raw_dir = out / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
     for kind in DOCUMENTS:
@@ -137,6 +152,7 @@ def archive(out: Path, sources: dict[str, bytes], as_of: dt.date) -> dict:
             "form": "S-1", "accession": "0001193125-26-395475",
             "issuer_cik": "2110365", "filed_at": FILING.isoformat(),
             "available_at": AVAILABLE.isoformat(),
+            "retrieved_at_utc": captured[kind],
             "archived_retrospectively": True,
             "independently_attested_historical_release_time": False,
         })
@@ -178,15 +194,51 @@ def archive(out: Path, sources: dict[str, bytes], as_of: dt.date) -> dict:
 
 
 def verify_archive(out: Path, manifest: dict) -> None:
-    if (manifest.get("source_count") != 2 or manifest.get("index_aics") is not None
+    if (manifest.get("schema_version") != "aics-nscale-ward-two-sec-originals-v1"
+            or manifest.get("source_count") != 2
+            or manifest.get("original_sec_html_rehashed_now") != 2
+            or dt.date.fromisoformat(manifest.get("as_of", "")) < AVAILABLE
+            or manifest.get("borrower") != "Nscale Ward County Borrower SPV, LLC"
+            or manifest.get("affiliate_guarantor") != "Nscale Ward County, LLC"
+            or manifest.get("limited_parent_guarantees_described") is not True
+            or manifest.get("parent_guaranteed_amount_usd") is not None
+            or manifest.get("fixed_delayed_draw_commitment_usd") != FIXED
+            or manifest.get("floating_delayed_draw_commitment_usd") != FLOATING
+            or manifest.get("facility_commitment_ceiling_usd") != LIMIT
+            or manifest.get("actual_drawn_principal_usd") is not None
+            or manifest.get("effective_economic_recourse_usd") is not None
+            or manifest.get("other_nscale_nc_commitment_ceiling_usd") != 1_200_000_000
+            or manifest.get("distinct_two_facility_commitment_ceiling_sum_usd") != 3_050_000_000
+            or manifest.get("cross_facility_debt_sum_usd") is not None
+            or manifest.get("source_pit_independently_attested") is not False
+            or manifest.get("independent_24m_oos") is not False
+            or manifest.get("index_aics") is not None
             or manifest.get("spv_node_score") is not None
             or manifest.get("promotion") != "BLOCKED"
-            or manifest.get("actual_drawn_principal_usd") is not None):
-        raise SourceError("Archive attempted model promotion")
+            or manifest.get("trades_created") is not False):
+        raise SourceError("Archive attempted financial/PIT promotion or original figures changed")
     rows = manifest.get("source_receipts")
     if not isinstance(rows, list) or len(rows) != 2:
         raise SourceError("SEC inventory missing")
     for row, kind in zip(rows, DOCUMENTS):
+        if (row.get("source_id") != kind
+                or row.get("form") != "S-1"
+                or row.get("accession") != "0001193125-26-395475"
+                or row.get("issuer_cik") != "2110365"
+                or row.get("filed_at") != FILING.isoformat()
+                or row.get("available_at") != AVAILABLE.isoformat()
+                or row.get("archived_retrospectively") is not True
+                or row.get("independently_attested_historical_release_time") is not False):
+            raise SourceError("Original issuer chronology or evidence status changed")
+        stamp = row.get("retrieved_at_utc")
+        try:
+            moment = dt.datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+        except (TypeError, ValueError, AttributeError) as exc:
+            raise SourceError("Invalid SEC capture timestamp") from exc
+        if (moment.tzinfo is None or moment.utcoffset() is None
+                or moment.date() < AVAILABLE
+                or moment > dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=5)):
+            raise SourceError("SEC capture timestamp chronology invalid")
         path = Path(row["raw_path"]).resolve()
         if not path.is_relative_to((out.resolve() / "raw")) or not path.is_file():
             raise SourceError("Archive path outside source evidence")
@@ -203,8 +255,12 @@ def main() -> int:
     args = p.parse_args()
     try:
         agent = os.getenv("AICS_SEC_USER_AGENT") or os.getenv("EDGAR_IDENTITY") or ""
-        data = {kind: fetch_original(url, agent) for kind, url in DOCUMENTS.items()}
-        report = archive(args.out, data, args.as_of)
+        data = {}
+        retrieved = {}
+        for kind, url in DOCUMENTS.items():
+            data[kind] = fetch_original(url, agent)
+            retrieved[kind] = dt.datetime.now(dt.timezone.utc).isoformat()
+        report = archive(args.out, data, args.as_of, retrieved_at_utc=retrieved)
         verify_archive(args.out, report)
     except (OSError, ValueError, TypeError, KeyError, UnicodeError) as exc:
         print(json.dumps({"status": "BLOCKED", "error_type": type(exc).__name__}))
