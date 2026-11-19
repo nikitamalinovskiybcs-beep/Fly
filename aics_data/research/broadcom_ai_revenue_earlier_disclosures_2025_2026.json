@@ -1,0 +1,57 @@
+{
+  "issuer": "Broadcom",
+  "scope": "Issuer-reported AI revenue in semiconductor commentary. Dollar amounts retained only at source precision. Null indicates no point value extracted from this disclosure.",
+  "continuation": "broadcom_ai_semiconductor_revenue_2026_q2_q3.json",
+  "records": [
+    {
+      "fiscal_quarter": "2025Q1",
+      "filed_at": "2025-03-06",
+      "available_at": "2025-03-20",
+      "actual_rounded_usd_bn": 4.1,
+      "actual_strict_lower_bound_usd_bn": null,
+      "reported_yoy_pct": 77,
+      "next_quarter_guidance_usd_bn": 4.4,
+      "source": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000009/avgo-02022025x8kxex99.htm"
+    },
+    {
+      "fiscal_quarter": "2025Q2",
+      "filed_at": "2025-06-05",
+      "available_at": "2025-06-19",
+      "actual_rounded_usd_bn": null,
+      "actual_strict_lower_bound_usd_bn": 4.4,
+      "reported_yoy_pct": 46,
+      "next_quarter_guidance_usd_bn": 5.1,
+      "source": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000061/avgo-05042025x8kxex99.htm"
+    },
+    {
+      "fiscal_quarter": "2025Q3",
+      "filed_at": "2025-09-04",
+      "available_at": "2025-09-18",
+      "actual_rounded_usd_bn": 5.2,
+      "actual_strict_lower_bound_usd_bn": null,
+      "reported_yoy_pct": 63,
+      "next_quarter_guidance_usd_bn": 6.2,
+      "source": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000094/avgo-08032025x8kxex99.htm"
+    },
+    {
+      "fiscal_quarter": "2025Q4",
+      "filed_at": "2025-12-11",
+      "available_at": "2025-12-25",
+      "actual_rounded_usd_bn": null,
+      "actual_strict_lower_bound_usd_bn": null,
+      "reported_yoy_pct": 74,
+      "next_quarter_guidance_usd_bn": 8.2,
+      "source": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000116/avgo-11022025x8kxex99.htm"
+    },
+    {
+      "fiscal_quarter": "2026Q1",
+      "filed_at": "2026-03-04",
+      "available_at": "2026-03-18",
+      "actual_rounded_usd_bn": 8.4,
+      "actual_strict_lower_bound_usd_bn": null,
+      "reported_yoy_pct": 106,
+      "next_quarter_guidance_usd_bn": 10.7,
+      "source": "https://www.sec.gov/Archives/edgar/data/1730168/000173016826000011/avgo-02012026x8kxex99.htm"
+    }
+  ]
+}
