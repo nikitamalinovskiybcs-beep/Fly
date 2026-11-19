@@ -81,6 +81,33 @@ class TestThreeBDCGenuineQuarterPanel(unittest.TestCase):
         with self.assertRaises(ComparisonError):
             build(*vals,dt.date(2026,11,19))
 
+    def test_valid_looking_q1_exhibit_digest_swap_blocks(self):
+        vals = receipts()
+        vals[3]["source_periods"][0]["original_file_sha256"]["exhibit"] = "0" * 64
+        with self.assertRaisesRegex(ComparisonError, "pinned"):
+            build(*vals, dt.date(2026, 11, 19))
+
+    def test_q2_document_length_swap_blocks(self):
+        vals = receipts()
+        vals[3]["source_periods"][1]["original_file_bytes"]["exhibit"] += 1
+        with self.assertRaisesRegex(ComparisonError, "pinned"):
+            build(*vals, dt.date(2026, 11, 19))
+
+    def test_q1_sec_exhibit_url_substitution_blocks(self):
+        vals = receipts()
+        vals[3]["source_periods"][0]["exhibit_url"] = (
+            "https://www.sec.gov/Archives/edgar/data/1736035/"
+            "000121390026000000/another-exhibit.htm"
+        )
+        with self.assertRaisesRegex(ComparisonError, "pinned"):
+            build(*vals, dt.date(2026, 11, 19))
+
+    def test_valid_looking_source_zip_digest_swap_blocks(self):
+        vals = receipts()
+        vals[3]["source_archive_zip_sha256"] = "1" * 64
+        with self.assertRaisesRegex(ComparisonError, "unsafe"):
+            build(*vals, dt.date(2026, 11, 19))
+
     def test_sec_embargo_tampering_blocks(self):
         vals = receipts()
         vals[3]["source_periods"][1]["available_at"]="2026-08-06"
