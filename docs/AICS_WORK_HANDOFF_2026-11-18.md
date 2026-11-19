@@ -109,6 +109,16 @@ The [eleven-node source review](aics_observed_nodes_2026-11-19.md) reproduces da
 - We have additionally verified one original S-1 contains the 40 schedules and the DFS guaranty but the source was **retrieved retrospectively in November**; it does NOT establish independently archived September feed delivery. Certified PIT/OOS and the AICS score remain **BLOCKED**. Technical milestone count remains **22/66**.
 - Next meaningful work: obtain actual facility draws (exact legal borrower, as-of date, source document) and documentary guarantee recourse limits; do not derive debt balance from signed ceilings or future lease rents.
 
+## 19 November 2026 — Nscale S-1 actual historical drawn-debt discoveries
+
+- Replayed the exact previously SHA-rehashed September 18 2026 SEC Nscale S-1. **Important advancement:** unlike the Ward/NC ceilings-only discoveries, this document reports historical *actual* borrowing for other legal borrowers:
+  - `Nscale Services UK Ltd`, its *separate GPU Financing Facility*: **about $58.9m term loans drawn and outstanding as of March 31 2026**; about $1.4bn delayed-draw commitments still available. Do not assign either amount to Ward County or North Carolina.
+  - `Nscale Global Holdings Limited`, *Macquarie Senior Facility*: **$70.1m drawn August 1 2025**, **$34.9m drawn January 30 2026**; **$105m historical utilizations**, NOT current outstanding balance; the facility includes a loan and LC component.
+  - **Nscale consolidated debt carrying value $137.4m as of June 30 2026**. This is a distinct balance-sheet measure, **not** incremental to either historical utilization or to the DFS rental schedules.
+- ALL three observations first pass AICS SEC `filed_at + 14 calendar days` on **2026-10-02**. Historical observation dates are NEVER source publication timestamps or grounds for backdating. Ward and NC *actual drawings* remain unknown/null. Do not add the three amounts, $3.05bn Ward+NC ceilings, or $2.54bn DFS rent.
+- New reproducible `scripts/aics_audit_nscale_drawn_debt_s1.py` + `tests/test_aics_audit_nscale_drawn_debt_s1.py`, source-linked GitHub original SEC capture [successful run 44477086023](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44477086023). Original ZIP artifact **14506871907** was downloaded and independently SHA-rehashed outside Actions: ZIP **`eb51c5549d21624e27e634fc081167fa256b0506a05c3585fd66666c7371739f`**, replay JSON SHA256 **`3d1bd7c373017c86b58129d008b748fa66a209a8ec1b329f042b50bfe42a6c14`**. Detailed durable digest `aics_data/research/nscale_s1_historical_draws_original_rehash_2026-11-19.json`.
+- No independent archived original release-time PIT, current Ward/NC drawings, enforceable parent guarantee amounts or untouched OOS. **22/66 technical milestones; 0/11 independently attested PIT/certified nodes; `index_aics=null`** remain. Next useful source research: date-specific drawdown schedules, principal repayments, legal-entity recourse for Ward/NC; otherwise proceed to Neoclouds/AI Equities historical PIT.
+
 ## 5. Next tasks, in strict order
 
 1. **Sanity-check repo and tests** on the selected feature branch. Reproduce the progress percentage; identify any mismatch between workboard, branch and latest GitHub Actions. Make reliable CI rather than accumulating green but skipped collection jobs.
