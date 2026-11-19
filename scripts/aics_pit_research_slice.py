@@ -64,6 +64,8 @@ def slice_research_records(records: Iterable[Mapping], eval_date: str) -> list[d
         if source == "SEC":
             filed = _date(record.get("filed_at"), "filed_at")
             available = _date(record.get("available_at"), "available_at")
+            if obs > filed:
+                raise PITRecordError("SEC observation date follows the filing date")
             if available != filed + dt.timedelta(days=14):
                 raise PITRecordError("SEC available_at must equal filed_at + 14 calendar days")
             if filed > cutoff or available > cutoff:

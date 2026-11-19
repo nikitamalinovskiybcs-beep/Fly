@@ -8,6 +8,7 @@ import argparse
 import datetime as dt
 import json
 import math
+import re
 from pathlib import Path
 
 WEIGHTS = {"Private Credit":150,"Insurers":125,"UST 30Y":125,
@@ -45,6 +46,11 @@ def evaluate(data):
         if not isinstance(evidence,dict) or not evidence.get("source_uri") or not evidence.get("source_sha256"):
             errors.append("missing_source_evidence:"+name)
             continue
+        if not isinstance(evidence["source_sha256"], str) or not re.fullmatch(
+            r"[0-9a-fA-F]{64}", evidence["source_sha256"]
+        ):
+            errors.append("invalid_source_sha256:" + name)
+            continue
         try:
             available=dt.date.fromisoformat(evidence["available_at"])
             filed=dt.date.fromisoformat(evidence["filed_at"]) if evidence.get("source_type")=="SEC" else None
@@ -54,7 +60,7 @@ def evaluate(data):
         if cutoff is None or available>cutoff:
             errors.append("future_unavailable:"+name)
             continue
-        if filed is not None and available < filed+dt.timedelta(days=14):
+        if filed is not None and available != filed + dt.timedelta(days=14):
             errors.append("sec_embargo_violation:"+name)
             continue
         if evidence.get("independently_verified_pit") is not True:

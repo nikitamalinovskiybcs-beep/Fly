@@ -99,6 +99,16 @@ class TestSuppliedV120PITIntegrity(unittest.TestCase):
         with self.assertRaises(PITRecordError):
             slice_research_records([record], "2025-11-18")
 
+    def test_filing_cannot_report_a_later_observed_period(self):
+        record = {
+            "source": "SEC", "node_id": "SPV", "metric_id": "liability",
+            "entity": "EXAMPLE", "observation_date": "2025-11-03",
+            "filed_at": "2025-11-01", "available_at": "2025-11-15",
+            "value": 1.0,
+        }
+        with self.assertRaises(PITRecordError):
+            slice_research_records([record], "2025-11-18")
+
     def test_unsupported_source_and_nan_fail_closed(self):
         record = {
             "source": "SEC", "node_id": "SPV", "metric_id": "liability",

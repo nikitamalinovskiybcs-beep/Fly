@@ -1,4 +1,5 @@
 """Policy tests only: artificial unit-test fixtures, NOT market observations."""
+import hashlib
 import importlib.util
 from pathlib import Path
 import unittest
@@ -12,7 +13,7 @@ def fixture():
     return {"as_of":"2026-11-18","nodes":{
         name:{"score":50,"evidence":{
             "source_uri":"https://example.invalid/test-fixture",
-            "source_sha256":"unit-test-only",
+            "source_sha256":hashlib.sha256(b"unit-test-only").hexdigest(),
             "available_at":"2026-11-01",
             "independently_verified_pit":True,
             "score_method_version":"test-only",
@@ -44,8 +45,22 @@ class GateTests(unittest.TestCase):
     def test_sec_fourteen_day_embargo(self):
         x=fixture()
         ev=x["nodes"]["Insurers"]["evidence"]
-        ev.update(source_type="SEC",filed_at="2026-10-30",available_at="2026-11-10")
-        self.assertIn("sec_embargo_violation:Insurers",module.evaluate(x)["errors"])
+        ev.update(source_type="SEC", filed_at="2026-10-30")
+        for available_at, valid in (("2026-11-12", False), ("2026-11-13", True),
+                                    ("2026-11-14", False)):
+            with self.subTest(available_at=available_at):
+                ev["available_at"] = available_at
+                result = module.evaluate(x)
+                self.assertEqual("sec_embargo_violation:Insurers" not in result["errors"], valid)
+                self.assertEqual(result["index_aics"] is not None, valid)
+
+    def test_nonempty_malformed_hash_is_rejected(self):
+        x = fixture()
+        x["nodes"]["Repo"]["evidence"]["source_sha256"] = "unit-test-only"
+        result = module.evaluate(x)
+        self.assertIn("invalid_source_sha256:Repo", result["errors"])
+        self.assertIsNone(result["index_aics"])
+
     def test_unverified_source_fails(self):
         x=fixture()
         x["nodes"]["Repo"]["evidence"]["independently_verified_pit"]=False

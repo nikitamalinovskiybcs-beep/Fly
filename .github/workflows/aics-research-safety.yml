@@ -2,31 +2,17 @@ name: AICS research safety tests
 on:
   pull_request:
     paths:
-      - 'scripts/aics_validate_evidence.py'
-      - 'scripts/aics_validate_xbrl.py'
-      - 'scripts/aics_audit_node_coverage.py'
-      - 'scripts/aics_research_readiness.py'
-      - 'scripts/aics_ten_stage_receipt.py'
-      - 'scripts/aics_collect_alfred_pit.py'
-      - 'scripts/aics_validate_alfred_pit.py'
-      - 'scripts/aics_pit_coverage_report.py'
-      - 'tests/test_aics_research_safety.py'
-      - 'tests/test_aics_extended_company_universe.py'
-      - 'tests/test_aics_reconcile_company_universe.py'
-      - 'scripts/aics_validate_sec_rehash_receipt.py'
-      - 'tests/test_aics_validate_sec_rehash_receipt.py'
-      - 'scripts/aics_validate_alfred_macro_rehash.py'
-      - 'tests/test_aics_validate_alfred_macro_rehash.py'
-      - 'aics_data/research/alfred_macro_archive_rehash_2026_11_18.json'
-      - 'aics_data/research/sec_primary_archive_independent_rehash_2026_11_18.json'
-      - 'scripts/aics_reconcile_company_universe.py'
-      - 'aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json'
+      - 'scripts/aics_*.py'
+      - 'scripts/test_aics_index.py'
+      - 'tests/test_aics*.py'
+      - 'aics_data/**'
       - '.github/workflows/aics-research-safety.yml'
   push:
     branches:
       - 'devin/1779618014-quant-risk-framework'
     paths:
       - 'scripts/aics_*.py'
+      - 'scripts/test_aics_index.py'
       - 'tests/test_aics_*.py'
       - 'aics_data/research/**'
       - 'aics_data/progress/**'
@@ -45,37 +31,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Compile evidence and research scripts
-        run: python -m py_compile scripts/aics_validate_evidence.py scripts/aics_validate_xbrl.py scripts/aics_audit_node_coverage.py scripts/aics_research_readiness.py scripts/aics_ten_stage_receipt.py scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py scripts/aics_pit_coverage_report.py tests/test_aics_research_safety.py
-      - name: Compile insurer SEC + IR evidence collectors
-        run: python -m py_compile scripts/aics_collect_insurers_sec.py scripts/aics_verify_insurers_sec_evidence.py scripts/aics_collect_priority_ir.py scripts/aics_archive_arcc_primary_sources.py scripts/aics_progress_dashboard.py
-      - name: Compile SPV and Neoclouds original-SEC source collector
-        run: python -m py_compile scripts/aics_collect_spv_neocloud_sec.py
-      - name: Verify descriptive CoreWeave 2026Q3 source-to-metric arithmetic and SEC 14-day embargo
-        run: python -m unittest discover -s tests -p test_aics_coreweave_ir_research.py -v
-      - name: Validate real Nebius credit facility terms and SEC availability
-        run: python -m unittest discover -s tests -p test_aics_nebius_credit_facility_research.py -v
-      - name: Test SPV/Neoclouds primary SEC filing embargo and source hashing
-        run: python -m unittest discover -s tests -p test_aics_collect_spv_neocloud_sec.py -v
-      - name: Test Insurers long-history SEC accession integrity
-        run: python -m unittest discover -s tests -p 'test_aics_collect_insurers_sec.py' -v
-      - name: Test official IR archive integrity
-        run: python -m unittest discover -s tests -p 'test_aics_collect_priority_ir.py' -v
-      - name: Test project progress anti-fabrication gates
-        run: python -m unittest discover -s tests -p 'test_aics_progress_dashboard.py' -v
-      - name: Compile OMI source archive and test code
-        run: python -m py_compile scripts/aics_archive_omi_policy_pdf.py tests/test_aics_omi_brace_impact_research.py tests/test_aics_omi_pdf_archive.py
-      - name: Audit OMI contagion report research-only 11-node gate
-        run: python -m unittest discover -s tests -p test_aics_omi_brace_impact_research.py -v
-      - name: Test OMI PDF original-byte archival safeguards
-        run: python -m unittest discover -s tests -p test_aics_omi_pdf_archive.py -v
-      - name: Test user Telegram screenshot claims against explicit SEC source semantics
-        run: python -m unittest discover -s tests -p test_aics_telegram_spydell_claim_intake.py -v
-      - name: Audit all 37 OMI/Telegram candidates with original source separation
+      - name: Run complete offline AICS regression suite and formula invariants
         run: |
-          python -m unittest discover -s tests -p test_aics_extended_company_universe.py -v
-          python -m unittest discover -s tests -p test_aics_reconcile_company_universe.py -v
-          python -m scripts.aics_reconcile_company_universe --out aics_data/source_evidence/omi_telegram_company_reconciliation.json
+          python -m py_compile scripts/aics_*.py tests/test_aics*.py
+          python -m unittest discover -s tests -p 'test_aics*.py'
+          python -m unittest discover -s scripts -p 'test_aics_index.py'
+      - name: Reconcile the frozen OMI and Telegram company universe
+        run: python -m scripts.aics_reconcile_company_universe --out aics_data/source_evidence/omi_telegram_company_reconciliation.json
       - name: Archive research-only company reconciliation with no numerical AICS
         uses: actions/upload-artifact@v4
         with:
@@ -86,15 +48,11 @@ jobs:
       - name: Check independently pinned SEC raw receipt lineage and real candidate arithmetic
         run: |
           python -m py_compile scripts/aics_validate_sec_rehash_receipt.py
-          python -m unittest discover -s tests -p test_aics_validate_sec_rehash_receipt.py -v
           python -m scripts.aics_validate_sec_rehash_receipt
       - name: Validate real ALFRED macro snapshot receipt and licensed series quarantine
         run: |
           python -m py_compile scripts/aics_validate_alfred_macro_rehash.py
-          python -m unittest discover -s tests -p test_aics_validate_alfred_macro_rehash.py -v
           python -m scripts.aics_validate_alfred_macro_rehash
-      - name: Run offline fail-closed tests
-        run: python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
   ir-source-capture:
     runs-on: ubuntu-latest
     timeout-minutes: 8
