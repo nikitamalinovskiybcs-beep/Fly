@@ -58,6 +58,35 @@ class TestDirectoryCapture(unittest.TestCase):
             self.assertFalse(rehash["historical_pit_attested"])
             self.assertIsNone(rehash["index_aics"])
 
+    def test_current_nasdaq_originals_external_rehash_receipt_not_historical(self):
+        p=Path("aics_data/research/ai_equities_2026_11_19_nasdaq_current_directory_rehash.json")
+        x=json.loads(p.read_text(encoding="utf-8"))
+        self.assertEqual(x["github_workflow_run_id"],44496860842)
+        self.assertEqual(x["github_artifact_id"],14516045430)
+        self.assertEqual(x["downloaded_zip_sha256"],
+                         "4df22b44e845a036801ad36702e86b90f0e6e7233533c4f80a5732850dae5a55")
+        self.assertTrue(x["zip_crc_check_passed"])
+        self.assertEqual(x["original_source_bytes_rehashed_independently_outside_actions"],2)
+        sources=x["original_directories"]
+        self.assertEqual([r["filename"] for r in sources], list(FILENAMES))
+        self.assertEqual([(r["bytes"],r["sha256"]) for r in sources], [
+            (348385,"5cda84ca84660408ecfcda5af7e8f8e8c5a519e754f33ad5a96d17f86e708b83"),
+            (544575,"3cc52144bcd516be7dad8b668d91b84ff6b56751d5fdf78d74c6e08284d69234")])
+        self.assertEqual([r["symbol"] for r in x["current_research_securities"]],list(RESEARCH_SYMBOLS))
+        self.assertEqual(sum(r["directory"]=="nasdaqlisted.txt"
+                             for r in x["current_research_securities"]),6)
+        self.assertEqual(sum(r["directory"]=="otherlisted.txt"
+                             for r in x["current_research_securities"]),1)
+        self.assertFalse(x["historical_security_identity_attested"])
+        self.assertFalse(x["historical_basket_constituency_attested"])
+        self.assertFalse(x["original_file_generation_time_is_verified_utc"])
+        self.assertFalse(x["provider_license_approved"])
+        self.assertEqual(x["new_project_milestones_credited"],0)
+        self.assertEqual(x["aics_total_technical_milestones_completed"],22)
+        self.assertIsNone(x["node_stress_score"])
+        self.assertIsNone(x["index_aics"])
+        self.assertEqual(x["promotion"],"BLOCKED")
+
     def test_raw_bytes_modified_after_capture_fail(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);m=self.setup_capture(root)
