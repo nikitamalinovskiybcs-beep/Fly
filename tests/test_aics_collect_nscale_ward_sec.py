@@ -104,6 +104,33 @@ class TestNscaleWardSEC(unittest.TestCase):
             with self.assertRaisesRegex(SourceError, "receipt mismatch"):
                 verify_archive(root, report)
 
+    def test_timestamp_provenance_is_utc_offset_aware(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            report = archive(root, samples(), dt.date(2026, 11, 19))
+            self.assertIn("retrieved_at_utc", report["source_receipts"][0])
+            changed = copy.deepcopy(report)
+            changed["source_receipts"][0]["retrieved_at_utc"] = "2026-09-20T00:00:00Z"
+            with self.assertRaisesRegex(SourceError, "chronology"):
+                verify_archive(root, changed)
+            changed = copy.deepcopy(report)
+            changed["source_receipts"][0]["retrieved_at_utc"] = "2026-11-19T06:24:00"
+            with self.assertRaisesRegex(SourceError, "chronology"):
+                verify_archive(root, changed)
+
+    def test_filing_identity_and_lag_not_alterable_in_manifest(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            report = archive(root, samples(), dt.date(2026, 11, 19))
+            for k,v in (("issuer_cik","0000000"),("accession","0001193125-26-395476"),
+                        ("available_at","2026-09-19"),("filed_at","2026-09-17"),
+                        ("archived_retrospectively",False)):
+                with self.subTest(field=k):
+                    changed = copy.deepcopy(report)
+                    changed["source_receipts"][1][k] = v
+                    with self.assertRaisesRegex(SourceError, "chronology|status"):
+                        verify_archive(root, changed)
+
     def test_contact_required_url_and_redirect_fail_closed(self):
         url = DOCUMENTS["ward_ex10_23"]
         with self.assertRaises(SourceError):
@@ -125,6 +152,11 @@ class TestNscaleWardSEC(unittest.TestCase):
             report = archive(root, samples(), dt.date(2026, 11, 19))
             for field,value in (("index_aics",503),("spv_node_score",70),
                                 ("actual_drawn_principal_usd",1_850_000_000),
+                                ("parent_guaranteed_amount_usd",1_850_000_000),
+                                ("effective_economic_recourse_usd",630_000_000),
+                                ("cross_facility_debt_sum_usd",3_050_000_000),
+                                ("distinct_two_facility_commitment_ceiling_sum_usd",3_800_000_000),
+                                ("source_pit_independently_attested",True),
                                 ("promotion","CERTIFIED")):
                 with self.subTest(field=field):
                     changed = copy.deepcopy(report)
