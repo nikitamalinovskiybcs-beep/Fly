@@ -9,6 +9,8 @@ on:
       - 'tests/test_aics_collect_nscale_ward_sec.py'
       - 'scripts/aics_audit_nscale_dfs_s1.py'
       - 'tests/test_aics_audit_nscale_dfs_s1.py'
+      - 'scripts/aics_audit_nscale_drawn_debt_s1.py'
+      - 'tests/test_aics_audit_nscale_drawn_debt_s1.py'
       - 'aics_data/research/nscale_ward_original_sec_independent_rehash_2026-11-19.json'
       - '.github/workflows/aics-nscale-ward-original-sec.yml'
 permissions:
@@ -59,6 +61,47 @@ jobs:
           print("## DFS source-linked obligations: 40 executed schedules")
           print("$2.54bn approximate initial-term rent including $34.8m financing charges.")
           print("This is not drawn GPU principal and cannot be added to $3.05bn facility ceilings.")
+          PY
+      - name: Replay Nscale historical draws and June debt from authentic original S-1
+        run: |
+          python -m unittest discover -s tests -p test_aics_audit_nscale_drawn_debt_s1.py -v
+          python -m scripts.aics_audit_nscale_drawn_debt_s1 \
+            --directory aics_data/source_evidence/nscale_ward_primary \
+            --as-of 2026-11-19 \
+            --out aics_data/source_evidence/nscale_ward_primary/drawn_debt_research.json
+      - name: Reject borrower conflation or date leakage of Nscale actual drawn data
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("aics_data/source_evidence/nscale_ward_primary/drawn_debt_research.json")
+          x=json.loads(p.read_text(encoding="utf-8"))
+          f=x["disclosure_facts"]
+          gpu=f["gpu_financing_facility"]
+          mac=f["macquarie_senior_facility"]
+          group=f["consolidated_nscale_debt"]
+          assert gpu["borrower"]=="Nscale Services UK Ltd"
+          assert gpu["observation_as_of"]=="2026-03-31"
+          assert gpu["drawn_and_outstanding_term_loans_usd_approx"]==58900000
+          assert mac["borrower"]=="Nscale Global Holdings Limited"
+          assert mac["first_utilization"]=={"date":"2025-08-01","usd":70100000}
+          assert mac["second_utilization"]=={"date":"2026-01-30","usd":34900000}
+          assert mac["historical_utilizations_sum_usd"]==105000000
+          assert group["observation_as_of"]=="2026-06-30"
+          assert group["gaap_total_debt_carrying_value_usd"]==137400000
+          assert x["sec_available_at"]=="2026-10-02"
+          assert x["reporting_dates_are_not_sec_available_at"]
+          assert x["ward_county_gpu_facility_drawn_principal_usd"] is None
+          assert x["north_carolina_gpu_facility_drawn_principal_usd"] is None
+          assert x["total_2026_11_spv_outstanding_usd"] is None
+          assert x["cross_facility_additive_amount_usd"] is None
+          assert not x["independent_historical_pit_attested"]
+          assert x["spv_node_score"] is None and x["index_aics"] is None
+          print("## Nscale primary original: genuine historical utilization and carrying figures")
+          print("GPU Services UK: $58.9m drawn/outstanding at 2026-03-31.")
+          print("Macquarie: $70.1m on 2025-08-01 and $34.9m on 2026-01-30.")
+          print("Consolidated debt carrying: $137.4m on 2026-06-30.")
+          print("No present-day Ward/NC draw or additive exposure; source SEC +14 available 2026-10-02.")
           PY
       - name: Require original bytes and no model promotion
         run: |
