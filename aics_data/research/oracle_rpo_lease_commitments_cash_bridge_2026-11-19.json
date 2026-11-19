@@ -1,0 +1,104 @@
+{
+  "schema_version": "aics-orcl-primary-10q-rpo-capital-commitments-cash-bridge-v1",
+  "as_of": "2026-11-19",
+  "source_scope": "Original SEC 10-Q dated August 31, 2026, filed September 11; all comparative facts available only as of this eligible filing for this analysis",
+  "units": "USD millions for cash and contractual schedule; USD billions for long-term RPO and future leases",
+  "source": {
+    "issuer": "Oracle Corporation",
+    "cik": "1341439",
+    "form": "10-Q",
+    "accession": "0001193125-26-389274",
+    "period_end": "2026-08-31",
+    "filed_at": "2026-09-11",
+    "sec_available_at_plus_14": "2026-09-25",
+    "primary_document_url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/orcl-20260831.htm",
+    "full_sec_original_url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/0001193125-26-389274.txt",
+    "existing_repository_original_full_submission_sha256": "78399754d5b5f49d693606da359985811d1f53ae349b9850383886261e92d559",
+    "existing_repository_original_full_submission_bytes": 10806151,
+    "source_registry_path": "aics_data/source_registry/observed_review_2026-11-19.json",
+    "source_review": "SEC primary HTML manually reviewed for exact cash flow, Note 1, Note 6, and MD&A. Archived full-original sha was independently pinned previously, but these additional extracted tables have NOT undergone separate original-byte replay."
+  },
+  "rpo": {
+    "as_of_aug_2026_bn": 664,
+    "as_of_aug_2025_comparative_in_2026_filing_bn": 455,
+    "comparable_increase_bn": 209,
+    "comparable_increase_pct": 45.93,
+    "expected_recognition_pct": {
+      "months_1_to_12": 13,
+      "months_13_to_36": 37,
+      "months_37_to_60": 34,
+      "thereafter": 16
+    },
+    "approx_expected_recognition_bn": {
+      "months_1_to_12": 86.32,
+      "months_13_to_36": 245.68,
+      "months_37_to_60": 225.76,
+      "thereafter": 106.24
+    },
+    "approx_expected_after_first_12_months_bn": 577.68,
+    "expected_longer_than_12_months_pct": 87,
+    "note": "Management's expected recognition of customer obligations, not collected cash, unconditional customer deposits, AI-specific revenue, or guaranteed realization. Dollar values mechanically derived from approximate percentages."
+  },
+  "capital_and_supply_commitments": {
+    "unrecognized_additional_future_lease_commitments_bn": 288,
+    "lease_primarily": "Data center arrangements",
+    "expected_start": "Fiscal 2027 Q2 through fiscal 2029",
+    "contract_terms_years": "15 to 19",
+    "recognized_operating_lease_liability_m": 34621,
+    "recognized_finance_lease_liability_m": 9185,
+    "recognized_total_lease_liability_m": 43806,
+    "recognized_lease_liabilities_are_discounted_present_value": true,
+    "undiscounted_current_operating_lease_payments_m": 48050,
+    "undiscounted_current_finance_lease_payments_m": 15195,
+    "undiscounted_current_total_lease_payments_m": 63245,
+    "unconditional_purchase_and_other_commitments_m": 34150,
+    "purchase_commitment_schedule_m": {
+      "remainder_fiscal_2027": 5449,
+      "fiscal_2028": 6176,
+      "fiscal_2029": 3863,
+      "fiscal_2030": 4318,
+      "fiscal_2031": 6768,
+      "fiscal_2032": 954,
+      "thereafter": 6622
+    },
+    "note": "$288bn future lease commitments not recognized in current lease liabilities or disclosed maturities. Purchase obligations primarily component/power supply. These contract buckets must not be indiscriminately added; overlap and time bases differ."
+  },
+  "cash_bridge_fiscal_2027_q1": {
+    "period": "three months ended 2026-08-31",
+    "net_cash_provided_by_operating_activities_m": 23103,
+    "customer_prepayments_with_significant_financing_component_cash_flow_line_m": 11363,
+    "prepayments_pct_of_reported_cfo": 49.18,
+    "cfo_less_specific_customer_prepayments_mechanical_m": 11740,
+    "capital_expenditures_cash_used_m": 28499,
+    "reported_free_cash_flow_m": -5396,
+    "reported_cfo_less_cash_capex_reconciliation_m": -5396,
+    "capex_pct_of_cfo": 123.36,
+    "mechanical_cfo_less_prepayment_and_capex_m": -16759,
+    "equity_atm_net_proceeds_financing_cash_flow_m": 19909,
+    "prior_year_q1_cfo_m": 8140,
+    "prior_year_q1_cash_capex_m": 8502,
+    "prior_year_q1_fcf_m": -362,
+    "unpaid_capital_expenditures_non_cash_disclosure_m": 6247,
+    "note": "$11,363m is embedded IN GAAP CFO; do not add to CFO or RPO. CFO less this specific item is only arithmetic sensitivity, NOT recalculated GAAP CFO or recurring cash generation. $19,909m ATM is financing cash flow, NOT revenue. Unpaid capex $6,247m is noncash disclosure and must not be added to paid capex as if already disbursed."
+  },
+  "node_attribution": {
+    "AI_Demand": "Observed company-wide signed remaining performance obligations only; not AI-only",
+    "Power_Data_Centers": "Future data-center lease commitments and long-dated purchase/power obligations",
+    "Hyperscalers": "Oracle is not a constituent of project 4-issuer hyperscaler CFO basket; do not change basket by inserting these numbers",
+    "SPV": "Lease commitments are Oracle obligor disclosure, not independently confirmed SPV draw/parent recourse",
+    "Semiconductors_Supply": "Purchase contracts may include components, cannot attribute dollar amount to silicon"
+  },
+  "limits": {
+    "historical_provider_pit_independently_attested": false,
+    "dec_2025_or_aug_2025_comparative_is_an_earlier_source_vintage": false,
+    "untouched_24_month_oos": false,
+    "no_synthetic_market_rows": true,
+    "certified_node_scores": 0,
+    "index_aics": null,
+    "trade_signal_generated": false,
+    "model_promotion": "BLOCKED",
+    "milestones_completed": 22,
+    "milestones_total": 66,
+    "total_weights_unchanged": 1050
+  }
+}
