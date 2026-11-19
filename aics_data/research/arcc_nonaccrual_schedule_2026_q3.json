@@ -1,0 +1,266 @@
+{
+  "filing": "https://www.sec.gov/Archives/edgar/data/1287750/000162828026067383/arcc-20260930.htm",
+  "filing_sha256": "27d3ee6339192e58fd4691e33a3ddec093c41b93d688346350c483f1a4a742a2",
+  "workflow_run": 44531914040,
+  "artifact_id": 14533827058,
+  "as_of": "2026-09-30",
+  "available_at": "2026-11-10",
+  "unit": "USD million",
+  "selection": "September schedule through footnote (8); rows containing (8) and InvestmentOwnedAtCost paired with InvestmentOwnedAtFairValue. Zero-based HTML table and row offsets.",
+  "records": [
+    {
+      "table": 18,
+      "row": 2,
+      "cost": "43.1",
+      "fair_value": "18.1",
+      "context": "c-262"
+    },
+    {
+      "table": 26,
+      "row": 12,
+      "cost": "25.9",
+      "fair_value": "12.4",
+      "context": "c-489"
+    },
+    {
+      "table": 26,
+      "row": 13,
+      "cost": "44.4",
+      "fair_value": "21.8",
+      "context": "c-490"
+    },
+    {
+      "table": 26,
+      "row": 17,
+      "cost": "15.8",
+      "fair_value": "14.2",
+      "context": "c-494"
+    },
+    {
+      "table": 27,
+      "row": 2,
+      "cost": "77.0",
+      "fair_value": "52.0",
+      "context": "c-511"
+    },
+    {
+      "table": 27,
+      "row": 10,
+      "cost": "3.5",
+      "fair_value": "1.9",
+      "context": "c-519"
+    },
+    {
+      "table": 27,
+      "row": 11,
+      "cost": "40.1",
+      "fair_value": "21.7",
+      "context": "c-520"
+    },
+    {
+      "table": 28,
+      "row": 7,
+      "cost": "1.8",
+      "fair_value": "0.2",
+      "context": "c-544"
+    },
+    {
+      "table": 28,
+      "row": 8,
+      "cost": "0.1",
+      "fair_value": "0",
+      "context": "c-545"
+    },
+    {
+      "table": 28,
+      "row": 9,
+      "cost": "0.1",
+      "fair_value": "0",
+      "context": "c-546"
+    },
+    {
+      "table": 29,
+      "row": 15,
+      "cost": "4.1",
+      "fair_value": "2.4",
+      "context": "c-581"
+    },
+    {
+      "table": 30,
+      "row": 5,
+      "cost": "75.5",
+      "fair_value": "59.1",
+      "context": "c-600"
+    },
+    {
+      "table": 35,
+      "row": 25,
+      "cost": "13.9",
+      "fair_value": "0.5",
+      "context": "c-759"
+    },
+    {
+      "table": 37,
+      "row": 2,
+      "cost": "3.0",
+      "fair_value": "2.5",
+      "context": "c-792"
+    },
+    {
+      "table": 37,
+      "row": 3,
+      "cost": "6.1",
+      "fair_value": "5.1",
+      "context": "c-793"
+    },
+    {
+      "table": 37,
+      "row": 4,
+      "cost": "2.3",
+      "fair_value": "1.9",
+      "context": "c-794"
+    },
+    {
+      "table": 37,
+      "row": 5,
+      "cost": "1.3",
+      "fair_value": "1.1",
+      "context": "c-795"
+    },
+    {
+      "table": 37,
+      "row": 23,
+      "cost": "4.4",
+      "fair_value": "0.9",
+      "context": "c-813"
+    },
+    {
+      "table": 37,
+      "row": 24,
+      "cost": "15.5",
+      "fair_value": "3.0",
+      "context": "c-814"
+    },
+    {
+      "table": 42,
+      "row": 10,
+      "cost": "12.8",
+      "fair_value": "10.1",
+      "context": "c-943"
+    },
+    {
+      "table": 42,
+      "row": 11,
+      "cost": "28.5",
+      "fair_value": "22.2",
+      "context": "c-944"
+    },
+    {
+      "table": 42,
+      "row": 12,
+      "cost": "1.1",
+      "fair_value": "0.8",
+      "context": "c-945"
+    },
+    {
+      "table": 42,
+      "row": 13,
+      "cost": "7.3",
+      "fair_value": "5.7",
+      "context": "c-946"
+    },
+    {
+      "table": 42,
+      "row": 14,
+      "cost": "4.8",
+      "fair_value": "3.9",
+      "context": "c-947"
+    },
+    {
+      "table": 44,
+      "row": 18,
+      "cost": "9.7",
+      "fair_value": "7.3",
+      "context": "c-1009"
+    },
+    {
+      "table": 47,
+      "row": 24,
+      "cost": "12.0",
+      "fair_value": "0.6",
+      "context": "c-1099"
+    },
+    {
+      "table": 50,
+      "row": 23,
+      "cost": "8.5",
+      "fair_value": "0.2",
+      "context": "c-1191"
+    },
+    {
+      "table": 60,
+      "row": 2,
+      "cost": "55.3",
+      "fair_value": "39.1",
+      "context": "c-1421"
+    },
+    {
+      "table": 69,
+      "row": 21,
+      "cost": "33.9",
+      "fair_value": "29.0",
+      "context": "c-1688"
+    },
+    {
+      "table": 70,
+      "row": 3,
+      "cost": "2.6",
+      "fair_value": "1.8",
+      "context": "c-1701"
+    },
+    {
+      "table": 70,
+      "row": 18,
+      "cost": "76.1",
+      "fair_value": "64.0",
+      "context": "c-1716"
+    },
+    {
+      "table": 72,
+      "row": 12,
+      "cost": "30.3",
+      "fair_value": "0",
+      "context": "c-1771"
+    },
+    {
+      "table": 72,
+      "row": 13,
+      "cost": "7.7",
+      "fair_value": "4.1",
+      "context": "c-1772"
+    },
+    {
+      "table": 73,
+      "row": 2,
+      "cost": "37.1",
+      "fair_value": "16.1",
+      "context": "c-1792"
+    },
+    {
+      "table": 73,
+      "row": 3,
+      "cost": "5.5",
+      "fair_value": "2.4",
+      "context": "c-1793"
+    }
+  ],
+  "cost_sum": 711.1,
+  "fair_value_sum": 426.1,
+  "portfolio_cost": 29478,
+  "portfolio_fair_value": 29213,
+  "reported_cost_pct": 2.4,
+  "reported_fair_value_pct": 1.4,
+  "recomputed_cost_pct": 2.412307483547052,
+  "recomputed_fair_value_pct": 1.4585971998767673,
+  "disposition": "Numerator reproduced from line items. Published fair-value percentage denominator or calculation remains unresolved."
+}
