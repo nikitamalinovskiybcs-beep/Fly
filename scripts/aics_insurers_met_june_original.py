@@ -28,12 +28,13 @@ MAX_BYTES = 50_000_000
 OUTPUT = Path("aics_data/source_evidence/insurers_met_june_original")
 
 BALANCE = re.compile(
-    r"Mortgage loans \(net of allowance for credit loss of \$\s*([\d,]+) "
-    r"and \$\s*([\d,]+), respectively; includes \$\s*([\d,]+) "
-    r"and \$\s*([\d,]+), respectively, of mortgage loans held-for-sale\)"
+    r"Mortgage loans \(net of allowance for credit loss of \$\s*([\d,]+)\s+"
+    r"and \$\s*([\d,]+)\s*,\s*respectively; includes \$\s*([\d,]+)\s+"
+    r"and \$\s*([\d,]+)\s*,\s*respectively, of mortgage loans held-for-sale\)"
     r"\s*\$?\s*([\d,]+)\s*\$?\s*([\d,]+)", re.I
 )
-ROW = re.compile(r"\(?-?\d[\d,]*\)?")
+# Real SEC iXBRL text presents parenthesized negatives as '( 33 )'.
+ROW = re.compile(r"\(\s*\d[\d,]*\s*\)|-?\d[\d,]*")
 
 def check_cutoff(as_of: dt.date):
     if as_of != AS_OF:
@@ -75,7 +76,10 @@ def source_metadata(raw: bytes) -> tuple[bytes,str]:
     return selected[0],hashlib.sha256(selected[0]).hexdigest()
 
 def number(v:str)->int:
-    return int(v.replace(",","").replace("(","-").replace(")",""))
+    v=v.strip()
+    if v.startswith("(") and v.endswith(")"):
+        return -int(v[1:-1].replace(",","").strip())
+    return int(v.replace(",",""))
 
 def pct(a:int,b:int)->str:
     if b <= 0: raise ValueError("Nonpositive financial base")
