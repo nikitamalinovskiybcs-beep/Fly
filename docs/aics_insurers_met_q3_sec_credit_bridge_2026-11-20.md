@@ -21,7 +21,7 @@ Amounts in **USD millions**. The Q3 source is the original [consolidated balance
 | Residential-mortgage ACL | 235 | 268 | +33 |
 | Descriptive ACL / (net mortgages + ACL) proxy | 1.61% | 1.78% | **+0.17 percentage point** |
 
-The Q3 document itself reports *nine months* of ACL **provision 546** and *net charge-offs 218**, versus the independent eligible Q2 report's **six-month provision 316** and *net charge-offs 151*. The incremental third-quarter bridge is **provision 230**, **net charge-offs 67**, and exactly **1,358 + 230 − 67 = 1,521**. Nine-month independent within-filing reconciliation: **1,193 + 546 − 218 = 1,521**. Q3 commercial mortgage ACL accounts for **74.10%** of total ending mortgage ACL. These reserve movements are not observed default probabilities.
+The Q3 document itself reports *nine months* of ACL **provision 546** and **net charge-offs 218**, versus the independent eligible Q2 report's **six-month provision 316** and *net charge-offs 151*. The incremental third-quarter bridge is **provision 230**, **net charge-offs 67**, and exactly **1,358 + 230 − 67 = 1,521**. Nine-month independent within-filing reconciliation: **1,193 + 546 − 218 = 1,521**. Q3 commercial mortgage ACL accounts for **74.10%** of total ending mortgage ACL. These reserve movements are not observed default probabilities.
 
 ## What the aligned September dates do and do not establish
 
