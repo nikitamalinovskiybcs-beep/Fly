@@ -1,0 +1,63 @@
+name: AICS Nscale Ward County original SEC exhibits
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_nscale_ward_sec.py'
+      - 'tests/test_aics_collect_nscale_ward_sec.py'
+      - '.github/workflows/aics-nscale-ward-original-sec.yml'
+permissions:
+  contents: read
+jobs:
+  ward-sec-originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test exhibit and S-1 text, SEC +14 and fail-closed evidence
+        run: |
+          python -m py_compile scripts/aics_collect_nscale_ward_sec.py
+          python -m unittest discover -s tests -p test_aics_collect_nscale_ward_sec.py -v
+      - name: Re-download both exact SEC Ward County original HTML pages
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_collect_nscale_ward_sec \
+            --as-of 2026-11-19 \
+            --out aics_data/source_evidence/nscale_ward_primary
+      - name: Require original bytes and no model promotion
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          from scripts.aics_collect_nscale_ward_sec import verify_archive
+          root=Path("aics_data/source_evidence/nscale_ward_primary")
+          x=json.loads((root/"manifest.json").read_text(encoding="utf-8"))
+          verify_archive(root,x)
+          assert x["original_sec_html_rehashed_now"]==2
+          assert x["facility_commitment_ceiling_usd"]==1850000000
+          assert x["fixed_delayed_draw_commitment_usd"]==630000000
+          assert x["floating_delayed_draw_commitment_usd"]==1220000000
+          assert x["actual_drawn_principal_usd"] is None
+          assert x["parent_guaranteed_amount_usd"] is None
+          assert x["cross_facility_debt_sum_usd"] is None
+          assert not x["source_pit_independently_attested"]
+          assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+          print("## Nscale Ward County: genuine SEC originals, research only")
+          for row in x["source_receipts"]:
+              print(f"- {row['source_id']}: {row['bytes']} raw bytes, SHA256 {row['sha256']}, SEC+14 {row['available_at']}")
+          print("Two separately signed facility limits total $3.05bn, NOT drawn debt, guarantees or AICS.")
+          PY
+      - name: Preserve exact original SEC HTML and SHA256 receipt (30 days)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-nscale-ward-ex10-23-and-s1-originals
+          path: aics_data/source_evidence/nscale_ward_primary/
+          retention-days: 30
+          if-no-files-found: warn
