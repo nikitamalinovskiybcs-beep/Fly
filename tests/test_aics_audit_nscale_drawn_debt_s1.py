@@ -43,6 +43,41 @@ class TestNscaleS1HistoricalDrawnFacts(unittest.TestCase):
         self.assertIsNone(mac["outstanding_on_review_date_usd"])
         self.assertIsNone(group["current_2026_11_balance_usd"])
 
+    def test_permanent_separately_rehashed_sec_artifact_receipt(self):
+        import json
+        from pathlib import Path
+
+        p = Path("aics_data/research/nscale_s1_historical_draws_original_rehash_2026-11-19.json")
+        r = json.loads(p.read_text(encoding="utf-8"))
+        self.assertEqual(r["github_workflow_run_id"], 44477086023)
+        self.assertEqual(r["github_workflow_artifact_id"], 14506871907)
+        self.assertTrue(r["rehashed_outside_github_actions"])
+        self.assertTrue(r["zip_crc_test_passed"])
+        self.assertEqual(r["zip_original_sha256"],
+                         "eb51c5549d21624e27e634fc081167fa256b0506a05c3585fd66666c7371739f")
+        self.assertEqual(r["replay_json_sha256"],
+                         "3d1bd7c373017c86b58129d008b748fa66a209a8ec1b329f042b50bfe42a6c14")
+        self.assertEqual(r["source_sec_available_at_plus_14_days"], "2026-10-02")
+        facts = r["original_sec_observed_financing_research"]
+        self.assertEqual(facts["gpu_services_uk_facility"]["approx_drawn_and_outstanding_usd"],
+                         58_900_000)
+        self.assertEqual(facts["gpu_services_uk_facility"]["historical_observation_date"],
+                         "2026-03-31")
+        self.assertEqual(facts["macquarie_senior_facility"]["historical_utilizations_sum_usd"],
+                         105_000_000)
+        self.assertEqual(facts["consolidated_nscale"]["total_debt_carrying_value_usd"],
+                         137_400_000)
+        self.assertFalse(r["cross_facility_amounts_additive"])
+        self.assertFalse(r["historical_observation_date_is_sec_available_at"])
+        self.assertFalse(r["independent_live_time_pit_attested"])
+        self.assertFalse(r["untouched_24_month_oos"])
+        self.assertEqual(r["synthetic_rows"], 0)
+        for k in ("ward_county_spv_drawn_amount_usd", "north_carolina_spv_drawn_amount_usd",
+                  "aggregate_current_spv_exposure_usd", "independently_validated_spv_node_score",
+                  "index_aics"):
+            self.assertIsNone(r[k], k)
+        self.assertEqual(r["promotion"], "BLOCKED")
+
     def test_forged_gpu_drawn_number_or_lending_identity_fail_closed(self):
         for wrong in ("$59.9 million", "$1.5 billion", "have been promised"):
             with self.subTest(value=wrong):
