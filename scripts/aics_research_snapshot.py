@@ -83,11 +83,16 @@ def capacity_scores():
             "Power/Data Centers": round(100 * (400 - operating) / 400, 2)}
 
 
-if __name__ == "__main__":
+def november_18_scores():
     scores = snapshot()
     scores.update({"Private Credit": credit_breadth(), "Repo": repo_pressure(),
                    "AI Demand": demand_shortfall()})
     scores["Insurers"] = insurer_credit_share()
     scores.update(capacity_scores())
+    return scores
+
+
+if __name__ == "__main__":
+    scores = november_18_scores()
     print(json.dumps({"as_of": CUTOFF.isoformat(), "research_scores": scores,
                       "certified": False, "index_aics": None}, indent=2))
