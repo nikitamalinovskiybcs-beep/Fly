@@ -32,8 +32,8 @@ MET_Q3 = {
 }
 NONACCRUAL = re.compile(
     r"Loans on non-accrual status that did not have a related allowance for "
-    r"credit losses were \\$\\s*([\\d,]+) million and \\$\\s*([\\d,]+) million "
-    r"as of September\\s+30, 2026 and December\\s+31, 2025, respectively",
+    r"credit losses were [$] ([0-9,]+) million and [$] ([0-9,]+) million "
+    r"as of September 30, 2026 and December 31, 2025, respectively",
     flags=re.IGNORECASE,
 )
 
