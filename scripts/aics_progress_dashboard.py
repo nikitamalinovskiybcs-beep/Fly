@@ -99,9 +99,6 @@ def checked_audit_evidence(root, audit, field, prior_nodes):
     for item in entries:
         if not isinstance(item, dict):
             fail("audit milestone must contain an evidence document")
-        name = item.get("node")
-        if name not in WEIGHTS or name in done or name not in prior_nodes:
-            fail("unknown/duplicate/out-of-order audit milestone: " + str(name))
         path = strict_repo_path(root, item.get("evidence_path"))
         digest = item.get("evidence_sha256")
         if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
@@ -110,7 +107,31 @@ def checked_audit_evidence(root, audit, field, prior_nodes):
             fail("audit evidence mismatch")
         # A checksum alone does not make a review independent; this is only a
         # transparent workboard marker. Do not emit an AICS or node score.
-        done.add(name)
+        if "node" in item:
+            names = [item["node"]]
+        else:
+            review = json.loads(path.read_text(encoding="utf-8"))
+            if not isinstance(review, dict) or review.get("schema_version") != "aics-shared-review-v1":
+                fail("invalid shared review document")
+            if review.get("audit_field") != field:
+                fail("shared review is for a different milestone")
+            decisions = review.get("decisions")
+            if not isinstance(decisions, dict) or not decisions:
+                fail("shared review must identify reviewed nodes")
+            names = []
+            for node, decision in decisions.items():
+                if node not in WEIGHTS or not isinstance(decision, dict):
+                    fail("invalid shared review scope")
+                if decision.get("outcome") not in ("passed", "open"):
+                    fail("invalid shared review outcome")
+                if not isinstance(decision.get("basis"), str) or not decision["basis"].strip():
+                    fail("shared review needs a node-specific evidence reference")
+                if decision["outcome"] == "passed":
+                    names.append(node)
+        for name in names:
+            if not isinstance(name, str) or name not in prior_nodes or name in done:
+                fail("unknown/duplicate/out-of-order audit milestone: " + str(name))
+            done.add(name)
     return done
 
 

@@ -1,0 +1,23 @@
+name: AICS shared SEC daily index verification
+on:
+  push:
+    paths:
+      - 'scripts/aics_check_sec_daily_indexes.py'
+      - '.github/workflows/aics-sec-daily-index.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Match research accessions against dated daily indexes
+        env:
+          SEC_IDENTITY: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY }}
+        run: python scripts/aics_check_sec_daily_indexes.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sec-daily-index-evidence
+          path: sec-index-evidence

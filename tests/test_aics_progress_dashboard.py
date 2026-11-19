@@ -1,11 +1,13 @@
 """Strict unit tests for a project-management bar, never synthetic market data."""
+import hashlib
+import tempfile
 import copy
 import json
 import unittest
 from pathlib import Path
 
 from scripts.aics_progress_dashboard import (
-    WEIGHTS, GATES, build, as_markdown, DEFAULT_MANIFEST
+    WEIGHTS, GATES, checked_audit_evidence, build, as_markdown, DEFAULT_MANIFEST
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -16,6 +18,29 @@ def ledger():
 
 
 class TestAICSProgress(unittest.TestCase):
+    def test_joint_review_counts_only_covered_passes(self):
+        field = "independently_pit_attested_nodes"
+        nodes = {"UST 30Y", "Repo"}
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            evidence = root / "review.json"
+            evidence.write_text(json.dumps({
+                "schema_version": "aics-shared-review-v1", "audit_field": field,
+                "decisions": {
+                    "UST 30Y": {"outcome": "passed", "basis": "review section 1"},
+                    "Repo": {"outcome": "open", "basis": "review section 2"},
+                },
+            }), encoding="utf-8")
+            entry = {"evidence_path": evidence.name,
+                     "evidence_sha256": hashlib.sha256(evidence.read_bytes()).hexdigest()}
+            self.assertEqual(checked_audit_evidence(root, {field: [entry]}, field, nodes),
+                             {"UST 30Y"})
+            for entries, prior in [([entry, entry], nodes), ([entry], {"Repo"})]:
+                with self.assertRaises(ValueError):
+                    checked_audit_evidence(root, {field: entries}, field, prior)
+            with self.assertRaises(ValueError):
+                checked_audit_evidence(root, {"other": [entry]}, "other", nodes)
+
     def test_all_11_nodes_and_immutable_weights(self):
         self.assertEqual(len(WEIGHTS), 11)
         self.assertEqual(sum(WEIGHTS.values()), 1050)
