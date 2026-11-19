@@ -46,7 +46,7 @@ def read_scope_table(primary: bytes, day: str) -> dict[str, dict[str, int]]:
                if SCOPE in table and day.encode() in table
                and b"Fixed maturities, available-for-sale" in table
                and b"Fixed maturities, trading" in table
-               and b"Total Level" in table]
+               and b"Total assets" in table]
     if len(matches) != 1:
         raise ValueError("Missing or ambiguous dated PFI Level 3 SEC table")
     table_text = plaintext(matches[0])
