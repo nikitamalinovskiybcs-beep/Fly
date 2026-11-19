@@ -20,7 +20,8 @@ import re
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from scripts.aics_collect_insurers_sec import COLUMNS, INSTANT_US_GAAP_TAGS, ISSUERS
+from scripts.aics_collect_insurers_sec import (COLUMNS, INSTANT_US_GAAP_TAGS, ISSUERS,
+                                            extract_candidates)
 
 EXPECTED_STATUS = "downloaded_unverified"
 
@@ -67,6 +68,10 @@ def verify_bundle(directory: Path, repository_root: Path) -> dict:
         raise ValueError("incomplete insurer source manifest")
     referenced = {}
     verified_file_count = 0
+    decoded_raw = {}
+    replayed_rows = []
+    first_period = (dt.date.fromisoformat(manifest["first_period"])
+                    if manifest.get("first_period") else None)
 
     def check_raw(item: dict) -> str:
         nonlocal verified_file_count
@@ -80,8 +85,14 @@ def verify_bundle(directory: Path, repository_root: Path) -> dict:
                 else repository_root / untrusted).resolve()
         if not path.is_relative_to(directory / "raw") or not path.is_file():
             raise ValueError("SEC source path missing or outside raw directory")
-        if sha_file(path) != checksum or path.stat().st_size != item.get("bytes"):
+        payload = path.read_bytes()
+        if (hashlib.sha256(payload).hexdigest() != checksum
+                or len(payload) != item.get("bytes")):
             raise ValueError("SEC original downloaded byte digest mismatch")
+        parsed = json.loads(payload)
+        if not isinstance(parsed, dict):
+            raise ValueError("SEC original is not an object")
+        decoded_raw[checksum] = parsed
         verified_file_count += 1
         return checksum
 
@@ -103,14 +114,26 @@ def verify_bundle(directory: Path, repository_root: Path) -> dict:
         if not isinstance(history, list):
             raise ValueError("historical index page list malformed")
         history_shas = set()
+        historical_pages = []
         for h in history:
             sha = check_raw(h)
+            historical_pages.append((decoded_raw[sha], sha))
             if sha in history_shas:
                 raise ValueError("duplicated historical SEC source")
             history_shas.add(sha)
             history_count += 1
         if len(history) != item.get("historical_index_pages_downloaded", 0):
             raise ValueError("historical index page count mismatch")
+        replay, _ = extract_candidates(
+            name, decoded_raw[shas["companyfacts"]],
+            decoded_raw[shas["submissions"]], cutoff,
+            shas["companyfacts"], shas["submissions"],
+            first_period=first_period, historical_pages=historical_pages,
+        )
+        if len(replay) != item.get("candidate_observations"):
+            raise ValueError("SEC raw replay differs from issuer candidate count")
+        replayed_rows.extend(replay)
+        decoded_raw.clear()
         referenced[name] = {
             "companyfacts": shas["companyfacts"],
             "submissions": shas["submissions"],
@@ -164,12 +187,15 @@ def verify_bundle(directory: Path, repository_root: Path) -> dict:
         row_count += 1
     if row_count != manifest.get("candidate_observations"):
         raise ValueError("candidate rows count mismatch")
+    if rows != replayed_rows:
+        raise ValueError("research CSV does not exactly replay from archived SEC source JSON")
     return {
         "status": "LOCAL_ARCHIVE_HASHES_VERIFIED_RESEARCH_ONLY",
         "checked_files": verified_file_count,
         "checked_issuers": downloaded,
         "checked_historical_index_pages": history_count,
         "checked_candidate_rows": row_count,
+        "candidate_rows_replayed_from_raw_sec": len(replayed_rows),
         "independently_verified_pit": False,
         "insurers_node_score": None,
         "index_aics": None,
