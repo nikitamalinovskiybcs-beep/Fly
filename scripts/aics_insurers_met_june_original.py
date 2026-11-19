@@ -26,6 +26,10 @@ URL = ("https://www.sec.gov/Archives/edgar/data/1099219/"
        "000109921926000050/0001099219-26-000050.txt")
 MAX_BYTES = 50_000_000
 OUTPUT = Path("aics_data/source_evidence/insurers_met_june_original")
+PINNED_FULL_ORIGINAL_BYTES = 42_939_093
+PINNED_FULL_ORIGINAL_SHA256 = "a2b5359da635b89ffb3ab39908538328d52d4dac6099073ffcc4b4636fc3209b"
+PINNED_PRIMARY_DOCUMENT_SHA256 = "363dd1ce87ef01168f4bda0c02c7ad1779f5f3b81d698a3c8e0bb4db6d7638d6"
+
 
 BALANCE = re.compile(
     r"Mortgage loans \(net of allowance for credit loss of \$\s*([\d,]+)\s+"
@@ -146,9 +150,16 @@ def parse_met_primary(primary:bytes)->dict:
         "caveat":"MET mortgage loans include multiple segments and some held-for-sale assets; ACL/net-plus-ACL is an arithmetic proxy, not a comparable PRU reserve-risk ratio.",
     }
 
-def build(raw:bytes,as_of:dt.date=AS_OF)->dict:
+def build(raw:bytes,as_of:dt.date=AS_OF, *,
+          allow_synthetic_test_fixture:bool=False)->dict:
     check_cutoff(as_of)
     primary,primary_sha=source_metadata(raw)
+    if not allow_synthetic_test_fixture and (
+        len(raw)!=PINNED_FULL_ORIGINAL_BYTES
+        or hashlib.sha256(raw).hexdigest()!=PINNED_FULL_ORIGINAL_SHA256
+        or primary_sha!=PINNED_PRIMARY_DOCUMENT_SHA256
+    ):
+        raise ValueError("MET SEC full original or primary document SHA256 differs from independent receipt")
     facts=parse_met_primary(primary)
     return {
         "schema_version":"aics-met-2026q2-original-mortgage-credit-v1",
