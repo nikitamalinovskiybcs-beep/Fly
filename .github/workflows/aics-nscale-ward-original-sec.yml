@@ -7,6 +7,9 @@ on:
     paths:
       - 'scripts/aics_collect_nscale_ward_sec.py'
       - 'tests/test_aics_collect_nscale_ward_sec.py'
+      - 'scripts/aics_audit_nscale_dfs_s1.py'
+      - 'tests/test_aics_audit_nscale_dfs_s1.py'
+      - 'aics_data/research/nscale_ward_original_sec_independent_rehash_2026-11-19.json'
       - '.github/workflows/aics-nscale-ward-original-sec.yml'
 permissions:
   contents: read
@@ -30,6 +33,33 @@ jobs:
           python -m scripts.aics_collect_nscale_ward_sec \
             --as-of 2026-11-19 \
             --out aics_data/source_evidence/nscale_ward_primary
+      - name: Reconcile genuine Nscale DFS rent schedules and guaranty without double counting
+        run: |
+          python -m unittest discover -s tests -p test_aics_audit_nscale_dfs_s1.py -v
+          python -m scripts.aics_audit_nscale_dfs_s1 \
+            --directory aics_data/source_evidence/nscale_ward_primary \
+            --out aics_data/source_evidence/nscale_ward_primary/dfs_lease_research.json
+      - name: Assert DFS research cannot be promoted to funded GPU debt
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("aics_data/source_evidence/nscale_ward_primary/dfs_lease_research.json")
+          x=json.loads(p.read_text(encoding="utf-8"))
+          assert x["payment_schedules_executed"]==40
+          assert x["aggregate_initial_term_rent_usd_approx"]==2540000000
+          assert x["included_financing_charges_usd_approx"]==34800000
+          assert x["guarantor"]=="Nscale Global Holdings Ltd"
+          assert not x["gpu_and_dfs_exposures_safe_to_add"]
+          assert x["cross_instrument_total_exposure_usd"] is None
+          assert x["gpu_facility_actual_drawn_principal_usd"] is None
+          assert x["parent_guaranty_enforceable_amount_usd"] is None
+          assert not x["independent_historical_pit_attested"]
+          assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+          print("## DFS source-linked obligations: 40 executed schedules")
+          print("$2.54bn approximate initial-term rent including $34.8m financing charges.")
+          print("This is not drawn GPU principal and cannot be added to $3.05bn facility ceilings.")
+          PY
       - name: Require original bytes and no model promotion
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
