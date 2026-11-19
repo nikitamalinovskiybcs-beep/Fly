@@ -37,7 +37,7 @@ def doc_record(tmp, *, source="EXCHANGE_BULLETIN"):
     record = {
         "symbol":"NVDA","facet":"corporate_action_history",
         "source":source,
-        "url":"https://www.nasdaqtrader.com/Trader.aspx?id=DailyListPD",
+        "url":"https://www.nasdaqtrader.com/content/marketRegulation/dailylist/2026-11-17.html",
         "published_at_utc":"2026-11-17T12:00:00Z",
         "retrieved_at_utc":"2026-11-18T12:00:00+00:00",
         "coverage_start":"2026-11-01",
@@ -49,7 +49,7 @@ def doc_record(tmp, *, source="EXCHANGE_BULLETIN"):
         "licensed_for_model_use":False,
     }
     if source=="SEC_EDGAR":
-        record["url"]="https://www.sec.gov/Archives/edgar/data/test"
+        record["url"]="https://www.sec.gov/Archives/edgar/data/1234567/000123456726000001/filing.htm"
         record["filed_at"]="2026-11-01"
         record["available_at"]="2026-11-15"
     return record,path
@@ -132,6 +132,48 @@ class TestActionsPIT(unittest.TestCase):
             document=template();document["research_symbols"].remove("MU")
             with self.assertRaisesRegex(ValueError,"roster"):
                 run(Path(d),document)
+
+    def test_format_specification_is_not_evidence_of_an_action(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp=Path(d);row,_=doc_record(tmp,source="NASDAQ_DAILY_LIST_SPEC")
+            document=template();document["original_evidence_records"]=[row]
+            with self.assertRaisesRegex(ValueError,"Format specification"):
+                run(tmp,document)
+
+    def test_exchange_portals_are_not_dated_originals(self):
+        for portal in ("https://www.nasdaqtrader.com/Trader.aspx?id=DailyListPD",
+                       "https://www.nasdaq.com/products/data/equities/corporate-action-solutions",
+                       "https://www.nyse.com/"):
+            with self.subTest(portal=portal), tempfile.TemporaryDirectory() as d:
+                tmp=Path(d);row,_=doc_record(tmp)
+                row["url"]=portal
+                document=template();document["original_evidence_records"]=[row]
+                with self.assertRaisesRegex(ValueError,"portal"):
+                    run(tmp,document)
+
+    def test_sec_search_portal_is_not_an_archived_filing(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp=Path(d);row,_=doc_record(tmp,source="SEC_EDGAR")
+            row["url"]="https://www.sec.gov/edgar/search/"
+            document=template();document["original_evidence_records"]=[row]
+            with self.assertRaisesRegex(ValueError,"accession-specific"):
+                run(tmp,document)
+
+    def test_mislabeled_sec_evidence_host_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp=Path(d);row,_=doc_record(tmp,source="SEC_EDGAR")
+            row["url"]="https://www.nasdaq.com/Archives/edgar/data/1234567/000123456726000001/filing.htm"
+            document=template();document["original_evidence_records"]=[row]
+            with self.assertRaisesRegex(ValueError,"mislabeled"):
+                run(tmp,document)
+
+    def test_mislabeled_nasdaq_daily_list_host_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp=Path(d);row,_=doc_record(tmp,source="NASDAQ_DAILY_LIST")
+            row["url"]="https://www.sec.gov/Archives/edgar/data/1234567/000123456726000001/filing.htm"
+            document=template();document["original_evidence_records"]=[row]
+            with self.assertRaisesRegex(ValueError,"mislabeled"):
+                run(tmp,document)
 
     def test_nonprimary_url_is_rejected(self):
         with tempfile.TemporaryDirectory() as d:
