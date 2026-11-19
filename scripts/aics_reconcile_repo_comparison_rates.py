@@ -31,9 +31,22 @@ def main():
                 raise ValueError("source digest mismatch")
             values = {r["effectiveDate"]: Decimal(str(r["percentRate"]))
                       for r in json.loads(raw)["refRates"] if r["type"] == series}
+            title = {"TGCR": "Tri-Party General Collateral Rate", "BGCR": "Broad General Collateral Rate"}[series]
+            search = "https://api.stlouisfed.org/fred/series/search?" + urlencode(dict(
+                search_text=title, file_type="json", api_key=os.environ["FRED_API_KEY"]))
+            with urlopen(search, timeout=60) as response:
+                catalog = json.load(response)["seriess"]
+            ids = [r["id"] for r in catalog if r["title"].casefold() == title.casefold()
+                   and r["frequency_short"] == "D" and r["units"] == "Percent"]
+            if len(ids) > 1:
+                raise ValueError("ambiguous FRED series match")
             for anchor in panel:
                 day, cutoff = anchor["observation"], anchor["cutoff"]
-                params = dict(series_id=series, observation_start=day, observation_end=day,
+                if not ids:
+                    results.append(dict(series=series, cutoff=cutoff, observation=day,
+                                        status="no_exact_FRED_catalog_match", first_vintage=None))
+                    continue
+                params = dict(series_id=ids[0], observation_start=day, observation_end=day,
                               realtime_start=(date.fromisoformat(day)-timedelta(days=1)).isoformat(),
                               realtime_end=cutoff, file_type="json")
                 base = "https://api.stlouisfed.org/fred/series/observations?"
@@ -41,14 +54,19 @@ def main():
                     body = response.read()
                 versions = sorted((r for r in json.loads(body)["observations"] if r["value"] != "."),
                                   key=lambda r: r["realtime_start"])
-                if not versions or not all(r["date"] == day for r in versions):
+                if not versions:
+                    results.append(dict(series=series, cutoff=cutoff, observation=day, first_vintage=None,
+                                        status="no_value_in_requested_vintage", query=base + urlencode(params),
+                                        sha256=hashlib.sha256(body).hexdigest()))
+                    continue
+                if not all(r["date"] == day for r in versions):
                     raise ValueError(f"missing {series} observation for {day}")
                 latest = versions[-1]
                 rate = Decimal(latest["value"])
                 if not day <= versions[0]["realtime_start"] <= latest["realtime_start"] <= cutoff <= latest["realtime_end"] or rate != values[day]:
                     raise ValueError(f"release or rate mismatch at {cutoff} for {series}")
                 results.append(dict(series=series, cutoff=cutoff, observation=day,
-                                    first_vintage=versions[0]["realtime_start"], rate_percent=str(rate),
+                                    status="matched", first_vintage=versions[0]["realtime_start"], rate_percent=str(rate),
                                     sofr_minus_rate_bp=str(100*(Decimal(anchor["percent"])-rate)),
                                     query=base + urlencode(params), sha256=hashlib.sha256(body).hexdigest()))
     if len({(r["series"], r["cutoff"]) for r in results}) != 48:
