@@ -1,0 +1,88 @@
+{
+  "schema_version": "aics-pru-level3-actual-sec-replay-independent-rehash-v1",
+  "research_cutoff": "2026-11-19",
+  "node": "Insurers",
+  "issuer": "Prudential Financial Inc",
+  "origin": {
+    "sec_accession": "0001137774-26-000221",
+    "filing_date": "2026-11-04",
+    "sec_available_at": "2026-11-18",
+    "form": "10-Q",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/0001137774-26-000221.txt"
+  },
+  "github_action": {
+    "run_id": 44599228632,
+    "run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44599228632",
+    "artifact_id": 14565819612,
+    "artifact_name": "aics-insurers-two-original-sec-q2q3-mixed-cutoff-not-pit",
+    "source_replayer": "scripts/aics_pru_level3_original.py",
+    "frozen_asof": "2026-11-19"
+  },
+  "outside_github_actions_zip_integrity": {
+    "independent_download_and_sha256": true,
+    "zip_size_bytes": 6235782,
+    "zip_sha256": "e26ce80bd4cf0766fe3c2395df8454bb5307242b83856a9a975ddceac7f9de99",
+    "zip_crc_check": "PASS"
+  },
+  "original_pru_full_sec": {
+    "archive_member": "insurers_pru_credit_original/pru.txt",
+    "bytes": 56649032,
+    "sha256": "49947c62bc026ff11df94e2c157ac67c18a073c7ec2f4e87f95f7c1645d59b41"
+  },
+  "result_replay": {
+    "archive_member": "insurers_pru_credit_original/pru_level3_original_replay.json",
+    "bytes": 2069,
+    "sha256": "ec4efd84b8514da50f385f199a69b9c284318de619f2f1d527655cced96507d4",
+    "source_line_reconciliation": "2026-09-30: 12510 private + 1154 public = 13135 AFS + 529 trading = 13664 USDm",
+    "september_private_level3_debt_millions": 12510,
+    "september_public_level3_debt_millions": 1154,
+    "september_total_level3_fixed_maturities_millions": 13664,
+    "december_2025_afs_plus_trading_comparative_millions": 11282,
+    "nine_month_comparative_change_millions": 2382,
+    "nine_month_comparative_change_pct": "21.11",
+    "private_share_of_level3_fixed_maturities_pct": "91.55",
+    "level3_assets_share_of_fair_value_sept_pct": "3.62",
+    "level3_assets_share_of_fair_value_dec_comparative_pct": "3.05"
+  },
+  "other_originals_in_same_zip": {
+    "met_june_full_sec": {
+      "bytes": 42939093,
+      "sha256": "a2b5359da635b89ffb3ab39908538328d52d4dac6099073ffcc4b4636fc3209b"
+    },
+    "met_june_research": {
+      "bytes": 2725,
+      "sha256": "aabdaa0a249081eca466b402e413065371a803902ceea8d3de69393b1b97ac36"
+    },
+    "pru_credit_research": {
+      "bytes": 4377,
+      "sha256": "b9529e643a3a3367348787edefd19050a0019533140aac2e9b2f3d14466bc5ae"
+    },
+    "mixed_insurer_research": {
+      "bytes": 3697,
+      "sha256": "cd6fec9c69607ce8e33ba82cdb82b29b39efa6a37a1179dd8614efc8ce11a0ed"
+    }
+  },
+  "quality_gates": {
+    "original_raw_sha_matches_previously_independently_verified_archive": true,
+    "source_file_hierarchy_is_same_PFI_excluding_Closed_Block_and_Funds_Withheld": true,
+    "source_narrative_private_public_equals_tabular_afs_trading": true,
+    "met_sept_q3_embargoed_until": "2026-11-20",
+    "dec_2025_comparative_not_original_dec_2025_historical_pit": true,
+    "independent_historical_provider_release_attested": false,
+    "private_placement_is_not_all_AI_loans": true,
+    "naic_rbc_not_certified": true,
+    "untouched_24month_oos": false,
+    "insurers_node_stress_score": null,
+    "index_aics": null,
+    "promotion": "BLOCKED",
+    "project_milestones_completed": 22,
+    "project_milestones_total": 66
+  },
+  "limitations": [
+    "Complete original SEC bytes were retrieved in November, not at their November 4 issuer publication timestamp. Rehash and filing date do not prove historical distribution-vintage PIT.",
+    "Level 3 is a fair-value input hierarchy, not an impairment/default or direct AI loan concentration.",
+    "The December 2025 comparative was read from the November 2026 10-Q, so historical availability must not be backdated.",
+    "PFI-excluding-Closed-Block-and-Funds-Withheld is not all-consolidated insurer assets. Other Level 3 tables have distinct legal/GAAP populations.",
+    "Archive is GitHub Actions retention 30 days; only receipts/checksums persist in repo."
+  ]
+}
