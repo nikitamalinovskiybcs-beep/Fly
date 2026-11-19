@@ -1,0 +1,100 @@
+{
+  "schema_version": "aics-insurers-asymmetric-two-sec-originals-independent-rehash-v1",
+  "node": "Insurers",
+  "frozen_as_of": "2026-11-19",
+  "workflow_run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44588952381",
+  "workflow_run_id": 44588952381,
+  "workflow_artifact_id": 14563770502,
+  "workflow_artifact_name": "aics-insurers-two-original-sec-q2q3-mixed-cutoff-not-pit",
+  "artifact_zip_bytes": 6234593,
+  "artifact_zip_sha256": "627ae6220ac0d5ea354c56aca0be7884d49720bdf9216d91483a28cb77a23778",
+  "artifact_zip_crc_check": "PASS",
+  "external_independent_download_and_rehash": true,
+  "originals": [
+    {
+      "issuer": "PRU",
+      "filing": "10-Q",
+      "accession": "0001137774-26-000221",
+      "filed_at": "2026-11-04",
+      "sec_available_at": "2026-11-18",
+      "balance_date": "2026-09-30",
+      "file": "insurers_pru_credit_original/pru.txt",
+      "bytes": 56649032,
+      "sha256": "49947c62bc026ff11df94e2c157ac67c18a073c7ec2f4e87f95f7c1645d59b41",
+      "research_sha256": "f579658604e3a040a501dbe6f6ae353ef1d1e3d43b36e3e497129fc14b572b28"
+    },
+    {
+      "issuer": "MET",
+      "filing": "10-Q",
+      "accession": "0001099219-26-000050",
+      "filed_at": "2026-08-06",
+      "sec_available_at": "2026-08-20",
+      "balance_date": "2026-06-30",
+      "file": "insurers_met_june_original/met_q2_original_full_submission.txt",
+      "bytes": 42939093,
+      "sha256": "a2b5359da635b89ffb3ab39908538328d52d4dac6099073ffcc4b4636fc3209b",
+      "research_sha256": "aabdaa0a249081eca466b402e413065371a803902ceea8d3de69393b1b97ac36"
+    }
+  ],
+  "joint_replay": {
+    "file": "insurers_mixed_original_credit_research.json",
+    "bytes": 3496,
+    "sha256": "5e16f271abafae3ee2ebc826bdd534e9f83ef42561625862f7b7c5ee1448fb7a",
+    "pru_commercial_mortgage_and_other_loans_net_millions": {
+      "2025-12-31": 64715,
+      "2026-09-30": 67004
+    },
+    "pru_acl_millions": {
+      "2025-12-31": 469,
+      "2026-09-30": 449
+    },
+    "pru_nonaccrual_without_related_acl_millions": {
+      "2025-12-31": 442,
+      "2026-09-30": 610
+    },
+    "pru_nonaccrual_without_related_acl_subset_change_pct": "38.01",
+    "met_mortgage_loans_net_millions": {
+      "2025-12-31": 84593,
+      "2026-06-30": 82856
+    },
+    "met_acl_millions": {
+      "2025-12-31": 1193,
+      "2026-06-30": 1358
+    },
+    "met_acl_six_month_provision_millions": 316,
+    "met_acl_six_month_net_chargeoffs_millions": 151,
+    "met_acl_six_month_rollforward_arithmetic": "1193+316-151=1358",
+    "met_acl_commercial_end_millions": 1016
+  },
+  "met_q3_2026": {
+    "sec_filed_at": "2026-11-06",
+    "sec_plus_14_available_at": "2026-11-20",
+    "available_on_frozen_cutoff": false,
+    "metrics_used": false,
+    "metrics": null
+  },
+  "comparable_portfolio_scopes": false,
+  "synchronized_2026_september_panel": false,
+  "cited_december_2025_comparatives_independently_historical_pit": false,
+  "originals_retrieved_contemporaneously_in_2026_aug_or_nov": false,
+  "independent_provider_pit_attested": false,
+  "statutory_naic_capital_attested": false,
+  "untouched_24_month_oos": false,
+  "ai_private_loan_attribution_attested": false,
+  "all_nonaccrual_credit_amount_known": false,
+  "synthetic_timeseries_rows": 0,
+  "insurers_node_stress_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "milestones_completed": 22,
+  "milestones_total": 66,
+  "limitations": [
+    "Whole original SEC submissions independently rehashed outside Actions from temporary ZIP; hashes persist, not raw historical custody proof.",
+    "Originals' 2026 Q2 and Q3 source file dates plus 14 days, not their financial statement period ends, control model eligibility.",
+    "PRU $610m is only non-accrual loans without related ACL, not all impaired/nonaccrual loans, and not a default/loss amount.",
+    "MetLife Q2 ACL accounts for a broader mortgage portfolio than Prudential commercial mortgage and other loans; no cross-issuer risk ranking.",
+    "MetLife Q3 original filing is ineligible on 2026-11-19 because its SEC+14 date is 2026-11-20.",
+    "Historical source delivery, 24-month untouched OOS, NAIC capital/reinsurance and certified AICS remain unsupported."
+  ]
+}
