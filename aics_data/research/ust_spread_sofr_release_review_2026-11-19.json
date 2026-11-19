@@ -1,0 +1,273 @@
+{
+  "run": 44513210344,
+  "artifact": 14523534139,
+  "artifact_sha256": "68f4d5de5b02c81dd98a9e998303a30ad864591f0683b95b46efa483e6f079f8",
+  "scope": "Monthly close only. All 24 original DGS30-SOFR panel rows reconciled. Independent node-level review decision outstanding.",
+  "dgs30_evidence": "aics_data/research/ust_month_end_release_dates_2026-11-19.json",
+  "records": [
+    {
+      "cutoff": "2024-11-30",
+      "observation": "2024-11-27",
+      "percent": "4.57",
+      "first_nonmissing_vintage": "2024-11-29",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2024-11-27&observation_end=2024-11-27&realtime_start=2024-11-26&realtime_end=2024-11-30&file_type=json",
+      "alfred_sha256": "b5c7c6c314f7971f0294ec296c5755f4b5333afaa3172b0ef2623a2e7c6b6df8",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2024-01-01&endDate=2024-12-31&type=rate",
+      "publisher_sha256": "bd1fffe6235492c21a17974f41fb64794c518dd60cb2187439b9bd088e09520c",
+      "verified_spread_bp": -13
+    },
+    {
+      "cutoff": "2024-12-31",
+      "observation": "2024-12-30",
+      "percent": "4.37",
+      "first_nonmissing_vintage": "2024-12-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2024-12-30&observation_end=2024-12-30&realtime_start=2024-12-29&realtime_end=2024-12-31&file_type=json",
+      "alfred_sha256": "18e871c4437b1edb82ddca6432d3786247e4bf00bb0b5672cf930c63839c5b49",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2024-01-01&endDate=2024-12-31&type=rate",
+      "publisher_sha256": "bd1fffe6235492c21a17974f41fb64794c518dd60cb2187439b9bd088e09520c",
+      "verified_spread_bp": 40
+    },
+    {
+      "cutoff": "2025-01-31",
+      "observation": "2025-01-30",
+      "percent": "4.36",
+      "first_nonmissing_vintage": "2025-01-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-01-30&observation_end=2025-01-30&realtime_start=2025-01-29&realtime_end=2025-01-31&file_type=json",
+      "alfred_sha256": "2d5fb764aec673a346d1dc5578edcc2361d810a45ec358d3d0e467df39f87e57",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 40
+    },
+    {
+      "cutoff": "2025-02-28",
+      "observation": "2025-02-27",
+      "percent": "4.36",
+      "first_nonmissing_vintage": "2025-02-28",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-02-27&observation_end=2025-02-27&realtime_start=2025-02-26&realtime_end=2025-02-28&file_type=json",
+      "alfred_sha256": "59d2f40252d02716d24d4dcad63e063bc80027f5726f0aef516feb255cae2be4",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 20
+    },
+    {
+      "cutoff": "2025-03-31",
+      "observation": "2025-03-28",
+      "percent": "4.34",
+      "first_nonmissing_vintage": "2025-03-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-03-28&observation_end=2025-03-28&realtime_start=2025-03-27&realtime_end=2025-03-31&file_type=json",
+      "alfred_sha256": "3b94b9c68a56fd1fe17e60a721012e4fe777e9c6fca4067c55a3047c1590f146",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 30
+    },
+    {
+      "cutoff": "2025-04-30",
+      "observation": "2025-04-29",
+      "percent": "4.36",
+      "first_nonmissing_vintage": "2025-04-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-04-29&observation_end=2025-04-29&realtime_start=2025-04-28&realtime_end=2025-04-30&file_type=json",
+      "alfred_sha256": "a4230582315c58e8b1501737066dbc748b48fdd0c0e2ba2088daa93e9a724ae5",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 28
+    },
+    {
+      "cutoff": "2025-05-31",
+      "observation": "2025-05-29",
+      "percent": "4.33",
+      "first_nonmissing_vintage": "2025-05-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-05-29&observation_end=2025-05-29&realtime_start=2025-05-28&realtime_end=2025-05-31&file_type=json",
+      "alfred_sha256": "5f3cc57f66a521340840d2e4f188bcde43f01220cc97a45fbdfce2b812f0fb00",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 59
+    },
+    {
+      "cutoff": "2025-06-30",
+      "observation": "2025-06-27",
+      "percent": "4.39",
+      "first_nonmissing_vintage": "2025-06-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-06-27&observation_end=2025-06-27&realtime_start=2025-06-26&realtime_end=2025-06-30&file_type=json",
+      "alfred_sha256": "d66efd47ba660dc5f37c69d146950275c10e722dd5802444b5b90265608d0ce0",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 46
+    },
+    {
+      "cutoff": "2025-07-31",
+      "observation": "2025-07-30",
+      "percent": "4.32",
+      "first_nonmissing_vintage": "2025-07-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-07-30&observation_end=2025-07-30&realtime_start=2025-07-29&realtime_end=2025-07-31&file_type=json",
+      "alfred_sha256": "18ae7ea544de3b1e7348a2a1af08c2612e7e77247a47843e9fb6a6a8f5e44bec",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 57
+    },
+    {
+      "cutoff": "2025-08-31",
+      "observation": "2025-08-28",
+      "percent": "4.34",
+      "first_nonmissing_vintage": "2025-08-29",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-08-28&observation_end=2025-08-28&realtime_start=2025-08-27&realtime_end=2025-08-31&file_type=json",
+      "alfred_sha256": "8b42fdfe0228b6877b58bff438f888d179a3527e8c63d0c13288cb80e3f77e94",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 54
+    },
+    {
+      "cutoff": "2025-09-30",
+      "observation": "2025-09-29",
+      "percent": "4.13",
+      "first_nonmissing_vintage": "2025-09-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-09-29&observation_end=2025-09-29&realtime_start=2025-09-28&realtime_end=2025-09-30&file_type=json",
+      "alfred_sha256": "233ad514a8fc2e9339a0ae06fc906bcda5b5d181331d31781b0f30b9c8a0829e",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 58
+    },
+    {
+      "cutoff": "2025-10-31",
+      "observation": "2025-10-30",
+      "percent": "4.04",
+      "first_nonmissing_vintage": "2025-10-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-10-30&observation_end=2025-10-30&realtime_start=2025-10-29&realtime_end=2025-10-31&file_type=json",
+      "alfred_sha256": "49b64609cb5c4cffd2e5bdc9ce3db3aad05e18220ba85f6fe8e31190b61e1b55",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 61
+    },
+    {
+      "cutoff": "2025-11-30",
+      "observation": "2025-11-26",
+      "percent": "4.05",
+      "first_nonmissing_vintage": "2025-11-28",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-11-26&observation_end=2025-11-26&realtime_start=2025-11-25&realtime_end=2025-11-30&file_type=json",
+      "alfred_sha256": "c02cde2a50d6255b819ff06674d8b70dcdfd1cf3f06b1fc59d2bd18d97cf4f8e",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 59
+    },
+    {
+      "cutoff": "2025-12-31",
+      "observation": "2025-12-30",
+      "percent": "3.71",
+      "first_nonmissing_vintage": "2025-12-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2025-12-30&observation_end=2025-12-30&realtime_start=2025-12-29&realtime_end=2025-12-31&file_type=json",
+      "alfred_sha256": "e8876f00d2be7baa07eb449bc6d4a29d0f01bbbd2b11a35cdc838fd86184cc14",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2025-01-01&endDate=2025-12-31&type=rate",
+      "publisher_sha256": "0a38d9e8876581df9b789df3808236ed36dee6cbb85195b1d396569be6fb9f80",
+      "verified_spread_bp": 110
+    },
+    {
+      "cutoff": "2026-01-31",
+      "observation": "2026-01-29",
+      "percent": "3.65",
+      "first_nonmissing_vintage": "2026-01-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2026-01-29&observation_end=2026-01-29&realtime_start=2026-01-28&realtime_end=2026-01-31&file_type=json",
+      "alfred_sha256": "6324d75fbd2bb3ecfc95cb4c8d38389b51ffeeff4751a52faf6dcfb68dfd01da",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-01-01&endDate=2026-12-31&type=rate",
+      "publisher_sha256": "390467f119ed443bf9a1376e9ece47aac128a318fd277cf9d385bc603187ebcd",
+      "verified_spread_bp": 120
+    },
+    {
+      "cutoff": "2026-02-28",
+      "observation": "2026-02-26",
+      "percent": "3.67",
+      "first_nonmissing_vintage": "2026-02-27",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2026-02-26&observation_end=2026-02-26&realtime_start=2026-02-25&realtime_end=2026-02-28&file_type=json",
+      "alfred_sha256": "044aa61970394338e11d313cc398fdaca3a0e23bad15e4d368c78394dc48297d",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-01-01&endDate=2026-12-31&type=rate",
+      "publisher_sha256": "390467f119ed443bf9a1376e9ece47aac128a318fd277cf9d385bc603187ebcd",
+      "verified_spread_bp": 100
+    },
+    {
+      "cutoff": "2026-03-31",
+      "observation": "2026-03-30",
+      "percent": "3.63",
+      "first_nonmissing_vintage": "2026-03-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2026-03-30&observation_end=2026-03-30&realtime_start=2026-03-29&realtime_end=2026-03-31&file_type=json",
+      "alfred_sha256": "863564db5b631caaa2fe677f196063dc8a4ea929a1ea7ec6231701202ea861de",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-01-01&endDate=2026-12-31&type=rate",
+      "publisher_sha256": "390467f119ed443bf9a1376e9ece47aac128a318fd277cf9d385bc603187ebcd",
+      "verified_spread_bp": 128
+    },
+    {
+      "cutoff": "2026-04-30",
+      "observation": "2026-04-29",
+      "percent": "3.63",
+      "first_nonmissing_vintage": "2026-04-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2026-04-29&observation_end=2026-04-29&realtime_start=2026-04-28&realtime_end=2026-04-30&file_type=json",
+      "alfred_sha256": "b016dfe5646ea02346686c9daa7689680ec025be72e9234536fb064fc3454964",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-01-01&endDate=2026-12-31&type=rate",
+      "publisher_sha256": "390467f119ed443bf9a1376e9ece47aac128a318fd277cf9d385bc603187ebcd",
+      "verified_spread_bp": 135
+    },
+    {
+      "cutoff": "2026-05-31",
+      "observation": "2026-05-28",
+      "percent": "3.62",
+      "first_nonmissing_vintage": "2026-05-29",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2026-05-28&observation_end=2026-05-28&realtime_start=2026-05-27&realtime_end=2026-05-31&file_type=json",
+      "alfred_sha256": "8421f8676e730a34896420ad8e57ace3719f12a06e61a9cdfd924e4136791bbc",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-01-01&endDate=2026-12-31&type=rate",
+      "publisher_sha256": "390467f119ed443bf9a1376e9ece47aac128a318fd277cf9d385bc603187ebcd",
+      "verified_spread_bp": 136
+    },
+    {
+      "cutoff": "2026-06-30",
+      "observation": "2026-06-29",
+      "percent": "3.62",
+      "first_nonmissing_vintage": "2026-06-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2026-06-29&observation_end=2026-06-29&realtime_start=2026-06-28&realtime_end=2026-06-30&file_type=json",
+      "alfred_sha256": "39bf107f7999f18cc9679b72946320745671ae21fd3320638fbd37e859080a62",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-01-01&endDate=2026-12-31&type=rate",
+      "publisher_sha256": "390467f119ed443bf9a1376e9ece47aac128a318fd277cf9d385bc603187ebcd",
+      "verified_spread_bp": 124
+    },
+    {
+      "cutoff": "2026-07-31",
+      "observation": "2026-07-30",
+      "percent": "3.65",
+      "first_nonmissing_vintage": "2026-07-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2026-07-30&observation_end=2026-07-30&realtime_start=2026-07-29&realtime_end=2026-07-31&file_type=json",
+      "alfred_sha256": "95851dd56dc647d867e2c3c37be949a247d65bb1a6fb5ba2b063f3220ef9a424",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-01-01&endDate=2026-12-31&type=rate",
+      "publisher_sha256": "390467f119ed443bf9a1376e9ece47aac128a318fd277cf9d385bc603187ebcd",
+      "verified_spread_bp": 156
+    },
+    {
+      "cutoff": "2026-08-31",
+      "observation": "2026-08-28",
+      "percent": "3.65",
+      "first_nonmissing_vintage": "2026-08-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2026-08-28&observation_end=2026-08-28&realtime_start=2026-08-27&realtime_end=2026-08-31&file_type=json",
+      "alfred_sha256": "2883e8c3e9772c623d5e38cffe834bbb164597b8d26268aaf8dff8c440892a25",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-01-01&endDate=2026-12-31&type=rate",
+      "publisher_sha256": "390467f119ed443bf9a1376e9ece47aac128a318fd277cf9d385bc603187ebcd",
+      "verified_spread_bp": 157
+    },
+    {
+      "cutoff": "2026-09-30",
+      "observation": "2026-09-29",
+      "percent": "3.88",
+      "first_nonmissing_vintage": "2026-09-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2026-09-29&observation_end=2026-09-29&realtime_start=2026-09-28&realtime_end=2026-09-30&file_type=json",
+      "alfred_sha256": "4e6bd906c1f6363f35d9942ce2c5bf151a2aabf93f4012fee5808457389eca94",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-01-01&endDate=2026-12-31&type=rate",
+      "publisher_sha256": "390467f119ed443bf9a1376e9ece47aac128a318fd277cf9d385bc603187ebcd",
+      "verified_spread_bp": 171
+    },
+    {
+      "cutoff": "2026-10-31",
+      "observation": "2026-10-29",
+      "percent": "3.94",
+      "first_nonmissing_vintage": "2026-10-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=SOFR&observation_start=2026-10-29&observation_end=2026-10-29&realtime_start=2026-10-28&realtime_end=2026-10-31&file_type=json",
+      "alfred_sha256": "dceaa1a286af08806221a130a7ad83f64da66513a82f63b40a3766c001ecf886",
+      "publisher_source": "https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2026-01-01&endDate=2026-12-31&type=rate",
+      "publisher_sha256": "390467f119ed443bf9a1376e9ece47aac128a318fd277cf9d385bc603187ebcd",
+      "verified_spread_bp": 138
+    }
+  ]
+}
