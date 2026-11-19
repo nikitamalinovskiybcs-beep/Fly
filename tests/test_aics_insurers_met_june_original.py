@@ -79,6 +79,40 @@ class TestMETQ2CreditOriginal(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"SHA256"):
             audit.build(fake())
 
+    def test_external_rehash_source_receipt_pinned_without_score(self):
+        import json
+        from pathlib import Path
+        r=json.loads(Path(
+          "aics_data/research/met_2026q2_original_sec_acl_independent_rehash_2026-11-19.json"
+        ).read_text(encoding="utf-8"))
+        self.assertEqual(r["workflow_run_id"],44579156955)
+        self.assertEqual(r["artifact_id"],14557198374)
+        self.assertEqual(r["artifact_zip_sha256"],
+                         "9dbd375f2d492bf8590cae480cbf6038c97f6f6e68076b6bab0f543a0062a856")
+        self.assertTrue(r["artifact_zip_crc_integrity_passed"])
+        self.assertEqual(r["original_full_sec_submission_bytes"],
+                         audit.PINNED_FULL_ORIGINAL_BYTES)
+        self.assertEqual(r["original_full_sec_submission_sha256"],
+                         audit.PINNED_FULL_ORIGINAL_SHA256)
+        self.assertEqual(r["original_embedded_primary_document_sha256"],
+                         audit.PINNED_PRIMARY_DOCUMENT_SHA256)
+        self.assertEqual(r["replay_research_json_sha256"],
+                         "aabdaa0a249081eca466b402e413065371a803902ceea8d3de69393b1b97ac36")
+        self.assertEqual(r["aics_sec_available_at_plus_14_calendar_days"],"2026-08-20")
+        f=r["source_derived_observations"]
+        self.assertEqual(f["mortgage_loans_net"]["later"],82856)
+        self.assertEqual(f["mortgage_loan_acl"]["later"],1358)
+        self.assertEqual(f["conservation_check"],"1193+316-151=1358")
+        self.assertFalse(r["met_sept_2026_q3_metrics_allowed_on_2026_11_19"])
+        self.assertIsNone(r["met_sept_2026_q3_mortgage_loan_amount_usd"])
+        self.assertFalse(r["independent_historical_provider_delivery_attested"])
+        self.assertFalse(r["24_month_untouched_oos"])
+        self.assertFalse(r["cross_issuer_direct_loan_risk_ratio_claim"])
+        self.assertEqual(r["milestones_completed"],22)
+        self.assertIsNone(r["insurers_node_score"])
+        self.assertIsNone(r["index_aics"])
+        self.assertEqual(r["promotion"],"BLOCKED")
+
     def test_unlicensed_capture_agent_is_rejected(self):
         for agent in ("","AICS fake@example.com","AICS"):
             with self.assertRaises(ValueError):
