@@ -87,6 +87,40 @@ class TestDirectoryCapture(unittest.TestCase):
         self.assertIsNone(x["index_aics"])
         self.assertEqual(x["promotion"],"BLOCKED")
 
+    def test_independently_rehashed_real_directory_receipt_is_not_historical_membership(self):
+        receipt = json.loads(Path(
+            "aics_data/research/ai_equities_nasdaq_directory_snapshot_independent_rehash_2026-11-19.json"
+        ).read_text(encoding="utf-8"))
+        self.assertEqual(receipt["workflow_run_id"],44562741837)
+        self.assertEqual(receipt["artifact_id"],14548319201)
+        self.assertEqual(receipt["independently_calculated_zip_sha256"],
+                         "158916ab3515524192916598b41bc489ec868978a0432e913f4e5d1815f0cebc")
+        self.assertTrue(receipt["zip_crc_test_passed"])
+        self.assertEqual(receipt["manifest_sha256"],
+                         "45e6736a64266742523c1b0cf22bfbd25d081639b543e28ee4b1cc090594940d")
+        self.assertEqual(receipt["research_symbols"],list(RESEARCH_SYMBOLS))
+        self.assertEqual([(x["filename"],x["listed_instruments"],x["bytes"],x["sha256"])
+                          for x in receipt["original_directory_source_rehashes"]],[
+            ("nasdaqlisted.txt",5610,348493,
+             "f42831290925f08088f5ed2acb0404e4923a41475080ee9db07e5fbc2b5e6c19"),
+            ("otherlisted.txt",7692,544575,
+             "0032e6d08325291a67e3bb9acd8cad0218eedb393330cf84b46457451a7f5801")
+        ])
+        self.assertEqual(receipt["observed_current_exchange_by_symbol"]["ORCL"],"NYSE")
+        self.assertTrue(receipt["seven_current_research_instruments_observed"])
+        for key in ("historical_basket_membership_attested",
+                    "source_wallclock_timezone_independently_attested",
+                    "historical_exchange_directory_vintages_independently_attested",
+                    "historical_identity_transitions_attested",
+                    "historical_corporate_actions_attested",
+                    "provider_license_approved","retrospectively_adjusted_prices_approved",
+                    "independent_historical_pit_attested","complete_24_month_untouched_oos"):
+            self.assertFalse(receipt[key],key)
+        self.assertEqual(receipt["milestones_completed_after_capture"],22)
+        self.assertIsNone(receipt["node_stress_score"])
+        self.assertIsNone(receipt["index_aics"])
+        self.assertEqual(receipt["promotion"],"BLOCKED")
+
     def test_raw_bytes_modified_after_capture_fail(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);m=self.setup_capture(root)
