@@ -34,6 +34,12 @@ DOCUMENTS = (
             "June 7, 2024",
             "June 10, 2024",
         ),
+        # Original SEC bytes independently rehashed outside GitHub Actions.
+        "pinned_original_sha256":
+            "573766d04062164181061703da05e0c4e5984fedf190c68222f23f6487a44a8d",
+        "pinned_original_bytes": 664599,
+        "pinned_document_text_sha256":
+            "64c5877bd9bb8161bd549a43f264fe337bb4128721abe23e39d069408794b045",
     },
     {
         "id": "nvda_split_effectuation_20240607",
@@ -219,6 +225,17 @@ def verify_archive(out: Path) -> dict:
             or manifest.get("node") != "AI Equities"
             or manifest.get("research_roster_size") != 7
             or manifest.get("original_filings_rehashed") != 2
+            or manifest.get("event_issuer") != "NVDA"
+            or manifest.get("announcement_filed_at") != "2024-05-22"
+            or manifest.get("effectuation_filed_at") != "2024-06-07"
+            or manifest.get("corporate_action_historical_completeness_attested") is not False
+            or manifest.get("security_identity_history_attested") is not False
+            or manifest.get("provider_price_data_license_cleared") is not False
+            or manifest.get("retrospective_source_capture") is not True
+            or manifest.get("historical_basket_price_returns_calculated") is not False
+            or manifest.get("historical_price_adjustments_generated") is not False
+            or manifest.get("score_eligible") is not False
+            or manifest.get("trades_created") is not False
             or manifest.get("split_new_for_old") != [10, 1]
             or manifest.get("announcement_sec_available_at") != "2024-06-05"
             or manifest.get("effectuation_sec_available_at") != "2024-06-21"
@@ -243,6 +260,16 @@ def verify_archive(out: Path) -> dict:
                 or record.get("historic_publication_instant_independently_attested") is not False
                 or record.get("historical_pit_independently_attested") is not False):
             raise ValueError("Split source filing dates or original identity changed")
+        try:
+            capture = dt.datetime.fromisoformat(record["retrieved_at_utc"].replace("Z","+00:00"))
+            eligible = dt.date.fromisoformat(record["available_at"])
+        except (TypeError, ValueError, AttributeError, KeyError) as exc:
+            raise ValueError("Invalid original retrieval timestamp") from exc
+        if (capture.tzinfo is None or capture.utcoffset() is None
+                or capture.date() < eligible
+                or capture.astimezone(dt.timezone.utc) > dt.datetime.now(dt.timezone.utc)
+                   + dt.timedelta(minutes=5)):
+            raise ValueError("Split source capture time cannot prove earlier historical access")
         original = Path(record["raw_path"]).resolve()
         if not original.is_relative_to((out.resolve() / "raw")) or not original.is_file():
             raise ValueError("Missing or untrusted split original path")
