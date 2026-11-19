@@ -83,6 +83,8 @@ Read direct files and latest GitHub Actions job logs on every session; the above
 
 ## Follow-up on 19 November 2026
 
+The [results across all 11 nodes as of 18 November](aics_results_as_of_2026-11-18.md) include quarterly cash investment coverage for CoreWeave and Nebius, and the balances and parent guarantees of two CoreWeave borrowing subsidiaries.
+
 The [eleven-node source review](aics_observed_nodes_2026-11-19.md) reproduces dated issuer, Federal Reserve and macro observations and reconciles the Telegram transcript to the 37-name roster. The Nscale executed agreement identifies a specific SPV borrower, affiliate guarantor and contractual ceiling. Independent PIT, audited scoring and the 24-month OOS remain open for all eleven nodes.
 
 ## 19 November 2026 — Insurers raw-source replay checkpoint

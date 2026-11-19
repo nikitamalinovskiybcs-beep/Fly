@@ -1,0 +1,151 @@
+{
+  "source_cutoff": "2026-11-18",
+  "units": "USD million, except percentages",
+  "registry": "aics_data/source_registry/neocloud_cash_h1_sec.json",
+  "observations": [
+    {
+      "issuer": "CoreWeave",
+      "period": "2025-H1",
+      "source": "crwv_25_h1",
+      "cross_checks": [],
+      "available_from_cited_source": "2025-08-27",
+      "all_cited_checks_available": "2025-08-27",
+      "operating_cash_flow": "-190.083",
+      "cash_purchases": "3860.351",
+      "operating_cash_less_purchases": "-4050.434",
+      "operating_cash_pct_of_purchases": "-4.92",
+      "change_in_deferred_revenue_in_operating_cash_flow": "742.892"
+    },
+    {
+      "issuer": "CoreWeave",
+      "period": "2026-Q1",
+      "source": "crwv_26_q1",
+      "cross_checks": [],
+      "available_from_cited_source": "2026-05-22",
+      "all_cited_checks_available": "2026-05-22",
+      "operating_cash_flow": "2984",
+      "cash_purchases": "7695",
+      "operating_cash_less_purchases": "-4711",
+      "operating_cash_pct_of_purchases": "38.78",
+      "change_in_deferred_revenue_in_operating_cash_flow": "575"
+    },
+    {
+      "issuer": "CoreWeave",
+      "period": "2026-Q2",
+      "source": "crwv_26_release",
+      "cross_checks": [
+        "crwv_26_q1",
+        "crwv_26_h1"
+      ],
+      "available_from_cited_source": "2026-08-25",
+      "all_cited_checks_available": "2026-08-26",
+      "operating_cash_flow": "679",
+      "cash_purchases": "6422",
+      "operating_cash_less_purchases": "-5743",
+      "operating_cash_pct_of_purchases": "10.57",
+      "change_in_deferred_revenue_in_operating_cash_flow": "790"
+    },
+    {
+      "issuer": "CoreWeave",
+      "period": "2026-H1",
+      "source": "crwv_26_release",
+      "cross_checks": [
+        "crwv_26_h1"
+      ],
+      "available_from_cited_source": "2026-08-25",
+      "all_cited_checks_available": "2026-08-26",
+      "operating_cash_flow": "3663",
+      "cash_purchases": "14117",
+      "operating_cash_less_purchases": "-10454",
+      "operating_cash_pct_of_purchases": "25.95",
+      "change_in_deferred_revenue_in_operating_cash_flow": "1365"
+    },
+    {
+      "issuer": "Nebius",
+      "period": "2025-H1",
+      "source": "nbis_25_h1",
+      "cross_checks": [],
+      "available_from_cited_source": "2025-08-21",
+      "all_cited_checks_available": "2025-08-21",
+      "operating_cash_flow": "-352.0",
+      "cash_purchases": "1054.5",
+      "operating_cash_less_purchases": "-1406.5",
+      "operating_cash_pct_of_purchases": "-33.38",
+      "change_in_deferred_revenue_in_operating_cash_flow": null
+    },
+    {
+      "issuer": "Nebius",
+      "period": "2026-Q1",
+      "source": "nbis_26_q1",
+      "cross_checks": [],
+      "available_from_cited_source": "2026-05-27",
+      "all_cited_checks_available": "2026-05-27",
+      "operating_cash_flow": "2258.0",
+      "cash_purchases": "2472.9",
+      "operating_cash_less_purchases": "-214.9",
+      "operating_cash_pct_of_purchases": "91.31",
+      "change_in_deferred_revenue_in_operating_cash_flow": "3198.0"
+    },
+    {
+      "issuer": "Nebius",
+      "period": "2026-Q2",
+      "source": "nbis_26_release",
+      "cross_checks": [
+        "nbis_26_q1",
+        "nbis_26_h1"
+      ],
+      "available_from_cited_source": "2026-08-26",
+      "all_cited_checks_available": "2026-08-26",
+      "operating_cash_flow": "2246.1",
+      "cash_purchases": "5657.4",
+      "operating_cash_less_purchases": "-3411.3",
+      "operating_cash_pct_of_purchases": "39.70",
+      "change_in_deferred_revenue_in_operating_cash_flow": "1197.0"
+    },
+    {
+      "issuer": "Nebius",
+      "period": "2026-H1",
+      "source": "nbis_26_release",
+      "cross_checks": [
+        "nbis_26_h1"
+      ],
+      "available_from_cited_source": "2026-08-26",
+      "all_cited_checks_available": "2026-08-26",
+      "operating_cash_flow": "4504.1",
+      "cash_purchases": "8130.3",
+      "operating_cash_less_purchases": "-3626.2",
+      "operating_cash_pct_of_purchases": "55.40",
+      "change_in_deferred_revenue_in_operating_cash_flow": "4395.0"
+    }
+  ],
+  "purchase_scope": {
+    "CoreWeave": "Cash PP&E purchases including capitalized internal-use software.",
+    "Nebius": "Continuing operations. In 2026 cash purchases include PP&E and intangibles. The 2025 release labels purchases as PP&E. Its H1 amount matches the 2026 comparative."
+  },
+  "coreweave_facilities": {
+    "as_of": "2026-06-30",
+    "source": "crwv_26_h1",
+    "available_at": "2026-08-26",
+    "facilities": [
+      {
+        "facility": "DDTL 4.0",
+        "borrower": "CoreWeave Compute Acquisition Co. VIII, LLC",
+        "reported_debt_usd_m": 2837,
+        "facility_ceiling_usd_m": 8500,
+        "recourse": "Non-recourse except for customary limited guarantees"
+      },
+      {
+        "facility": "DDTL 5.0",
+        "borrower": "CoreWeave Financing DDTL V, LLC",
+        "reported_debt_usd_m": 1101,
+        "facility_ceiling_usd_m": 3100,
+        "recourse": "Unconditional parent guarantee"
+      }
+    ]
+  },
+  "node_score": null,
+  "index_aics": null,
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}
