@@ -2,6 +2,7 @@
 import json
 from datetime import date, timedelta
 from decimal import Decimal
+from pathlib import Path
 
 from .aics_four_node_snapshot import CUTOFF, available, read, snapshot
 
@@ -71,16 +72,22 @@ def capacity_scores():
     fed = observed["fed_naics_3344_utilization"]
     available(fed["release_date"])
     utilization = float(fed["october_preliminary_pct"])
-    # Applied Digital's dated October 2 IR release reports 400 MW contracted.
-    # https://ir.applieddigital.com/news-events/press-releases/detail/161
-    available("2026-10-02")
+    release = read("applied_digital_polaris_capacity_2026-10-02")
+    available(release["released_on"])
     site = observed["applied_digital_polaris_forge_1"]
     available(site["status_date"])
+    filing = json.loads(Path("aics_data/source_registry/observed_review_2026-11-19.json").read_text())["sources"]["apld"]
+    if date.fromisoformat(filing["filed_at"]) + timedelta(days=14) != date.fromisoformat(filing["available_at"]):
+        raise ValueError("Invalid Applied Digital filing availability")
+    available(filing["available_at"])
     operating = site["two_operating_buildings_capacity_mw"]
-    if not 0 <= operating <= 400 or not 0 <= utilization <= 100:
+    contracted = release["contracted_full_buildout_mw"]
+    if operating != release["operating_mw"] or not 0 <= operating <= contracted or contracted <= 0:
         raise ValueError("Invalid capacity inputs")
+    if not 0 <= utilization <= 100:
+        raise ValueError("Invalid manufacturing utilization")
     return {"Semiconductors Supply": utilization,
-            "Power/Data Centers": round(100 * (400 - operating) / 400, 2)}
+            "Power/Data Centers": round(100 * (contracted - operating) / contracted, 2)}
 
 
 def november_18_scores():

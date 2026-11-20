@@ -1,6 +1,22 @@
 """November 19 research composite. Ten inputs explicitly carried from November 18."""
 import json
+from math import isfinite
+
 from .aics_research_snapshot import november_18_scores, read
+from .aics_score_reproducibility_gate import WEIGHTS
+
+
+def composite(scores):
+    if scores.keys() != WEIGHTS.keys() or sum(WEIGHTS.values()) != 1050:
+        raise ValueError("Invalid or incomplete research composite")
+    for node, score in scores.items():
+        if type(score) not in (int, float) or not isfinite(score) or not 0 <= score <= 100:
+            raise ValueError(f"Invalid research score for {node}")
+    raw = sum(WEIGHTS[n] * s / 100 for n, s in scores.items())
+    hot = sum(s > 60 for s in scores.values())
+    multiplier = min(1.35, 1 + 0.20 * min(1, max(0, hot - 2)) + 0.05 * max(0, hot - 3))
+    return {"scores": scores, "raw": raw, "hot_nodes": hot, "multiplier": multiplier,
+            "research_aics": round(raw * multiplier, 2), "certified_aics": None}
 
 
 def calculate():
@@ -15,18 +31,8 @@ def calculate():
     returns = [r["vendor_regular_close"] / r["reported_open"] - 1 for r in rows]
     scores = november_18_scores()
     scores["AI Equities"] = 100 * sum(r < 0 for r in returns) / len(rows)
-    weights = {"Private Credit": 150, "Insurers": 125, "UST 30Y": 125,
-               "Neoclouds": 100, "AI Equities": 100, "Hyperscalers": 100,
-               "SPV": 100, "Repo": 100, "Power/Data Centers": 50,
-               "Semiconductors Supply": 50, "AI Demand": 50}
-    if scores.keys() != weights.keys() or sum(weights.values()) != 1050:
-        raise ValueError("Incomplete composite")
-    raw = sum(weights[n] * s / 100 for n, s in scores.items())
-    hot = sum(s > 60 for s in scores.values())
-    multiplier = min(1.35, 1 + 0.20 * min(1, max(0, hot - 2)) + 0.05 * max(0, hot - 3))
     return {"session": data["session"], "basket_return_pct": 100 * sum(returns) / len(rows),
-            "scores": scores, "raw": raw, "hot_nodes": hot, "multiplier": multiplier,
-            "research_aics": round(raw * multiplier, 2), "certified_aics": None}
+            **composite(scores)}
 
 
 if __name__ == "__main__":
