@@ -20,6 +20,9 @@ from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_sec_quarter_cashflow_gate import audit as audit_cashflow
 from scripts.aics_historical_crisis_analog import build as historical_crisis_analog
 from scripts.aics_v28_credit_relationship_topology import from_originals as credit_network_build
+from scripts.aics_v29_refinancing_maturity_overlay import (
+    build as refinancing_build, TERMS as REFINANCING_TERMS,
+)
 from scripts.aics_spv_funding_transmission_bridge import (
     build as spv_bridge_build, CORE as SPV_CORE, CLOUD as SPV_CLOUD,
     NSCALE as SPV_NSCALE, DFS as SPV_DFS,
@@ -434,6 +437,31 @@ def run(*, v17, v18, spx, shadow, finance=None, waves=None, as_of=None):
         "verified_current_lender_contagion_matrix": None,
         "2008_crisis_similarity_pct": None,
         "new_spv_stress_score": None,
+    }
+    maturity = refinancing_build(
+        read(REFINANCING_TERMS), bridge, topology, as_of=as_of)
+    if (maturity["full_aics"] is not None
+            or maturity["crisis_probability"] is not None
+            or maturity["actual_credit_refinancing_need_usd_m"] is not None
+            or maturity["individual_lender_allocations_verified"] != 0
+            or maturity["current_named_lender_borrower_dollar_exposure_edges"] != 0
+            or maturity["weights_total_unchanged"] != 1050
+            or maturity["trades_created"] is not False):
+        raise ValueError("Loan maturity research cannot promote a credit loss or AICS score")
+    payloads[2]["source_dated_loan_contractual_maturity_records"] = (
+        maturity["eligible_contract_count"])
+    payloads[8]["contractual_refinancing_maturity_research"] = {
+        "eligible_contractual_terms": maturity["eligible_contract_count"],
+        "known_maturity_within_365d_count": maturity["loan_maturities_within_365_calendar_days"],
+        "earliest_contractual_maturity": maturity["first_known_contractual_maturity"],
+        "coreweave_named_administrative_agents": maturity["coreweave_admin_agents_named"],
+        "citi_named_as_nebius_arranger_and_lender": maturity["nebius_citi_mandated_arranger_and_lender_named"],
+        "contractual_maturity_is_actual_total_principal_due": False,
+        "current_named_lender_dollar_exposure_edges": 0,
+        "actual_refinancing_need_usd_m": None,
+        "actual_coupon_including_term_sofr": None,
+        "historical_PIT_independently_attested": False,
+        "crisis_probability": None,
     }
     payloads[8]["early_cash_imbalance_research"] = {
         "source_periods": [
