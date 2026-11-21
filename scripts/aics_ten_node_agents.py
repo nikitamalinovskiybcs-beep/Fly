@@ -9,6 +9,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -25,7 +26,7 @@ NODE_TASKS = {
     "Hyperscalers": ("SEC_MSFT", "SEC_AMZN", "SEC_GOOG", "SEC_META"),
     "SPV": ("SEC_CRWV", "SEC_NBIS"),
     "Repo": ("NYFED_SOFR", "ALFRED_IORB"),
-    "Power/Data Centers": ("SEC_APLD", "EIA_CATALOG"),
+    "Power/Data Centers": ("SEC_APLD", "EIA_RTO_DEMAND"),
     "Semiconductors Supply": ("FED_G17", "SEC_NVDA", "SEC_MU"),
     "AI Demand": ("SEC_AVGO",),
 }
@@ -40,7 +41,7 @@ SEC_CIK = {
     "SEC_AVGO": "0001730168",
 }
 NON_SEC = ("ALFRED_DGS30", "ALFRED_IORB", "NYFED_SOFR",
-           "EIA_CATALOG", "FED_G17")
+           "EIA_RTO_DEMAND", "FED_G17")
 MAX_BYTES = 16_000_000
 RAW_SUBDIR = "raw"
 RESEARCH_NODES = frozenset(NODE_TASKS)
@@ -55,7 +56,7 @@ def require_clock(now):
     return now.astimezone(dt.timezone.utc)
 
 
-def sources(now, *, fred_api_key=None):
+def sources(now, *, fred_api_key=None, eia_api_key=None):
     """Only allow finite, explicitly enumerated original publisher endpoints."""
     now = require_clock(now)
     date = now.date().isoformat()
@@ -84,9 +85,21 @@ def sources(now, *, fred_api_key=None):
         "url": "https://markets.newyorkfed.org/api/rates/secured/sofr/last/20.json",
         "format": "nyfed_current_historical_values_not_vintage",
     }
-    specs["EIA_CATALOG"] = {
-        "url": "https://api.eia.gov/v2/",
-        "format": "eia_api_catalog_not_dc_metric",
+    # EIA v2 data APIs require a registered key. Collect actual EIA-930
+    # regional grid-demand observations, not merely an empty API catalog.
+    eia_params = {
+        "api_key": eia_api_key or "",
+        "frequency": "hourly",
+        "data[0]": "value",
+        "facets[type][]": "D",
+        "sort[0][column]": "period",
+        "sort[0][direction]": "desc",
+        "offset": "0", "length": "12",
+    }
+    specs["EIA_RTO_DEMAND"] = {
+        "url": "https://api.eia.gov/v2/electricity/rto/region-data/data/?" + urlencode(eia_params),
+        "format": "eia_930_hourly_grid_demand_not_ai_datacenter_demand",
+        "credential": "eia_api_key",
     }
     specs["FED_G17"] = {
         "url": "https://www.federalreserve.gov/releases/g17/current/default.htm",
@@ -159,10 +172,38 @@ def validate_original(spec, raw, *, at):
             if item.get("type") != "SOFR":
                 raise ValueError("Unexpected NY Fed rate type")
         return {"source_structure": "nyfed_current_json", "reported_rows": len(rows)}
-    if kind == "eia_api_catalog_not_dc_metric":
-        if not isinstance(obj.get("response"), dict):
-            raise ValueError("EIA metadata response missing")
-        return {"source_structure": "eia_catalog_only"}
+    if kind == "eia_930_hourly_grid_demand_not_ai_datacenter_demand":
+        response = obj.get("response")
+        if not isinstance(response, dict) or not isinstance(response.get("data"), list):
+            raise ValueError("EIA hourly demand response missing")
+        rows = response["data"]
+        if not 0 < len(rows) <= 12:
+            raise ValueError("EIA hourly response missing bounded observations")
+        dates = set()
+        for row in rows:
+            if not isinstance(row, dict) or row.get("type") != "D":
+                raise ValueError("EIA observed grid demand type missing")
+            period = row.get("period")
+            if not isinstance(period, str) or len(period) < 10:
+                raise ValueError("EIA hourly timestamp missing")
+            observed = dt.date.fromisoformat(period[:10])
+            if observed > at.date():
+                raise ValueError("EIA future-dated demand observation")
+            value = row.get("value")
+            if isinstance(value, bool) or not isinstance(value, (str, int, float)):
+                raise ValueError("EIA grid demand missing")
+            magnitude = float(value)
+            if not math.isfinite(magnitude) or magnitude < 0:
+                raise ValueError("EIA grid demand invalid number")
+            key = (period, row.get("respondent"))
+            if key in dates:
+                raise ValueError("Duplicate original EIA respondent/time")
+            dates.add(key)
+        return {
+            "source_structure": "eia_930_hourly_demand_data_not_dc_specific",
+            "reported_rows": len(rows),
+            "latest_period": max(row["period"] for row in rows),
+        }
     raise ValueError("Unrecognized original publisher")
 
 
@@ -181,7 +222,7 @@ def _archive(out, source_id, raw):
 
 
 def collect(*, out=Path("aics_data/agent_runs"), now=None, contact=None,
-            fred_api_key=None, transport=_download, live=False):
+            fred_api_key=None, eia_api_key=None, transport=_download, live=False):
     """Collect once per source; mocked/offline mode makes no network requests.
 
     All ten node agents are reported regardless of source availability. A
@@ -193,7 +234,9 @@ def collect(*, out=Path("aics_data/agent_runs"), now=None, contact=None,
                else os.environ.get("AICS_SEC_USER_AGENT", "")).strip()
     fred_api_key = (fred_api_key if fred_api_key is not None
                     else os.environ.get("FRED_API_KEY", "")).strip()
-    specs = sources(now, fred_api_key=fred_api_key)
+    eia_api_key = (eia_api_key if eia_api_key is not None
+                   else os.environ.get("EIA_API_KEY", "")).strip()
+    specs = sources(now, fred_api_key=fred_api_key, eia_api_key=eia_api_key)
     reused = {}
     for node in NODE_TASKS:
         for source_id in NODE_TASKS[node]:
@@ -213,6 +256,8 @@ def collect(*, out=Path("aics_data/agent_runs"), now=None, contact=None,
                 item["status"] = "blocked_sec_contact_missing"
             elif spec.get("credential") == "fred_api_key" and not fred_api_key:
                 item["status"] = "blocked_fred_api_key_missing"
+            elif spec.get("credential") == "eia_api_key" and not eia_api_key:
+                item["status"] = "blocked_eia_api_key_missing"
             else:
                 try:
                     # Avoid credential echo in stored output or exception text.
@@ -234,7 +279,11 @@ def collect(*, out=Path("aics_data/agent_runs"), now=None, contact=None,
                         "SEC metadata columns mismatch": "sec_field_lengths",
                         "Empty or oversized source response": "empty_or_oversized",
                         "Original FRED observation list missing": "fred_observations_missing",
-                        "EIA metadata response missing": "eia_catalog_structure",
+                        "EIA hourly demand response missing": "eia_grid_data_missing",
+                        "EIA observed grid demand type missing": "eia_wrong_measure",
+                        "EIA hourly response missing bounded observations": "eia_empty_data",
+                        "EIA future-dated demand observation": "eia_future_data",
+                        "EIA grid demand invalid number": "eia_invalid_number",
                         "Invalid original source bytes": "invalid_response_bytes",
                     }
                     item.update(status="blocked_source_fetch_or_validation",
@@ -270,7 +319,7 @@ def collect(*, out=Path("aics_data/agent_runs"), now=None, contact=None,
         "limitations": [
             "SEC submissions only locate filings, not audited financial line items",
             "ALFRED query is a current as-of snapshot and not historical provider tape",
-            "EIA endpoint is an API catalog, not data-center grid constraints",
+            "EIA EIA-930 hourly demand requires EIA_API_KEY; is grid demand not AI data-center-specific",
             "Fed G17 current HTML is not an archived release vintage",
             "New capture must be parsed and independently audited before any score promotion",
         ],
