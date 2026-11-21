@@ -19,6 +19,13 @@ from pathlib import Path
 from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_sec_quarter_cashflow_gate import audit as audit_cashflow
 from scripts.aics_historical_crisis_analog import build as historical_crisis_analog
+from scripts.aics_early_imbalance_cashflow_shadow import (
+    build as early_imbalance_build,
+    Y2025 as EARLY_CASH_2025,
+    Q42025 as EARLY_CASH_2025Q4,
+    Q22026 as EARLY_CASH_2026Q2,
+    Q32026 as EARLY_CASH_2026Q3,
+)
 
 ROOT = Path("aics_data/research")
 V17 = ROOT / "aics_24m_multi_node_publication_overlay_2026-11-21.json"
@@ -351,6 +358,34 @@ def run(*, v17, v18, spx, shadow, finance=None, waves=None, as_of=None):
     # Keep it inside the existing ModelChallenger role: ten model
     # improvement agents remain ten, historical numeric analogs remain null.
     payloads[8]["historical_crisis_analog"] = historical_crisis_analog(v18)
+    # An original SEC +14 earnings/cash spending imbalance layer is tracked
+    # SEPARATELY from the 11-node stress index and 2000/2008 numeric analog.
+    # The earnings data are retrospective source research, not proof of
+    # historically archived bytes or contemporaneous AI-specific CapEx.
+    imbalance = early_imbalance_build(
+        read(EARLY_CASH_2025),
+        read(EARLY_CASH_2025Q4),
+        read(EARLY_CASH_2026Q2),
+        read(EARLY_CASH_2026Q3),
+        as_of=as_of)
+    if (imbalance["full_11_node_aics"] is not None
+            or imbalance["similarity_to_2000_pct"] is not None
+            or imbalance["similarity_to_2008_pct"] is not None
+            or imbalance["primary_source_document_bytes_independently_historical_pit_attested"] is not False):
+        raise ValueError("Precrisis cash imbalance improperly promoted")
+    payloads[8]["early_cash_imbalance_research"] = {
+        "source_periods": [
+            {"period":q["period"],"issuer_count":q["issuer_count"],
+             "cash_ppe_over_ocf_pct":q["cash_ppe_over_ocf_pct"],
+             "cash_gap_usd_m":q["four_issuer_cash_gap_usd_m"],
+             "source_eligible_at":q["source_eligible_at"]}
+            for q in imbalance["complete_or_partial_quarters"]],
+        "same_issuer_q3_yoy":imbalance["same_issuer_yoy_q3"],
+        "funding_crisis_2008_probability":None,
+        "historical_2000_similarity_pct":None,
+        "historical_2008_similarity_pct":None,
+        "new_prod_aics_weight":None,
+    }
     payloads += [
         ml_calibration_governor(v18,payloads[7],payloads[8],finance),
     ]
