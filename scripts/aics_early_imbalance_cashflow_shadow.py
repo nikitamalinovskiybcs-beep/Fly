@@ -1,7 +1,7 @@
 """AICS pre-crisis cash-funding imbalance layer, distinct from stress index.
 
 Source-grounded original SEC quarterly 4-hyperscaler data across 2025Q1-Q4
-and 2026Q2-Q3. Do not manufacture missing 2026Q1, infer bank debt from a
+and 2026Q1-Q3. Do not backdate recovered 2026Q1, infer bank debt from a
 negative CFO-minus-cash-PPE gap, backfill availability, or claim AI-specific
 spending. Primary filing dated source amounts are research originals, not
 independently archived historical SEC bytes or PIT-certified trading signals.
@@ -22,15 +22,16 @@ from scripts.aics_score_reproducibility_gate import WEIGHTS
 ROOT=Path("aics_data/research")
 Y2025=ROOT/"hyperscalers_2025_q1_q3_original_sec_cashflow_2026-11-21.json"
 Q42025=ROOT/"hyperscalers_2025_q4_original_sec_cashflow_2026-11-21.json"
+Q12026=ROOT/"hyperscalers_2026_q1_original_sec_cashflow_2026-11-22.json"
 Q22026=ROOT/"hyperscalers_cash_coverage_june_to_september_2026.json"
 Q32026=ROOT/"hyperscalers_operating_cash_flow_coverage_2026_q3.json"
 OUTPUT=ROOT/"aics_precrisis_imbalance_4hyperscalers_2025_2026_research_2026-11-22.json"
 ISSUERS={"Microsoft","Amazon","Alphabet","Meta"}
-WANTED=("2025-Q1","2025-Q2","2025-Q3","2025-Q4","2026-Q2","2026-Q3")
+WANTED=("2025-Q1","2025-Q2","2025-Q3","2025-Q4","2026-Q1","2026-Q2","2026-Q3")
 QUARTER_END={
     "2025-Q1":"2025-03-31","2025-Q2":"2025-06-30",
     "2025-Q3":"2025-09-30","2025-Q4":"2025-12-31",
-    "2026-Q2":"2026-06-30","2026-Q3":"2026-09-30",
+    "2026-Q1":"2026-03-31","2026-Q2":"2026-06-30","2026-Q3":"2026-09-30",
 }
 TWO=Decimal("0.01")
 
@@ -91,7 +92,7 @@ def _record(period,issuer,cfo,ppe,source_records,*,cutoff):
     }
 
 
-def build(y2025,q4,q2,q3,*,as_of=None):
+def build(y2025,q4,q2,q3,*,q1=None,as_of=None):
     as_of=as_of or dt.datetime.now(dt.timezone.utc).date()
     if isinstance(as_of,str):as_of=_day(as_of)
     if not isinstance(as_of,dt.date) or isinstance(as_of,dt.datetime):
@@ -141,6 +142,66 @@ def build(y2025,q4,q2,q3,*,as_of=None):
         if number(row["cash_gap_usd_m"])!=number(r["cash_gap_usd_m"]):
             raise ValueError("Original Q4 gap mismatch")
         rows.append(row);lookups[(row["period"],row["issuer"])]=row
+    if q1 is not None:
+        if (
+            q1.get("schema")!="aics-hyperscalers-2026q1-original-sec-first-release-cashgap-v1"
+            or q1.get("observation_quarter")!="2026-Q1"
+            or q1.get("period_end")!=QUARTER_END["2026-Q1"]
+            or q1.get("unit")!="USD million"
+            or q1.get("integrity",{}).get("direct_3month_cash_flow_columns") is not True
+            or q1.get("integrity",{}).get("raw_source_bytes_independently_rehashed") is not False
+            or q1.get("integrity",{}).get("historical_first_delivery_provider_pit_attested") is not False
+            or q1.get("integrity",{}).get("production_score_approved") is not False
+            or q1.get("integrity",{}).get("trades_created") is not False
+            or len(q1.get("issuer_rows",[]))!=4
+            or {r["issuer"] for r in q1["issuer_rows"]}!=ISSUERS
+            or len(q1["issuer_rows"])!=len({r["issuer"] for r in q1["issuer_rows"]})
+            or set(q1.get("issuers",[]))!=ISSUERS
+        ):
+            raise ValueError("Unverified or incomplete first-filed 2026 Q1 SEC source ledger")
+        expected_cik={"Microsoft":"789019","Amazon":"1018724","Alphabet":"1652044","Meta":"1326801"}
+        q1_cfo,q1_ppe=Decimal(0),Decimal(0)
+        q1_gaps=[]
+        for r in q1["issuer_rows"]:
+            issuer=r["issuer"]
+            cik=str(int(r["cik"])) if str(r["cik"]).isdigit() else None
+            accession=r["accession"]
+            prefix=("https://www.sec.gov/Archives/edgar/data/"
+                    +expected_cik[issuer]+"/"+accession.replace("-","")+"/")
+            if (
+                cik!=expected_cik[issuer]
+                or r.get("period")!="2026-Q1"
+                or r.get("period_end")!="2026-03-31"
+                or r.get("filed_at")!="2026-04-29"
+                or r.get("available_at")!="2026-05-13"
+                or r.get("form") not in ("10-Q","8-K EX-99.1")
+                or not isinstance(r.get("source_file"),str)
+                or r.get("source_url")!=prefix+r["source_file"]
+                or r.get("index_url")!=prefix+accession+"-index.htm"
+                or r.get("original_document_bytes_sha256") is not None
+                or r.get("retrospective_source_retrieval_not_historical_provider_receipt") is not True
+            ):
+                raise ValueError("Incorrect 2026 Q1 SEC identity, date or first-filing lineage")
+            refs=[{"url":r["source_url"],"filed":r["filed_at"],
+                   "available":r["available_at"],"accession":accession}]
+            cfo,ppe=number(r["ocf"]),number(r["ppe"])
+            if cfo<0 or ppe<0 or cfo-ppe!=number(r["cash_gap_usd_m"]):
+                raise ValueError("2026 Q1 direct statement values do not reconcile")
+            q1_cfo+=cfo;q1_ppe+=ppe
+            if ppe>cfo:q1_gaps.append(issuer)
+            if _day(r["available_at"])<=as_of:
+                row=_record("2026-Q1",issuer,cfo,ppe,refs,cutoff=as_of)
+                rows.append(row);lookups[(row["period"],row["issuer"])]=row
+        totals=q1.get("totals",{})
+        if (
+            number(totals.get("ocf_usd_m"))!=q1_cfo
+            or number(totals.get("cash_ppe_usd_m"))!=q1_ppe
+            or number(totals.get("cash_gap_usd_m"))!=q1_cfo-q1_ppe
+            or number(totals.get("cash_ppe_over_ocf_pct"))!=number(money(100*q1_ppe/q1_cfo))
+            or totals.get("first_all_four_research_eligible_at")!="2026-05-13"
+            or sorted(totals.get("negative_issuer_gap",[]))!=sorted(q1_gaps)
+        ):
+            raise ValueError("2026 Q1 original four-issuer cohort amounts do not reconcile")
     if len(q2["rows"])!=4 or {r["issuer"] for r in q2["rows"]}!=ISSUERS:
         raise ValueError("Original 2026 Q2 roster missing")
     for r in q2["rows"]:
@@ -221,10 +282,10 @@ def build(y2025,q4,q2,q3,*,as_of=None):
         "as_of":as_of.isoformat(),"objective":"early_imbalance_before_observed_funding_distress",
         "economic_issuer_count":4,"fixed_original_aics_node_weights_total":1050,
         "extra_index_node_created":False,
-        "source_ledger_files":[str(x) for x in (Y2025,Q42025,Q22026,Q32026)],
+        "source_ledger_files":[str(x) for x in ((Y2025,Q42025,Q12026,Q22026,Q32026) if q1 is not None else (Y2025,Q42025,Q22026,Q32026))],
         "quarterly_original_issuer_records":rows,
         "complete_or_partial_quarters":periods,
-        "missing_quarters_not_imputed":["2026-Q1"],
+        "missing_quarters_not_imputed":["2026-Q1"] if q1 is None else [],
         "same_issuer_yoy_q3":yoy,
         "primary_source_document_bytes_independently_historical_pit_attested":False,
         "precrisis_crisis_prediction_probability":None,
@@ -242,7 +303,7 @@ def main():
     parser.add_argument("--out",type=Path,default=OUTPUT)
     parser.add_argument("--as-of",default=dt.datetime.now(dt.timezone.utc).date().isoformat())
     args=parser.parse_args()
-    result=build(read(Y2025),read(Q42025),read(Q22026),read(Q32026),as_of=args.as_of)
+    result=build(read(Y2025),read(Q42025),read(Q22026),read(Q32026),q1=read(Q12026),as_of=args.as_of)
     args.out.parent.mkdir(parents=True,exist_ok=True)
     args.out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({
