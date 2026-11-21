@@ -20,6 +20,7 @@ from pathlib import Path
 
 from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_neocloud_2025_sec_quarters import calculate as neocloud_2025_original_sec
+from scripts.aics_neocloud_2025_q4_sec_original import calculate as neocloud_2025_q4_sec
 from scripts.aics_fed_g17_first_release_monthly import read as g17_naics3344_first_releases
 from scripts.aics_fed_g17_first_release_monthly import initial_publication as g17_initial_publication
 from scripts.aics_pru_insurers_original_quarters import calculate as pru_insurers_quarters
@@ -138,6 +139,15 @@ def candidates():
             ROOT / "neoclouds_2025_q1_q3_sec_cashflow_research_2026-11-21.json",
             old["period"] + " original 2025 SEC two-issuer cash-funding gap",
             old["scope_warning"])
+
+    # Original Q4 2025 SEC EX-99.1 direct quarterly cashflows, never FY
+    # annual numbers masquerading as a dated Q4 observation. Joint earliest
+    # score as-of 2026-03-12 after both issuer +14 day gates.
+    q4 = neocloud_2025_q4_sec()
+    add("Neoclouds",q4["available_at"],q4["score"],
+        ROOT / "neoclouds_2025_q4_sec_original_cashflow_2026-11-21.json",
+        "2025-Q4 original SEC exhibit cashflow shortfall, CoreWeave plus Nebius",
+        q4["scope_warning"])
 
     neo_path = ROOT / "neocloud_cash_coverage_2026_h1.json"
     neo = load(neo_path)
