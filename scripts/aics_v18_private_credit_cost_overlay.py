@@ -71,8 +71,10 @@ def source_events(ledger):
             if debt_table is not None:
                 if r["issuer"]!="OBDC" or q not in ("2025-Q1","2025-Q2","2025-Q3"):
                     raise ValueError("Unexpected statement number source")
-                if (debt_table["performing"]+debt_table["non_accrual"]!=debt_table["total"] or
-                    _round(100*Decimal(debt_table["non_accrual"])/Decimal(debt_table["total"]))[:3]=="-1"):
+                if (debt_table["performing"]+debt_table["non_accrual"]!=debt_table["total"]
+                    or debt_table["non_accrual"]<0
+                    or debt_table["performing"]<0
+                    or debt_table["total"]<=0):
                     raise ValueError("Invalid original nonaccrual debt totals")
                 rounded_one=Decimal(100*debt_table["non_accrual"]/debt_table["total"]).quantize(
                     Decimal("0.1"),rounding=ROUND_HALF_UP)
