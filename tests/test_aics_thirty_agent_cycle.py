@@ -31,7 +31,7 @@ def wave_fixture():
         })
     return {
         "schema": "aics-ten-real-source-acquisition-waves-with-companyfacts-v1",
-        "captured_at_utc": "2026-11-22T00:10:00+00:00",
+        "captured_at_utc": "2026-11-21T22:10:00+00:00",
         "rounds": 10, "source_agents": 10, "rounds_report": rows,
         "total_http_attempts": 1, "successful_http_archives": 0,
         "unique_original_source_ids_archived": 0,
@@ -50,7 +50,7 @@ class ThirtyAgentCycleTests(unittest.TestCase):
         cls.v17, cls.v18, cls.spx, cls.shadow = (
             read(V17), read(V18), read(SPX), read(AI_SHADOW))
         cls.waves = wave_fixture()
-        cls.finance = audit([], as_of="2026-11-22")
+        cls.finance = audit([], as_of="2026-11-21")
 
     def execute(self, waves=None, finance=None):
         return build(
@@ -116,7 +116,7 @@ class ThirtyAgentCycleTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.execute(waves=bad)
         bad=copy.deepcopy(self.finance)
-        bad["as_of"]="2026-11-23"
+        bad["as_of"]="2026-11-22"
         with self.assertRaises(ValueError):
             self.execute(finance=bad)
 
