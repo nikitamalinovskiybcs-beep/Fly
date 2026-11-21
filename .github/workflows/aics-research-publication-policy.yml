@@ -1,0 +1,31 @@
+name: AICS research publication policy
+
+on:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_publication_policy.py
+      - scripts/aics_research_publication_overlay.py
+      - tests/test_aics_publication_policy_overlay.py
+      - aics_data/research/hyperscalers_2025_q1_q3_original_sec_cashflow_2026-11-21.json
+      - aics_data/research/hyperscalers_2025_q4_original_sec_cashflow_2026-11-21.json
+      - .github/workflows/aics-research-publication-policy.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publication-research:
+    name: Policy and overlay (no certification)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile checked-in implementation
+        run: python -m compileall -q scripts/aics_publication_policy.py scripts/aics_research_publication_overlay.py tests/test_aics_publication_policy_overlay.py
+      - name: Run scoped date and overlay tests
+        run: python -m unittest discover -s tests -p 'test_aics_publication_policy_overlay.py' -v
