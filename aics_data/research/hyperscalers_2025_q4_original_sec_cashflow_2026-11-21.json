@@ -1,0 +1,126 @@
+{
+  "schema": "aics-hyperscalers-2025q4-original-sec-first-release-cashgap-v1",
+  "research_as_of": "2026-11-21",
+  "observation_quarter": "2025-Q4",
+  "observation_period_end": "2025-12-31",
+  "fixed_node": "Hyperscalers",
+  "fixed_weight": 100,
+  "total_weight": 1050,
+  "source_policy": "original 2026 SEC 10-Q / 8-K exhibit with single 2025 Q4 column; SEC available_at filed_at+14 calendar days",
+  "scope": "Consolidated operating cash flow minus gross cash purchases/additions to property and equipment. Excludes vendor sale proceeds, finance lease principal, financing/investing additions; not AI-only",
+  "unit": "USD million",
+  "issuer_rows": [
+    {
+      "issuer": "Microsoft",
+      "cik": "0000789019",
+      "accession": "0001193125-26-027207",
+      "form": "10-Q",
+      "filed_at": "2026-01-28",
+      "original_file": "msft-20251231.htm",
+      "cfo": 35758,
+      "ppe": 29876,
+      "metric_lines": "Direct 3 months ended 2025-12-31 cash flow statements, source net cash from operations 35758 and additions to PP&E (29876)",
+      "available_at": "2026-02-11",
+      "original_sec_url": "https://www.sec.gov/Archives/edgar/data/0000789019/000119312526027207/msft-20251231.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/0000789019/000119312526027207/0001193125-26-027207-index.htm",
+      "cash_gap_usd_m": 5882,
+      "original_bytes_sha256": null
+    },
+    {
+      "issuer": "Amazon",
+      "cik": "0001018724",
+      "accession": "0001018724-26-000002",
+      "form": "8-K EX-99.1",
+      "filed_at": "2026-02-05",
+      "original_file": "amzn-20251231xex991.htm",
+      "cfo": 54459,
+      "ppe": 39522,
+      "metric_lines": "Direct 3 months ended 2025-12-31 consolidated cash flow, gross purchases of PP&E (39522), ignoring separate proceeds from sales/vendor incentives",
+      "available_at": "2026-02-19",
+      "original_sec_url": "https://www.sec.gov/Archives/edgar/data/0001018724/000101872426000002/amzn-20251231xex991.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/0001018724/000101872426000002/0001018724-26-000002-index.htm",
+      "cash_gap_usd_m": 14937,
+      "original_bytes_sha256": null
+    },
+    {
+      "issuer": "Alphabet",
+      "cik": "0001652044",
+      "accession": "0001652044-26-000012",
+      "form": "8-K EX-99.1",
+      "filed_at": "2026-02-04",
+      "original_file": "googexhibit991q42025.htm",
+      "cfo": 52402,
+      "ppe": 27851,
+      "metric_lines": "Direct 3 months ended 2025-12-31 CFO 52402 and purchases of PP&E (27851), not FY or TTM",
+      "available_at": "2026-02-18",
+      "original_sec_url": "https://www.sec.gov/Archives/edgar/data/0001652044/000165204426000012/googexhibit991q42025.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/0001652044/000165204426000012/0001652044-26-000012-index.htm",
+      "cash_gap_usd_m": 24551,
+      "original_bytes_sha256": null
+    },
+    {
+      "issuer": "Meta",
+      "cik": "0001326801",
+      "accession": "0001628280-26-003832",
+      "form": "8-K EX-99.1",
+      "filed_at": "2026-01-28",
+      "original_file": "meta-12312025xexhibit991.htm",
+      "cfo": 36214,
+      "ppe": 21383,
+      "metric_lines": "Direct 3 months ended 2025-12-31 CFO 36214 and cash purchases of PP&E (21383); do NOT include $754m financing lease principal",
+      "available_at": "2026-02-11",
+      "original_sec_url": "https://www.sec.gov/Archives/edgar/data/0001326801/000162828026003832/meta-12312025xexhibit991.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/0001326801/000162828026003832/0001628280-26-003832-index.htm",
+      "cash_gap_usd_m": 14831,
+      "original_bytes_sha256": null
+    }
+  ],
+  "totals": {
+    "cfo_usd_m": 178833,
+    "cash_ppe_usd_m": 118632,
+    "cash_gap_usd_m": 60201,
+    "cash_ppe_pct_of_cfo": 66.3367,
+    "earliest_all_four_research_asof": "2026-02-19"
+  },
+  "prior_2025_q3": {
+    "period": "2025-Q3",
+    "cfo_usd_m": 158995,
+    "cash_ppe_usd_m": 97271,
+    "gap_usd_m": 61724,
+    "source": "aics_data/research/hyperscalers_2025_q1_q3_original_sec_cashflow_2026-11-21.json"
+  },
+  "later_2026_q3": {
+    "period": "2026-Q3",
+    "cfo_usd_m": 175498,
+    "cash_ppe_usd_m": 201923,
+    "gap_usd_m": -26425,
+    "source": "aics_data/research/hyperscalers_operating_cash_flow_coverage_2026_q3.json"
+  },
+  "changes": {
+    "gap_vs_q3_2025_usd_m": -1523,
+    "gap_q3_2026_minus_q4_2025_usd_m": -86626
+  },
+  "research_only_if_predeclared_scoring_formula": {
+    "candidate_formula": "clip(100*(1-total_cfo/total_gross_cash_ppe),0,100)",
+    "candidate_score_if_used": "0.00",
+    "first_eligible": "2026-02-19",
+    "production_stress_score": null
+  },
+  "integrity": {
+    "source_originals_from_sec": true,
+    "raw_source_bytes_independently_rehashed": false,
+    "historical_first_delivery_provider_pit_attested": false,
+    "independent_24month_oos": false,
+    "retrospective_2026_q3_comparatives_used_for_2025_q4_operands": false,
+    "source_to_score_independently_certified": false,
+    "full_24_month_aics": null,
+    "full_aics_sp500_spread": null,
+    "legacy_hot_multiplier_applied": false,
+    "market_trades_created": false
+  },
+  "notes": [
+    "No Q4 2025 value visible at December 2025 month-end: first eligible after all four SEC filing dates +14 is 2026-02-19",
+    "Income, lease obligations, non-cash capex, GAAP PP&E additions not mixed with gross cash outflows",
+    "Only after mathematical replay may the candidate research score join the 24-month incomplete panel, and this never certifies PIT or trading thresholds"
+  ]
+}
