@@ -63,13 +63,24 @@ def read(data=None):
         elif previous_month(released.strftime("%Y-%m"))!=month:
             raise ValueError("Non-first-month release without original exception")
         table="table7" if month in ("2025-10","2025-11") else "table2_sup"
-        url=("https://www.federalreserve.gov/releases/g17/"+
-             released.strftime("%Y%m%d")+"/"+table+".htm")
+        if month=="2026-10":
+            # The 2026-11-17 original is still the latest, mutable /current/
+            # Fed page as at our 2026-11-21 research capture. Never pretend
+            # the unavailable immutable dated URL or original bytes exist.
+            url="https://www.federalreserve.gov/releases/g17/current/table2_sup.htm"
+            if (row.get("source_url_is_mutable_current_release") is not True
+                    or row.get("source_url_snapshot_release_date")!="2026-11-17"):
+                raise ValueError("Unattested mutable latest Fed release source")
+        else:
+            url=("https://www.federalreserve.gov/releases/g17/"+
+                 released.strftime("%Y%m%d")+"/"+table+".htm")
+            if row.get("source_url_is_mutable_current_release") is not None:
+                raise ValueError("Unexpected mutable historical archive URL")
         if (row.get("source_url")!=url
                 or row.get("original_bytes_sha256") is not None
                 or row.get("independent_historical_pit_attested") is not False
                 or (table=="table7")!=("Table 7" in row.get("source_table",""))):
-            raise ValueError("Original date-specific Fed source receipt invalid")
+            raise ValueError("Original Fed source receipt invalid")
         score=Decimal(row["initially_observed_utilization_pct"])
         if not score.is_finite() or not 0<=score<=100:
             raise ValueError("Fed observation out of range")
