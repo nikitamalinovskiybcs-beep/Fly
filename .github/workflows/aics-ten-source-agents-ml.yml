@@ -62,11 +62,21 @@ jobs:
           assert a['predictive_accuracy'] is None
           for source in m['sources']:
               print('SOURCE', source['source_id'], source['status'], source.get('error_code', source.get('error_class','')))
+          status = 'ALL_20_CAPTURED' if m['original_sources_archived']==20 else 'PARTIAL_CAPTURE'
           print({'source_agents':m['agent_count'],
                  'sources_archived':m['original_sources_archived'],
+                 'capture_status':status,
                  'model_events':a['research_events_evaluated'],
                  'research_attention_flags':a['research_attention_events'],
                  'production_aics':'BLOCKED'})
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'],'a') as stream:
+              print('## AICS ten-source-agent run (research only)',file=stream)
+              print(f"- Original source capture: **{m['original_sources_archived']}/{m['unique_publisher_sources']}** ({status})",file=stream)
+              print(f"- Model: {a['research_events_evaluated']} retrospective events; {a['research_attention_events']} research attention flags",file=stream)
+              for source in m['sources']:
+                  if source['status']!='archived_current_original_not_pit':
+                      print(f"- Missing: **{source['source_id']}** — {source['status']} ({source.get('error_code','no-key-or-not-attempted')})",file=stream)
+              print('- Historical PIT certification: **NO**. Complete index: **N/A**. Trading: **OFF**.',file=stream)
           PY
       - name: Archive current source receipts and research anomalies (not verified historical PIT)
         if: always()
@@ -75,4 +85,4 @@ jobs:
           name: aics-ten-agents-source-receipts-ml
           path: aics_data/agent_runs/
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 90
