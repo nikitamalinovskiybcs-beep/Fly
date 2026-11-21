@@ -36,7 +36,7 @@ ANCHORS={
         "signature":"Overbuilt telecom networks/fiber, customer demand below investment expectations, falling equipment values, exposed corporate debt and defaults",
     },
     "subprime2008":{
-        "market_bubble_peak":"2006-12-31",  # proxy YEAR only, NOT exact house-price peak
+        "historical_housing_price_peak_approx_year":2006,  # Fed/Yellen retrospective; NOT an exact peak date
         "first_crisis_event":"2007-08-09",
         "first_crisis_event_definition":"Documented money-market liquidity squeeze, after earlier 2007 subprime distress",
         "later_high_profile_failure":"2008-09-15",
