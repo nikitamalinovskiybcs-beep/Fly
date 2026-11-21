@@ -1,0 +1,75 @@
+name: AICS ten source agents and causal ML
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '45 22 * * 1-5'
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_ten_node_agents.py
+      - scripts/aics_source_anomaly_ml.py
+      - tests/test_aics_ten_node_agents_and_ml.py
+      - .github/workflows/aics-ten-source-agents-ml.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aics-ten-agents-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-capture-and-learning:
+    name: Ten source agents + immutable raw receipts + online anomalies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile independent AICS code
+        run: |
+          python -m compileall -q scripts/aics_ten_node_agents.py scripts/aics_source_anomaly_ml.py tests/test_aics_ten_node_agents_and_ml.py
+      - name: Run 10-agent, archived SHA and causal online-learning gates
+        run: python -m unittest discover -s tests -p 'test_aics_ten_node_agents_and_ml.py' -v
+      - name: Capture current official original sources
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python -m scripts.aics_ten_node_agents --live --out aics_data/agent_runs
+      - name: Run research-only online anomaly learner on preexisting primary-source scores
+        run: python -m scripts.aics_source_anomaly_ml --as-of 2026-11-22 --out aics_data/agent_runs/online_anomaly_research.json
+      - name: Check original receipt immutability and no model-promotion claim
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          root=Path('aics_data/agent_runs')
+          m=json.loads((root/'manifest.json').read_text())
+          assert m['agent_count']==10 and m['unique_publisher_sources']==20
+          assert m['independently_verified_node_scores']==0
+          assert m['index_aics'] is None and m['trades_created'] is False
+          for s in m['sources']:
+              if s['status']=='archived_current_original_not_pit':
+                  raw=Path(s['raw_path']).read_bytes()
+                  assert hashlib.sha256(raw).hexdigest()==s['raw_sha256']
+          a=json.loads((root/'online_anomaly_research.json').read_text())
+          assert a['complete_11_node_index'] is None
+          assert a['aics_weights_changed'] is False
+          assert a['predictive_accuracy'] is None
+          print({'source_agents':m['agent_count'],
+                 'sources_archived':m['original_sources_archived'],
+                 'model_events':a['research_events_evaluated'],
+                 'research_attention_flags':a['research_attention_events'],
+                 'production_aics':'BLOCKED'})
+          PY
+      - name: Archive current source receipts and research anomalies (not verified historical PIT)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-ten-agents-source-receipts-ml
+          path: aics_data/agent_runs/
+          if-no-files-found: warn
+          retention-days: 7
