@@ -1,0 +1,185 @@
+{
+  "schema": "aics-private-credit-2025q1q3-original-primary-source-fair-value-research-v1",
+  "research_review_date": "2026-11-21",
+  "node": "Private Credit",
+  "node_fixed_weight": 150,
+  "weight_total": 1050,
+  "window": [
+    "2025-03-31",
+    "2025-09-30"
+  ],
+  "records": [
+    {
+      "issuer": "ARCC",
+      "quarter": "2025Q1",
+      "period_end": "2025-03-31",
+      "source_filed_at": "2025-04-29",
+      "sec_plus_14_available_at": "2025-05-13",
+      "nonaccrual_cost_pct": "1.5",
+      "nonaccrual_fair_pct": "0.9",
+      "original_numeric_source_url": "https://www.sec.gov/Archives/edgar/data/1287750/000128775025000018/arccq1-2025exhibit991.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1287750/0001287750-25-000020-index.htm",
+      "numeric_source_type": "SEC-original EX-99.1",
+      "source_note": "Source exhibits investor release; 10-Q filed same day, ARCC total investments denominator"
+    },
+    {
+      "issuer": "ARCC",
+      "quarter": "2025Q2",
+      "period_end": "2025-06-30",
+      "source_filed_at": "2025-07-29",
+      "sec_plus_14_available_at": "2025-08-12",
+      "nonaccrual_cost_pct": "2.0",
+      "nonaccrual_fair_pct": "1.2",
+      "original_numeric_source_url": "https://www.sec.gov/Archives/edgar/data/1287750/000128775025000036/arccq2-2025exhibit991.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1287750/0001287750-25-000037-index.htm",
+      "numeric_source_type": "SEC-original EX-99.1",
+      "source_note": "Source exhibits investor release; 10-Q filed same day, ARCC total investments denominator; original 10-Q filing index accession crosscheck pending"
+    },
+    {
+      "issuer": "ARCC",
+      "quarter": "2025Q3",
+      "period_end": "2025-09-30",
+      "source_filed_at": "2025-10-28",
+      "sec_plus_14_available_at": "2025-11-11",
+      "nonaccrual_cost_pct": "1.8",
+      "nonaccrual_fair_pct": "1.0",
+      "original_numeric_source_url": "https://www.sec.gov/Archives/edgar/data/1287750/000128775025000044/arccq3-2025exhibit991.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1287750/0001287750-25-000045-index.htm",
+      "numeric_source_type": "SEC-original EX-99.1",
+      "source_note": "Source exhibits investor release; 10-Q filed same day; original 10-Q index accession crosscheck pending"
+    },
+    {
+      "issuer": "BXSL",
+      "quarter": "2025Q1",
+      "period_end": "2025-03-31",
+      "source_filed_at": "2025-05-07",
+      "sec_plus_14_available_at": "2025-05-21",
+      "nonaccrual_cost_pct": "0.3",
+      "nonaccrual_fair_pct": "0.1",
+      "original_numeric_source_url": "https://www.sec.gov/Archives/edgar/data/1736035/000173603525000013/bxsl-20250331.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1736035/0001736035-25-000013-index.htm",
+      "numeric_source_type": "SEC-original 10-Q",
+      "source_note": "Explicit portfolio metrics table with footnote 5; cost vs fair denominators separate"
+    },
+    {
+      "issuer": "BXSL",
+      "quarter": "2025Q2",
+      "period_end": "2025-06-30",
+      "source_filed_at": "2025-08-06",
+      "sec_plus_14_available_at": "2025-08-20",
+      "nonaccrual_cost_pct": "0.3",
+      "nonaccrual_fair_pct": "0.1",
+      "original_numeric_source_url": "https://www.sec.gov/Archives/edgar/data/1736035/000173603525000018/bxsl-20250630.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1736035/0001736035-25-000018-index.htm",
+      "numeric_source_type": "SEC-original 10-Q",
+      "source_note": "Explicit portfolio metrics table with footnote 5; cost vs fair denominators separate"
+    },
+    {
+      "issuer": "BXSL",
+      "quarter": "2025Q3",
+      "period_end": "2025-09-30",
+      "source_filed_at": "2025-11-10",
+      "sec_plus_14_available_at": "2025-11-24",
+      "nonaccrual_cost_pct": "0.1",
+      "nonaccrual_fair_pct": "0.1",
+      "original_numeric_source_url": "https://www.sec.gov/Archives/edgar/data/1736035/000173603525000021/bxsl-20250930.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1736035/0001736035-25-000021-index.htm",
+      "numeric_source_type": "SEC-original 10-Q",
+      "source_note": "Explicit portfolio metrics table with footnote 5; cost vs fair denominators separate"
+    },
+    {
+      "issuer": "OBDC",
+      "quarter": "2025Q1",
+      "period_end": "2025-03-31",
+      "source_filed_at": "2025-05-07",
+      "sec_plus_14_available_at": "2025-05-21",
+      "nonaccrual_cost_pct": null,
+      "nonaccrual_fair_pct": "0.8",
+      "original_numeric_source_url": "https://www.blueowlcapitalcorporation.com/investors/news-events/press-releases/detail/81/blue-owl-capital-corporation-announces-march-31-2025",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1655888/0001655888-25-000012-index.htm",
+      "numeric_source_type": "Official issuer original contemporaneous IR",
+      "source_note": "Only original disclosed fair-value percentage retained; 10-Q SEC original as separately linked index; cost not verified in same source"
+    },
+    {
+      "issuer": "OBDC",
+      "quarter": "2025Q2",
+      "period_end": "2025-06-30",
+      "source_filed_at": "2025-08-06",
+      "sec_plus_14_available_at": "2025-08-20",
+      "nonaccrual_cost_pct": null,
+      "nonaccrual_fair_pct": "0.7",
+      "original_numeric_source_url": "https://www.blueowlcapitalcorporation.com/investors/news-events/press-releases/detail/83/blue-owl-capital-corporation-announces-june-30-2025",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1655888/0001655888-25-000020-index.htm",
+      "numeric_source_type": "Official issuer original contemporaneous IR",
+      "source_note": "Only original disclosed fair-value percentage retained; 10-Q filing recorded 2025-08-06; cost not independently verified"
+    },
+    {
+      "issuer": "OBDC",
+      "quarter": "2025Q3",
+      "period_end": "2025-09-30",
+      "source_filed_at": "2025-11-05",
+      "sec_plus_14_available_at": "2025-11-19",
+      "nonaccrual_cost_pct": null,
+      "nonaccrual_fair_pct": "1.3",
+      "original_numeric_source_url": "https://www.blueowlcapitalcorporation.com/investors/news-events/press-releases/detail/86/blue-owl-capital-corporation-announces-september-30-2025",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1655888/0001655888-25-000024-index.htm",
+      "numeric_source_type": "Official issuer original contemporaneous IR",
+      "source_note": "Only original disclosed fair-value percentage retained; SEC 10-Q filed 2025-11-05; do not borrow cost value from 2026 restatement"
+    }
+  ],
+  "source_eligible_research_event": {
+    "first_three_issuer_q3_asof": "2025-11-24",
+    "fair_value_same_issuer_changes": [
+      {
+        "issuer": "ARCC",
+        "q1_to_q2_pp": "0.3",
+        "q2_to_q3_pp": "-0.2",
+        "q1_to_q3_pp": "0.1"
+      },
+      {
+        "issuer": "BXSL",
+        "q1_to_q2_pp": "0.0",
+        "q2_to_q3_pp": "0.0",
+        "q1_to_q3_pp": "0.0"
+      },
+      {
+        "issuer": "OBDC",
+        "q1_to_q2_pp": "-0.1",
+        "q2_to_q3_pp": "0.6",
+        "q1_to_q3_pp": "0.5"
+      }
+    ],
+    "q2_to_q3_fair_value_worsening_issuers": [
+      "OBDC"
+    ],
+    "q2_to_q3_fair_value_improving_issuers": [
+      "ARCC"
+    ],
+    "q2_to_q3_fair_value_unchanged_issuers": [
+      "BXSL"
+    ]
+  },
+  "not_computed": {
+    "cross_issuer_average_nonaccrual_pct": null,
+    "private_credit_0_100_stress_score": null,
+    "full_historical_aics": null,
+    "historical_aics_sp500_spread": null
+  },
+  "provenance_gates": {
+    "sec_plus_14_dates_applied": true,
+    "contemporaneous_issuer_source_provenance_listed": true,
+    "original_source_bytes_independently_sha256_rehashed": false,
+    "independent_historical_provider_feed_pit": false,
+    "independently_certified": false,
+    "untouched_24_month_oos": false,
+    "no_synthetic_backfill": true,
+    "no_forward_fill_or_main_panel_promotion": true
+  },
+  "data_qualifications": [
+    "ARCC/BXSL cost and fair denominators are total investments; OBDC fair is portfolio fair value as reported in official releases; do not average raw percentages across issuers.",
+    "Directional change is comparable within each issuer and metric, not proof of AI-linked credit market stress.",
+    "Some source values come from original SEC 10-Q, some from issuer's contemporaneous original IR release linked to original SEC filed report; SEC filing date +14 remains necessary, but original real-time byte delivery attestation missing.",
+    "Original source bytes were inspected on web on 2026-11-21, not independently rehashed/archived; score promotion remains blocked.",
+    "OBDC acquired OBDE portfolios in January 2025; concentration and comparability may change."
+  ]
+}
