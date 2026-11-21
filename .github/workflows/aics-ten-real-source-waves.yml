@@ -13,6 +13,8 @@ on:
       - scripts/aics_ten_model_improvement_agents.py
       - scripts/aics_early_imbalance_cashflow_shadow.py
       - scripts/aics_spv_funding_transmission_bridge.py
+      - scripts/aics_v28_credit_relationship_topology.py
+      - tests/test_aics_v28_credit_relationship_topology.py
       - tests/test_aics_spv_funding_transmission_bridge.py
       - tests/test_aics_early_imbalance_2026_q1.py
       - aics_data/research/hyperscalers_2026_q1_original_sec_cashflow_2026-11-22.json
@@ -69,6 +71,11 @@ jobs:
           python -m compileall -q scripts/aics_spv_funding_transmission_bridge.py tests/test_aics_spv_funding_transmission_bridge.py
           python -m unittest discover -s tests -p 'test_aics_spv_funding_transmission_bridge.py' -v
           python -m scripts.aics_spv_funding_transmission_bridge --as-of 2026-11-22 --out aics_data/agent_runs/ten_real_collection_rounds/aics_v27_spv_funding_transmission_research_2026-11-22.json
+      - name: Verify source-dated lenders borrowers guarantors without invented exposures
+        run: |
+          python -m compileall -q scripts/aics_v28_credit_relationship_topology.py tests/test_aics_v28_credit_relationship_topology.py
+          python -m unittest discover -s tests -p 'test_aics_v28_credit_relationship_topology.py' -v
+          python -m scripts.aics_v28_credit_relationship_topology --as-of 2026-11-22 --out aics_data/agent_runs/ten_real_collection_rounds/aics_v28_credit_relationship_topology.json
       - name: Verify integrated 30-agent cycle research and fail-closed gates
         run: |
           python -m compileall -q scripts/aics_thirty_agent_cycle.py tests/test_aics_thirty_agent_cycle.py
@@ -119,6 +126,19 @@ jobs:
           assert cycle['model_improvement']['same_date_named_spv_borrower_facility_balance_edges']==2
           assert cycle['model_improvement']['coreweave_same_date_reported_debt_usd_m']==3938
           assert cycle['model_improvement']['credit_exposure_edges_verified']==0
+          assert cycle['model_improvement']['v28_source_dated_credit_legal_edges']==9
+          assert cycle['model_improvement']['v28_named_historical_provider_relationships']==2
+          assert cycle['model_improvement']['v28_named_affiliate_guarantor_links']==2
+          assert cycle['model_improvement']['v28_current_named_lender_dollar_exposure_edges']==0
+          topology = json.loads((path/'aics_v28_credit_relationship_topology.json').read_text())
+          assert len(topology['relationships'])==9
+          assert topology['named_financing_provider_relationship_count']==2
+          assert topology['named_guarantor_legal_links']==2
+          assert topology['current_named_lender_to_borrower_dollar_exposure_edges']==0
+          assert topology['current_lender_borrower_dollar_exposure_matrix'] is None
+          assert topology['crisis_forecast_probability'] is None
+          assert topology['index_aics'] is None
+          assert topology['trades_created'] is False
           assert cycle['model_improvement']['nscale_ward_nc_gpu_drawn_balance_usd_m'] is None
           assert cycle['model_improvement']['spv_parent_enforceable_guarantee_total_usd_m'] is None
           assert cycle['model_improvement']['cross_issuer_causal_funding_transmission_established'] is False
@@ -143,6 +163,12 @@ jobs:
           assert improvements['agents'][8]['research_result']['historical_crisis_analog']['feature_axis_count']==8
           assert improvements['agents'][8]['research_result']['historical_crisis_analog']['full_AICS'] is None
           assert improvements['total_distinct_workflow_agent_roles']==30
+          improved_topology=improvements['agents'][8]['research_result']['typed_lender_borrower_guarantor_network_research']
+          assert improved_topology['source_gated_legal_relationship_edges']==9
+          assert improved_topology['named_historical_financing_provider_relationships']==2
+          assert improved_topology['named_affiliate_guarantor_links']==2
+          assert improved_topology['current_named_lender_borrower_exposure_edges']==0
+          assert improved_topology['verified_current_lender_contagion_matrix'] is None
           credit=improvements['agents'][2]['research_result']
           assert credit['verified_instrument_balance_edges_not_named_lender_exposure']==2
           assert credit['named_lender_current_exposure_edges']==0
@@ -216,6 +242,7 @@ jobs:
               print('30-role integration uses original source waves and separate retrospective analytics; no new issuer-score ingestion is falsely claimed.',file=stream)
               print('- V26: 2026 Q1 now original-SEC-sourced, four-company gap +$20.977bn and SEC+14 as-of May 13; Q4-to-Q3 cash gap trend is seven consecutive calendar quarters.',file=stream)
               print('- V27: two CoreWeave June 30 reported SPV balances total $3.938bn, two contractual ceilings $11.600bn; distinct Nscale $3.050bn GPU limits and $2.540bn DFS rental schedules not additive; current named lender exposures still unknown.',file=stream)
+              print('- V28: 9 heterogeneous source-dated legal relationships, including 2 named funding-provider relationships and 2 named affiliate guarantee links; zero current named lender-dollar exposure edges. No aggregate lender contagion probability.',file=stream)
               for experiment in cycle['next_experiments']:
                   print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
           PY
