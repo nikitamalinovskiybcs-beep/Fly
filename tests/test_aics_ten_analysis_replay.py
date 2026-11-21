@@ -16,7 +16,7 @@ from scripts.aics_ten_analysis_replay import (
 class TenReplayTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.report = replay(as_of=dt.date(2026,11,22), manifest=None)
+        cls.report = replay(as_of=dt.datetime.now(dt.timezone.utc).date(), manifest=None)
 
     def test_ten_full_runs_and_all_ten_agents_each(self):
         d=self.report
@@ -64,7 +64,7 @@ class TenReplayTests(unittest.TestCase):
                 "Hyperscalers"]["research_eligible_date"]="2026-12-01"
             p.write_text(json.dumps(data))
             with self.assertRaises(ValueError):
-                replay(v18=p, manifest=None, as_of=dt.date(2026,11,22))
+                replay(v18=p, manifest=None, as_of=dt.datetime.now(dt.timezone.utc).date())
 
 
 if __name__ == "__main__":
