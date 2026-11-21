@@ -240,6 +240,16 @@
       "independently_24month_oos_verified": false
     },
     {
+      "node": "Insurers",
+      "available_at": "2026-02-26",
+      "score": "0.79",
+      "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+      "measurement": "2025-Q4 same-scope PRU original SEC 10-K no-ACL nonaccrual ratio",
+      "note": "Non-accrual without related ACL / net commercial mortgage and other loans in narrow credit portfolio table, 442 / 56,195; not the 64,715 balance-sheet headline. SEC +14, retrospective primary-source review, not provider PIT.",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false
+    },
+    {
       "node": "Neoclouds",
       "available_at": "2026-03-12",
       "score": "60.87",
@@ -462,10 +472,10 @@
     {
       "node": "Insurers",
       "available_at": "2026-11-18",
-      "score": "0.91",
+      "score": "1.04",
       "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
       "measurement": "2026-Q3 same-scope PRU no-ACL nonaccrual ratio",
-      "note": "Insurer single-issuer proxy; not AI-specific, original bytes not independently rehashed",
+      "note": "Same no-related-ACL numerator 610 / original net narrow loan portfolio 58,685. Prior 0.91 used mismatched consolidated 67,004 and is corrected in 2026-11-21 source audit; source eligible 2026-11-18, outside completed 24-month panel.",
       "independently_attested_historical_pit": false,
       "independently_24month_oos_verified": false
     },
@@ -1098,13 +1108,14 @@
         "UST 30Y"
       ],
       "new_node_events_in_month": [
-        "Semiconductors Supply"
+        "Semiconductors Supply",
+        "Insurers"
       ],
       "latest_eligible_research_scores": {
         "Insurers": {
-          "score": "0.74",
-          "source_available_at": "2025-11-13",
-          "carried_from_prior_month": true
+          "score": "0.79",
+          "source_available_at": "2026-02-26",
+          "carried_from_prior_month": false
         },
         "Neoclouds": {
           "score": "51.90",
@@ -1117,7 +1128,7 @@
           "carried_from_prior_month": false
         }
       },
-      "partial_known_weighted_points_not_aics": "89.58",
+      "partial_known_weighted_points_not_aics": "89.64",
       "full_11_node_aics_no_multiplier": null,
       "aics_sp500_normalized_spread": null,
       "independent_historical_pit_confirmed": false
@@ -1146,8 +1157,8 @@
       ],
       "latest_eligible_research_scores": {
         "Insurers": {
-          "score": "0.74",
-          "source_available_at": "2025-11-13",
+          "score": "0.79",
+          "source_available_at": "2026-02-26",
           "carried_from_prior_month": true
         },
         "Neoclouds": {
@@ -1161,7 +1172,7 @@
           "carried_from_prior_month": false
         }
       },
-      "partial_known_weighted_points_not_aics": "98.30",
+      "partial_known_weighted_points_not_aics": "98.36",
       "full_11_node_aics_no_multiplier": null,
       "aics_sp500_normalized_spread": null,
       "independent_historical_pit_confirmed": false
@@ -1189,8 +1200,8 @@
       ],
       "latest_eligible_research_scores": {
         "Insurers": {
-          "score": "0.74",
-          "source_available_at": "2025-11-13",
+          "score": "0.79",
+          "source_available_at": "2026-02-26",
           "carried_from_prior_month": true
         },
         "Neoclouds": {
@@ -1204,7 +1215,7 @@
           "carried_from_prior_month": false
         }
       },
-      "partial_known_weighted_points_not_aics": "96.90",
+      "partial_known_weighted_points_not_aics": "96.96",
       "full_11_node_aics_no_multiplier": null,
       "aics_sp500_normalized_spread": null,
       "independent_historical_pit_confirmed": false
@@ -1543,5 +1554,7 @@
   "fed_2025_late_release_policy": "Never use Sep/Oct/Nov 2025 economic observations before Dec 3/23 original release dates.",
   "pru_insurers_source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
   "fed_2024_initial_source": "aics_data/research/fed_g17_naics3344_oct2024_first_release_2026-11-21.json",
-  "score_source_2025_q4": "aics_data/research/neoclouds_2025_q4_sec_original_cashflow_2026-11-21.json"
+  "score_source_2025_q4": "aics_data/research/neoclouds_2025_q4_sec_original_cashflow_2026-11-21.json",
+  "pru_2025_q4_10k_restored": true,
+  "pru_2026_q3_scope_corrected_from_0_91_to_1_04": true
 }
