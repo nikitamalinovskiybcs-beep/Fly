@@ -146,6 +146,21 @@ def build(*, waves, finance, v17, v18, spx, shadow):
         or topology["new_spv_stress_score"] is not None
     ):
         raise ValueError("Improper current exposure inferred from historical legal network")
+    refinancing = imp[8]["research_result"]["contractual_refinancing_maturity_research"]
+    if (
+        refinancing["eligible_contractual_terms"] != 3
+        or refinancing["known_maturity_within_365d_count"] != 1
+        or refinancing["earliest_contractual_maturity"] != "2027-10-16"
+        or refinancing["coreweave_named_administrative_agents"] != 2
+        or refinancing["citi_named_as_nebius_arranger_and_lender"] is not True
+        or refinancing["contractual_maturity_is_actual_total_principal_due"] is not False
+        or refinancing["current_named_lender_dollar_exposure_edges"] != 0
+        or refinancing["actual_refinancing_need_usd_m"] is not None
+        or refinancing["actual_coupon_including_term_sofr"] is not None
+        or refinancing["historical_PIT_independently_attested"] is not False
+        or refinancing["crisis_probability"] is not None
+    ):
+        raise ValueError("Cannot turn contractual refinancing dates into known current credit debt")
     direct_pairs = imp[0]["research_result"]["direct_quarter_pairs"]
     if direct_pairs != finance["direct_original_3month_pair_candidates"]:
         raise ValueError("Agent cashflow evidence disagrees with original finance gate")
@@ -201,6 +216,9 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "historical_legal_relationships_mapped": 9,
             "named_historical_provider_relationships": 2,
             "named_affiliate_guarantors_mapped": 2,
+            "new_sec_source_research_maturity_terms_count": 3,
+            "nebius_contractual_maturity": "2027-10-16",
+            "nebius_bridge_credit_dollar_exposure_to_citi_verified": False,
             "completion_evidence": "Original named lender-to-borrower outstanding exposure, dates, recourse and enforceable guarantees; never add commitments, lease rents or consolidated balances",
             "decision": "RESEARCH",
         })
@@ -254,6 +272,11 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "2026_q1_4issuer_cashflow_complete": q1_complete,
             "credit_exposure_edges_verified": 0,
             "v28_source_dated_credit_legal_edges": 9,
+            "v29_contractual_maturity_records": 3,
+            "v29_2027_10_16_nebius_maturity_within_365_days": True,
+            "v29_2027_maturity_actual_refinancing_need_usd_m": None,
+            "v29_coreweave_named_admin_agents": 2,
+            "v29_nebius_citi_named_lender_funded_usd_m": None,
             "v28_named_historical_provider_relationships": 2,
             "v28_named_affiliate_guarantor_links": 2,
             "v28_current_named_lender_dollar_exposure_edges": 0,
