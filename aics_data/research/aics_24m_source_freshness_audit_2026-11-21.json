@@ -944,5 +944,5 @@
   "historically_attested_pit": false,
   "certified_aics": null,
   "trades_created": false,
-  "explanation": "Freshness measures when a declared source first became research-eligible in the month. Carry-forward may be appropriate for quarterly reports and is NOT missing data. These are not proven historical provider tape captures; none of the source-age figures are trading signals. Source-first-eligible on June 19 2025 for Broadcom Q2 zero stress proven from original strict >4.4bn actual versus 4.4bn guidance; no exact original revenue value asserted."
+  "explanation": "Freshness measures when a declared source first became research-eligible in the month. Carry-forward may be appropriate for quarterly reports and is NOT missing data. These are not proven historical provider tape captures; none of the source-age figures are trading signals."
 }
