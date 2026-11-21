@@ -21,6 +21,16 @@
   "score_source_events": [
     {
       "node": "Semiconductors Supply",
+      "available_at": "2024-11-15",
+      "score": "78.70",
+      "source": "aics_data/research/fed_g17_naics3344_oct2024_first_release_2026-11-21.json",
+      "measurement": "2024-10 initial Fed G.17 NAICS 3344 preliminary (released Nov 15)",
+      "note": "First-published Fed date; original bytes not independently archived, research only",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false
+    },
+    {
+      "node": "Semiconductors Supply",
       "available_at": "2024-12-17",
       "score": "78.80",
       "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
@@ -468,7 +478,7 @@
       "sp500_normalized_nov_2024_100": "100.0000",
       "ust30_20_change_volatility_bp": "7.22",
       "repo_sofr_minus_iorb_bp": -8,
-      "known_node_count_research_only": 0,
+      "known_node_count_research_only": 1,
       "missing_nodes": [
         "AI Demand",
         "AI Equities",
@@ -479,12 +489,19 @@
         "Private Credit",
         "Repo",
         "SPV",
-        "Semiconductors Supply",
         "UST 30Y"
       ],
-      "new_node_events_in_month": [],
-      "latest_eligible_research_scores": {},
-      "partial_known_weighted_points_not_aics": null,
+      "new_node_events_in_month": [
+        "Semiconductors Supply"
+      ],
+      "latest_eligible_research_scores": {
+        "Semiconductors Supply": {
+          "score": "78.70",
+          "source_available_at": "2024-11-15",
+          "carried_from_prior_month": false
+        }
+      },
+      "partial_known_weighted_points_not_aics": "39.35",
       "full_11_node_aics_no_multiplier": null,
       "aics_sp500_normalized_spread": null,
       "independent_historical_pit_confirmed": false
@@ -1513,5 +1530,6 @@
   "score_source_2025_q1_q3": "aics_data/research/neoclouds_2025_q1_q3_sec_cashflow_research_2026-11-21.json",
   "fed_naics3344_source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
   "fed_2025_late_release_policy": "Never use Sep/Oct/Nov 2025 economic observations before Dec 3/23 original release dates.",
-  "pru_insurers_source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json"
+  "pru_insurers_source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+  "fed_2024_initial_source": "aics_data/research/fed_g17_naics3344_oct2024_first_release_2026-11-21.json"
 }
