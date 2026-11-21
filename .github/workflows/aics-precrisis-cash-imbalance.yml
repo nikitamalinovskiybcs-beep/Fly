@@ -1,0 +1,73 @@
+name: AICS pre-crisis four-hyperscaler cash-imbalance research
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_early_imbalance_cashflow_shadow.py
+      - tests/test_aics_early_imbalance_cashflow_shadow.py
+      - aics_data/research/hyperscalers_2025_q1_q3_original_sec_cashflow_2026-11-21.json
+      - aics_data/research/hyperscalers_2025_q4_original_sec_cashflow_2026-11-21.json
+      - aics_data/research/hyperscalers_cash_coverage_june_to_september_2026.json
+      - aics_data/research/hyperscalers_operating_cash_flow_coverage_2026_q3.json
+      - .github/workflows/aics-precrisis-cash-imbalance.yml
+
+permissions:
+  contents: read
+
+jobs:
+  original-source-imbalance-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile original-source source-gated imbalance model
+        run: python -m compileall -q scripts/aics_early_imbalance_cashflow_shadow.py tests/test_aics_early_imbalance_cashflow_shadow.py
+      - name: Run source leakage, original issuer matching and arithmetic gates
+        run: python -m unittest discover -s tests -p 'test_aics_early_imbalance_cashflow_shadow.py' -v
+      - name: Produce original SEC +14 as-of cash imbalance shadow
+        run: |
+          python -m scripts.aics_early_imbalance_cashflow_shadow --out aics_data/agent_runs/precrisis_cash_imbalance_originals_research.json
+      - name: Check no fake historical crisis analog or AICS promotion
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          x=json.loads(Path('aics_data/agent_runs/precrisis_cash_imbalance_originals_research.json').read_text())
+          assert x['fixed_original_aics_node_weights_total']==1050
+          assert x['extra_index_node_created'] is False
+          assert x['full_11_node_aics'] is None
+          assert x['precrisis_crisis_prediction_probability'] is None
+          assert x['similarity_to_2000_pct'] is None and x['similarity_to_2008_pct'] is None
+          assert x['historical_oos_predictive_skill'] is None
+          assert x['primary_source_document_bytes_independently_historical_pit_attested'] is False
+          assert x['missing_quarters_not_imputed']==['2026-Q1']
+          assert len(x['quarterly_original_issuer_records'])==24
+          assert x['same_issuer_yoy_q3']['cash_gap_deterioration_usd_m']=='-88149'
+          assert x['same_issuer_yoy_q3']['asof_after_all_four_2026_original_sec_plus14']=='2026-11-13'
+          assert x['trading'] is False
+          last={q['period']:q for q in x['complete_or_partial_quarters']}
+          print('Original 2025Q3:',last['2025-Q3'])
+          print('Original 2026Q3:',last['2026-Q3'])
+          print('Year on year:',x['same_issuer_yoy_q3'])
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              print('## AICS pre-crisis source-grounded cash imbalance shadow',file=out)
+              print('- 2025-Q3 four issuer CFO less gross cash PPE: **+$61.724bn**',file=out)
+              print('- 2026-Q3 four issuer CFO less gross cash PPE: **-$26.425bn**',file=out)
+              print('- Year-on-year funding cash gap change: **-$88.149bn**',file=out)
+              print('- Capex / operating cash: **61.18% -> 115.06%**',file=out)
+              print('- Source eligibility (all four, SEC+14): **2026-11-13**',file=out)
+              print('- 2026Q1 missing, not interpolated; AI-specific/2000-2008 similarity/OOS: **NOT VERIFIED**',file=out)
+          PY
+      - name: Archive source-grounded imbalance shadow
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-original-cash-imbalance-precrisis-shadow
+          path: aics_data/agent_runs/precrisis_cash_imbalance_originals_research.json
+          if-no-files-found: error
+          retention-days: 90
