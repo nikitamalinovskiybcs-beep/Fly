@@ -1,0 +1,100 @@
+{
+  "schema": "aics-ai-equities-month-end-2026q3-retrospective-shadow-v1",
+  "research_asof": "2026-11-21",
+  "node": "AI Equities",
+  "node_weight": 100,
+  "research_symbols": [
+    "NVDA",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "ORCL",
+    "MU"
+  ],
+  "score_rule": "100 * declining securities by (last regular trading day CLOSE / OPEN - 1 < 0) / 7; equal-open-notional; round HALF_UP 0.01",
+  "source_receipt_path": "aics_data/progress/ai_equities_nasdaq_raw_archive_receipt_2026-11-18.json",
+  "original_archive": {
+    "workflow_run_id": 44387147503,
+    "artifact_id": 14466941540,
+    "zip_sha256": "0354dea8f0507a770afc4dcfcbb7ce9d4ddf33539d774664b62fa1b04464e9b8",
+    "capture_utc": "2026-11-18T20:04:42.909182+00:00",
+    "original_rows_total": 441,
+    "independent_second_download_and_zip_crc_rehash_asof": "2026-11-21",
+    "original_json_sha256": {
+      "NVDA": "f6640ca7e5e806c74e077bd6ffc42178fced0a03ec1cda341cd210ffecd01092",
+      "MSFT": "3a43904adcd0b4e9f77d9d3717e644affa0f53127cd9008a2a6a5af9d56acd8e",
+      "GOOGL": "906b51190955fc7148500e3b7cd61cc9bb1cf70aa9b157f8e60b2bdf1b8613ef",
+      "AMZN": "bd280aea245107ba3a1498e0a593957cbd3f012c4be0fa647dc5248e58aac67a",
+      "META": "ba54c37df4e7b9c7c4b19333f9e5c9c21e5dd43ff6f8306bc5d2379d08723b34",
+      "ORCL": "151ac422b532e2239b932143afca4bb06c1c93fa444a3a99f7f3d9bb87b71e09",
+      "MU": "b5b914e41482630d6c0044c169d1f439e5aa398698bff08f03fb8174d9a66196"
+    }
+  },
+  "observations": [
+    {
+      "month": "2026-08",
+      "last_trading_session": "2026-08-31",
+      "decliners": [
+        "MSFT",
+        "GOOGL",
+        "AMZN",
+        "META",
+        "ORCL"
+      ],
+      "score": "71.43",
+      "mean_equal_open_notional_session_return_pct": "-0.0970",
+      "other_known_node_count": 6,
+      "other_known_points": "249.09",
+      "conditional_complete_11_node_scenario": null,
+      "conditional_known_plus_equity": "320.52"
+    },
+    {
+      "month": "2026-09",
+      "last_trading_session": "2026-09-30",
+      "decliners": [
+        "NVDA",
+        "GOOGL",
+        "META",
+        "MU"
+      ],
+      "score": "57.14",
+      "mean_equal_open_notional_session_return_pct": "-0.0603",
+      "other_known_node_count": 7,
+      "other_known_points": "248.34",
+      "conditional_complete_11_node_scenario": null,
+      "conditional_known_plus_equity": "305.48"
+    },
+    {
+      "month": "2026-10",
+      "last_trading_session": "2026-10-30",
+      "decliners": [
+        "NVDA",
+        "MSFT",
+        "GOOGL",
+        "ORCL"
+      ],
+      "score": "57.14",
+      "mean_equal_open_notional_session_return_pct": "-0.2625",
+      "other_known_node_count": 10,
+      "other_known_points": "453.17",
+      "conditional_complete_11_node_scenario": "510.31",
+      "conditional_known_plus_equity": "510.31"
+    }
+  ],
+  "approved_historical_constituency": false,
+  "original_provider_historical_vintages_attested": false,
+  "corporate_actions_complete_original_timeline_attested": false,
+  "issuer_price_history_can_be_adjusted_retrospectively": true,
+  "score_eligible_at_2026_08_31": false,
+  "score_eligible_at_2026_09_30": false,
+  "score_eligible_at_2026_10_31": false,
+  "original_score_coverage_panel_promotion": false,
+  "historical_aics_sp500_spread": null,
+  "hist_24_month_full_index": null,
+  "independent_historical_pit_24m": false,
+  "investment_decision_supported": false,
+  "certified_aics": null,
+  "trades_created": false,
+  "method_limit": "The 7 research names were identified in November 2026, not independently attested as historical basket members in Aug-Oct. Original Nasdaq price JSON was retrieved on 2026-11-18 AFTER all 3 source sessions, meaning derived monthly scores are a RETROSPECTIVE WHAT-IF ONLY, not source-date eligible and MUST NOT enter the as-of monthly AICS coverage or be used to claim historical market predictive power. Raw provider originals retained in temporary Actions artifact, not redistributed in repo."
+}
