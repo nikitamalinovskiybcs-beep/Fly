@@ -11,6 +11,8 @@ on:
       - scripts/aics_sec_quarter_cashflow_gate.py
       - tests/test_aics_sec_quarter_cashflow_gate.py
       - scripts/aics_ten_model_improvement_agents.py
+      - scripts/aics_thirty_agent_cycle.py
+      - tests/test_aics_thirty_agent_cycle.py
       - tests/test_aics_ten_model_improvement_agents.py
       - scripts/aics_historical_crisis_analog.py
       - tests/test_aics_historical_crisis_analog.py
@@ -52,6 +54,10 @@ jobs:
         run: |
           python -m compileall -q scripts/aics_historical_crisis_analog.py tests/test_aics_historical_crisis_analog.py
           python -m unittest discover -s tests -p 'test_aics_historical_crisis_analog.py' -v
+      - name: Verify integrated 30-agent cycle research and fail-closed gates
+        run: |
+          python -m compileall -q scripts/aics_thirty_agent_cycle.py tests/test_aics_thirty_agent_cycle.py
+          python -m unittest discover -s tests -p 'test_aics_thirty_agent_cycle.py' -v
       - name: Execute ten actual per-node source collection rounds
         env:
           AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
@@ -64,6 +70,12 @@ jobs:
         run: python -m scripts.aics_historical_crisis_analog --out aics_data/agent_runs/ten_real_collection_rounds/aics_2000_2008_2026_analog_research.json
       - name: Execute ten AICS model improvement agents on actual financial inputs
         run: python -m scripts.aics_ten_model_improvement_agents --sec-finance-audit aics_data/agent_runs/ten_real_collection_rounds/sec_direct_quarter_cashflow_gate.json --source-waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json --out aics_data/agent_runs/ten_real_collection_rounds/aics_model_improvement_agents.json
+      - name: Close 30-role evidence-to-improvement loop without extra publisher requests
+        run: |
+          python -m scripts.aics_thirty_agent_cycle \
+            --waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json \
+            --finance aics_data/agent_runs/ten_real_collection_rounds/sec_direct_quarter_cashflow_gate.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_thirty_agent_research_cycle.json
       - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
         run: |
           python - <<'PY'
@@ -81,6 +93,21 @@ jobs:
           assert analog['2026_partial_known_weighted_points_not_full_index']=='268.39'
           finance = json.loads((path/'sec_direct_quarter_cashflow_gate.json').read_text())
           improvements = json.loads((path/'aics_model_improvement_agents.json').read_text())
+          cycle = json.loads((path/'aics_thirty_agent_research_cycle.json').read_text())
+          assert cycle['agent_groups']['total_distinct_roles_executed']==30
+          assert cycle['source_collection']['http_attempts']==report['total_http_attempts']
+          assert cycle['source_collection']['current_numeric_snapshot_rows']==len(values)
+          assert cycle['source_collection']['direct_quarter_research_candidates']==finance['direct_original_3month_pair_candidates']
+          assert cycle['analysis']['historical_full_aics_months']==0
+          assert cycle['model_improvement']['untouched_oos_months']==0
+          assert cycle['cycle_decision']=='RESEARCH_ONLY_NOT_AUTONOMOUS_PRODUCTION'
+          assert cycle['complete_11_node_aics'] is None
+          assert cycle['crisis_probability'] is None
+          assert cycle['eligible_for_production_promotion'] is False
+          assert cycle['weights_total_unchanged']==1050
+          assert cycle['weights_changed'] is False and cycle['trades_created'] is False
+          assert cycle['verdict_mutated'] is False
+          assert len(cycle['next_experiments']) >= 4
           assert improvements['actual_model_improvement_agents_executed']==10
           assert improvements['agents'][8]['research_result']['historical_crisis_analog']['feature_axis_count']==8
           assert improvements['agents'][8]['research_result']['historical_crisis_analog']['full_AICS'] is None
@@ -126,6 +153,8 @@ jobs:
               'direct_original_quarter_cashflow_pairs':finance['direct_original_3month_pair_candidates'],
               'long_ytd_cashflow_records_excluded':finance['reasons'].get('long_ytd_or_nonquarter_duration',0),
               'additional_model_improvement_agents_executed':len(improvements['agents']),
+              'integrated_agent_roles_executed':cycle['agent_groups']['total_distinct_roles_executed'],
+              'next_source_grounded_research_experiments':len(cycle['next_experiments']),
               'original_2000_2008_analogy_axes':analog['feature_axis_count'],
               '2000_and_2008_early_crisis_warning_claim':'NOT_REPRODUCED',
               'supervised_forecasting_accuracy_reported':None,
@@ -140,6 +169,9 @@ jobs:
                   print(f'- {key}: **{val}**',file=stream)
               print('Latest SEC Company Facts represent a current API snapshot; numeric records are **not historical first-delivery PIT attested**.',file=stream)
               print('Model-improvement agents are research diagnostics; unvalidated market forecasting and autonomous weights remain OFF.',file=stream)
+              print('30-role integration uses original source waves and separate retrospective analytics; no new issuer-score ingestion is falsely claimed.',file=stream)
+              for experiment in cycle['next_experiments']:
+                  print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
           PY
       - name: Archive exact public primary-source bytes and 10 collection receipts
         if: always()
