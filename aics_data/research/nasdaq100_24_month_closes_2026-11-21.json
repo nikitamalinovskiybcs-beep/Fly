@@ -1,0 +1,109 @@
+{
+  "schema": "aics-ndx24-observed-monthly-benchmark-v1",
+  "source_url": "https://www.digrin.com/stocks/detail/%5ENDX/price",
+  "market_index": "^NDX Nasdaq-100 price index",
+  "period": "2024-11 through 2026-10",
+  "method": "Digrin Monthly price history; source table Real price; last-month price; price only, not dividend reinvestment",
+  "fetched_utc_date": "2026-11-21",
+  "source_type": "RETROSPECTIVE_RESEARCH_NOT_PROVIDER_PIT",
+  "independently_contemporaneous_pit_attested": false,
+  "exchange_licensed_raw_feed": false,
+  "points": [
+    {
+      "month": "2024-11",
+      "ndx_month_end_close": "20930.37"
+    },
+    {
+      "month": "2024-12",
+      "ndx_month_end_close": "21012.17"
+    },
+    {
+      "month": "2025-01",
+      "ndx_month_end_close": "21478.05"
+    },
+    {
+      "month": "2025-02",
+      "ndx_month_end_close": "20884.41"
+    },
+    {
+      "month": "2025-03",
+      "ndx_month_end_close": "19278.45"
+    },
+    {
+      "month": "2025-04",
+      "ndx_month_end_close": "19571.02"
+    },
+    {
+      "month": "2025-05",
+      "ndx_month_end_close": "21340.99"
+    },
+    {
+      "month": "2025-06",
+      "ndx_month_end_close": "22679.01"
+    },
+    {
+      "month": "2025-07",
+      "ndx_month_end_close": "23218.12"
+    },
+    {
+      "month": "2025-08",
+      "ndx_month_end_close": "23415.42"
+    },
+    {
+      "month": "2025-09",
+      "ndx_month_end_close": "24679.99"
+    },
+    {
+      "month": "2025-10",
+      "ndx_month_end_close": "25858.13"
+    },
+    {
+      "month": "2025-11",
+      "ndx_month_end_close": "25434.89"
+    },
+    {
+      "month": "2025-12",
+      "ndx_month_end_close": "25249.85"
+    },
+    {
+      "month": "2026-01",
+      "ndx_month_end_close": "25552.39"
+    },
+    {
+      "month": "2026-02",
+      "ndx_month_end_close": "24960.04"
+    },
+    {
+      "month": "2026-03",
+      "ndx_month_end_close": "23740.19"
+    },
+    {
+      "month": "2026-04",
+      "ndx_month_end_close": "27452.12"
+    },
+    {
+      "month": "2026-05",
+      "ndx_month_end_close": "30333.18"
+    },
+    {
+      "month": "2026-06",
+      "ndx_month_end_close": "30276.35"
+    },
+    {
+      "month": "2026-07",
+      "ndx_month_end_close": "28274.20"
+    },
+    {
+      "month": "2026-08",
+      "ndx_month_end_close": "29456.97"
+    },
+    {
+      "month": "2026-09",
+      "ndx_month_end_close": "30408.50"
+    },
+    {
+      "month": "2026-10",
+      "ndx_month_end_close": "28384.85"
+    }
+  ]
+}
