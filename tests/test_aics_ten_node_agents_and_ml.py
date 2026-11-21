@@ -32,7 +32,9 @@ def fake_primary(url, user_agent):
             "effectiveDate": "2026-11-20", "type": "SOFR", "percentRate": 3.8,
             "volumeInBillions": 2400.0}]}).encode()
     if "api.eia.gov" in url:
-        return b'{"response":{"id":"v2","routes":[]}}'
+        return json.dumps({"response":{"data":[{
+            "period":"2026-11-20T10","respondent":"CISO","type":"D","value":"20250"
+        }]}}).encode()
     if "federalreserve.gov" in url:
         return b"<!doctype html><html><body>Fixture, not real market data</body></html>"
     raise AssertionError("Unknown source endpoint")
@@ -42,7 +44,7 @@ class AicsTenNodeCollectorTest(unittest.TestCase):
     def test_all_ten_node_rosters_and_shared_sources(self):
         self.assertEqual(len(NODE_TASKS), 10)
         self.assertEqual(len(SEC_CIK), 15)
-        spec = sources(NOW, fred_api_key="PRIVATE_TEST_KEY")
+        spec = sources(NOW, fred_api_key="PRIVATE_TEST_KEY", eia_api_key="PRIVATE_TEST_EIA_KEY")
         self.assertEqual(len(spec), 20)
         self.assertEqual(set(spec), {s for v in NODE_TASKS.values() for s in v})
         self.assertEqual(NODE_TASKS["Neoclouds"], NODE_TASKS["SPV"])
@@ -68,7 +70,8 @@ class AicsTenNodeCollectorTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             x = collect(out=Path(tmp), now=NOW, live=True, transport=transport,
                         contact="AICS Research research-team@institution.org",
-                        fred_api_key="PRIVATE_TEST_KEY")
+                        fred_api_key="PRIVATE_TEST_KEY",
+                        eia_api_key="PRIVATE_TEST_EIA_KEY")
             self.assertEqual(len(calls), 20)
             self.assertEqual(len(set(calls)), 20)
             self.assertEqual(x["original_sources_archived"], 20)
@@ -86,6 +89,7 @@ class AicsTenNodeCollectorTest(unittest.TestCase):
             manifest = json.loads((Path(tmp) / "manifest.json").read_text())
             self.assertEqual(manifest["agent_count"], 10)
             self.assertNotIn("PRIVATE_TEST_KEY", (Path(tmp) / "manifest.json").read_text())
+            self.assertNotIn("PRIVATE_TEST_EIA_KEY", (Path(tmp) / "manifest.json").read_text())
 
     def test_sec_real_world_zero_padded_string_cik_is_same_identity(self):
         spec = sources(NOW, fred_api_key="x")["SEC_ARCC"]
@@ -106,9 +110,27 @@ class AicsTenNodeCollectorTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             x = collect(out=Path(tmp), now=NOW, live=True, transport=fake_primary,
                         contact="", fred_api_key="")
-            self.assertEqual(x["original_sources_archived"], 3)
+            self.assertEqual(x["original_sources_archived"], 2)
+            source = {item["source_id"]: item for item in x["sources"]}
+            self.assertEqual(source["EIA_RTO_DEMAND"]["status"],
+                             "blocked_eia_api_key_missing")
             self.assertTrue(any(a["status"] == "blocked_or_offline" for a in x["agents"]))
             self.assertTrue(all(a["stress_score"] is None for a in x["agents"]))
+
+    def test_eia_hourly_actual_demand_and_future_rejection(self):
+        s = sources(NOW, fred_api_key="x", eia_api_key="z")
+        self.assertIn("api_key=z", s["EIA_RTO_DEMAND"]["url"])
+        real = fake_primary(s["EIA_RTO_DEMAND"]["url"], "ua")
+        info = validate_original(s["EIA_RTO_DEMAND"], real, at=NOW)
+        self.assertEqual(info["reported_rows"], 1)
+        self.assertEqual(info["source_structure"],
+                         "eia_930_hourly_demand_data_not_dc_specific")
+        missing = b'{"response":{"id":"v2","routes":[]}}'
+        with self.assertRaises(ValueError):
+            validate_original(s["EIA_RTO_DEMAND"], missing, at=NOW)
+        future = b'{"response":{"data":[{"period":"2026-11-23T10","respondent":"CISO","type":"D","value":"20300"}]}}'
+        with self.assertRaises(ValueError):
+            validate_original(s["EIA_RTO_DEMAND"], future, at=NOW)
 
     def test_original_validation_fails_closed(self):
         s = sources(NOW, fred_api_key="x")
