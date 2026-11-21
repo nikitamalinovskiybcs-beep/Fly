@@ -1,0 +1,271 @@
+"""One auditable 30-role AICS research cycle: 10 live source waves + 10
+historical-analysis roles + 10 model-improvement roles.
+
+The source-wave and finance files must be produced by the existing live GitHub
+workflow. Historical V17/V18 overlays are retrospective research, never training
+on newly captured SEC receipts. This coordinator makes proposals, not model
+promotions, index scores, crisis probabilities, or trades.
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import hashlib
+import json
+from pathlib import Path
+
+from scripts.aics_score_reproducibility_gate import WEIGHTS
+from scripts.aics_ten_node_agents import NODE_TASKS
+from scripts.aics_ten_analysis_agents import run_agents, read as read_analysis, V17, V18, SPX
+from scripts.aics_ten_model_improvement_agents import (
+    run as run_improvement, read as read_improvement, AI_SHADOW,
+)
+
+ROOT = Path("aics_data/agent_runs/ten_real_collection_rounds")
+WAVES = ROOT / "ten_rounds_manifest.json"
+FINANCE = ROOT / "sec_direct_quarter_cashflow_gate.json"
+OUTPUT = ROOT / "aics_thirty_agent_research_cycle.json"
+
+
+def _input_checks(waves, finance):
+    if (waves.get("schema") != "aics-ten-real-source-acquisition-waves-with-companyfacts-v1"
+            or waves.get("rounds") != 10
+            or waves.get("source_agents") != 10
+            or waves.get("fixed_weights_total") != 1050
+            or waves.get("production_weights_changed") is not False
+            or waves.get("trades_created") is not False
+            or waves.get("complete_index") is not None
+            or waves.get("independent_sp500_skill") is not None
+            or waves.get("independently_pit_verified_node_count") != 0):
+        raise ValueError("Invalid live source-wave lineage or unsafe model promotion")
+    rows = waves.get("rounds_report")
+    if (not isinstance(rows, list) or len(rows) != 10
+            or [r["round"] for r in rows] != list(range(1, 11))
+            or [r["agent"] for r in rows] != list(NODE_TASKS)
+            or any(r["weight_unchanged"] != WEIGHTS[r["agent"]] for r in rows)
+            or any(r.get("research_usable_scored_node") is not False for r in rows)):
+        raise ValueError("Source-wave role/weight/score audit failed")
+    total = waves.get("total_http_attempts")
+    archived = waves.get("successful_http_archives")
+    if (not isinstance(total, int) or isinstance(total, bool) or total < 1
+            or not isinstance(archived, int) or isinstance(archived, bool)
+            or archived < 0 or archived > total):
+        raise ValueError("No accountable real publisher requests")
+    for row in rows:
+        if not isinstance(row.get("operations"), list):
+            raise ValueError("Missing live source operation ledger")
+        for op in row["operations"]:
+            if op.get("node_score_eligible") is True:
+                raise ValueError("A current source-wave receipt cannot certify a node score")
+    if (finance.get("schema") != "aics-sec-direct-three-month-cashflow-research-candidate-v1"
+            or finance.get("weights_total") != 1050
+            or finance.get("source_bytes_historical_first_filing_verified") is not False
+            or finance.get("independently_pit_attested") is not False
+            or finance.get("node_scores_promoted") != 0
+            or finance.get("full_11_node_aics") is not None
+            or finance.get("production_weights_changed") is not False
+            or finance.get("trades_created") is not False
+            or finance.get("original_numeric_rows_inspected") !=
+                 waves.get("actual_numeric_facts_extracted_current_sec_snapshots")
+            or finance.get("direct_original_3month_pair_candidates") !=
+                 len(finance.get("candidate_quarter_pairs", []))):
+        raise ValueError("Unverified or inconsistent SEC finance receipts")
+    cutoff = dt.datetime.fromisoformat(waves["captured_at_utc"].replace("Z", "+00:00"))
+    if cutoff.tzinfo is None or cutoff.utcoffset() != dt.timedelta(0):
+        raise ValueError("Capture must have an explicit UTC timestamp")
+    as_of = cutoff.date()
+    if dt.date.fromisoformat(finance["as_of"]) != as_of:
+        raise ValueError("SEC finance cutoff differs from source wave date")
+    for pair in finance["candidate_quarter_pairs"]:
+        if (pair.get("aics_node_score") is not None
+                or pair.get("historically_independent_pit_attested") is not False
+                or pair.get("original_first_document_bytes_verified") is not False
+                or dt.date.fromisoformat(pair["research_eligible_at_date_proxy"]) > as_of):
+            raise ValueError("Ineligible direct cashflow pair")
+    return as_of
+
+
+def build(*, waves, finance, v17, v18, spx, shadow):
+    """Deterministic evidence-to-improvement research loop; no live network."""
+    as_of = _input_checks(waves, finance)
+    analysis = run_agents(v17=v17, v18=v18, sp500=spx, as_of=as_of)
+    improved = run_improvement(v17=v17, v18=v18, spx=spx, shadow=shadow,
+                               finance=finance, waves=waves, as_of=as_of)
+    if (analysis["agents_count"] != 10
+            or len(analysis["results"]) != 10
+            or any(x["status"] != "research_pass" for x in analysis["results"])
+            or analysis["complete_aics_index"] is not None
+            or analysis["aics_sp500_spread"] is not None
+            or analysis["certified_pit"] is not False
+            or analysis["production_model_updated"] is not False
+            or analysis["trades_created"] is not False
+            or improved["actual_model_improvement_agents_executed"] != 10
+            or len(improved["agents"]) != 10
+            or any(x["execution"] != "completed" or
+                   x["new_aics_score_approved"] is not False or
+                   x["production_weights_changed"] is not False or
+                   x["trades_created"] is not False for x in improved["agents"])
+            or improved["original_quarter_finance_audit_loaded"] is not True
+            or improved["live_source_wave_manifest_loaded"] is not True
+            or improved["total_distinct_workflow_agent_roles"] != 30
+            or improved["full_aics"] is not None
+            or improved["aics_sp500_spread"] is not None
+            or improved["trained_supervised_forecast"] is not False
+            or improved["historical_provider_pit_certified"] is not False
+            or improved["aics_node_weights_modified"] is not False
+            or improved["trades_created"] is not False):
+        raise ValueError("AICS combined 30-role output failed independent safety gates")
+    apr = analysis["results"]
+    imp = improved["agents"]
+    if (apr[9]["result"]["production_promotion"] != "BLOCKED"
+            or imp[7]["research_result"]["independent_out_of_sample_months"] != 0
+            or imp[9]["research_result"]["ready_to_train_supervised_model"] is not False):
+        raise ValueError("AICS research improperly promoted to forecasting")
+
+    unavailable = waves.get("unavailable_source_keys", [])
+    if not isinstance(unavailable, list):
+        raise ValueError("Source failures must be explicitly reported")
+    earlier = imp[8]["research_result"]["early_cash_imbalance_research"]
+    periods = earlier["source_periods"]
+    q1_complete = any(
+        str(p.get("period")).replace("-", " ").upper() in
+        ("2026 Q1", "2026Q1", "2026 Q1 2026") and p.get("issuer_count") == 4
+        for p in periods
+    )
+    direct_pairs = imp[0]["research_result"]["direct_quarter_pairs"]
+    if direct_pairs != finance["direct_original_3month_pair_candidates"]:
+        raise ValueError("Agent cashflow evidence disagrees with original finance gate")
+
+    # Proposed work is selected only from observed fail-closed limitations.
+    experiments = []
+    if not q1_complete:
+        experiments.append({
+            "priority": len(experiments) + 1,
+            "experiment": "2026_Q1_4_ISSUER_CASHFLOW_GAP",
+            "observed_gap": "No complete 2026 Q1 original-source cohort in cash-imbalance panel",
+            "completion_evidence": "Four comparable original SEC quarterly OCF and cash PP&E statements, dated SEC+14",
+            "decision": "RESEARCH",
+        })
+    if (finance["source_bytes_historical_first_filing_verified"] is False):
+        experiments.append({
+            "priority": len(experiments) + 1,
+            "experiment": "ORIGINAL_SEC_NUMERIC_SOURCE_TO_NODE",
+            "observed_direct_quarter_candidates": direct_pairs,
+            "completion_evidence": "First-filed SEC 10-Q/10-K originals, contemporaneous provenance, reconciled issuer/period/unit, immutable node journal",
+            "decision": "RESEARCH",
+        })
+    if imp[1]["research_result"]["approved_historical_2024_2026_points"] == 0:
+        experiments.append({
+            "priority": len(experiments) + 1,
+            "experiment": "AI_EQUITIES_HISTORICAL_CONSTITUENTS",
+            "completion_evidence": "Contemporaneous 2024-2026 constituent roster, splits, dividends, original quotes and availability timestamps",
+            "decision": "RESEARCH",
+        })
+    if imp[2]["research_result"]["source_level_credit_exposure_edges_verified"] == 0:
+        experiments.append({
+            "priority": len(experiments) + 1,
+            "experiment": "SPV_CREDIT_RECOURSE_NETWORK",
+            "completion_evidence": "Original lender-to-borrower exposure, dates, recourse and guarantees without adding commitments to balances",
+            "decision": "RESEARCH",
+        })
+    if imp[7]["research_result"]["independent_out_of_sample_months"] == 0:
+        experiments.append({
+            "priority": len(experiments) + 1,
+            "experiment": "FROZEN_FORMULA_WALK_FORWARD",
+            "completion_evidence": "Prior-frozen 11-node formulas, 24 untouched forward months, baseline score and independently verified outcomes",
+            "decision": "BLOCKED_UNTIL_DATA",
+        })
+    if unavailable:
+        experiments.append({
+            "priority": len(experiments) + 1,
+            "experiment": "RETRY_MISSING_PRIMARY_SOURCES",
+            "missing_source_ids": unavailable,
+            "completion_evidence": "Genuine original publisher responses and retained immutable byte hashes; no zero-filled substitutes",
+            "decision": "RESEARCH",
+        })
+    return {
+        "schema": "aics-30-agent-evidence-to-improvement-loop-v1",
+        "cutoff_date": as_of.isoformat(),
+        "observed_source_timestamp_utc": waves["captured_at_utc"],
+        "agent_groups": {
+            "live_source_wave_agents": 10,
+            "historical_research_analysis_agents": 10,
+            "model_improvement_research_agents": 10,
+            "total_distinct_roles_executed": 30,
+        },
+        "source_collection": {
+            "rounds": 10,
+            "http_attempts": waves["total_http_attempts"],
+            "successful_http_archives": waves["successful_http_archives"],
+            "unique_source_ids_archived": waves["unique_original_source_ids_archived"],
+            "unavailable_source_ids": unavailable,
+            "current_numeric_snapshot_rows": finance["original_numeric_rows_inspected"],
+            "direct_quarter_research_candidates": direct_pairs,
+            "historical_first_document_receipt_verified": False,
+        },
+        "analysis": {
+            "market_research_observability_pct": apr[2]["result"]["market"]["research_observability_pct"],
+            "calendar_research_observability_pct": apr[2]["result"]["calendar"]["research_observability_pct"],
+            "market_proxy_months": 24,
+            "historical_full_aics_months": 0,
+            "retrospective_source_anomaly_events": apr[8]["result"]["source_eligible_events"],
+            "research_attention_flags": apr[8]["result"]["research_attention_flags"],
+            "analysis_is_previous_V17_V18_not_new_sec_score_ingestion": True,
+        },
+        "model_improvement": {
+            "model_challenger_executed": True,
+            "historical_2000_2008_similarity_percent": None,
+            "2026_q1_4issuer_cashflow_complete": q1_complete,
+            "credit_exposure_edges_verified": 0,
+            "approved_ai_equities_history_points": 0,
+            "untouched_oos_months": 0,
+            "new_predictive_skill": None,
+        },
+        "next_experiments": experiments,
+        "cycle_decision": "RESEARCH_ONLY_NOT_AUTONOMOUS_PRODUCTION",
+        "complete_11_node_aics": None,
+        "crisis_probability": None,
+        "weights_total_unchanged": sum(WEIGHTS.values()),
+        "weights_changed": False,
+        "trades_created": False,
+        "verdict_mutated": False,
+        "eligible_for_production_promotion": False,
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--waves", type=Path, default=WAVES)
+    parser.add_argument("--finance", type=Path, default=FINANCE)
+    parser.add_argument("--out", type=Path, default=OUTPUT)
+    args = parser.parse_args()
+    report = build(
+        waves=read_analysis(args.waves),
+        finance=read_analysis(args.finance),
+        v17=read_analysis(V17),
+        v18=read_analysis(V18),
+        spx=read_analysis(SPX),
+        shadow=read_improvement(AI_SHADOW),
+    )
+    report["lineage_sha256"] = {
+        str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in (args.waves, args.finance, V17, V18, SPX, AI_SHADOW)
+    }
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n",
+                        encoding="utf-8")
+    print(json.dumps({
+        "agents": report["agent_groups"]["total_distinct_roles_executed"],
+        "source_http_attempts": report["source_collection"]["http_attempts"],
+        "source_raw_archives": report["source_collection"]["successful_http_archives"],
+        "direct_cashflow_pairs": report["source_collection"]["direct_quarter_research_candidates"],
+        "research_experiments": len(report["next_experiments"]),
+        "production_index": None,
+        "auto_promotion": False,
+        "trades": False,
+    }, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
