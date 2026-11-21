@@ -15,6 +15,11 @@ on:
       - scripts/aics_spv_funding_transmission_bridge.py
       - scripts/aics_v28_credit_relationship_topology.py
       - scripts/aics_v29_refinancing_maturity_overlay.py
+      - scripts/aics_v30_cashflow_financing_bridge.py
+      - tests/test_aics_v30_cashflow_financing_bridge.py
+      - aics_data/research/neocloud_q2_funding_2026.json
+      - aics_data/research/neocloud_cash_coverage_2026_h1.json
+      - aics_data/source_registry/neocloud_cash_h1_sec.json
       - tests/test_aics_v29_refinancing_maturity_overlay.py
       - aics_data/research/aics_v29_contractual_refinancing_terms_primary_sec_2026-11-22.json
       - tests/test_aics_v28_credit_relationship_topology.py
@@ -84,6 +89,11 @@ jobs:
           python -m compileall -q scripts/aics_v29_refinancing_maturity_overlay.py tests/test_aics_v29_refinancing_maturity_overlay.py
           python -m unittest discover -s tests -p 'test_aics_v29_refinancing_maturity_overlay.py' -v
           python -m scripts.aics_v29_refinancing_maturity_overlay --as-of 2026-11-22 --out aics_data/agent_runs/ten_real_collection_rounds/aics_v29_refinancing_maturity_research.json
+      - name: Reconcile original 2026 Q2 debt versus equity financing with SEC+14
+        run: |
+          python -m compileall -q scripts/aics_v30_cashflow_financing_bridge.py tests/test_aics_v30_cashflow_financing_bridge.py
+          python -m unittest discover -s tests -p 'test_aics_v30_cashflow_financing_bridge.py' -v
+          python -m scripts.aics_v30_cashflow_financing_bridge --as-of 2026-11-22 --out aics_data/agent_runs/ten_real_collection_rounds/aics_v30_cashflow_financing_bridge.json
       - name: Verify integrated 30-agent cycle research and fail-closed gates
         run: |
           python -m compileall -q scripts/aics_thirty_agent_cycle.py tests/test_aics_thirty_agent_cycle.py
@@ -136,6 +146,20 @@ jobs:
           assert cycle['model_improvement']['credit_exposure_edges_verified']==0
           assert cycle['model_improvement']['v28_source_dated_credit_legal_edges']==9
           assert cycle['model_improvement']['v29_contractual_maturity_records']==3
+          assert cycle['model_improvement']['v30_real_q2_issuer_funding_mechanisms_reconciled']==2
+          assert cycle['model_improvement']['v30_coreweave_net_q2_financing_usd_m']=='10071'
+          assert cycle['model_improvement']['v30_nebius_net_q2_financing_usd_m']=='2864.9'
+          assert cycle['model_improvement']['v30_mixed_equity_vs_debt_mechanisms_not_same_loan_repricing'] is True
+          assert cycle['model_improvement']['v30_crisis_causal_skill'] is None
+          funding = json.loads((path/'aics_v30_cashflow_financing_bridge.json').read_text())
+          assert funding['q2_same_date_comparable_two_issuer_count']==2
+          assert len(funding['issuer_quarter_observations'])==4
+          assert funding['q2_independent_funding_source_reconciliation_complete'] is True
+          assert funding['historically_comparable_matched_borrower_pricing_event_count']==0
+          assert funding['credit_spread_repricing_on_matched_instrument_bps'] is None
+          assert funding['q2_cashflow_is_not_net_lender_debt_outstanding'] is True
+          assert funding['crisis_probability'] is None and funding['full_aics'] is None
+          assert funding['weights_changed'] is False and funding['trades_created'] is False
           assert cycle['model_improvement']['v29_2027_10_16_nebius_maturity_within_365_days'] is True
           assert cycle['model_improvement']['v29_2027_maturity_actual_refinancing_need_usd_m'] is None
           assert cycle['model_improvement']['v29_coreweave_named_admin_agents']==2
@@ -186,6 +210,12 @@ jobs:
           assert improvements['agents'][8]['research_result']['historical_crisis_analog']['feature_axis_count']==8
           assert improvements['agents'][8]['research_result']['historical_crisis_analog']['full_AICS'] is None
           assert improvements['total_distinct_workflow_agent_roles']==30
+          finance_challenger=improvements['agents'][8]['research_result']['same_issuer_real_cashflow_financing_research']
+          assert finance_challenger['issuer_quarters_original_SEC_eligible']==4
+          assert finance_challenger['coreweave_q2_net_financing_cash_usd_m']=='10071'
+          assert finance_challenger['nebius_q2_net_financing_cash_usd_m']=='2864.9'
+          assert finance_challenger['matched_instrument_spread_repricing_bps'] is None
+          assert finance_challenger['financial_contagion_causality_established'] is False
           refinance=improvements['agents'][8]['research_result']['contractual_refinancing_maturity_research']
           assert refinance['eligible_contractual_terms']==3
           assert refinance['known_maturity_within_365d_count']==1
@@ -273,6 +303,7 @@ jobs:
               print('- V27: two CoreWeave June 30 reported SPV balances total $3.938bn, two contractual ceilings $11.600bn; distinct Nscale $3.050bn GPU limits and $2.540bn DFS rental schedules not additive; current named lender exposures still unknown.',file=stream)
               print('- V28: 9 heterogeneous source-dated legal relationships, including 2 named funding-provider relationships and 2 named affiliate guarantee links; zero current named lender-dollar exposure edges. No aggregate lender contagion probability.',file=stream)
               print('- V29: SEC-dated 2027-10-16 Nebius bridge contractual maturity, 2031-11-15 CoreWeave DDTL 5 and 2032-03-31 DDTL 4; named Citi lender/arranger, MUFG and Morgan Stanley administrative agents without current lender dollar attribution.',file=stream)
+              print('- V30: Q2 source-reconciled financing cash CoreWeave +$10.071bn (debt issuance and repayments) vs Nebius +$2.8649bn (mostly equity), alongside distinct cash PP&E deficits. Different loan spread is not matched-loan repricing; no bank contagion skill.',file=stream)
               for experiment in cycle['next_experiments']:
                   print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
           PY
