@@ -49,6 +49,8 @@ class NoMultiplier24mCoverageTest(unittest.TestCase):
         self.assertEqual(by["Hyperscalers","2026-11-13"],"13.09")
         self.assertEqual(by["UST 30Y","2026-10-31"],"78.26")
         self.assertEqual(by["Repo","2026-10-31"],"86.96")
+        self.assertEqual(by["Insurers","2024-11-14"],"0.26")
+        self.assertEqual(by["Insurers","2025-02-27"],"0.38")
         self.assertEqual(by["Insurers","2025-05-15"],"0.51")
         self.assertEqual(by["Insurers","2025-08-14"],"0.77")
         self.assertEqual(by["Insurers","2025-11-13"],"0.74")
@@ -64,10 +66,14 @@ class NoMultiplier24mCoverageTest(unittest.TestCase):
 
     def test_month_end_gates_prevent_lookahead_and_backfill(self):
         by={row["month"]:row for row in self.panel["monthly"]}
-        self.assertEqual(by["2024-11"]["known_node_count_research_only"],1)
-        self.assertEqual(by["2024-11"]["partial_known_weighted_points_not_aics"],"39.35")
+        self.assertEqual(by["2024-11"]["known_node_count_research_only"],2)
+        self.assertEqual(by["2024-11"]["partial_known_weighted_points_not_aics"],"39.68")
         self.assertEqual(by["2024-11"]["latest_eligible_research_scores"]["Semiconductors Supply"]["source_available_at"],"2024-11-15")
-        self.assertEqual(by["2024-12"]["known_node_count_research_only"],1)
+        self.assertEqual(by["2024-12"]["known_node_count_research_only"],2)
+        self.assertEqual(by["2025-01"]["latest_eligible_research_scores"]["Insurers"]["score"],"0.26")
+        self.assertEqual(by["2025-02"]["latest_eligible_research_scores"]["Insurers"]["score"],"0.38")
+        self.assertEqual(by["2025-02"]["latest_eligible_research_scores"]["Insurers"]["source_available_at"],"2025-02-27")
+        self.assertEqual(by["2025-04"]["partial_known_weighted_points_not_aics"],"40.38")
         self.assertEqual(by["2025-05"]["known_node_count_research_only"],2)
         self.assertEqual(by["2025-06"]["known_node_count_research_only"],3)
         self.assertEqual(by["2025-06"]["partial_known_weighted_points_not_aics"],"141.04")
