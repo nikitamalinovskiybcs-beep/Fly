@@ -1,0 +1,39 @@
+{
+  "schema": "aics-nov20-insurer-corrected-ir-shadow-sensitivity-v1",
+  "research_asof": "2026-11-21",
+  "note": "One-input correction sensitivity to immutable published IR shadow; NOT a fresh 2026-11-20 11-source PIT snapshot or accepted trading index.",
+  "original_immutable_release": "aics_data/progress/research_release_2026-11-19.json",
+  "original_immutable_ir_shadow": "aics_data/research/aics_2026_11_20_ir_shadow_no_multiplier.json",
+  "original_immutable_source_close": "aics_data/research/aics_2026_11_20_close_research_rollover.json",
+  "corrected_original_sec_source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+  "insurers": {
+    "original_mixed_scope_score": "0.91",
+    "original_nonaccrual_without_acl_usd_m": 610,
+    "original_wrong_consolidated_denominator_usd_m": 67004,
+    "correct_narrow_credit_portfolio_net_usd_m": 58685,
+    "corrected_score": "1.04",
+    "source_filed_at": "2026-11-04",
+    "source_available_at": "2026-11-18",
+    "original_sec_url": "https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/pru-20260930.htm"
+  },
+  "calculation": {
+    "insurers_weight": 125,
+    "original_release_unmultiplied_raw": "514.6875",
+    "original_nov20_ir_delta_neocloud": "14.05",
+    "insurer_weighted_correction_points": "0.1625",
+    "corrected_ir_unmultiplied_raw": "528.9000",
+    "previous_frozen_ir_shadow_rounded": "528.74",
+    "corrected_conditional_ir_shadow_rounded": "528.90",
+    "legacy_multiplier_applied": false
+  },
+  "scope": {
+    "source_contemporaneously_delivery_attested": false,
+    "independent_full_24_month_oos": false,
+    "all_11_sources_refreshed_at_nov20_close": false,
+    "certified_aics": null,
+    "real_24m_aics_sp500_spread": null,
+    "trades_created": false,
+    "old_frozen_release_modified": false
+  },
+  "warning": "Use 528.90 only as same-input correction sensitivity; source-date and scoring scope still not trading grade. The archival original IR 528.74 is intentionally retained for traceability; do not replace it or claim an observed +0.16 point AICS time series."
+}
