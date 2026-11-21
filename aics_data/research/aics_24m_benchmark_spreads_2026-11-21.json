@@ -167,8 +167,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 5.4938,
       "repo_sofr_minus_iorb_bp": -1,
       "ust30_volatility_bp": 4.86,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 100,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -185,8 +185,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 5.8409,
       "repo_sofr_minus_iorb_bp": -8,
       "ust30_volatility_bp": 4.88,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 100,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -203,8 +203,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 4.7799,
       "repo_sofr_minus_iorb_bp": -6,
       "ust30_volatility_bp": 3.52,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 100,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -221,8 +221,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 7.0388,
       "repo_sofr_minus_iorb_bp": -2,
       "ust30_volatility_bp": 4.45,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 100,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -239,8 +239,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 10.1522,
       "repo_sofr_minus_iorb_bp": 14,
       "ust30_volatility_bp": 3.72,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 100,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -257,8 +257,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 7.9827,
       "repo_sofr_minus_iorb_bp": 15,
       "ust30_volatility_bp": 3.3,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 51.9,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -275,8 +275,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 7.1581,
       "repo_sofr_minus_iorb_bp": 6,
       "ust30_volatility_bp": 2.39,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 51.9,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -293,8 +293,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 7.0531,
       "repo_sofr_minus_iorb_bp": 0,
       "ust30_volatility_bp": 3.17,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 51.9,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -311,8 +311,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 5.2201,
       "repo_sofr_minus_iorb_bp": 2,
       "ust30_volatility_bp": 3.52,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 51.9,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -329,8 +329,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 5.2,
       "repo_sofr_minus_iorb_bp": -2,
       "ust30_volatility_bp": 5.11,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 51.9,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -347,8 +347,8 @@
       "ndx_minus_spx_cumulative_base100_pp": 11.654,
       "repo_sofr_minus_iorb_bp": -2,
       "ust30_volatility_bp": 2.41,
-      "research_only_eligible_node_count": 0,
-      "research_only_partial_weighted_points_not_aics": null,
+      "research_only_eligible_node_count": 1,
+      "research_only_partial_weighted_points_not_aics": 51.9,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -464,5 +464,6 @@
   ],
   "promotion": "RESEARCH_ONLY",
   "independently_certified_pit": false,
-  "trades_created": false
+  "trades_created": false,
+  "source_addition": "2025 Q1-Q3 SEC original Neoclouds research, first availability 2025-06-03"
 }
