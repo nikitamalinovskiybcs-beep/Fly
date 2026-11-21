@@ -21,6 +21,7 @@ from pathlib import Path
 from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_neocloud_2025_sec_quarters import calculate as neocloud_2025_original_sec
 from scripts.aics_fed_g17_first_release_monthly import read as g17_naics3344_first_releases
+from scripts.aics_pru_insurers_original_quarters import calculate as pru_insurers_quarters
 
 ROOT = Path("aics_data/research")
 SP500 = ROOT / "sp500_24_month_closes_2026-11-21.json"
@@ -100,6 +101,15 @@ def candidates():
             "independently_attested_historical_pit": False,
             "independently_24month_oos_verified": False
         })
+
+    # Six Prudential original SEC 10-Q quarter-end credit facts: the same
+    # narrowly scoped no-related-ACL nonaccrual ratio as the November research
+    # score. SEC filed_at+14, never retrodict missing 2024 quarters or 2025 Q4.
+    for pru in pru_insurers_quarters():
+        add("Insurers",pru["available_at"],pru["score"],
+            ROOT / "pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+            pru["quarter"] + " same-scope PRU no-ACL nonaccrual ratio",
+            "Insurer single-issuer proxy; not AI-specific, original bytes not independently rehashed")
 
     # Dated original monthly Fed G.17 preliminary observations; first-publication
     # delayed until Dec 2025 for 2025 Sep/Oct/Nov, never use as of the
