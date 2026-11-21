@@ -20,6 +20,10 @@ from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_sec_quarter_cashflow_gate import audit as audit_cashflow
 from scripts.aics_historical_crisis_analog import build as historical_crisis_analog
 from scripts.aics_v28_credit_relationship_topology import from_originals as credit_network_build
+from scripts.aics_v30_cashflow_financing_bridge import (
+    build as issuer_funding_build, FUNDING as ISSUER_FUNDING,
+    CASH as ISSUER_QCASH, SEC as ISSUER_CASH_SEC,
+)
 from scripts.aics_v29_refinancing_maturity_overlay import (
     build as refinancing_build, TERMS as REFINANCING_TERMS,
 )
@@ -462,6 +466,43 @@ def run(*, v17, v18, spx, shadow, finance=None, waves=None, as_of=None):
         "actual_coupon_including_term_sofr": None,
         "historical_PIT_independently_attested": False,
         "crisis_probability": None,
+    }
+    issuer_funding=issuer_funding_build(
+        read(ISSUER_FUNDING), read(ISSUER_QCASH), read(ISSUER_CASH_SEC),
+        as_of=as_of)
+    q2_funding={x["issuer"]:x for x in issuer_funding["issuer_quarter_observations"]
+                if x["period"]=="2026-Q2"}
+    if (issuer_funding["q2_same_date_comparable_two_issuer_count"]!=2
+            or set(q2_funding)!={"CoreWeave","Nebius"}
+            or q2_funding["CoreWeave"]["net_financing_cash_usd_m"]!="10071"
+            or q2_funding["Nebius"]["net_financing_cash_usd_m"]!="2864.9"
+            or issuer_funding["credit_spread_repricing_on_matched_instrument_bps"] is not None
+            or issuer_funding["historically_comparable_matched_borrower_pricing_event_count"] != 0
+            or issuer_funding["full_aics"] is not None
+            or issuer_funding["crisis_probability"] is not None
+            or issuer_funding["original_weights_total_unchanged"]!=1050
+            or issuer_funding["trades_created"] is not False):
+        raise ValueError("Corporate debt vs equity cash bridge may not become a bank contagion signal")
+    payloads[2]["source_reconciled_neoclouds_q2_financing_cash_issuers"] = 2
+    payloads[8]["same_issuer_real_cashflow_financing_research"] = {
+        "issuer_quarters_original_SEC_eligible":len(issuer_funding["issuer_quarter_observations"]),
+        "coreweave_q2_ocf_minus_cash_capex_usd_m":
+            q2_funding["CoreWeave"]["ocf_less_purchases_usd_m"],
+        "coreweave_q2_net_financing_cash_usd_m":
+            q2_funding["CoreWeave"]["net_financing_cash_usd_m"],
+        "coreweave_q2_qoq_gap_deterioration_usd_m":
+            q2_funding["CoreWeave"]["qoq_change_ocf_minus_cash_purchases_usd_m"],
+        "nebius_q2_ocf_minus_cash_purchases_usd_m":
+            q2_funding["Nebius"]["ocf_less_purchases_usd_m"],
+        "nebius_q2_net_financing_cash_usd_m":
+            q2_funding["Nebius"]["net_financing_cash_usd_m"],
+        "nebius_q2_qoq_gap_deterioration_usd_m":
+            q2_funding["Nebius"]["qoq_change_ocf_minus_cash_purchases_usd_m"],
+        "named_current_lender_funded_dollar_amount_usd_m":None,
+        "ddtl4_vs_ddtl5_same_instrument_repricing_established":False,
+        "matched_instrument_spread_repricing_bps":None,
+        "financial_contagion_causality_established":False,
+        "production_score":None,
     }
     payloads[8]["early_cash_imbalance_research"] = {
         "source_periods": [
