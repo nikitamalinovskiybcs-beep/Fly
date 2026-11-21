@@ -537,6 +537,5 @@
     }
   ],
   "certified_aics": null,
-  "trades_created": false,
-  "q4_2025_original_sec_neoclouds_source": "aics_data/research/neoclouds_2025_q4_sec_original_cashflow_2026-11-21.json"
+  "trades_created": false
 }
