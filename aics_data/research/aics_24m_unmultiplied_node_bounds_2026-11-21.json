@@ -237,9 +237,8 @@
     },
     {
       "month": "2025-09",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -248,10 +247,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "142.76",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "917.76",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "867.76",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -259,9 +258,8 @@
     },
     {
       "month": "2025-10",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -270,10 +268,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "142.76",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "917.76",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "867.76",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -281,9 +279,8 @@
     },
     {
       "month": "2025-11",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -292,10 +289,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "94.63",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "869.63",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "819.63",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -303,9 +300,8 @@
     },
     {
       "month": "2025-12",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -314,10 +310,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "90.03",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "865.03",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "815.03",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -325,9 +321,8 @@
     },
     {
       "month": "2026-01",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -336,10 +331,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "89.63",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "864.63",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "814.63",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -347,9 +342,8 @@
     },
     {
       "month": "2026-02",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -358,10 +352,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "89.64",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "864.64",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "814.64",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -369,9 +363,8 @@
     },
     {
       "month": "2026-03",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -380,10 +373,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "98.36",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "873.36",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "823.36",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -391,9 +384,8 @@
     },
     {
       "month": "2026-04",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -402,10 +394,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "96.96",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "871.96",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "821.96",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -413,9 +405,8 @@
     },
     {
       "month": "2026-05",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -424,10 +415,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "85.10",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "860.10",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "810.10",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -435,9 +426,8 @@
     },
     {
       "month": "2026-06",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -446,10 +436,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "86.70",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "861.70",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "811.70",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -457,9 +447,8 @@
     },
     {
       "month": "2026-07",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -468,10 +457,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "85.10",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "860.10",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "810.10",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -479,18 +468,17 @@
     },
     {
       "month": "2026-08",
-      "known_nodes": 6,
+      "known_nodes": 7,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Power/Data Centers",
         "Repo",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 425,
+      "unknown_total_node_weight": 375,
       "known_contribution_lower_bound": "249.09",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "674.09",
-      "arithmetic_band_width": "425",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "624.09",
+      "arithmetic_band_width": "375",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
