@@ -25,6 +25,7 @@ from scripts.aics_fed_g17_first_release_monthly import read as g17_naics3344_fir
 from scripts.aics_fed_g17_first_release_monthly import initial_publication as g17_initial_publication
 from scripts.aics_pru_insurers_original_quarters import calculate as pru_insurers_quarters
 from scripts.aics_broadcom_ai_demand_original_2025_2026 import calculate as broadcom_early_ai_demand
+from scripts.aics_broadcom_2025q2_bounded_original_sec import calculate as broadcom_2025q2_bounded
 
 ROOT = Path("aics_data/research")
 SP500 = ROOT / "sp500_24_month_closes_2026-11-21.json"
@@ -213,6 +214,16 @@ def candidates():
         raise ValueError("SPV debt cannot exceed valid referenced ceilings")
     add("SPV", facilities["available_at"], 100 * debt / ceiling, neo_path,
         "2026-Q2 two reported DDTL facilities, debt divided by ceiling")
+
+    # Original 2025 Q2 SEC actual was strictly GREATER than $4.4bn
+    # while previous first-published SEC guidance was $4.4bn.
+    # Exact actual is unknown; nevertheless 100*max(0,1-actual/guidance)
+    # must equal zero. Score eligible SEC+14 only on 2025-06-19.
+    q2bound=broadcom_2025q2_bounded()
+    add("AI Demand",q2bound["available_at"],q2bound["score"],
+        ROOT / "broadcom_ai_demand_2025q2_strict_lower_bound_sec_2026-11-21.json",
+        "2025-Q2 original SEC AI revenue strictly > $4.4bn prior guidance",
+        "Exact quarterly AI revenue not disclosed; source provides a strict >4400 lower bound, ensuring zero stress mathematically, not missing-value imputation")
 
     # Three original 2025-26 Broadcom SEC earnings EX-99.1 actual/guidance pairs.
     # A real observed zero-stress is NOT a missing-node zero-filled score.
