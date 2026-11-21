@@ -10,7 +10,7 @@
   "rows": [
     {
       "month": "2024-11",
-      "known_nodes": 0,
+      "known_nodes": 1,
       "missing_nodes": [
         "AI Demand",
         "AI Equities",
@@ -21,13 +21,12 @@
         "Private Credit",
         "Repo",
         "SPV",
-        "Semiconductors Supply",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 1050,
-      "known_contribution_lower_bound": "0.00",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "1050.00",
-      "arithmetic_band_width": "1050",
+      "unknown_total_node_weight": 1000,
+      "known_contribution_lower_bound": "39.35",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "1039.35",
+      "arithmetic_band_width": "1000",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
