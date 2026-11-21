@@ -1,4 +1,4 @@
-"""Six original Prudential credit statements: identical ratio, strict SEC+14."""
+"""Seven original Prudential credit statements: identical ratio, strict SEC+14."""
 import copy
 import json
 import unittest
@@ -12,17 +12,30 @@ class PrudentialInsurersOriginalHistoryTest(unittest.TestCase):
 
     def test_dated_identical_metric_2025_2026(self):
         result=calculate(self.data)
-        self.assertEqual(len(result),6)
+        self.assertEqual(len(result),7)
         self.assertEqual(
             [(r["quarter"],r["available_at"],r["score"]) for r in result],
             [("2025-Q1","2025-05-15","0.51"),
              ("2025-Q2","2025-08-14","0.77"),
              ("2025-Q3","2025-11-13","0.74"),
+             ("2025-Q4","2026-02-26","0.79"),
              ("2026-Q1","2026-05-20","0.44"),
              ("2026-Q2","2026-08-19","1.32"),
-             ("2026-Q3","2026-11-18","0.91")])
+             ("2026-Q3","2026-11-18","1.04")])
         self.assertTrue(all(x["historical_provider_pit_certified"] is False for x in result))
         self.assertTrue(all(x["independent_24m_oos"] is False for x in result))
+
+    def test_10k_q4_dated_and_cross_scope_q3_denominator(self):
+        result=calculate(self.data)
+        self.assertEqual(result[3]["available_at"],"2026-02-26")
+        self.assertEqual(result[3]["score"],"0.79")
+        self.assertEqual(result[-1]["score"],"1.04")
+        for idx,key,bad in ((3,"commercial_mortgage_and_other_loans_net_usd_m",64715),
+                            (6,"commercial_mortgage_and_other_loans_net_usd_m",67004)):
+            ledger=copy.deepcopy(self.data)
+            ledger["events"][idx][key]=bad
+            with self.assertRaisesRegex(ValueError,"mismatched"):
+                calculate(ledger)
 
     def test_exact_filing_dates_cannot_backfill(self):
         data=copy.deepcopy(self.data)
