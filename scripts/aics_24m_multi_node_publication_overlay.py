@@ -78,8 +78,15 @@ def source_updates(events):
     pru = read("pru_insurers_nonaccrual_original_quarters_2025_2026.json")
     for r in pru["events"]:
         base = _base_event(events,"Insurers",r["available_at"],r["score_pct"])
+        # Some original 10-Q numeric documents are SEC accession mirrors on
+        # the Prudential investor site; use the independently listed SEC
+        # filing accession index to anchor its exact filing date.
+        index = r.get("source_index") or (
+            "https://www.sec.gov/Archives/edgar/data/" +
+            str(r["cik"]) + "/" + r["accession"].replace("-","") +
+            "/" + r["accession"] + "-index.htm")
         register(updates,base,[filed_source(
-            r["filed_at"],r["available_at"],r["source_index"])])
+            r["filed_at"],r["available_at"],index)])
 
     neo = read("neoclouds_2025_q1_q3_sec_cashflow_research_2026-11-21.json")
     roster = {"2025-Q1":("crwv_q1","nbis_q1"),
