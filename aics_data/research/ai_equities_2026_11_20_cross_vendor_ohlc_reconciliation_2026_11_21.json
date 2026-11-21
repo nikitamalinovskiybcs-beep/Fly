@@ -87,11 +87,11 @@
   },
   "benchmark_state": {
     "original_rollover_reconciles": true,
-    "source_times_are_next_day": false,
     "source_observed_ex_post_asof": "2026-11-21",
     "november_research_11_node_shadow_points": "528.74",
     "november_research_11_node_shadow_certified": false,
-    "november_20_non_equity_inputs_carried_from": "2026-11-18"
+    "november_20_non_equity_inputs_carried_from": "2026-11-18",
+    "source_observed_only_next_day": true
   },
   "caveats": {
     "independent_exchange_primary_price_feed_attested": false,
