@@ -1,0 +1,92 @@
+name: AICS ten genuine live data acquisition waves
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_ten_source_collection_rounds.py
+      - tests/test_aics_ten_source_collection_rounds.py
+      - .github/workflows/aics-ten-real-source-waves.yml
+  schedule:
+    - cron: '15 23 * * 1-5'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aics-real-collection-ten-waves-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  actual-source-acquisition:
+    name: Ten sequential live collection passes with XBRL numeric evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile ten real data acquisition waves and safety tests
+        run: python -m compileall -q scripts/aics_ten_source_collection_rounds.py tests/test_aics_ten_source_collection_rounds.py
+      - name: Run isolated collector numeric and provenance tests
+        run: python -m unittest discover -s tests -p 'test_aics_ten_source_collection_rounds.py' -v
+      - name: Execute ten actual per-node source collection rounds
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: python -m scripts.aics_ten_source_collection_rounds --out aics_data/agent_runs/ten_real_collection_rounds
+      - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          path = Path('aics_data/agent_runs/ten_real_collection_rounds')
+          report = json.loads((path/'ten_rounds_manifest.json').read_text())
+          values = json.loads((path/'actual_sec_xbrl_facts_unverified.json').read_text())
+          assert report['rounds']==10 and report['source_agents']==10
+          assert len(report['rounds_report'])==10
+          assert [r['round'] for r in report['rounds_report']]==list(range(1,11))
+          assert report['fixed_weights_total']==1050
+          assert report['actual_numeric_facts_extracted_current_sec_snapshots']==len(values)
+          assert report['complete_index'] is None and report['independent_sp500_skill'] is None
+          assert report['production_weights_changed'] is False
+          assert report['trades_created'] is False
+          for wave in report['rounds_report']:
+              for item in wave['operations']:
+                  if item['status'] in (
+                      'original_archived_no_pit',
+                      'numeric_source_archived_no_historical_pit'):
+                      raw=Path(item['raw_path']).read_bytes()
+                      assert hashlib.sha256(raw).hexdigest()==item['raw_sha256']
+                      assert item['node_score_eligible'] is False
+          if report['total_http_attempts'] == 0:
+              raise ValueError('No original publisher was actually contacted')
+          summary={
+              'rounds':report['rounds'],
+              'official_primary_http_attempts':report['total_http_attempts'],
+              'official_primary_responses_archived':report['successful_http_archives'],
+              'sec_original_numeric_snapshot_count':report['sec_companyfacts_original_snapshots_archived'],
+              'actual_original_numeric_facts_extracted':len(values),
+              'unavailable_sources':report['unavailable_source_keys'],
+              'historical_pit_certified':False,
+              'trading_disabled':True,
+          }
+          print(summary)
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as stream:
+              print('## AICS 10 genuinely executed primary-source acquisition waves',file=stream)
+              for key,val in summary.items():
+                  print(f'- {key}: **{val}**',file=stream)
+              print('Latest SEC Company Facts represent a current API snapshot; numeric records are **not historical first-delivery PIT attested**.',file=stream)
+          PY
+      - name: Archive exact public primary-source bytes and 10 collection receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-ten-actual-collection-waves-numeric-originals
+          path: aics_data/agent_runs/ten_real_collection_rounds/
+          if-no-files-found: warn
+          retention-days: 90
