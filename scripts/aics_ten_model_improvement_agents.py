@@ -23,6 +23,7 @@ from scripts.aics_early_imbalance_cashflow_shadow import (
     build as early_imbalance_build,
     Y2025 as EARLY_CASH_2025,
     Q42025 as EARLY_CASH_2025Q4,
+    Q12026 as EARLY_CASH_2026Q1,
     Q22026 as EARLY_CASH_2026Q2,
     Q32026 as EARLY_CASH_2026Q3,
 )
@@ -367,7 +368,7 @@ def run(*, v17, v18, spx, shadow, finance=None, waves=None, as_of=None):
         read(EARLY_CASH_2025Q4),
         read(EARLY_CASH_2026Q2),
         read(EARLY_CASH_2026Q3),
-        as_of=as_of)
+        q1=read(EARLY_CASH_2026Q1), as_of=as_of)
     if (imbalance["full_11_node_aics"] is not None
             or imbalance["similarity_to_2000_pct"] is not None
             or imbalance["similarity_to_2008_pct"] is not None
