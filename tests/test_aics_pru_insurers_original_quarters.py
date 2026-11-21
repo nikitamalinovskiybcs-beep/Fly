@@ -1,4 +1,4 @@
-"""Seven original Prudential credit statements: identical ratio, strict SEC+14."""
+"""Nine original Prudential credit statements: identical ratio, strict SEC+14."""
 import copy
 import json
 import unittest
@@ -12,10 +12,12 @@ class PrudentialInsurersOriginalHistoryTest(unittest.TestCase):
 
     def test_dated_identical_metric_2025_2026(self):
         result=calculate(self.data)
-        self.assertEqual(len(result),7)
+        self.assertEqual(len(result),9)
         self.assertEqual(
             [(r["quarter"],r["available_at"],r["score"]) for r in result],
-            [("2025-Q1","2025-05-15","0.51"),
+            [("2024-Q3","2024-11-14","0.26"),
+             ("2024-Q4","2025-02-27","0.38"),
+             ("2025-Q1","2025-05-15","0.51"),
              ("2025-Q2","2025-08-14","0.77"),
              ("2025-Q3","2025-11-13","0.74"),
              ("2025-Q4","2026-02-26","0.79"),
@@ -27,15 +29,33 @@ class PrudentialInsurersOriginalHistoryTest(unittest.TestCase):
 
     def test_10k_q4_dated_and_cross_scope_q3_denominator(self):
         result=calculate(self.data)
-        self.assertEqual(result[3]["available_at"],"2026-02-26")
-        self.assertEqual(result[3]["score"],"0.79")
+        self.assertEqual(result[5]["available_at"],"2026-02-26")
+        self.assertEqual(result[5]["score"],"0.79")
         self.assertEqual(result[-1]["score"],"1.04")
-        for idx,key,bad in ((3,"commercial_mortgage_and_other_loans_net_usd_m",64715),
-                            (6,"commercial_mortgage_and_other_loans_net_usd_m",67004)):
+        for idx,key,bad in ((5,"commercial_mortgage_and_other_loans_net_usd_m",64715),
+                            (8,"commercial_mortgage_and_other_loans_net_usd_m",67004)):
             ledger=copy.deepcopy(self.data)
             ledger["events"][idx][key]=bad
             with self.assertRaisesRegex(ValueError,"mismatched"):
                 calculate(ledger)
+
+    def test_2024_original_filing_gates_and_unmixed_denominators(self):
+        result=calculate(self.data)
+        self.assertEqual(result[0]["available_at"],"2024-11-14")
+        self.assertEqual(result[1]["available_at"],"2025-02-27")
+        self.assertEqual(result[0]["score"],"0.26")
+        self.assertEqual(result[1]["score"],"0.38")
+        for idx, field, altered in (
+            (0, "commercial_mortgage_and_other_loans_net_usd_m", 62573),
+            (1, "commercial_mortgage_and_other_loans_net_usd_m", 62341)):
+            bad=copy.deepcopy(self.data)
+            bad["events"][idx][field]=altered
+            with self.assertRaisesRegex(ValueError,"mismatched"):
+                calculate(bad)
+        bad=copy.deepcopy(self.data)
+        bad["events"][1]["available_at"]="2024-12-31"
+        with self.assertRaisesRegex(ValueError,"chronology"):
+            calculate(bad)
 
     def test_exact_filing_dates_cannot_backfill(self):
         data=copy.deepcopy(self.data)
