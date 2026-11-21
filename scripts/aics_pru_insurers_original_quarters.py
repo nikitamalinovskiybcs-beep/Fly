@@ -1,6 +1,6 @@
 """Replay issuer-hosted PRU quarterly original filing credit proxy without SEC lookahead.
 
-The 2025-Q1 through 2026-Q3 Prudential filings (including the 2025Q4 10-K) contain a consistent
+The 2024-Q3 through 2026-Q3 Prudential filings (including the 2024Q4 and 2025Q4 10-K) contain a consistent
 nonaccrual-WITHOUT-related-ACL numerator and a balance-sheet gross scope-
 matched net commercial mortgage/other loans denominator. This ratio is
 a narrowly scoped research candidate, not total delinquency or a certified
@@ -13,6 +13,8 @@ from pathlib import Path
 
 LEDGER=Path("aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json")
 EXPECTED={
+    "2024-Q3":("2024-09-30","2024-10-31","0001137774-24-000247",138,53500),
+    "2024-Q4":("2024-12-31","2025-02-13","0001137774-25-000044",207,53987),
     "2025-Q1":("2025-03-31","2025-05-01","0001137774-25-000060",274,54169),
     "2025-Q2":("2025-06-30","2025-07-31","0001137774-25-000108",423,54612),
     "2025-Q3":("2025-09-30","2025-10-30","0001137774-25-000178",415,55829),
@@ -35,7 +37,7 @@ def calculate(data=None):
     data=data if data is not None else json.loads(LEDGER.read_text(encoding="utf-8"))
     if (data.get("schema")!="aics-pru-insurers-noacl-nonaccrual-quarterly-original-filing-v1"
             or data.get("node")!="Insurers" or data.get("node_weight")!=125
-            or data.get("issuer_count")!=1 or data.get("periods")!=7
+            or data.get("issuer_count")!=1 or data.get("periods")!=9
             or data.get("raw_original_bytes_independently_rehashed") is not False
             or data.get("independently_historically_contemporaneous_pit_certified") is not False
             or data.get("independently_verified_24_month_oos") is not False
@@ -46,14 +48,14 @@ def calculate(data=None):
             or data.get("research_only") is not True):
         raise ValueError("Invalid Insurers original research provenance")
     events=data["events"]
-    if len(events)!=7 or [x["quarter"] for x in events]!=list(EXPECTED):
+    if len(events)!=9 or [x["quarter"] for x in events]!=list(EXPECTED):
         raise ValueError("Required six observed Prudential quarters missing")
     output=[]
     for row in events:
         quarter=row["quarter"]
         period,filed,acc,numerator,denominator=EXPECTED[quarter]
         available=(dt.date.fromisoformat(filed)+dt.timedelta(days=14)).isoformat()
-        if quarter=="2025-Q4":
+        if quarter in ("2024-Q3","2024-Q4","2025-Q4"):
             sec_path="https://www.sec.gov/Archives/edgar/data/1137774/"+acc.replace("-","")+"/"
             expected_url=sec_path+"pru-"+period.replace("-","")+".htm"
             expected_index=sec_path+acc+"-index.htm"
@@ -65,7 +67,7 @@ def calculate(data=None):
                 or row.get("accession")!=acc or row.get("source_url")!=expected_url
                 or row.get("available_at")!=available
                 or row.get("issuer")!="Prudential Financial, Inc."
-                or row.get("cik")!="1137774" or row.get("form")!=("10-K" if quarter=="2025-Q4" else "10-Q")
+                or row.get("cik")!="1137774" or row.get("form")!=("10-K" if quarter in ("2024-Q4","2025-Q4") else "10-Q")
                 or row.get("source_raw_sha256") is not None
                 or row.get("original_provider_delivery_pit_attested") is not False):
             raise ValueError("PRU issuer, SEC accession or +14 day source chronology invalid")
