@@ -20,6 +20,10 @@ from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_sec_quarter_cashflow_gate import audit as audit_cashflow
 from scripts.aics_historical_crisis_analog import build as historical_crisis_analog
 from scripts.aics_v28_credit_relationship_topology import from_originals as credit_network_build
+from scripts.aics_v31_interest_repo_dual_clock import (
+    build as interest_repo_build, INTEREST as IR_Q3_INTEREST,
+    REPO as HISTORICAL_REPO,
+)
 from scripts.aics_v30_cashflow_financing_bridge import (
     build as issuer_funding_build, FUNDING as ISSUER_FUNDING,
     CASH as ISSUER_QCASH, SEC as ISSUER_CASH_SEC,
@@ -503,6 +507,40 @@ def run(*, v17, v18, spx, shadow, finance=None, waves=None, as_of=None):
         "matched_instrument_spread_repricing_bps":None,
         "financial_contagion_causality_established":False,
         "production_score":None,
+    }
+    cost_q3 = interest_repo_build(
+        read(IR_Q3_INTEREST), read(HISTORICAL_REPO), issuer_funding,
+        as_of=as_of)
+    if (cost_q3["full_11node_aics"] is not None
+            or cost_q3["crisis_probability"] is not None
+            or cost_q3["matched_same_loan_spread_repricing_events_verified"]!=0
+            or cost_q3["matched_same_loan_repricing_bps"] is not None
+            or cost_q3["aics_node_scores_approved"]!=0
+            or cost_q3["weights_total_unchanged"]!=1050
+            or cost_q3["trades_created"] is not False):
+        raise ValueError("Interest burden and repo market proxies cannot certify SPV credit stress")
+    q3_ir=cost_q3["issuer_IR_Q3_research"]
+    payloads[2]["same_instrument_repricing_actual_two_dates_verified"]=0
+    payloads[8]["interest_repo_dual_clock_research"]={
+        "coreweave_Q3_IR_interest_to_revenue_pct":
+            q3_ir["net_interest_expense_divided_by_revenue_pct"] if q3_ir else None,
+        "coreweave_Q3_IR_interest_expense_usd_m":
+            q3_ir["quarter_net_interest_expense_usd_m"] if q3_ir else None,
+        "coreweave_Q3_SEC_eligible_at":cost_q3["original_2026_Q3_SEC_eligible_at"],
+        "coreweave_Q3_SEC_date_gate_passed":
+            cost_q3["Q3_SEC_10Q_date_gate_passed_as_of"],
+        "interest_Q3_public_IR_only_not_AICS_eligible":
+            q3_ir is not None and not q3_ir["AICS_model_eligible"],
+        "repo_latest_month":cost_q3["repo_retrospective_latest_observed_month"],
+        "repo_sofr_minus_iorb_bps":
+            cost_q3["repo_latest_month_sofr_minus_iorb_bps"],
+        "repo_monthly_spread_is_not_borrower_loan_repricing":
+            not cost_q3["repo_series_is_issuer_specific_funding_spread"],
+        "same_loan_real_repricing_points":0,
+        "same_loan_credit_spread_change_bps":None,
+        "current_lender_debt_exposure_usd_m":None,
+        "independent_24m_OOS_skill":None,
+        "model_risk_score":None,
     }
     payloads[8]["early_cash_imbalance_research"] = {
         "source_periods": [
