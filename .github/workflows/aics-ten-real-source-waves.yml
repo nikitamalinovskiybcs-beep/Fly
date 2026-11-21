@@ -8,6 +8,11 @@ on:
     paths:
       - scripts/aics_ten_source_collection_rounds.py
       - tests/test_aics_ten_source_collection_rounds.py
+      - scripts/aics_sec_quarter_cashflow_gate.py
+      - tests/test_aics_sec_quarter_cashflow_gate.py
+      - scripts/aics_ten_model_improvement_agents.py
+      - tests/test_aics_ten_model_improvement_agents.py
+      - aics_data/research/ai_equities_aug_oct_2026_retrospective_shadow_2026-11-21.json
       - .github/workflows/aics-ten-real-source-waves.yml
   schedule:
     - cron: '15 23 * * 1-5'
@@ -33,12 +38,24 @@ jobs:
         run: python -m compileall -q scripts/aics_ten_source_collection_rounds.py tests/test_aics_ten_source_collection_rounds.py
       - name: Run isolated collector numeric and provenance tests
         run: python -m unittest discover -s tests -p 'test_aics_ten_source_collection_rounds.py' -v
+      - name: Verify direct SEC quarter cashflow original matching tests
+        run: |
+          python -m compileall -q scripts/aics_sec_quarter_cashflow_gate.py tests/test_aics_sec_quarter_cashflow_gate.py
+          python -m unittest discover -s tests -p 'test_aics_sec_quarter_cashflow_gate.py' -v
+      - name: Verify ten model improvement agent evidence and forecasting gates
+        run: |
+          python -m compileall -q scripts/aics_ten_model_improvement_agents.py tests/test_aics_ten_model_improvement_agents.py
+          python -m unittest discover -s tests -p 'test_aics_ten_model_improvement_agents.py' -v
       - name: Execute ten actual per-node source collection rounds
         env:
           AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
         run: python -m scripts.aics_ten_source_collection_rounds --out aics_data/agent_runs/ten_real_collection_rounds
+      - name: Reconcile genuine direct-quarter operating cashflow and cash CapEx without YTD mixing
+        run: python -m scripts.aics_sec_quarter_cashflow_gate --input aics_data/agent_runs/ten_real_collection_rounds/actual_sec_xbrl_facts_unverified.json --out aics_data/agent_runs/ten_real_collection_rounds/sec_direct_quarter_cashflow_gate.json
+      - name: Execute ten AICS model improvement agents on actual financial inputs
+        run: python -m scripts.aics_ten_model_improvement_agents --sec-finance-audit aics_data/agent_runs/ten_real_collection_rounds/sec_direct_quarter_cashflow_gate.json --source-waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json --out aics_data/agent_runs/ten_real_collection_rounds/aics_model_improvement_agents.json
       - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
         run: |
           python - <<'PY'
@@ -47,6 +64,24 @@ jobs:
           path = Path('aics_data/agent_runs/ten_real_collection_rounds')
           report = json.loads((path/'ten_rounds_manifest.json').read_text())
           values = json.loads((path/'actual_sec_xbrl_facts_unverified.json').read_text())
+          finance = json.loads((path/'sec_direct_quarter_cashflow_gate.json').read_text())
+          improvements = json.loads((path/'aics_model_improvement_agents.json').read_text())
+          assert improvements['actual_model_improvement_agents_executed']==10
+          assert improvements['total_distinct_workflow_agent_roles']==30
+          assert improvements['original_quarter_finance_audit_loaded'] is True
+          assert improvements['live_source_wave_manifest_loaded'] is True
+          assert len(improvements['agents'])==10
+          assert all(a['execution']=='completed' and
+                     a['new_aics_score_approved'] is False for a in improvements['agents'])
+          assert improvements['full_aics'] is None
+          assert improvements['aics_sp500_spread'] is None
+          assert improvements['untouched_oos_forecast_accuracy'] is None
+          assert improvements['trained_supervised_forecast'] is False
+          assert improvements['trades_created'] is False
+          assert finance['original_numeric_rows_inspected']==len(values)
+          assert finance['node_scores_promoted']==0
+          assert finance['full_11_node_aics'] is None
+          assert improvements['agents'][0]['research_result']['direct_quarter_pairs']==finance['direct_original_3month_pair_candidates']
           assert report['rounds']==10 and report['source_agents']==10
           assert len(report['rounds_report'])==10
           assert [r['round'] for r in report['rounds_report']]==list(range(1,11))
@@ -71,6 +106,10 @@ jobs:
               'official_primary_responses_archived':report['successful_http_archives'],
               'sec_original_numeric_snapshot_count':report['sec_companyfacts_original_snapshots_archived'],
               'actual_original_numeric_facts_extracted':len(values),
+              'direct_original_quarter_cashflow_pairs':finance['direct_original_3month_pair_candidates'],
+              'long_ytd_cashflow_records_excluded':finance['reasons'].get('long_ytd_or_nonquarter_duration',0),
+              'additional_model_improvement_agents_executed':len(improvements['agents']),
+              'supervised_forecasting_accuracy_reported':None,
               'unavailable_sources':report['unavailable_source_keys'],
               'historical_pit_certified':False,
               'trading_disabled':True,
@@ -81,6 +120,7 @@ jobs:
               for key,val in summary.items():
                   print(f'- {key}: **{val}**',file=stream)
               print('Latest SEC Company Facts represent a current API snapshot; numeric records are **not historical first-delivery PIT attested**.',file=stream)
+              print('Model-improvement agents are research diagnostics; unvalidated market forecasting and autonomous weights remain OFF.',file=stream)
           PY
       - name: Archive exact public primary-source bytes and 10 collection receipts
         if: always()
