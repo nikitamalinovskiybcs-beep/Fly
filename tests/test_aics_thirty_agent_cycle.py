@@ -70,6 +70,13 @@ class ThirtyAgentCycleTests(unittest.TestCase):
         self.assertIsNone(report["complete_11_node_aics"])
         self.assertIsNone(report["crisis_probability"])
         self.assertIsNone(report["model_improvement"]["new_predictive_skill"])
+        spv = report["model_improvement"]
+        self.assertEqual(spv["same_date_named_spv_borrower_facility_balance_edges"],2)
+        self.assertEqual(spv["coreweave_same_date_reported_debt_usd_m"],3938)
+        self.assertEqual(spv["credit_exposure_edges_verified"],0)
+        self.assertIsNone(spv["nscale_ward_nc_gpu_drawn_balance_usd_m"])
+        self.assertIsNone(spv["spv_parent_enforceable_guarantee_total_usd_m"])
+        self.assertFalse(spv["cross_issuer_causal_funding_transmission_established"])
         self.assertFalse(report["eligible_for_production_promotion"])
         self.assertFalse(report["trades_created"])
         self.assertFalse(report["weights_changed"])
