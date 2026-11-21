@@ -98,5 +98,43 @@ def read(data=None):
     return result
 
 
+
+INITIAL=Path("aics_data/research/fed_g17_naics3344_oct2024_first_release_2026-11-21.json")
+
+
+def initial_publication(data=None):
+    """Earlier initial October-2024 observation first published Nov 15, 2024.
+
+    This is NOT a fabricated November production observation. It permits one
+    source-eligible Nov 2024 research score while preserving first 24 months
+    of the project, all missing other nodes and no historical PIT promotion.
+    """
+    data=data if data is not None else json.loads(INITIAL.read_text(encoding="utf-8"))
+    if (data.get("schema")!="aics-g17-naics3344-oct2024-original-publication-v1"
+            or data.get("source_url")!="https://www.federalreserve.gov/releases/g17/20241115/table2_sup.htm"
+            or data.get("observation_month")!="2024-10"
+            or data.get("official_release_date")!="2024-11-15"
+            or data.get("available_at")!="2024-11-15"
+            or data.get("score")!="78.70"
+            or data.get("weighted_contribution_if_present")!="39.35"
+            or data.get("source_original_bytes_sha256") is not None
+            or data.get("independent_original_source_bytes_rehashed") is not False
+            or data.get("provider_delivery_historical_pit_attested") is not False
+            or data.get("no_backfill_before_publication") is not True
+            or data.get("legacy_model_production_rule_changed") is not False
+            or data.get("multiplier_applied") is not False
+            or data.get("research_only") is not True
+            or data.get("certified_aics") is not None
+            or data.get("trades_created") is not False):
+        raise ValueError("Fed original preliminary source could not pass date gate")
+    if dt.date.fromisoformat(data["available_at"]) <= month_end(data["observation_month"]):
+        raise ValueError("Historical preliminary source published before observed period completed")
+    return {"observation_month":"2024-10","available_at":"2024-11-15",
+            "score":"78.70","source_url":data["source_url"],
+            "source_receipt":str(INITIAL),
+            "historically_pit_certified":False,
+            "observation_first_published":True}
+
+
 if __name__=="__main__":
     print(json.dumps(read(),ensure_ascii=False,indent=2))
