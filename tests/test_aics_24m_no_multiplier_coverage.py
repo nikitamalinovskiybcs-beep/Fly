@@ -4,7 +4,7 @@ import unittest
 from datetime import date
 
 from scripts.aics_24m_no_multiplier_coverage import (
-    SP500, build, candidates, percentile_last_24, gap
+    SP500, OUTPUT, build, candidates, percentile_last_24, gap
 )
 
 
@@ -60,6 +60,22 @@ class NoMultiplier24mCoverageTest(unittest.TestCase):
         self.assertEqual(by["2026-08"]["latest_eligible_research_scores"]["Private Credit"]["source_available_at"],"2026-08-20")
         self.assertTrue(by["2026-09"]["latest_eligible_research_scores"]["Neoclouds"]["carried_from_prior_month"])
         self.assertEqual(by["2026-05"]["latest_eligible_research_scores"]["Neoclouds"]["source_available_at"],"2026-05-27")
+
+    def test_checked_in_monthly_snapshot_matches_builder(self):
+        checked = json.loads(OUTPUT.read_text(encoding="utf-8"))
+        self.assertEqual(checked["month_count"], 24)
+        self.assertEqual(checked["new_11_node_full_aics_months"], 0)
+        self.assertEqual(checked["new_11_node_sp500_spread_months"], 0)
+        for actual, expected in zip(self.panel["monthly"], checked["monthly"]):
+            for key in ("month", "as_of", "known_node_count_research_only",
+                        "partial_known_weighted_points_not_aics",
+                        "full_11_node_aics_no_multiplier", "aics_sp500_normalized_spread",
+                        "missing_nodes", "sp500_last_session_close"):
+                self.assertEqual(actual[key], expected[key], (actual["month"], key))
+        self.assertEqual(
+            [(x["node"], x["available_at"], x["score"]) for x in self.panel["score_source_events"]],
+            [(x["node"], x["available_at"], x["score"]) for x in checked["score_source_events"]]
+        )
 
     def test_no_retrospective_rank_in_fewer_than_24_observations(self):
         with self.assertRaisesRegex(ValueError,"23 antecedent"):
