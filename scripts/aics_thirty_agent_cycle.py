@@ -149,7 +149,7 @@ def build(*, waves, finance, v17, v18, spx, shadow):
     refinancing = imp[8]["research_result"]["contractual_refinancing_maturity_research"]
     if (
         refinancing["eligible_contractual_terms"] != 3
-        or refinancing["known_maturity_within_365d_count"] != 1
+        or refinancing["known_maturity_within_365d_count"] != int(0 <= (dt.date(2027,10,16)-as_of).days <= 365)
         or refinancing["earliest_contractual_maturity"] != "2027-10-16"
         or refinancing["coreweave_named_administrative_agents"] != 2
         or refinancing["citi_named_as_nebius_arranger_and_lender"] is not True
@@ -176,10 +176,11 @@ def build(*, waves, finance, v17, v18, spx, shadow):
         or funding["production_score"] is not None):
         raise ValueError("Matched original financing data must not imply reprice or contagion")
     interest=imp[8]["research_result"]["interest_repo_dual_clock_research"]
+    sec_date_should_pass=as_of>=dt.date(2026,11,26)
     if (interest["coreweave_Q3_IR_interest_to_revenue_pct"]!="23.1"
         or interest["coreweave_Q3_IR_interest_expense_usd_m"]!=846
         or interest["coreweave_Q3_SEC_eligible_at"]!="2026-11-26"
-        or interest["coreweave_Q3_SEC_date_gate_passed"] is not False
+        or interest["coreweave_Q3_SEC_date_gate_passed"] is not sec_date_should_pass
         or interest["interest_Q3_public_IR_only_not_AICS_eligible"] is not True
         or interest["repo_latest_month"]!="2026-10-31"
         or interest["repo_sofr_minus_iorb_bps"]!=4
@@ -307,7 +308,7 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "v30_real_q2_issuer_funding_mechanisms_reconciled":2,
             "v31_q3_coreweave_ir_interest_to_revenue_pct_research_only":"23.1",
             "v31_q3_sec_date_eligible_at":"2026-11-26",
-            "v31_sec_10q_date_gate_passed":False,
+            "v31_sec_10q_date_gate_passed":sec_date_should_pass,
             "v31_repo_oct2026_sofr_minus_iorb_bps_retrospective":4,
             "v31_matched_same_loan_repricing_observations":0,
             "v31_independently_confirmed_early_warning_skill":None,
@@ -315,7 +316,7 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "v30_nebius_net_q2_financing_usd_m":"2864.9",
             "v30_mixed_equity_vs_debt_mechanisms_not_same_loan_repricing":True,
             "v30_crisis_causal_skill":None,
-            "v29_2027_10_16_nebius_maturity_within_365_days": True,
+            "v29_2027_10_16_nebius_maturity_within_365_days": 0 <= (dt.date(2027,10,16)-as_of).days <= 365,
             "v29_2027_maturity_actual_refinancing_need_usd_m": None,
             "v29_coreweave_named_admin_agents": 2,
             "v29_nebius_citi_named_lender_funded_usd_m": None,
