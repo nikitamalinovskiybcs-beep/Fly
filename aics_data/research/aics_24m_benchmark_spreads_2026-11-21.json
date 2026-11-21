@@ -332,7 +332,7 @@
       "repo_sofr_minus_iorb_bp": -2,
       "ust30_volatility_bp": 5.11,
       "research_only_eligible_node_count": 3,
-      "research_only_partial_weighted_points_not_aics": 89.33,
+      "research_only_partial_weighted_points_not_aics": 98.3,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -350,7 +350,7 @@
       "repo_sofr_minus_iorb_bp": -2,
       "ust30_volatility_bp": 2.41,
       "research_only_eligible_node_count": 3,
-      "research_only_partial_weighted_points_not_aics": 87.93,
+      "research_only_partial_weighted_points_not_aics": 96.9,
       "full_historical_aics_no_multiplier": null,
       "full_historical_aics_sp500_spread": null,
       "certified_historical_pit": false
@@ -470,5 +470,6 @@
   "source_addition": "2025 Q1-Q3 SEC original Neoclouds research, first availability 2025-06-03",
   "sources_g17_semi": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
   "sources_pru_insurers": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
-  "sources_fed_oct_2024": "aics_data/research/fed_g17_naics3344_oct2024_first_release_2026-11-21.json"
+  "sources_fed_oct_2024": "aics_data/research/fed_g17_naics3344_oct2024_first_release_2026-11-21.json",
+  "q4_2025_original_sec_neoclouds_source": "aics_data/research/neoclouds_2025_q4_sec_original_cashflow_2026-11-21.json"
 }
