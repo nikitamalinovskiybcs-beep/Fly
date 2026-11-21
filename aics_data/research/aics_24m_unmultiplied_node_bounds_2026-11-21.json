@@ -365,8 +365,8 @@
         "UST 30Y"
       ],
       "unknown_total_node_weight": 775,
-      "known_contribution_lower_bound": "89.58",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "864.58",
+      "known_contribution_lower_bound": "89.64",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "864.64",
       "arithmetic_band_width": "775",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
@@ -387,8 +387,8 @@
         "UST 30Y"
       ],
       "unknown_total_node_weight": 775,
-      "known_contribution_lower_bound": "98.30",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "873.30",
+      "known_contribution_lower_bound": "98.36",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "873.36",
       "arithmetic_band_width": "775",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
@@ -409,8 +409,8 @@
         "UST 30Y"
       ],
       "unknown_total_node_weight": 775,
-      "known_contribution_lower_bound": "96.90",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "871.90",
+      "known_contribution_lower_bound": "96.96",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "871.96",
       "arithmetic_band_width": "775",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
