@@ -171,9 +171,8 @@
     },
     {
       "month": "2025-06",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -182,10 +181,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "141.04",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "916.04",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "866.04",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -193,9 +192,8 @@
     },
     {
       "month": "2025-07",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -204,10 +202,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "141.49",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "916.49",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "866.49",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
@@ -215,9 +213,8 @@
     },
     {
       "month": "2025-08",
-      "known_nodes": 3,
+      "known_nodes": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -226,10 +223,10 @@
         "SPV",
         "UST 30Y"
       ],
-      "unknown_total_node_weight": 775,
+      "unknown_total_node_weight": 725,
       "known_contribution_lower_bound": "142.11",
-      "arithmetic_upper_bound_if_all_missing_scores_were_100": "917.11",
-      "arithmetic_band_width": "775",
+      "arithmetic_upper_bound_if_all_missing_scores_were_100": "867.11",
+      "arithmetic_band_width": "725",
       "actual_complete_aics": null,
       "actual_aics_minus_sp500_spread": null,
       "qualification": "Bounds only; missing values were NOT set to zero or 100 in the original AICS source data",
