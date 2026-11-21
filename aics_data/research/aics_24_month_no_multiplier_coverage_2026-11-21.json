@@ -140,6 +140,16 @@
       "independently_24month_oos_verified": false
     },
     {
+      "node": "AI Demand",
+      "available_at": "2025-06-19",
+      "score": "0.00",
+      "source": "aics_data/research/broadcom_ai_demand_2025q2_strict_lower_bound_sec_2026-11-21.json",
+      "measurement": "2025-Q2 original SEC AI revenue strictly > $4.4bn prior guidance",
+      "note": "Exact quarterly AI revenue not disclosed; source provides a strict >4400 lower bound, ensuring zero stress mathematically, not missing-value imputation",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false
+    },
+    {
       "node": "Semiconductors Supply",
       "available_at": "2025-07-16",
       "score": "81.70",
@@ -824,9 +834,8 @@
       "sp500_normalized_nov_2024_100": "102.8607",
       "ust30_20_change_volatility_bp": "4.86",
       "repo_sofr_minus_iorb_bp": -1,
-      "known_node_count_research_only": 3,
+      "known_node_count_research_only": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -837,9 +846,15 @@
       ],
       "new_node_events_in_month": [
         "Neoclouds",
-        "Semiconductors Supply"
+        "Semiconductors Supply",
+        "AI Demand"
       ],
       "latest_eligible_research_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "source_available_at": "2025-06-19",
+          "carried_from_prior_month": false
+        },
         "Insurers": {
           "score": "0.51",
           "source_available_at": "2025-05-15",
@@ -868,9 +883,8 @@
       "sp500_normalized_nov_2024_100": "105.0894",
       "ust30_20_change_volatility_bp": "4.88",
       "repo_sofr_minus_iorb_bp": -8,
-      "known_node_count_research_only": 3,
+      "known_node_count_research_only": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -883,6 +897,11 @@
         "Semiconductors Supply"
       ],
       "latest_eligible_research_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "source_available_at": "2025-06-19",
+          "carried_from_prior_month": true
+        },
         "Insurers": {
           "score": "0.51",
           "source_available_at": "2025-05-15",
@@ -911,9 +930,8 @@
       "sp500_normalized_nov_2024_100": "107.0931",
       "ust30_20_change_volatility_bp": "3.52",
       "repo_sofr_minus_iorb_bp": -6,
-      "known_node_count_research_only": 3,
+      "known_node_count_research_only": 4,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -928,6 +946,11 @@
         "Neoclouds"
       ],
       "latest_eligible_research_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "source_available_at": "2025-06-19",
+          "carried_from_prior_month": true
+        },
         "Insurers": {
           "score": "0.77",
           "source_available_at": "2025-08-14",
