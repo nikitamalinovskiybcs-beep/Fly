@@ -60,7 +60,7 @@ jobs:
           assert a['aics_weights_changed'] is False
           assert a['predictive_accuracy'] is None
           for source in m['sources']:
-              print('SOURCE', source['source_id'], source['status'], source.get('error_class',''))
+              print('SOURCE', source['source_id'], source['status'], source.get('error_code', source.get('error_class','')))
           print({'source_agents':m['agent_count'],
                  'sources_archived':m['original_sources_archived'],
                  'model_events':a['research_events_evaluated'],
