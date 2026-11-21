@@ -38,6 +38,7 @@ jobs:
         env:
           AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
         run: python -m scripts.aics_ten_node_agents --live --out aics_data/agent_runs
       - name: Run research-only online anomaly learner on preexisting primary-source scores
         run: python -m scripts.aics_source_anomaly_ml --as-of 2026-11-22 --out aics_data/agent_runs/online_anomaly_research.json
