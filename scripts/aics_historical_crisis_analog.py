@@ -143,6 +143,10 @@ def build(v18):
         score=float(data["score"])
         if not 0<=score<=100 or _d(data["research_eligible_date"])>_d(latest["cutoff_date"]):
             raise ValueError("Unverified or future source point")
+    hot_candidate_nodes=sorted(
+        node for node,record in latest["node_scores"].items()
+        if float(record["score"]) > 60
+    )
     axes=[]
     for axis,nodes,m2000,m2008,required in AXES:
         candidates={n:{"score_0_100_research_candidate":latest["node_scores"][n]["score"],
@@ -178,6 +182,8 @@ def build(v18):
         "new_11node_weights_total":1050,
         "2026_research_observed_candidate_nodes":len(latest["node_scores"]),
         "2026_missing_market_close_nodes":latest["missing_nodes"],
+        "2026_research_hot_nodes_over_60":hot_candidate_nodes,
+        "2026_research_hot_node_count":len(hot_candidate_nodes),
         "2026_partial_known_weighted_points_not_full_index":latest["partial_weighted_points_not_full_aics"],
         "2026_current_crisis_events_proven_by_scores":False,
         "comparison_eras":base,
