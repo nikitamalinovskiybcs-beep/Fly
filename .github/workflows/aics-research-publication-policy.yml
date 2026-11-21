@@ -10,6 +10,7 @@ on:
       - tests/test_aics_publication_policy_overlay.py
       - aics_data/research/hyperscalers_2025_q1_q3_original_sec_cashflow_2026-11-21.json
       - aics_data/research/hyperscalers_2025_q4_original_sec_cashflow_2026-11-21.json
+      - aics_data/research/aics_24m_hyperscalers_research_first_public_overlay_2026-11-21.json
       - .github/workflows/aics-research-publication-policy.yml
   workflow_dispatch:
 
