@@ -19,6 +19,7 @@ from pathlib import Path
 from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_sec_quarter_cashflow_gate import audit as audit_cashflow
 from scripts.aics_historical_crisis_analog import build as historical_crisis_analog
+from scripts.aics_v28_credit_relationship_topology import from_originals as credit_network_build
 from scripts.aics_spv_funding_transmission_bridge import (
     build as spv_bridge_build, CORE as SPV_CORE, CLOUD as SPV_CLOUD,
     NSCALE as SPV_NSCALE, DFS as SPV_DFS,
@@ -406,6 +407,33 @@ def run(*, v17, v18, spx, shadow, finance=None, waves=None, as_of=None):
         "named_lender_exposure_edges_verified": 0,
         "2008_funding_contagion_probability": None,
         "source_research_only": True,
+    }
+    topology = credit_network_build(bridge, as_of=as_of)
+    if (topology["index_aics"] is not None
+            or topology["current_named_lender_to_borrower_dollar_exposure_edges"] != 0
+            or topology["current_lender_borrower_dollar_exposure_matrix"] is not None
+            or topology["crisis_forecast_probability"] is not None
+            or topology["historical_provider_pit_certified"] is not False
+            or topology["fixed_weights_total"] != 1050
+            or topology["trades_created"] is not False):
+        raise ValueError("Lender relationship topology cannot imply current bank contagion")
+    payloads[2]["named_historical_financing_provider_relationships"] = (
+        topology["named_financing_provider_relationship_count"])
+    payloads[2]["verified_named_spv_guarantor_legal_links"] = (
+        topology["named_guarantor_legal_links"])
+    payloads[8]["typed_lender_borrower_guarantor_network_research"] = {
+        "source_gated_legal_relationship_edges": len(topology["relationships"]),
+        "historical_facility_debt_edges": topology["historical_coreweave_two_facility_debt_count"],
+        "named_historical_financing_provider_relationships": topology["named_financing_provider_relationship_count"],
+        "named_affiliate_guarantor_links": topology["named_guarantor_legal_links"],
+        "nscale_kvandal_august_draws_usd_m_not_outstanding":
+            topology["historical_kvandal_period_draws_total_usd_m_not_outstanding"],
+        "current_named_lender_borrower_exposure_edges":
+            topology["current_named_lender_to_borrower_dollar_exposure_edges"],
+        "cross_instrument_total_credit_exposure_usd_m": None,
+        "verified_current_lender_contagion_matrix": None,
+        "2008_crisis_similarity_pct": None,
+        "new_spv_stress_score": None,
     }
     payloads[8]["early_cash_imbalance_research"] = {
         "source_periods": [
