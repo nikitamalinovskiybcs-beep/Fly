@@ -504,5 +504,5 @@
   "independent_historical_pit_verified": false,
   "production_index": null,
   "trades_created": false,
-  "explanation": "Weight availability is data-completeness only. It does not attest timestamped source delivery, prediction, calibration, market timing, or a real AICS index. First 2025 Q2 AI Demand original SEC actual strictly over prior guidance provides 0/100 already from 2025-06-19; extra 50 known weight each June-Aug 2025. No exact revenue claimed."
+  "explanation": "Weight availability is data-completeness only. It does not attest timestamped source delivery, prediction, calibration, market timing, or a real AICS index."
 }
