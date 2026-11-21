@@ -132,6 +132,20 @@ def build(*, waves, finance, v17, v18, spx, shadow):
         ("2026 Q1", "2026Q1", "2026 Q1 2026") and p.get("issuer_count") == 4
         for p in periods
     )
+    topology = imp[8]["research_result"]["typed_lender_borrower_guarantor_network_research"]
+    if (
+        topology["source_gated_legal_relationship_edges"] != 9
+        or topology["historical_facility_debt_edges"] != 2
+        or topology["named_historical_financing_provider_relationships"] != 2
+        or topology["named_affiliate_guarantor_links"] != 2
+        or topology["nscale_kvandal_august_draws_usd_m_not_outstanding"] != "107.2"
+        or topology["current_named_lender_borrower_exposure_edges"] != 0
+        or topology["cross_instrument_total_credit_exposure_usd_m"] is not None
+        or topology["verified_current_lender_contagion_matrix"] is not None
+        or topology["2008_crisis_similarity_pct"] is not None
+        or topology["new_spv_stress_score"] is not None
+    ):
+        raise ValueError("Improper current exposure inferred from historical legal network")
     direct_pairs = imp[0]["research_result"]["direct_quarter_pairs"]
     if direct_pairs != finance["direct_original_3month_pair_candidates"]:
         raise ValueError("Agent cashflow evidence disagrees with original finance gate")
@@ -184,6 +198,9 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "documented_named_spv_facility_balances": 2,
             "coreweave_same_date_reported_debt_usd_m": 3938,
             "named_current_lender_borrower_exposure_edges": 0,
+            "historical_legal_relationships_mapped": 9,
+            "named_historical_provider_relationships": 2,
+            "named_affiliate_guarantors_mapped": 2,
             "completion_evidence": "Original named lender-to-borrower outstanding exposure, dates, recourse and enforceable guarantees; never add commitments, lease rents or consolidated balances",
             "decision": "RESEARCH",
         })
@@ -236,6 +253,11 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "historical_2000_2008_similarity_percent": None,
             "2026_q1_4issuer_cashflow_complete": q1_complete,
             "credit_exposure_edges_verified": 0,
+            "v28_source_dated_credit_legal_edges": 9,
+            "v28_named_historical_provider_relationships": 2,
+            "v28_named_affiliate_guarantor_links": 2,
+            "v28_current_named_lender_dollar_exposure_edges": 0,
+            "v28_historical_legal_topology_not_funding_contagion": True,
             "same_date_named_spv_borrower_facility_balance_edges": 2,
             "coreweave_same_date_reported_debt_usd_m": 3938,
             "nscale_ward_nc_gpu_drawn_balance_usd_m": None,
