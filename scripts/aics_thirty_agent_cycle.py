@@ -161,6 +161,20 @@ def build(*, waves, finance, v17, v18, spx, shadow):
         or refinancing["crisis_probability"] is not None
     ):
         raise ValueError("Cannot turn contractual refinancing dates into known current credit debt")
+    funding=imp[8]["research_result"]["same_issuer_real_cashflow_financing_research"]
+    if (funding["issuer_quarters_original_SEC_eligible"]!=4
+        or funding["coreweave_q2_ocf_minus_cash_capex_usd_m"]!="-5743"
+        or funding["coreweave_q2_net_financing_cash_usd_m"]!="10071"
+        or funding["coreweave_q2_qoq_gap_deterioration_usd_m"]!="-1032"
+        or funding["nebius_q2_ocf_minus_cash_purchases_usd_m"]!="-3411.3"
+        or funding["nebius_q2_net_financing_cash_usd_m"]!="2864.9"
+        or funding["nebius_q2_qoq_gap_deterioration_usd_m"]!="-3196.4"
+        or funding["named_current_lender_funded_dollar_amount_usd_m"] is not None
+        or funding["ddtl4_vs_ddtl5_same_instrument_repricing_established"] is not False
+        or funding["matched_instrument_spread_repricing_bps"] is not None
+        or funding["financial_contagion_causality_established"] is not False
+        or funding["production_score"] is not None):
+        raise ValueError("Matched original financing data must not imply reprice or contagion")
     direct_pairs = imp[0]["research_result"]["direct_quarter_pairs"]
     if direct_pairs != finance["direct_original_3month_pair_candidates"]:
         raise ValueError("Agent cashflow evidence disagrees with original finance gate")
@@ -217,6 +231,8 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "named_historical_provider_relationships": 2,
             "named_affiliate_guarantors_mapped": 2,
             "new_sec_source_research_maturity_terms_count": 3,
+            "real_q2_2026_issuers_with_same_issuer_cash_financing_bridge":2,
+            "actual_cashflow_financing_gap_explained_but_not_bank_risk_calibrated":True,
             "nebius_contractual_maturity": "2027-10-16",
             "nebius_bridge_credit_dollar_exposure_to_citi_verified": False,
             "completion_evidence": "Original named lender-to-borrower outstanding exposure, dates, recourse and enforceable guarantees; never add commitments, lease rents or consolidated balances",
@@ -273,6 +289,11 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "credit_exposure_edges_verified": 0,
             "v28_source_dated_credit_legal_edges": 9,
             "v29_contractual_maturity_records": 3,
+            "v30_real_q2_issuer_funding_mechanisms_reconciled":2,
+            "v30_coreweave_net_q2_financing_usd_m":"10071",
+            "v30_nebius_net_q2_financing_usd_m":"2864.9",
+            "v30_mixed_equity_vs_debt_mechanisms_not_same_loan_repricing":True,
+            "v30_crisis_causal_skill":None,
             "v29_2027_10_16_nebius_maturity_within_365_days": True,
             "v29_2027_maturity_actual_refinancing_need_usd_m": None,
             "v29_coreweave_named_admin_agents": 2,
