@@ -8,8 +8,12 @@ on:
       - scripts/aics_publication_policy.py
       - scripts/aics_research_publication_overlay.py
       - scripts/aics_24m_multi_node_publication_overlay.py
+      - scripts/aics_v18_private_credit_cost_overlay.py
       - tests/test_aics_publication_policy_overlay.py
       - tests/test_aics_24m_multi_node_publication_overlay.py
+      - tests/test_aics_v18_private_credit_cost_overlay.py
+      - aics_data/research/private_credit_2024q2_2026q1_first_sec_cost_breadth_2026-11-22.json
+      - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
       - aics_data/research/hyperscalers_2025_q1_q3_original_sec_cashflow_2026-11-21.json
       - aics_data/research/hyperscalers_2025_q4_original_sec_cashflow_2026-11-21.json
       - aics_data/research/aics_24m_hyperscalers_research_first_public_overlay_2026-11-21.json
@@ -31,12 +35,14 @@ jobs:
           python-version: '3.11'
       - name: Compile source and tests
         run: |
-          python -m compileall -q scripts/aics_publication_policy.py scripts/aics_research_publication_overlay.py scripts/aics_24m_multi_node_publication_overlay.py
-          python -m compileall -q tests/test_aics_publication_policy_overlay.py tests/test_aics_24m_multi_node_publication_overlay.py
+          python -m compileall -q scripts/aics_publication_policy.py scripts/aics_research_publication_overlay.py scripts/aics_24m_multi_node_publication_overlay.py scripts/aics_v18_private_credit_cost_overlay.py
+          python -m compileall -q tests/test_aics_publication_policy_overlay.py tests/test_aics_24m_multi_node_publication_overlay.py tests/test_aics_v18_private_credit_cost_overlay.py
       - name: Run first-public-date policy tests
         run: python -m unittest discover -s tests -p 'test_aics_publication_policy_overlay.py' -v
       - name: Run 24-month multi-node chronology and exact-snapshot tests
         run: python -m unittest discover -s tests -p 'test_aics_24m_multi_node_publication_overlay.py' -v
+      - name: Verify V18 original BDC cash-cost source reconstruction and snapshot
+        run: python -m unittest discover -s tests -p 'test_aics_v18_private_credit_cost_overlay.py' -v
       - name: Summarize research coverage (not trading/PIT certification)
         run: |
           python - <<'PY'
@@ -47,4 +53,9 @@ jobs:
           print('Conservative last-weekday cutoff coverage:', report['new_last_weekday_proxy_coverage_pct'], '%')
           print('Migrated original SEC source events:', report['converted_existing_sec_events'])
           print('Certified full index months:', report['complete_11_node_aics_months'])
+          from scripts.aics_v18_private_credit_cost_overlay import build as v18_build
+          new = v18_build()
+          print('V18 original Private Credit SEC research coverage:', new['calendar_research_source_coverage_pct'], '%')
+          print('V18 market-close research coverage:', new['market_weekday_proxy_source_coverage_pct'], '%')
+          print('Full index months:', new['full_11node_index_months'])
           PY
