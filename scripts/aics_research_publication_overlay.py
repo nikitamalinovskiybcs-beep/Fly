@@ -13,6 +13,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 from scripts.aics_publication_policy import legacy_eligibility, research_eligibility
+from scripts.aics_score_reproducibility_gate import WEIGHTS
 
 ROOT = Path("aics_data/research")
 H2025 = ROOT / "hyperscalers_2025_q1_q3_original_sec_cashflow_2026-11-21.json"
@@ -103,7 +104,11 @@ def build(old=None, q123=None, q4=None):
                      if dt.date.fromisoformat(e["research_first_eligible_date_proxy"]) <= end]
         active = available[-1] if available else None
         preexisting = "Hyperscalers" in m["latest_eligible_research_scores"]
-        added = active is not None and not preexisting
+        # Do not present a stale 2025-Q4 candidate beside a newer baseline
+        # 2026-Q2/Q3 research input: only overlay genuinely missing nodes.
+        if preexisting:
+            active = None
+        added = active is not None
         if added:
             added_weight_months += 100
         overlay.append({
@@ -114,10 +119,7 @@ def build(old=None, q123=None, q4=None):
                 active["research_first_eligible_date_proxy"] if active else None,
             "new_research_2025_candidate_score": active["candidate_gap_score"] if active else None,
             "additional_source_research_node": added,
-            "baseline_known_weight": sum({"Private Credit":150,"Insurers":125,"UST 30Y":125,
-                                           "Neoclouds":100,"AI Equities":100,"Hyperscalers":100,
-                                           "SPV":100,"Repo":100,"Power/Data Centers":50,
-                                           "Semiconductors Supply":50,"AI Demand":50}[k]
+            "baseline_known_weight": sum(WEIGHTS[k]
                                          for k in m["latest_eligible_research_scores"]),
             "additional_source_weight": 100 if added else 0,
             "full_historical_aics": None,
