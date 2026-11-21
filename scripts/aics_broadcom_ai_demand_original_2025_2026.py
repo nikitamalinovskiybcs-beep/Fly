@@ -87,7 +87,7 @@ def calculate(data=None):
             or validated[previous]["available_at"]>=available):
             raise ValueError("AI actual/guidance data mismatch or future forecast leak")
         score=(max(Decimal(0),Decimal(100)*(Decimal(1)-Decimal(actual)/Decimal(forecast)))).quantize(
-            CENT,rounding=ROUND_HALF_UP)
+            CENTS,rounding=ROUND_HALF_UP)
         if row.get("score")!=str(score):
             raise ValueError("Broadcom observed stress formula or score mismatch")
         result.append({
