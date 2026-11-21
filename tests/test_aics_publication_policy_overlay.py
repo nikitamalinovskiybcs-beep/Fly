@@ -118,6 +118,12 @@ class ResearchOverlayTest(unittest.TestCase):
                             not m["independent_pit_certified"] for m in report["monthly"]))
         self.assertFalse(report["source_timestamp_pit_attested"])
 
+    def test_checked_in_overlay_exactly_reproduces_builder(self):
+        import json
+        from scripts.aics_research_publication_overlay import OUTPUT
+        stored = json.loads(OUTPUT.read_text(encoding="utf-8"))
+        self.assertEqual(stored, self.report)
+
     def test_nonpositive_capex_and_fabricated_full_score_rejected(self):
         with self.assertRaises(ValueError):
             score(100, 0)
