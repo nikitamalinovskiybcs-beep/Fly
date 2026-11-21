@@ -13,6 +13,8 @@ class MarketSpreads24mTest(unittest.TestCase):
         result=calculate(self.ndx,self.spx,self.coverage)
         self.assertEqual(len(result),24)
         self.assertEqual(result[0]["month"],"2024-11")
+        self.assertEqual(result[0]["research_only_eligible_node_count"],1)
+        self.assertEqual(result[0]["research_only_partial_weighted_points_not_aics"],39.35)
         self.assertEqual(result[-1]["month"],"2026-10")
         self.assertEqual(result[0]["ndx_minus_spx_cumulative_base100_pp"],0)
         self.assertIsNone(result[0]["ndx_minus_spx_monthly_return_pp"])
