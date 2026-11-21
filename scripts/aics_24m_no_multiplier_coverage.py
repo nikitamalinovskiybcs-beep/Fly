@@ -21,6 +21,7 @@ from pathlib import Path
 from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_neocloud_2025_sec_quarters import calculate as neocloud_2025_original_sec
 from scripts.aics_fed_g17_first_release_monthly import read as g17_naics3344_first_releases
+from scripts.aics_fed_g17_first_release_monthly import initial_publication as g17_initial_publication
 from scripts.aics_pru_insurers_original_quarters import calculate as pru_insurers_quarters
 
 ROOT = Path("aics_data/research")
@@ -110,6 +111,15 @@ def candidates():
             ROOT / "pru_insurers_nonaccrual_original_quarters_2025_2026.json",
             pru["quarter"] + " same-scope PRU no-ACL nonaccrual ratio",
             "Insurer single-issuer proxy; not AI-specific, original bytes not independently rehashed")
+
+    # Original preliminary Oct 2024 observation, first publicly issued on
+    # 2024-11-15. This is eligible for the Nov 2024 month-end information
+    # set, NOT October 2024 and not a manufactured November observation.
+    first = g17_initial_publication()
+    add("Semiconductors Supply",first["available_at"],first["score"],
+        ROOT / "fed_g17_naics3344_oct2024_first_release_2026-11-21.json",
+        "2024-10 initial Fed G.17 NAICS 3344 preliminary (released Nov 15)",
+        "First-published Fed date; original bytes not independently archived, research only")
 
     # Dated original monthly Fed G.17 preliminary observations; first-publication
     # delayed until Dec 2025 for 2025 Sep/Oct/Nov, never use as of the
