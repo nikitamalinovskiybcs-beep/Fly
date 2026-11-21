@@ -240,6 +240,16 @@
       "independently_24month_oos_verified": false
     },
     {
+      "node": "Neoclouds",
+      "available_at": "2026-03-12",
+      "score": "60.87",
+      "source": "aics_data/research/neoclouds_2025_q4_sec_original_cashflow_2026-11-21.json",
+      "measurement": "2025-Q4 original SEC exhibit cashflow shortfall, CoreWeave plus Nebius",
+      "note": "Different issuer cash capex classifications: CoreWeave includes capitalized software, Nebius PP&E and intangible assets. The 2025Q4 Nebius continuing-operations scope is not comparable to 2025Q1 whole-group original. Neither includes all noncash and leased capex.",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false
+    },
+    {
       "node": "Semiconductors Supply",
       "available_at": "2026-03-16",
       "score": "73.00",
@@ -1131,6 +1141,7 @@
         "UST 30Y"
       ],
       "new_node_events_in_month": [
+        "Neoclouds",
         "Semiconductors Supply"
       ],
       "latest_eligible_research_scores": {
@@ -1140,9 +1151,9 @@
           "carried_from_prior_month": true
         },
         "Neoclouds": {
-          "score": "51.90",
-          "source_available_at": "2025-11-27",
-          "carried_from_prior_month": true
+          "score": "60.87",
+          "source_available_at": "2026-03-12",
+          "carried_from_prior_month": false
         },
         "Semiconductors Supply": {
           "score": "73.00",
@@ -1150,7 +1161,7 @@
           "carried_from_prior_month": false
         }
       },
-      "partial_known_weighted_points_not_aics": "89.33",
+      "partial_known_weighted_points_not_aics": "98.30",
       "full_11_node_aics_no_multiplier": null,
       "aics_sp500_normalized_spread": null,
       "independent_historical_pit_confirmed": false
@@ -1183,8 +1194,8 @@
           "carried_from_prior_month": true
         },
         "Neoclouds": {
-          "score": "51.90",
-          "source_available_at": "2025-11-27",
+          "score": "60.87",
+          "source_available_at": "2026-03-12",
           "carried_from_prior_month": true
         },
         "Semiconductors Supply": {
@@ -1193,7 +1204,7 @@
           "carried_from_prior_month": false
         }
       },
-      "partial_known_weighted_points_not_aics": "87.93",
+      "partial_known_weighted_points_not_aics": "96.90",
       "full_11_node_aics_no_multiplier": null,
       "aics_sp500_normalized_spread": null,
       "independent_historical_pit_confirmed": false
@@ -1531,5 +1542,6 @@
   "fed_naics3344_source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
   "fed_2025_late_release_policy": "Never use Sep/Oct/Nov 2025 economic observations before Dec 3/23 original release dates.",
   "pru_insurers_source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
-  "fed_2024_initial_source": "aics_data/research/fed_g17_naics3344_oct2024_first_release_2026-11-21.json"
+  "fed_2024_initial_source": "aics_data/research/fed_g17_naics3344_oct2024_first_release_2026-11-21.json",
+  "score_source_2025_q4": "aics_data/research/neoclouds_2025_q4_sec_original_cashflow_2026-11-21.json"
 }
