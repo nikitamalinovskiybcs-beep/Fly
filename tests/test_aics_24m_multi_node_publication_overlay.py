@@ -1,8 +1,9 @@
 """Fail-closed tests for the parallel 10-node research date migration."""
 import copy
+import json
 import unittest
 from scripts.aics_24m_multi_node_publication_overlay import (
-    build, source_updates, read, last_weekday_proxy)
+    build, source_updates, read, last_weekday_proxy, OUTPUT)
 import datetime as dt
 
 
@@ -53,6 +54,10 @@ class AicsMultiNodeResearchPublicationTest(unittest.TestCase):
         self.assertNotIn("UST 30Y",market["node_scores"])
         self.assertNotIn("Repo",market["node_scores"])
         self.assertIsNone(market["aics_sp500_spread"])
+
+    def test_committed_24_month_snapshot_exactly_matches_replay(self):
+        checked=json.loads(OUTPUT.read_text(encoding="utf-8"))
+        self.assertEqual(self.result,checked)
 
     def test_no_change_legacy_source_files_and_no_full_backtest(self):
         baseline=read("aics_24_month_no_multiplier_coverage_2026-11-21.json")
