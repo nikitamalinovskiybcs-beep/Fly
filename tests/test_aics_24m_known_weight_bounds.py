@@ -29,10 +29,10 @@ class NoMultiplier24mBoundsTest(unittest.TestCase):
 
     def test_no_imputation_for_first_month(self):
         first=self.bounds["rows"][0]
-        self.assertEqual(first["known_nodes"],1)
-        self.assertEqual(first["unknown_total_node_weight"],1000)
-        self.assertEqual(first["known_contribution_lower_bound"],"39.35")
-        self.assertEqual(first["arithmetic_upper_bound_if_all_missing_scores_were_100"],"1039.35")
+        self.assertEqual(first["known_nodes"],2)
+        self.assertEqual(first["unknown_total_node_weight"],875)
+        self.assertEqual(first["known_contribution_lower_bound"],"39.68")
+        self.assertEqual(first["arithmetic_upper_bound_if_all_missing_scores_were_100"],"914.68")
         self.assertIsNone(first["actual_complete_aics"])
 
     def test_no_retroactive_score_promotion(self):
