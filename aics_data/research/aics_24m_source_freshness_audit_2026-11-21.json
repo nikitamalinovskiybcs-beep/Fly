@@ -6,12 +6,12 @@
   "total_weight": 1050,
   "full_historical_aics_months": 0,
   "full_aics_sp500_spread_months": 0,
-  "total_fresh_weight_months": 3525,
-  "total_carried_weight_months": 4400,
-  "total_missing_weight_months": 17275,
-  "fresh_month_weight_avg_pct": "13.99",
-  "carried_month_weight_avg_pct": "17.46",
-  "missing_month_weight_avg_pct": "68.55",
+  "total_fresh_weight_months": 3575,
+  "total_carried_weight_months": 4500,
+  "total_missing_weight_months": 17125,
+  "fresh_month_weight_avg_pct": "14.19",
+  "carried_month_weight_avg_pct": "17.86",
+  "missing_month_weight_avg_pct": "67.96",
   "months_with_over90_day_old_eligible_source": 3,
   "over90_weight_months": 250,
   "last_month": {
@@ -302,8 +302,9 @@
     },
     {
       "month": "2025-06",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
+        "AI Demand",
         "Neoclouds",
         "Semiconductors Supply"
       ],
@@ -311,7 +312,6 @@
         "Insurers"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -320,14 +320,15 @@
         "SPV",
         "UST 30Y"
       ],
-      "fresh_source_weight": 150,
+      "fresh_source_weight": 200,
       "carried_source_weight": 125,
-      "missing_node_weight": 775,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
-      "fresh_pct_of_full_1050_not_pit": "14.29",
+      "fresh_pct_of_full_1050_not_pit": "19.05",
       "carried_pct_of_full_1050_not_pit": "11.90",
-      "missing_pct_of_full_1050": "73.81",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 11,
         "Insurers": 46,
         "Neoclouds": 27,
         "Semiconductors Supply": 13
@@ -338,16 +339,16 @@
     },
     {
       "month": "2025-07",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
         "Semiconductors Supply"
       ],
       "carried_source_nodes": [
+        "AI Demand",
         "Insurers",
         "Neoclouds"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -357,13 +358,14 @@
         "UST 30Y"
       ],
       "fresh_source_weight": 50,
-      "carried_source_weight": 225,
-      "missing_node_weight": 775,
+      "carried_source_weight": 275,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
       "fresh_pct_of_full_1050_not_pit": "4.76",
-      "carried_pct_of_full_1050_not_pit": "21.43",
-      "missing_pct_of_full_1050": "73.81",
+      "carried_pct_of_full_1050_not_pit": "26.19",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 42,
         "Insurers": 77,
         "Neoclouds": 58,
         "Semiconductors Supply": 15
@@ -374,15 +376,16 @@
     },
     {
       "month": "2025-08",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
         "Insurers",
         "Neoclouds",
         "Semiconductors Supply"
       ],
-      "carried_source_nodes": [],
+      "carried_source_nodes": [
+        "AI Demand"
+      ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -392,13 +395,14 @@
         "UST 30Y"
       ],
       "fresh_source_weight": 275,
-      "carried_source_weight": 0,
-      "missing_node_weight": 775,
+      "carried_source_weight": 50,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
       "fresh_pct_of_full_1050_not_pit": "26.19",
-      "carried_pct_of_full_1050_not_pit": "0.00",
-      "missing_pct_of_full_1050": "73.81",
+      "carried_pct_of_full_1050_not_pit": "4.76",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 73,
         "Insurers": 17,
         "Neoclouds": 4,
         "Semiconductors Supply": 16
@@ -940,5 +944,5 @@
   "historically_attested_pit": false,
   "certified_aics": null,
   "trades_created": false,
-  "explanation": "Freshness measures when a declared source first became research-eligible in the month. Carry-forward may be appropriate for quarterly reports and is NOT missing data. These are not proven historical provider tape captures; none of the source-age figures are trading signals."
+  "explanation": "Freshness measures when a declared source first became research-eligible in the month. Carry-forward may be appropriate for quarterly reports and is NOT missing data. These are not proven historical provider tape captures; none of the source-age figures are trading signals. Source-first-eligible on June 19 2025 for Broadcom Q2 zero stress proven from original strict >4.4bn actual versus 4.4bn guidance; no exact original revenue value asserted."
 }
