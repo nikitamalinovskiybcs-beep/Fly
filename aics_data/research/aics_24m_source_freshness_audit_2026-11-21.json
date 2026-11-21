@@ -6,14 +6,14 @@
   "total_weight": 1050,
   "full_historical_aics_months": 0,
   "full_aics_sp500_spread_months": 0,
-  "total_fresh_weight_months": 3375,
-  "total_carried_weight_months": 3950,
-  "total_missing_weight_months": 17875,
-  "fresh_month_weight_avg_pct": "13.39",
-  "carried_month_weight_avg_pct": "15.67",
-  "missing_month_weight_avg_pct": "70.93",
-  "months_with_over90_day_old_eligible_source": 1,
-  "over90_weight_months": 100,
+  "total_fresh_weight_months": 3525,
+  "total_carried_weight_months": 4400,
+  "total_missing_weight_months": 17275,
+  "fresh_month_weight_avg_pct": "13.99",
+  "carried_month_weight_avg_pct": "17.46",
+  "missing_month_weight_avg_pct": "68.55",
+  "months_with_over90_day_old_eligible_source": 3,
+  "over90_weight_months": 250,
   "last_month": {
     "month": "2026-10",
     "known_node_count": 10,
@@ -409,8 +409,9 @@
     },
     {
       "month": "2025-09",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
+        "AI Demand",
         "Semiconductors Supply"
       ],
       "carried_source_nodes": [
@@ -418,7 +419,6 @@
         "Neoclouds"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -427,14 +427,15 @@
         "SPV",
         "UST 30Y"
       ],
-      "fresh_source_weight": 50,
+      "fresh_source_weight": 100,
       "carried_source_weight": 225,
-      "missing_node_weight": 775,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
-      "fresh_pct_of_full_1050_not_pit": "4.76",
+      "fresh_pct_of_full_1050_not_pit": "9.52",
       "carried_pct_of_full_1050_not_pit": "21.43",
-      "missing_pct_of_full_1050": "73.81",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 12,
         "Insurers": 47,
         "Neoclouds": 34,
         "Semiconductors Supply": 14
@@ -445,15 +446,15 @@
     },
     {
       "month": "2025-10",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [],
       "carried_source_nodes": [
+        "AI Demand",
         "Insurers",
         "Neoclouds",
         "Semiconductors Supply"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -463,13 +464,14 @@
         "UST 30Y"
       ],
       "fresh_source_weight": 0,
-      "carried_source_weight": 275,
-      "missing_node_weight": 775,
+      "carried_source_weight": 325,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
       "fresh_pct_of_full_1050_not_pit": "0.00",
-      "carried_pct_of_full_1050_not_pit": "26.19",
-      "missing_pct_of_full_1050": "73.81",
+      "carried_pct_of_full_1050_not_pit": "30.95",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 43,
         "Insurers": 78,
         "Neoclouds": 65,
         "Semiconductors Supply": 45
@@ -480,16 +482,16 @@
     },
     {
       "month": "2025-11",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
         "Insurers",
         "Neoclouds"
       ],
       "carried_source_nodes": [
+        "AI Demand",
         "Semiconductors Supply"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -499,13 +501,14 @@
         "UST 30Y"
       ],
       "fresh_source_weight": 225,
-      "carried_source_weight": 50,
-      "missing_node_weight": 775,
+      "carried_source_weight": 100,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
       "fresh_pct_of_full_1050_not_pit": "21.43",
-      "carried_pct_of_full_1050_not_pit": "4.76",
-      "missing_pct_of_full_1050": "73.81",
+      "carried_pct_of_full_1050_not_pit": "9.52",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 73,
         "Insurers": 17,
         "Neoclouds": 3,
         "Semiconductors Supply": 75
@@ -516,16 +519,16 @@
     },
     {
       "month": "2025-12",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
         "Semiconductors Supply"
       ],
       "carried_source_nodes": [
+        "AI Demand",
         "Insurers",
         "Neoclouds"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -535,13 +538,14 @@
         "UST 30Y"
       ],
       "fresh_source_weight": 50,
-      "carried_source_weight": 225,
-      "missing_node_weight": 775,
-      "over_90_day_old_source_weight": 0,
+      "carried_source_weight": 275,
+      "missing_node_weight": 725,
+      "over_90_day_old_source_weight": 50,
       "fresh_pct_of_full_1050_not_pit": "4.76",
-      "carried_pct_of_full_1050_not_pit": "21.43",
-      "missing_pct_of_full_1050": "73.81",
+      "carried_pct_of_full_1050_not_pit": "26.19",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 104,
         "Insurers": 48,
         "Neoclouds": 34,
         "Semiconductors Supply": 8
@@ -552,16 +556,16 @@
     },
     {
       "month": "2026-01",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
         "Semiconductors Supply"
       ],
       "carried_source_nodes": [
+        "AI Demand",
         "Insurers",
         "Neoclouds"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -571,13 +575,14 @@
         "UST 30Y"
       ],
       "fresh_source_weight": 50,
-      "carried_source_weight": 225,
-      "missing_node_weight": 775,
-      "over_90_day_old_source_weight": 0,
+      "carried_source_weight": 275,
+      "missing_node_weight": 725,
+      "over_90_day_old_source_weight": 50,
       "fresh_pct_of_full_1050_not_pit": "4.76",
-      "carried_pct_of_full_1050_not_pit": "21.43",
-      "missing_pct_of_full_1050": "73.81",
+      "carried_pct_of_full_1050_not_pit": "26.19",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 135,
         "Insurers": 79,
         "Neoclouds": 65,
         "Semiconductors Supply": 15
@@ -588,16 +593,16 @@
     },
     {
       "month": "2026-02",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
         "Insurers",
         "Semiconductors Supply"
       ],
       "carried_source_nodes": [
+        "AI Demand",
         "Neoclouds"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -607,13 +612,14 @@
         "UST 30Y"
       ],
       "fresh_source_weight": 175,
-      "carried_source_weight": 100,
-      "missing_node_weight": 775,
-      "over_90_day_old_source_weight": 100,
+      "carried_source_weight": 150,
+      "missing_node_weight": 725,
+      "over_90_day_old_source_weight": 150,
       "fresh_pct_of_full_1050_not_pit": "16.67",
-      "carried_pct_of_full_1050_not_pit": "9.52",
-      "missing_pct_of_full_1050": "73.81",
+      "carried_pct_of_full_1050_not_pit": "14.29",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 163,
         "Insurers": 2,
         "Neoclouds": 93,
         "Semiconductors Supply": 10
@@ -624,8 +630,9 @@
     },
     {
       "month": "2026-03",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
+        "AI Demand",
         "Neoclouds",
         "Semiconductors Supply"
       ],
@@ -633,7 +640,6 @@
         "Insurers"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -642,14 +648,15 @@
         "SPV",
         "UST 30Y"
       ],
-      "fresh_source_weight": 150,
+      "fresh_source_weight": 200,
       "carried_source_weight": 125,
-      "missing_node_weight": 775,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
-      "fresh_pct_of_full_1050_not_pit": "14.29",
+      "fresh_pct_of_full_1050_not_pit": "19.05",
       "carried_pct_of_full_1050_not_pit": "11.90",
-      "missing_pct_of_full_1050": "73.81",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 13,
         "Insurers": 33,
         "Neoclouds": 19,
         "Semiconductors Supply": 15
@@ -660,16 +667,16 @@
     },
     {
       "month": "2026-04",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
         "Semiconductors Supply"
       ],
       "carried_source_nodes": [
+        "AI Demand",
         "Insurers",
         "Neoclouds"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -679,13 +686,14 @@
         "UST 30Y"
       ],
       "fresh_source_weight": 50,
-      "carried_source_weight": 225,
-      "missing_node_weight": 775,
+      "carried_source_weight": 275,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
       "fresh_pct_of_full_1050_not_pit": "4.76",
-      "carried_pct_of_full_1050_not_pit": "21.43",
-      "missing_pct_of_full_1050": "73.81",
+      "carried_pct_of_full_1050_not_pit": "26.19",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 43,
         "Insurers": 63,
         "Neoclouds": 49,
         "Semiconductors Supply": 14
@@ -696,15 +704,16 @@
     },
     {
       "month": "2026-05",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
         "Insurers",
         "Neoclouds",
         "Semiconductors Supply"
       ],
-      "carried_source_nodes": [],
+      "carried_source_nodes": [
+        "AI Demand"
+      ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -714,13 +723,14 @@
         "UST 30Y"
       ],
       "fresh_source_weight": 275,
-      "carried_source_weight": 0,
-      "missing_node_weight": 775,
+      "carried_source_weight": 50,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
       "fresh_pct_of_full_1050_not_pit": "26.19",
-      "carried_pct_of_full_1050_not_pit": "0.00",
-      "missing_pct_of_full_1050": "73.81",
+      "carried_pct_of_full_1050_not_pit": "4.76",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 74,
         "Insurers": 11,
         "Neoclouds": 4,
         "Semiconductors Supply": 16
@@ -731,8 +741,9 @@
     },
     {
       "month": "2026-06",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
+        "AI Demand",
         "Semiconductors Supply"
       ],
       "carried_source_nodes": [
@@ -740,7 +751,6 @@
         "Neoclouds"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -749,14 +759,15 @@
         "SPV",
         "UST 30Y"
       ],
-      "fresh_source_weight": 50,
+      "fresh_source_weight": 100,
       "carried_source_weight": 225,
-      "missing_node_weight": 775,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
-      "fresh_pct_of_full_1050_not_pit": "4.76",
+      "fresh_pct_of_full_1050_not_pit": "9.52",
       "carried_pct_of_full_1050_not_pit": "21.43",
-      "missing_pct_of_full_1050": "73.81",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 13,
         "Insurers": 41,
         "Neoclouds": 34,
         "Semiconductors Supply": 15
@@ -767,16 +778,16 @@
     },
     {
       "month": "2026-07",
-      "known_node_count": 3,
+      "known_node_count": 4,
       "fresh_source_nodes": [
         "Semiconductors Supply"
       ],
       "carried_source_nodes": [
+        "AI Demand",
         "Insurers",
         "Neoclouds"
       ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -786,13 +797,14 @@
         "UST 30Y"
       ],
       "fresh_source_weight": 50,
-      "carried_source_weight": 225,
-      "missing_node_weight": 775,
+      "carried_source_weight": 275,
+      "missing_node_weight": 725,
       "over_90_day_old_source_weight": 0,
       "fresh_pct_of_full_1050_not_pit": "4.76",
-      "carried_pct_of_full_1050_not_pit": "21.43",
-      "missing_pct_of_full_1050": "73.81",
+      "carried_pct_of_full_1050_not_pit": "26.19",
+      "missing_pct_of_full_1050": "69.05",
       "known_source_age_days_by_node": {
+        "AI Demand": 44,
         "Insurers": 72,
         "Neoclouds": 65,
         "Semiconductors Supply": 14
@@ -803,7 +815,7 @@
     },
     {
       "month": "2026-08",
-      "known_node_count": 6,
+      "known_node_count": 7,
       "fresh_source_nodes": [
         "Hyperscalers",
         "Insurers",
@@ -812,22 +824,24 @@
         "SPV",
         "Semiconductors Supply"
       ],
-      "carried_source_nodes": [],
+      "carried_source_nodes": [
+        "AI Demand"
+      ],
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Power/Data Centers",
         "Repo",
         "UST 30Y"
       ],
       "fresh_source_weight": 625,
-      "carried_source_weight": 0,
-      "missing_node_weight": 425,
+      "carried_source_weight": 50,
+      "missing_node_weight": 375,
       "over_90_day_old_source_weight": 0,
       "fresh_pct_of_full_1050_not_pit": "59.52",
-      "carried_pct_of_full_1050_not_pit": "0.00",
-      "missing_pct_of_full_1050": "40.48",
+      "carried_pct_of_full_1050_not_pit": "4.76",
+      "missing_pct_of_full_1050": "35.71",
       "known_source_age_days_by_node": {
+        "AI Demand": 75,
         "Hyperscalers": 17,
         "Insurers": 12,
         "Neoclouds": 5,
