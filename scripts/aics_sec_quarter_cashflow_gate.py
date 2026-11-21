@@ -49,7 +49,7 @@ def _row(row, cutoff):
     if row.get("tag") not in (OCF,CAPEX):
         return None, "other_xbrl_tag"
     if not isinstance(row.get("source_id"), str) or not re.fullmatch(
-            r"XBRL_SEC_[A-Z]{2,6}", row["source_id"]):
+            r"XBRL_[A-Z]{2,6}", row["source_id"]):
         raise ValueError("Unknown SEC original XBRL source label")
     if row.get("unit") != "USD":
         return None, "non_usd_cashflow_unit"
