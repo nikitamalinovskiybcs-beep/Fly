@@ -318,16 +318,18 @@
       "naics_code": "3344",
       "original_publication_measure": "capacity utilization percent of capacity, seasonally adjusted; original G.17 release date",
       "initially_observed_utilization_pct": "74.4",
-      "source_url": "https://www.federalreserve.gov/releases/g17/20261117/table2_sup.htm",
+      "source_url": "https://www.federalreserve.gov/releases/g17/current/table2_sup.htm",
       "source_table": "Table 2 monthly supplement, capacity utilization",
       "source_column": "Historical month's first available preliminary release; 2025-10/11 both shown as provisional Dec 23 release",
       "original_bytes_sha256": null,
-      "independent_historical_pit_attested": false
+      "independent_historical_pit_attested": false,
+      "source_url_is_mutable_current_release": true,
+      "source_url_snapshot_release_date": "2026-11-17"
     }
   ],
   "observed_months": 24,
   "late_2025_release_note": "The 2025-09 value was first observed on the December 3, 2025 G.17 release; 2025-10 and 2025-11 each appeared in the December 23, 2025 release. Neither was available in Oct or Nov month-end research information sets.",
-  "vintage_warning": "Original releases are retrospective web reads, not independently rehashed contemporaneously captured original bytes. Initial monthly values are distinct from later revised FRED/ALFRED observations.",
+  "vintage_warning": "Original releases are retrospective web reads, not independently rehashed contemporaneously captured original bytes. Initial monthly values are distinct from later revised FRED/ALFRED observations. The last October 2026 point has only a mutable /current/ Fed HTML page at the 2026-11-21 research capture because the dated archival HTML was not available; preserve its stated 2026-11-17 date, never imply immutable original bytes.",
   "preliminary_revision_policy": "Do not replace an archived first-release value with future revised values in the original month; use event date and keep both vintage and observation month.",
   "historical_membership_representativeness_not_verified": true,
   "independent_historical_pit_certified": false,
