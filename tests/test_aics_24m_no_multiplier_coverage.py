@@ -37,6 +37,9 @@ class NoMultiplier24mCoverageTest(unittest.TestCase):
 
     def test_new_dated_event_scores(self):
         by={(r["node"],r["available_at"]):r["score"] for r in candidates()}
+        self.assertEqual(by["Neoclouds","2025-06-03"],"100.00")
+        self.assertEqual(by["Neoclouds","2025-08-27"],"100.00")
+        self.assertEqual(by["Neoclouds","2025-11-27"],"51.90")
         self.assertEqual(by["Neoclouds","2026-05-27"],"48.45")
         self.assertEqual(by["Neoclouds","2026-08-26"],"75.78")
         self.assertEqual(by["Private Credit","2026-08-20"],"66.67")
@@ -48,7 +51,12 @@ class NoMultiplier24mCoverageTest(unittest.TestCase):
 
     def test_month_end_gates_prevent_lookahead_and_backfill(self):
         by={row["month"]:row for row in self.panel["monthly"]}
-        self.assertEqual(by["2026-04"]["known_node_count_research_only"],0)
+        self.assertEqual(by["2025-05"]["known_node_count_research_only"],0)
+        self.assertEqual(by["2025-06"]["known_node_count_research_only"],1)
+        self.assertEqual(by["2025-06"]["partial_known_weighted_points_not_aics"],"100.00")
+        self.assertEqual(by["2025-11"]["known_node_count_research_only"],1)
+        self.assertEqual(by["2025-11"]["partial_known_weighted_points_not_aics"],"51.90")
+        self.assertEqual(by["2026-04"]["known_node_count_research_only"],1)
         self.assertEqual(by["2026-05"]["known_node_count_research_only"],1)
         self.assertEqual(by["2026-07"]["known_node_count_research_only"],1)
         self.assertEqual(by["2026-08"]["known_node_count_research_only"],4)
