@@ -54,6 +54,7 @@ class NoMultiplier24mCoverageTest(unittest.TestCase):
         self.assertEqual(by["Insurers","2026-05-20"],"0.44")
         self.assertEqual(by["Insurers","2026-08-19"],"1.32")
         self.assertEqual(by["Insurers","2026-11-18"],"0.91")
+        self.assertEqual(by["Semiconductors Supply","2024-11-15"],"78.70")
         self.assertEqual(by["Semiconductors Supply","2024-12-17"],"78.80")
         self.assertEqual(by["Semiconductors Supply","2025-12-03"],"75.50")
         self.assertEqual(by["Semiconductors Supply","2026-10-16"],"76.50")
@@ -61,7 +62,9 @@ class NoMultiplier24mCoverageTest(unittest.TestCase):
 
     def test_month_end_gates_prevent_lookahead_and_backfill(self):
         by={row["month"]:row for row in self.panel["monthly"]}
-        self.assertEqual(by["2024-11"]["known_node_count_research_only"],0)
+        self.assertEqual(by["2024-11"]["known_node_count_research_only"],1)
+        self.assertEqual(by["2024-11"]["partial_known_weighted_points_not_aics"],"39.35")
+        self.assertEqual(by["2024-11"]["latest_eligible_research_scores"]["Semiconductors Supply"]["source_available_at"],"2024-11-15")
         self.assertEqual(by["2024-12"]["known_node_count_research_only"],1)
         self.assertEqual(by["2025-05"]["known_node_count_research_only"],2)
         self.assertEqual(by["2025-06"]["known_node_count_research_only"],3)
