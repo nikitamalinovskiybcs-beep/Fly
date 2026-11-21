@@ -17,10 +17,10 @@ class WeightedObservabilityTest(unittest.TestCase):
         self.assertEqual(d["months_with_at_least_one_research_node"],24)
         self.assertEqual(d["months_with_full_eleven_node_aics"],0)
         self.assertEqual(d["months_with_historical_aics_sp500_spread"],0)
-        self.assertEqual(d["sum_known_weight_months"],7325)
+        self.assertEqual(d["sum_known_weight_months"],7925)
         self.assertEqual(d["sum_total_possible_weight_months"],25200)
-        self.assertEqual(d["average_known_weight_pct_not_pit"],"29.07")
-        self.assertEqual(d["months_by_known_research_node_count"],{"2":7,"3":14,"6":1,"7":1,"10":1})
+        self.assertEqual(d["average_known_weight_pct_not_pit"],"31.45")
+        self.assertEqual(d["months_by_known_research_node_count"],{"2":7,"3":3,"4":11,"7":2,"10":1})
         first,last=d["rows"][0],d["rows"][-1]
         self.assertEqual((first["known_research_nodes"],first["known_research_node_weight"],first["unobserved_node_weight"],first["source_eligible_weight_pct_not_pit"]),(2,175,875,"16.67"))
         self.assertEqual((last["known_research_nodes"],last["known_research_node_weight"],last["unobserved_node_weight"],last["source_eligible_weight_pct_not_pit"]),(10,950,100,"90.48"))
