@@ -79,7 +79,7 @@ def source_updates(events):
     for r in pru["events"]:
         base = _base_event(events,"Insurers",r["available_at"],r["score_pct"])
         register(updates,base,[filed_source(
-            r["filed_at"],r["available_at"],r["source_url"])])
+            r["filed_at"],r["available_at"],r["source_index"])])
 
     neo = read("neoclouds_2025_q1_q3_sec_cashflow_research_2026-11-21.json")
     roster = {"2025-Q1":("crwv_q1","nbis_q1"),
