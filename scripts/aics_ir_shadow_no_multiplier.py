@@ -42,13 +42,12 @@ def calc(record=None, release=None, close=None):
             or record.get("date_cutoff") != "2026-11-20"
             or record.get("official_production_formula_changed") is not False
             or record.get("base_release") != str(RELEASE)
-            or record.get("model_status") != "EXPLORATORY_IR_SCENARIO_NOT_PIT_OR_OOS_CERTIFIED"
+            or record.get("model_status") != "EXPLORATORY_IR_SHADOW_NOT_PIT_OR_OOS_CERTIFIED"
             or record.get("research_method") != "SUM_NODE_WEIGHTS_TIMES_SCORES_OVER_100_NO_HOT_NODE_MULTIPLIER"
             or record.get("equity_close_record") != "aics_data/research/aics_2026_11_20_close_research_rollover.json"):
         raise ValueError("Invalid research-only scenario identifiers")
     safeguards = record["guardrails"]
-    if (record.get("raw_originals_rehashed_independently") is not False
-            or safeguards.get("independent_ir_raw_rehash_attested") is not False
+    if (safeguards.get("independent_ir_raw_rehash_attested") is not False
             or safeguards.get("complete_24_month_oos_attested") is not False
             or safeguards.get("historical_entry_watch_exit_thresholds_recalibrated") is not False
             or safeguards.get("trades_created") is not False
