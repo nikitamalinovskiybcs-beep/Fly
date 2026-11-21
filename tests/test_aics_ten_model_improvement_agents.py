@@ -120,6 +120,20 @@ class ImprovementAgentsTest(unittest.TestCase):
         self.assertGreater(float(challenger["retrospective_monthly_baseline_absolute_error_pct"]),0)
         self.assertIsNone(challenger["aics_excess_predictive_skill_vs_baseline"])
 
+    def test_model_challenger_uses_real_precrisis_cash_imbalance_without_fake_2008_probability(self):
+        candidate=self.report["agents"][8]["research_result"]["early_cash_imbalance_research"]
+        self.assertEqual(candidate["same_issuer_q3_yoy"]["cash_gap_deterioration_usd_m"],"-88149")
+        self.assertEqual(candidate["same_issuer_q3_yoy"]["cash_ppe_growth_pct"],"107.59")
+        self.assertEqual(candidate["same_issuer_q3_yoy"]["operating_cash_growth_pct"],"10.38")
+        self.assertIsNone(candidate["funding_crisis_2008_probability"])
+        self.assertIsNone(candidate["historical_2000_similarity_pct"])
+        self.assertIsNone(candidate["historical_2008_similarity_pct"])
+        self.assertIsNone(candidate["new_prod_aics_weight"])
+        months={x["period"]:x for x in candidate["source_periods"]}
+        self.assertEqual(months["2025-Q3"]["cash_gap_usd_m"],"61724")
+        self.assertEqual(months["2026-Q3"]["cash_gap_usd_m"],"-26425")
+        self.assertEqual(months["2026-Q3"]["source_eligible_at"],"2026-11-13")
+
     def test_calibration_requires_strict_actual_oos(self):
         cal=self.report["agents"][9]["research_result"]
         self.assertEqual(cal["minimum_calibration_training_observations"],36)
