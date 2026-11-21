@@ -82,7 +82,7 @@ def _data(v17, v18, sp500, captured):
             or v18.get("aics_sp500_spread_months") != 0
             or v18.get("production_index_changed") is not False
             or v18.get("trades_created") is not False
-            or sp500.get("symbol") != "SP500"
+            or sp500.get("symbol") != "GSPC"
             or len(sp500.get("points", [])) != 24
             or len(v18.get("monthly_calendar_end_research", [])) != 24
             or len(v18.get("monthly_last_weekday_market_proxy", [])) != 24):
