@@ -1,0 +1,110 @@
+{
+  "schema": "aics-seven-security-postroster-nov20-secondary-crosscheck-v1",
+  "research_asof": "2026-11-21",
+  "session": "2026-11-20",
+  "cutoff": "2026-11-21",
+  "source_scope": "7 equities in the explicitly captured November 19 Nasdaq Trader roster; ORCL NYSE, six NASDAQ-listed",
+  "predeclared_roster_source": "aics_data/research/ai_equities_2026_11_19_nasdaq_current_directory_rehash.json",
+  "earlier_primary_capture_source": "aics_data/research/aics_2026_11_20_close_research_rollover.json",
+  "price_rule": "equal opening notional: arithmetic mean 100*(close/open - 1); decliner if raw regular-session close less than open; dividends and overnight returns excluded",
+  "original_ohlc_rows": [
+    {
+      "symbol": "NVDA",
+      "open": "143.52",
+      "close": "125.53",
+      "source_url": "https://www.stockquote.io/stocks/NVDA/history",
+      "source_type": "StockQuote secondary market history",
+      "source_original_bytes_sha256": null,
+      "source_capture_asof": "2026-11-21",
+      "market_data_original_exchange_feed_verified": false
+    },
+    {
+      "symbol": "MSFT",
+      "open": "493.74",
+      "close": "484.52",
+      "source_url": "https://www.stockquote.io/stocks/MSFT/history",
+      "source_type": "StockQuote secondary market history",
+      "source_original_bytes_sha256": null,
+      "source_capture_asof": "2026-11-21",
+      "market_data_original_exchange_feed_verified": false
+    },
+    {
+      "symbol": "GOOGL",
+      "open": "274.50",
+      "close": "265.29",
+      "source_url": "https://www.stockquote.io/stocks/GOOGL/history",
+      "source_type": "StockQuote secondary market history",
+      "source_original_bytes_sha256": null,
+      "source_capture_asof": "2026-11-21",
+      "market_data_original_exchange_feed_verified": false
+    },
+    {
+      "symbol": "AMZN",
+      "open": "253.48",
+      "close": "246.82",
+      "source_url": "https://stockanalysis.com/stocks/amzn/history/",
+      "source_type": "StockAnalysis secondary market history",
+      "source_original_bytes_sha256": null,
+      "source_capture_asof": "2026-11-21",
+      "market_data_original_exchange_feed_verified": false
+    },
+    {
+      "symbol": "META",
+      "open": "583.91",
+      "close": "560.84",
+      "source_url": "https://www.stockquote.io/stocks/META/history",
+      "source_type": "StockQuote secondary market history",
+      "source_original_bytes_sha256": null,
+      "source_capture_asof": "2026-11-21",
+      "market_data_original_exchange_feed_verified": false
+    },
+    {
+      "symbol": "ORCL",
+      "open": "108.48",
+      "close": "101.19",
+      "source_url": "https://www.stockquote.io/stocks/ORCL/history",
+      "source_type": "StockQuote secondary market history",
+      "source_original_bytes_sha256": null,
+      "source_capture_asof": "2026-11-21",
+      "market_data_original_exchange_feed_verified": false
+    },
+    {
+      "symbol": "MU",
+      "open": "665.46",
+      "close": "594.51",
+      "source_url": "https://www.stockquote.io/stocks/MU/history",
+      "source_type": "StockQuote secondary market history",
+      "source_original_bytes_sha256": null,
+      "source_capture_asof": "2026-11-21",
+      "market_data_original_exchange_feed_verified": false
+    }
+  ],
+  "scores": {
+    "decliners": 7,
+    "denominator": 7,
+    "equity_breadth_0_100": "100.00",
+    "equal_weight_session_return_pct": "-5.959674"
+  },
+  "benchmark_state": {
+    "original_rollover_reconciles": true,
+    "source_times_are_next_day": false,
+    "source_observed_ex_post_asof": "2026-11-21",
+    "november_research_11_node_shadow_points": "528.74",
+    "november_research_11_node_shadow_certified": false,
+    "november_20_non_equity_inputs_carried_from": "2026-11-18"
+  },
+  "caveats": {
+    "independent_exchange_primary_price_feed_attested": false,
+    "raw_webpages_saved_as_original_bytes": false,
+    "official_pre_open_constituent_roster_historical_confirmed": false,
+    "roster_observed_2026_11_19": true,
+    "dated_secondary_price_observations_after_session": true,
+    "independently_certified_pit": false,
+    "full_24_month_composite_available": false,
+    "historical_aics_spread_to_sp500": null,
+    "investment_decision_from_score": false,
+    "originally_quoted_scores_promoted_to_october_2026": false,
+    "trades_created": false
+  },
+  "note": "Rechecks the already archived Nov20 result against independent secondary web quotes. Not a new raw-price feed, no 2024–26 historical PIT reconstruction, not a causal certified trading signal. Differing 2026-10 conditional shadow 510.31 and 2026-11-20 IR 528.74 cannot be treated as a clean single-method time series."
+}
