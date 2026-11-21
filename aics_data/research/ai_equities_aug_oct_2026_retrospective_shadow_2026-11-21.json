@@ -44,7 +44,7 @@
       ],
       "score": "71.43",
       "mean_equal_open_notional_session_return_pct": "-0.0970",
-      "other_known_node_count": 6,
+      "other_known_node_count": 7,
       "other_known_points": "249.09",
       "conditional_complete_11_node_scenario": null,
       "conditional_known_plus_equity": "320.52"
@@ -96,5 +96,6 @@
   "investment_decision_supported": false,
   "certified_aics": null,
   "trades_created": false,
-  "method_limit": "The 7 research names were identified in November 2026, not independently attested as historical basket members in Aug-Oct. Original Nasdaq price JSON was retrieved on 2026-11-18 AFTER all 3 source sessions, meaning derived monthly scores are a RETROSPECTIVE WHAT-IF ONLY, not source-date eligible and MUST NOT enter the as-of monthly AICS coverage or be used to claim historical market predictive power. Raw provider originals retained in temporary Actions artifact, not redistributed in repo."
+  "method_limit": "The 7 research names were identified in November 2026, not independently attested as historical basket members in Aug-Oct. Original Nasdaq price JSON was retrieved on 2026-11-18 AFTER all 3 source sessions, meaning derived monthly scores are a RETROSPECTIVE WHAT-IF ONLY, not source-date eligible and MUST NOT enter the as-of monthly AICS coverage or be used to claim historical market predictive power. Raw provider originals retained in temporary Actions artifact, not redistributed in repo.",
+  "reconciliation_note_2026_11_21": "Historical source-gated August 2026 other-known research nodes increased from 6 to 7 when original 2026-06-03 Broadcom AI Demand actual-vs-guidance became eligible 2026-06-17; the score is observed 0.00. Weighted subtotal 249.09 and conditional AI Equities what-if 320.52 are unchanged. This is 8/11 conditional coverage, still NOT actual PIT AICS."
 }
