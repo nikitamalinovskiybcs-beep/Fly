@@ -31,9 +31,9 @@
       "nonaccrual_cost_pct": "2.0",
       "nonaccrual_fair_pct": "1.2",
       "original_numeric_source_url": "https://www.sec.gov/Archives/edgar/data/1287750/000128775025000036/arccq2-2025exhibit991.htm",
-      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1287750/0001287750-25-000037-index.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1287750/0001287750-25-000038-index.htm",
       "numeric_source_type": "SEC-original EX-99.1",
-      "source_note": "Source exhibits investor release; 10-Q filed same day, ARCC total investments denominator; original 10-Q filing index accession crosscheck pending"
+      "source_note": "Source exhibits investor release; 10-Q filed same day, ARCC total investments denominator; original 10-Q filing accession separately verified"
     },
     {
       "issuer": "ARCC",
@@ -44,9 +44,9 @@
       "nonaccrual_cost_pct": "1.8",
       "nonaccrual_fair_pct": "1.0",
       "original_numeric_source_url": "https://www.sec.gov/Archives/edgar/data/1287750/000128775025000044/arccq3-2025exhibit991.htm",
-      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1287750/0001287750-25-000045-index.htm",
+      "sec_filing_index_url": "https://www.sec.gov/Archives/edgar/data/1287750/0001287750-25-000046-index.htm",
       "numeric_source_type": "SEC-original EX-99.1",
-      "source_note": "Source exhibits investor release; 10-Q filed same day; original 10-Q index accession crosscheck pending"
+      "source_note": "Source exhibits investor release; 10-Q filed same day; original 10-Q filing accession separately verified"
     },
     {
       "issuer": "BXSL",
