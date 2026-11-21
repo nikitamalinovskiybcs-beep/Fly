@@ -20,6 +20,7 @@ from pathlib import Path
 
 from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_neocloud_2025_sec_quarters import calculate as neocloud_2025_original_sec
+from scripts.aics_fed_g17_first_release_monthly import read as g17_naics3344_first_releases
 
 ROOT = Path("aics_data/research")
 SP500 = ROOT / "sp500_24_month_closes_2026-11-21.json"
@@ -99,6 +100,15 @@ def candidates():
             "independently_attested_historical_pit": False,
             "independently_24month_oos_verified": False
         })
+
+    # Dated original monthly Fed G.17 preliminary observations; first-publication
+    # delayed until Dec 2025 for 2025 Sep/Oct/Nov, never use as of the
+    # economic observation's month-end. Not a contemporary raw receipt.
+    for fed in g17_naics3344_first_releases():
+        add("Semiconductors Supply",fed["available_at"],fed["score"],
+            ROOT / "fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+            fed["observation_month"]+" first-published Fed G.17 NAICS 3344 utilization",
+            "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components")
 
     # Three actual contemporaneous 2025 original-SEC reporting quarters:
     # Q1 group perimeter differs from later continuing operations, and
