@@ -18,6 +18,10 @@ from scripts.aics_score_reproducibility_gate import WEIGHTS
 V18=Path("aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json")
 OUT=Path("aics_data/agent_runs/aics_2000_2008_2026_analog_research.json")
 
+
+def read(path):
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
 # Descriptive historical categories are grounded in public Federal Reserve,
 # FRBSF/Richmond and NYFed work. They are NOT historic 0-100 AICS scores.
 ANCHORS={
@@ -214,7 +218,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--out",type=Path,default=OUT)
     args=p.parse_args()
-    model=build(json.loads(V18.read_text(encoding="utf-8")))
+    model=build(read(V18))
     args.out.parent.mkdir(parents=True,exist_ok=True)
     args.out.write_text(json.dumps(model,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({
