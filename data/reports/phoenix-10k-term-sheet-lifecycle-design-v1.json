@@ -1,0 +1,152 @@
+{
+  "proposal_id": "phoenix-10k-term-sheet-lifecycle-design-v1",
+  "status": "research_only",
+  "scope": "Batch catalog and lifecycle evaluation for up to 10,000 public structured-note term sheets.",
+  "record_layers": {
+    "document": [
+      "source_url",
+      "source_type",
+      "issuer",
+      "cik_or_issuer_id",
+      "accession_or_document_id",
+      "document_published_at",
+      "retrieved_at",
+      "document_sha256",
+      "document_version",
+      "evidence_class"
+    ],
+    "terms": [
+      "isin_or_cusip",
+      "product_type",
+      "currency",
+      "underlyings",
+      "basket_rule",
+      "worst_of",
+      "initial_fixing_date",
+      "issue_date",
+      "observation_dates",
+      "coupon_rate",
+      "coupon_frequency",
+      "coupon_barrier",
+      "memory_coupon",
+      "autocall_barrier",
+      "autocall_schedule",
+      "knock_in_barrier",
+      "participation",
+      "cap",
+      "floor",
+      "maturity_date",
+      "redemption_formula"
+    ],
+    "lifecycle": [
+      "as_of_date",
+      "current_status",
+      "next_observation_date",
+      "next_coupon_date",
+      "next_autocall_date",
+      "days_to_maturity",
+      "maturity_status",
+      "autocall_status",
+      "coupon_status",
+      "barrier_status"
+    ],
+    "market_snapshot": [
+      "underlying_prices_as_of",
+      "price_source",
+      "price_retrieved_at",
+      "volatility_as_of",
+      "correlation_as_of",
+      "rates_as_of",
+      "missingness",
+      "no_lookahead_check"
+    ],
+    "outcome": [
+      "realized_autocall_date",
+      "realized_coupon_payments",
+      "realized_barrier_breach",
+      "realized_maturity_payoff",
+      "outcome_source",
+      "outcome_verified",
+      "outcome_evidence_class"
+    ]
+  },
+  "lifecycle_rules": {
+    "current_date": "Evaluation timestamp supplied by the run, never inferred from document text.",
+    "pre_issue": "as_of_date < issue_date",
+    "active": "issue_date <= as_of_date < maturity_date and no verified autocall event",
+    "autocalled": "verified realized_autocall_date <= as_of_date",
+    "matured": "as_of_date >= maturity_date and verified maturity outcome exists",
+    "maturity_pending": "as_of_date >= maturity_date and verified maturity outcome is absent",
+    "unknown": "Required dates or lifecycle evidence are missing or inconsistent",
+    "days_to_maturity": "max(0, maturity_date - as_of_date) for valid dates"
+  },
+  "evaluation_contract": {
+    "current_date_view": "Compare each active product's latest permitted market snapshot to its contractual triggers without lookahead.",
+    "completion_view": "At maturity or autocall, compare verified lifecycle outcome to contractual redemption formula.",
+    "not_allowed": [
+      "Infer realized outcome from current price alone.",
+      "Use future prices for an earlier as_of_date.",
+      "Treat a term sheet as a settled-note label.",
+      "Mix document terms, market snapshots and realized outcomes without lineage."
+    ]
+  },
+  "batch_pipeline": [
+    "Discover official candidates with source and query lineage.",
+    "Download with rate limits and retries.",
+    "Hash and deduplicate document content and versions.",
+    "Parse deterministic fields first; use AI only for bounded extraction review.",
+    "Run date, unit, barrier and formula validation.",
+    "Human-validate a statistically meaningful sample.",
+    "Join as-of market snapshots using no-lookahead controls.",
+    "Attach verified lifecycle outcomes only where independently sourced.",
+    "Run coverage and extraction-quality reports.",
+    "Only then prepare a separate OOS/model-impact experiment."
+  ],
+  "model_impact": {
+    "status": "not_measured",
+    "expected_use": "Structural coverage, scenario generation and product-universe monitoring.",
+    "promotion_requirements": [
+      "Validated extraction accuracy",
+      "Outcome linkage",
+      "Chronological fixed-24m OOS",
+      "Independent baseline comparison",
+      "Human model-risk/compliance review"
+    ]
+  },
+  "committee_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "decision": "RESEARCH",
+    "implementation_files": [
+      "data/reports/phoenix-10k-term-sheet-lifecycle-design-v1.json"
+    ],
+    "baseline": "1,000 public candidates catalogued; lifecycle join not implemented",
+    "target": "Evaluate each validated product at a supplied as-of date and at maturity without lookahead",
+    "observed_metric": "SEC search totals show at least 926 exact Autocallable Phoenix hits and 941 Phoenix Securities hits; broader queries are capped at 10,000+ and require relevance filtering",
+    "data_code_config_lineage": [
+      "SEC EDGAR full-text search",
+      "public issuer/exchange term sheets",
+      "as-of market snapshots",
+      "independently verified lifecycle outcomes"
+    ],
+    "blockers": [
+      "Relevance and duplicate rates for broader SEC queries are unknown.",
+      "Lifecycle edge cases require validation against verified outcomes.",
+      "No-lookahead market snapshots and contractual terms must remain separate from labels."
+    ],
+    "acceptance_tests": [
+      "Lifecycle states transition correctly on synthetic and verified dated fixtures.",
+      "No-lookahead checks reject future market observations.",
+      "Document hash and term deduplication are reproducible.",
+      "Matured/autocalled products have verified outcome linkage before model evaluation."
+    ],
+    "next_experiment": "Test lifecycle evaluation on a manually validated 1,000-record subset before scaling to 10,000.",
+    "final_devin_validation": "Lifecycle schema created; no model integration or production mutation performed."
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

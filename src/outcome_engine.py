@@ -292,15 +292,25 @@ def simulate_stress_suite(
     n_paths: int = 2_000,
     seed: int = 42,
 ) -> dict:
-    """Run base, volatility, bearish-drift, and high-correlation scenarios."""
+    """Run expanded scenario analysis; every result remains simulated-only."""
     n_assets = len(spec.basket)
     high_corr = np.full((n_assets, n_assets), 0.85)
     np.fill_diagonal(high_corr, 1.0)
     scenarios = {
         "base": {},
         "volatility_up": {"vol_multiplier": 1.25},
+        "volatility_extreme": {"vol_multiplier": 1.50},
         "bearish": {"drift_shift": -0.08},
+        "bearish_extreme": {"drift_shift": -0.15},
         "correlation_up": {"correlation": high_corr},
+        "correlation_extreme": {
+            "correlation": np.where(np.eye(n_assets) == 1, 1.0, 0.95),
+        },
+        "combined_stress": {
+            "vol_multiplier": 1.50,
+            "drift_shift": -0.15,
+            "correlation": np.where(np.eye(n_assets) == 1, 1.0, 0.95),
+        },
     }
     results = {}
     for index, (name, overrides) in enumerate(scenarios.items()):
@@ -310,6 +320,8 @@ def simulate_stress_suite(
     return {
         "source": "simulated",
         "status": "simulated",
+        "scenario_count": len(results),
+        "warning": "simulated stress only; not realized market evidence",
         "basket": list(spec.basket),
         "scenarios": results,
     }

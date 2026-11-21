@@ -1,0 +1,72 @@
+name: AICS ARCC Private Credit original SEC and issuer documents
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_archive_arcc_primary_sources.py'
+      - 'scripts/aics_arcc_nonaccrual_monitor.py'
+      - 'aics_data/research/arcc_primary_disclosures_2026-11-18.csv'
+      - 'tests/test_aics_archive_arcc_primary_sources.py'
+      - '.github/workflows/aics-arcc-primary-archive.yml'
+permissions:
+  contents: read
+jobs:
+  arcc-originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check SEC +14-day filing lag and source retrieval safety
+        run: |
+          python -m py_compile scripts/aics_archive_arcc_primary_sources.py scripts/aics_arcc_nonaccrual_monitor.py
+          python -m unittest discover -s tests -p 'test_aics_archive_arcc_primary_sources.py' -v
+          python -m unittest discover -s tests -p 'test_aics_arcc_nonaccrual_monitor.py' -v
+      - name: Fetch four original ARCC SEC exhibit and issuer HTML documents
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: python -m scripts.aics_archive_arcc_primary_sources
+      - name: Independently hash primary source originals and block unverified score use
+        if: always()
+        run: |
+          python - <<'PY'
+          import json,hashlib,os
+          from pathlib import Path
+          p=Path('aics_data/research/arcc_primary_raw/manifest.json')
+          if not p.is_file():
+              raise SystemExit('BLOCKED: no source manifest')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          assert d['input_observation_count']==8
+          assert d['unique_primary_sources']==4
+          assert d['independently_verified_pit'] is False
+          assert d['numeric_values_verified_against_raw'] is False
+          assert d['index_aics'] is None and d['private_credit_node_score'] is None
+          assert d['promotion']=='BLOCKED'
+          verified=0
+          for row in d['sources']:
+              if row['status']!='archived_raw_unverified':
+                  continue
+              f=Path(row['raw_path'])
+              assert f.is_file()
+              assert hashlib.sha256(f.read_bytes()).hexdigest()==row['sha256']
+              assert len(f.read_bytes())==row['bytes']
+              verified+=1
+          assert verified==d['archived_sources']
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              print('## Direct ARCC Private Credit issuer/SEC originals',file=out)
+              print(f'Originals rehashed: {verified}/4; date-eligible disclosures: 8/8',file=out)
+              print('Source bytes archived, transcribed non-accrual figures not yet independently verified.',file=out)
+              print('No inferred 24m PIT, AICS node score, or trading signal.',file=out)
+          PY
+      - name: Preserve all raw original bytes and gaps, even when incomplete
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-arcc-primary-nonaccrual-four-sources
+          path: aics_data/research/arcc_primary_raw/
+          retention-days: 30
+          if-no-files-found: warn

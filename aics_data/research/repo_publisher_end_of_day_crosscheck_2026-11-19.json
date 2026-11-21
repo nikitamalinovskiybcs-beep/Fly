@@ -1,0 +1,444 @@
+{
+  "scope": "Publisher's historical reference rates. SOFR first vintage is an observed date for the common release cycle. BGCR/TGCR receipt times are not inferred as observed. No imputed values or historical model promotion.",
+  "sources": [
+    "https://www.newyorkfed.org/markets/reference-rates/additional-information-about-reference-rates",
+    "https://www.newyorkfed.org/markets/opolicy/operating_policy_180410a",
+    "https://www.financialresearch.gov/short-term-funding-monitor/datasets/fnyr-single/"
+  ],
+  "source_capture": "2026-11-18T20:53:46.011580Z",
+  "archive_sha256": "2c0a8effbb1e0c222bdff4cf9f7141148767d39136b90d874c461cbb42c9e5dd",
+  "records": [
+    {
+      "series": "BGCR",
+      "cutoff": "2024-11-30",
+      "effective_date": "2024-11-27",
+      "nyfed_rate_percent": "4.56",
+      "same_cycle_sofr_first_vintage": "2024-11-29",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2024-11-30",
+      "effective_date": "2024-11-27",
+      "nyfed_rate_percent": "4.56",
+      "same_cycle_sofr_first_vintage": "2024-11-29",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2024-12-31",
+      "effective_date": "2024-12-30",
+      "nyfed_rate_percent": "4.35",
+      "same_cycle_sofr_first_vintage": "2024-12-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2024-12-31",
+      "effective_date": "2024-12-30",
+      "nyfed_rate_percent": "4.35",
+      "same_cycle_sofr_first_vintage": "2024-12-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-01-31",
+      "effective_date": "2025-01-30",
+      "nyfed_rate_percent": "4.34",
+      "same_cycle_sofr_first_vintage": "2025-01-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-01-31",
+      "effective_date": "2025-01-30",
+      "nyfed_rate_percent": "4.34",
+      "same_cycle_sofr_first_vintage": "2025-01-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-02-28",
+      "effective_date": "2025-02-27",
+      "nyfed_rate_percent": "4.34",
+      "same_cycle_sofr_first_vintage": "2025-02-28",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-02-28",
+      "effective_date": "2025-02-27",
+      "nyfed_rate_percent": "4.34",
+      "same_cycle_sofr_first_vintage": "2025-02-28",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-03-31",
+      "effective_date": "2025-03-28",
+      "nyfed_rate_percent": "4.33",
+      "same_cycle_sofr_first_vintage": "2025-03-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-03-31",
+      "effective_date": "2025-03-28",
+      "nyfed_rate_percent": "4.33",
+      "same_cycle_sofr_first_vintage": "2025-03-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-04-30",
+      "effective_date": "2025-04-29",
+      "nyfed_rate_percent": "4.35",
+      "same_cycle_sofr_first_vintage": "2025-04-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-04-30",
+      "effective_date": "2025-04-29",
+      "nyfed_rate_percent": "4.35",
+      "same_cycle_sofr_first_vintage": "2025-04-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-05-31",
+      "effective_date": "2025-05-29",
+      "nyfed_rate_percent": "4.32",
+      "same_cycle_sofr_first_vintage": "2025-05-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-05-31",
+      "effective_date": "2025-05-29",
+      "nyfed_rate_percent": "4.32",
+      "same_cycle_sofr_first_vintage": "2025-05-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-06-30",
+      "effective_date": "2025-06-27",
+      "nyfed_rate_percent": "4.37",
+      "same_cycle_sofr_first_vintage": "2025-06-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-06-30",
+      "effective_date": "2025-06-27",
+      "nyfed_rate_percent": "4.37",
+      "same_cycle_sofr_first_vintage": "2025-06-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-07-31",
+      "effective_date": "2025-07-30",
+      "nyfed_rate_percent": "4.31",
+      "same_cycle_sofr_first_vintage": "2025-07-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-07-31",
+      "effective_date": "2025-07-30",
+      "nyfed_rate_percent": "4.31",
+      "same_cycle_sofr_first_vintage": "2025-07-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-08-31",
+      "effective_date": "2025-08-28",
+      "nyfed_rate_percent": "4.33",
+      "same_cycle_sofr_first_vintage": "2025-08-29",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-08-31",
+      "effective_date": "2025-08-28",
+      "nyfed_rate_percent": "4.33",
+      "same_cycle_sofr_first_vintage": "2025-08-29",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-09-30",
+      "effective_date": "2025-09-29",
+      "nyfed_rate_percent": "4.12",
+      "same_cycle_sofr_first_vintage": "2025-09-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-09-30",
+      "effective_date": "2025-09-29",
+      "nyfed_rate_percent": "4.12",
+      "same_cycle_sofr_first_vintage": "2025-09-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-10-31",
+      "effective_date": "2025-10-30",
+      "nyfed_rate_percent": "3.99",
+      "same_cycle_sofr_first_vintage": "2025-10-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-10-31",
+      "effective_date": "2025-10-30",
+      "nyfed_rate_percent": "3.99",
+      "same_cycle_sofr_first_vintage": "2025-10-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-11-30",
+      "effective_date": "2025-11-26",
+      "nyfed_rate_percent": "4.02",
+      "same_cycle_sofr_first_vintage": "2025-11-28",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-11-30",
+      "effective_date": "2025-11-26",
+      "nyfed_rate_percent": "4.02",
+      "same_cycle_sofr_first_vintage": "2025-11-28",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-12-31",
+      "effective_date": "2025-12-30",
+      "nyfed_rate_percent": "3.69",
+      "same_cycle_sofr_first_vintage": "2025-12-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-12-31",
+      "effective_date": "2025-12-30",
+      "nyfed_rate_percent": "3.69",
+      "same_cycle_sofr_first_vintage": "2025-12-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-01-31",
+      "effective_date": "2026-01-29",
+      "nyfed_rate_percent": "3.63",
+      "same_cycle_sofr_first_vintage": "2026-01-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-01-31",
+      "effective_date": "2026-01-29",
+      "nyfed_rate_percent": "3.63",
+      "same_cycle_sofr_first_vintage": "2026-01-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-02-28",
+      "effective_date": "2026-02-26",
+      "nyfed_rate_percent": "3.65",
+      "same_cycle_sofr_first_vintage": "2026-02-27",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-02-28",
+      "effective_date": "2026-02-26",
+      "nyfed_rate_percent": "3.65",
+      "same_cycle_sofr_first_vintage": "2026-02-27",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-03-31",
+      "effective_date": "2026-03-30",
+      "nyfed_rate_percent": "3.62",
+      "same_cycle_sofr_first_vintage": "2026-03-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-03-31",
+      "effective_date": "2026-03-30",
+      "nyfed_rate_percent": "3.62",
+      "same_cycle_sofr_first_vintage": "2026-03-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-04-30",
+      "effective_date": "2026-04-29",
+      "nyfed_rate_percent": "3.61",
+      "same_cycle_sofr_first_vintage": "2026-04-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-04-30",
+      "effective_date": "2026-04-29",
+      "nyfed_rate_percent": "3.61",
+      "same_cycle_sofr_first_vintage": "2026-04-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-05-31",
+      "effective_date": "2026-05-28",
+      "nyfed_rate_percent": "3.6",
+      "same_cycle_sofr_first_vintage": "2026-05-29",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-05-31",
+      "effective_date": "2026-05-28",
+      "nyfed_rate_percent": "3.6",
+      "same_cycle_sofr_first_vintage": "2026-05-29",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-06-30",
+      "effective_date": "2026-06-29",
+      "nyfed_rate_percent": "3.6",
+      "same_cycle_sofr_first_vintage": "2026-06-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-06-30",
+      "effective_date": "2026-06-29",
+      "nyfed_rate_percent": "3.6",
+      "same_cycle_sofr_first_vintage": "2026-06-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-07-31",
+      "effective_date": "2026-07-30",
+      "nyfed_rate_percent": "3.63",
+      "same_cycle_sofr_first_vintage": "2026-07-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-07-31",
+      "effective_date": "2026-07-30",
+      "nyfed_rate_percent": "3.63",
+      "same_cycle_sofr_first_vintage": "2026-07-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-08-31",
+      "effective_date": "2026-08-28",
+      "nyfed_rate_percent": "3.63",
+      "same_cycle_sofr_first_vintage": "2026-08-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-08-31",
+      "effective_date": "2026-08-28",
+      "nyfed_rate_percent": "3.63",
+      "same_cycle_sofr_first_vintage": "2026-08-31",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-09-30",
+      "effective_date": "2026-09-29",
+      "nyfed_rate_percent": "3.87",
+      "same_cycle_sofr_first_vintage": "2026-09-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-09-30",
+      "effective_date": "2026-09-29",
+      "nyfed_rate_percent": "3.87",
+      "same_cycle_sofr_first_vintage": "2026-09-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-10-31",
+      "effective_date": "2026-10-29",
+      "nyfed_rate_percent": "3.92",
+      "same_cycle_sofr_first_vintage": "2026-10-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": false
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-10-31",
+      "effective_date": "2026-10-29",
+      "nyfed_rate_percent": "3.92",
+      "same_cycle_sofr_first_vintage": "2026-10-30",
+      "revision_indicator": "",
+      "separate_alfred_vintage": true
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "catalog_id": "phoenix-public-library-review-v1",
+  "generated_at": "2026-08-03T21:51:13.564732+00:00",
+  "scope": "Public libraries and references for structured-product pricing, risk and lifecycle implementation.",
+  "libraries": [
+    {
+      "name": "QuantLib/PyQL",
+      "role": "barrier, curves, calendars, payoff scripting; reference Phoenix payoff",
+      "limitation": "not a turnkey governed worst-of production dataset"
+    },
+    {
+      "name": "OpenGamma Strata",
+      "role": "market conventions, resolved products, risk primitives and curve infrastructure",
+      "limitation": "Phoenix payoff needs custom product implementation"
+    },
+    {
+      "name": "finmath-lib",
+      "role": "multi-asset MC, Heston, best/worst-of, AAD and optional GPU extensions",
+      "limitation": "Java integration and custom lifecycle mapping required"
+    },
+    {
+      "name": "FinancePy",
+      "role": "Python reference models for derivatives, barriers, curves and risk",
+      "limitation": "not specialized Phoenix lifecycle/outcome corpus"
+    },
+    {
+      "name": "vollib/py_vollib",
+      "role": "vanilla Black/BSM pricing, IV and Greeks sanity checks",
+      "limitation": "not path-dependent Phoenix pricing"
+    },
+    {
+      "name": "public Heston/worst-of GitHub pricers",
+      "role": "independent challenger formulas, correlation/skew/fair-coupon ideas",
+      "limitation": "license, tests, data provenance and production claims require review"
+    }
+  ],
+  "committee_review": {
+    "proposal_id": "phoenix-public-library-review-v1",
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "decision": "RESEARCH",
+    "review": {
+      "raw_response": {
+        "id": "b0359e1d37ae4e14a6a5e5c77197c09b",
+        "created": 1785793859,
+        "model": "mistral-small-latest",
+        "usage": {
+          "prompt_tokens": 163,
+          "total_tokens": 1363,
+          "completion_tokens": 1200,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "service_tier": "standard"
+        },
+        "object": "chat.completion",
+        "choices": [
+          {
+            "index": 0,
+            "finish_reason": "length",
+            "message": {
+              "role": "assistant",
+              "tool_calls": null,
+              "content": "```json\n{\n  \"decision\": \"Select open-source libraries as independent challengers and implementation references for Phoenix worst-of memory coupon pricing, with a focus on transparency, extensibility, and alignment with public research.\",\n  \"library_assessments\": {\n    \"QuantLib\": {\n      \"strengths\": [\"Comprehensive barrier option framework\", \"Structured payoff scripting via QuantLib::Payoff\", \"Publicly documented barrier mechanics and memory features\"],\n      \"weaknesses\": [\"C++-centric API may require wrappers for Python integration\", \"Memory coupon logic must be implemented externally\"],\n      \"relevance\": \"High for barrier option primitives and scripting infrastructure\"\n    },\n    \"OpenGamma Strata\": {\n      \"strengths\": [\"Modular FX barrier/risk primitives\", \"Open-source under Apache 2.0\", \"Clean separation of barrier logic and payoff\"],\n      \"weaknesses\": [\"Less mature than QuantLib for exotic payoffs\", \"Limited worst-of memory coupon examples\"],\n      \"relevance\": \"Medium for FX barrier mechanics and risk decomposition\"\n    },\n    \"finmath-lib\": {\n      \"strengths\": [\"Multi-asset Monte Carlo with Heston model\", \"AAD and GPU extensions for performance\", \"Best/worst-of payoff implementations\"],\n      \"weaknesses\": [\"Java-based (requires JNI for Python)\", \"Memory coupon logic not natively supported\"],\n      \"relevance\": \"High for Monte Carlo pricing and GPU acceleration\"\n    },\n    \"FinancePy\": {\n      \"strengths\": [\"Python-native derivatives library\", \"Market models and Heston implementation\", \"Worst-of payoff examples\"],\n      \"weaknesses\": [\"Less optimized for barrier options\", \"Memory coupon logic must be custom-built\"],\n      \"relevance\": \"Medium for Python-based challenger implementation\"\n    },\n    \"vollib\": {\n      \"strengths\": [\"Vanilla option Greeks reference\", \"Publicly documented formulas\", \"Lightweight and educational\"],\n      \"weaknesses\": [\"No barrier/worst-of support\", \"Limited to vanilla use cases\"],\n      \"relevance\": \"Low for Phoenix worst-of memory coupon\"\n    },\n    \"GitHub Heston/Worst-of Pricer\": {\n      \"strengths\": [\"Public implementations of Heston and worst-of\", \"Reference for memoryless vs. memory coupon logic\"],\n      \"weaknesses\": [\"Varies in quality/validation\", \"No standardized API\"],\n      \"relevance\": \"Medium for algorithmic reference\"\n    }\n  },\n  \"recommended_adoptions\": [\n    {\n      \"library\": \"QuantLib\",\n      \"use_case\": \"Barrier option primitives and scripting infrastructure for worst-of memory coupons\",\n      \"rationale\": \"Mature, well-documented, and aligns with public barrier option theory\"\n    },\n    {\n      \"library\": \"finmath-lib\",\n      \"use_case\": \"Monte Carlo pricing engine with Heston model and GPU acceleration\",\n      \"rationale\": \"Strong performance features and multi-asset support for worst-of payoffs\"\n    },\n    {\n      \"library\": \"FinancePy\",\n      \"use_case\": \"Python-based challenger implementation for worst-of memory coupons\",\n      \"rationale\": \"Python-native, extensible, and includes market model examples\"\n    }\n  ],\n  \"do_not_adopt\": [\n    {\n      \"library\": \"vollib\",\n      \"reason\": \"Limited to vanilla options; no support for barrier or worst-of payoffs\"\n    },\n    {\n      \"library\": \"OpenGamma Strata (for worst-of memory coupons)\",\n      \"reason\": \"Lacks native support for memory coupon logic and worst-of structures\"\n    }\n  ],\n  \"acceptance_tests\": [\n    {\n      \"test\": \"Barrier option pricing parity with QuantLib\",\n      \"description\": \"Validate barrier hit/miss logic and payoff scripting against QuantLib's public examples\"\n    },\n    {\n      \"test\": \"Heston worst-of Monte Carlo convergence\",\n      \"description\": \"Compare finmath-lib's Heston implementation against FinancePy for worst-of payoffs\"\n    },\n    {\n      \"test\": \"Memory coupon logic correctness\",\n      \"description\": \"Ensure worst-of memory coupon payouts match theoretical expectations under stress scenarios\"\n    }\n  ],\n  \"next_experiment\": {\n    \"goal\": \"Implement a worst-of memory coupon pricer in Python using FinancePy as a base, with QuantLib for barrier validation and finmath-lib for Monte Carlo acceleration\",\n    \"steps\": [\n      \"Port worst-of payoff logic from FinancePy to a custom Python class\",\n      \"Integrate QuantLib for barrier option pricing validation\",\n      \"Benchmark finmath-lib's Heston Monte Carlo against a pure Python implementation\",\n      \"Add memory coupon logic via custom state tracking\"\n    ],\n    \"success_criteria\": [\n      \"Pricing parity within 1% of QuantLib for barrier options\",\n      \"Monte Carlo convergence within 0.5% of finmath-lib\",\n      \"Memory coupon payouts match theoretical expectations\"\n    ]\n  },\n  \"safety_flags\": [\n    {\n      \"risk\": \"Barrier option mis-specification\",\n      \"mitigation\": \"Use QuantLib's barrier engine for validation and cross-check against public barrier pricing literature\"\n    },\n    {\n      \"risk\": \"Monte Carlo bias in Heston model\",\n      \"mitigation\": \"Compare against FinancePy's Heston implementation and validate against known benchmarks (e.g., Lord et al.)\"\n    },\n    {\n      \"risk\": \"Memory coupon logic errors\",\n      \"mitigation\": \"Implement unit tests for memory coupon payouts under various worst-of scenarios\"\n    }\n  ]\n"
+            }
+          }
+        ]
+      }
+    },
+    "baseline": "Phoenix canonical payoff/Monte Carlo engine with incomplete OOS evidence",
+    "target": "Add independent sanity checks and bounded challengers without changing production weights automatically",
+    "recommended_bounded_slice": [
+      "QuantLib payoff/date convention comparison",
+      "finmath or public Heston/worst-of challenger in isolated adapter",
+      "vollib/FinancePy vanilla/barrier unit sanity checks",
+      "Strata-inspired market snapshot and resolved-product lineage"
+    ],
+    "acceptance_tests": [
+      "Canonical payoff agrees on shared fixtures within tolerance",
+      "Date schedules and past fixings match across implementations",
+      "Greeks/MC variance checks are reproducible",
+      "No proprietary code or unverified market evidence is imported"
+    ],
+    "next_experiment": "Implement one isolated payoff adapter and compare against Phoenix fixtures before any integration.",
+    "final_devin_validation": "Library review recorded; no dependency or production logic changed."
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

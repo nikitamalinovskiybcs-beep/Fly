@@ -1,0 +1,73 @@
+name: AICS Insurers PRU original loan credit and MET embargo
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_insurers_pru_credit_asof.py'
+      - 'tests/test_aics_insurers_pru_credit_asof.py'
+      - 'aics_data/source_registry/observed_review_2026-11-19.json'
+      - '.github/workflows/aics-insurers-pru-original-credit-asof.yml'
+permissions:
+  contents: read
+jobs:
+  pru-asof-original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run synthetic-only parser integrity and SEC embargo tests
+        run: |
+          python -m py_compile scripts/aics_insurers_pru_credit_asof.py
+          python -m unittest discover -s tests -p test_aics_insurers_pru_credit_asof.py -v
+      - name: Redownload and verify the exact 56 MB SEC PRU original 10-Q
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_insurers_pru_credit_asof \
+            --fetch \
+            --as-of 2026-11-19 \
+            --directory aics_data/source_evidence/insurers_pru_credit_original \
+            --out aics_data/source_evidence/insurers_pru_credit_original/research.json
+      - name: Assert real credit arithmetic, frozen SEC availability and no AICS promotion
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          d=Path("aics_data/source_evidence/insurers_pru_credit_original")
+          r=json.loads((d/"research.json").read_text(encoding="utf-8"))
+          p=r["pru"];f=p["facts"];m=r["met_september_10q"]
+          assert r["node"]=="Insurers" and r["as_of"]=="2026-11-19"
+          assert p["sec_available_at"]=="2026-11-18"
+          assert p["original_sec_bytes_rehashed"]==56649032
+          assert p["original_sec_sha256"]=="49947c62bc026ff11df94e2c157ac67c18a073c7ec2f4e87f95f7c1645d59b41"
+          assert f["net_commercial_mortgage_and_other_loans_millions"]=={"2025-12-31":64715,"2026-09-30":67004}
+          assert f["total_assets_millions"]=={"2025-12-31":773740,"2026-09-30":771378}
+          assert f["loan_credit_loss_allowance_millions"]=={"2025-12-31":469,"2026-09-30":449}
+          assert f["nonaccrual_loans_without_related_acl_millions"]=={"2025-12-31":442,"2026-09-30":610}
+          assert f["loan_net_change_millions"]==2289 and f["loan_net_change_pct"]=="3.54"
+          assert f["nonaccrual_no_related_allowance_change_millions"]==168
+          assert f["nonaccrual_no_related_allowance_change_pct"]=="38.01"
+          assert m["filed_at"]=="2026-11-06" and m["available_at"]=="2026-11-20"
+          assert not m["eligible_at_frozen_cutoff"] and m["net_mortgage_loans_usd"] is None
+          assert not r["independently_captured_historical_pit"]
+          assert r["insurers_node_score"] is None and r["index_aics"] is None
+          assert r["promotion"]=="BLOCKED" and not r["trades_created"]
+          print("## Insurers: PRU real SEC 2026 Q3 credit quality, MET 10-Q under +14 embargo")
+          print("PRU actual 10-Q: 67,004m net loans versus 64,715m Dec 2025 (+2,289m / 3.54%).")
+          print("PRU related allowance: 449m versus 469m; subset of nonaccrual loans without ACL: 610m versus 442m.")
+          print("MET 2026-Q3 SEC 10-Q cannot enter a frozen 2026-11-19 AICS slice until 2026-11-20.")
+          print("Research only: no historical PIT attestation, no score, no investment signal.")
+          PY
+      - name: Preserve original SEC bytes and research provenance for external rehash
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-insurers-pru-actual-original-2026-q3-not-pit
+          path: aics_data/source_evidence/insurers_pru_credit_original/
+          retention-days: 30
+          if-no-files-found: warn

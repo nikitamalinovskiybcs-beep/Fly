@@ -1,0 +1,48 @@
+{
+  "schema_version": "aics-bxsl-q1q2-original-sec-immutable-receipt-v1",
+  "as_of": "2026-11-19",
+  "issuer": "BXSL",
+  "cik": "0001736035",
+  "original_actions_run_id": 44417963479,
+  "original_actions_artifact_id": 14481260092,
+  "original_artifact_zip_sha256": "a1dff0609e10a1300ae58fda5f9224a27af83ffe98c1f2e3f7b1b3d8dbf1009a",
+  "original_manifest_sha256": "1fe95615b947ef68fe950a42425b89c8544a35f8c27c028fcde794a6367a9d89",
+  "source_rows": [
+    {
+      "period_end": "2026-03-31",
+      "sec_accession": "0001213900-26-053022",
+      "filed_at": "2026-05-07",
+      "available_at": "2026-05-21",
+      "nonaccrual_cost_pct": "4.7",
+      "nonaccrual_fair_pct": "3.1",
+      "original_sha256": {
+        "index": "66f37784c24fe75267f0ddaf640dcc773835ab872ece7f26574fa23698c79d59",
+        "filing": "d2e62fce7dbf8297f4258d8d89204f29559bfd1bbb517d403febc0898d3265b3",
+        "exhibit": "ecf7c7c3ee222588d3d996b3b46bf4ad710eddd83e23ef740a4f9c58b3361e86"
+      }
+    },
+    {
+      "period_end": "2026-06-30",
+      "sec_accession": "0001213900-26-085889",
+      "filed_at": "2026-08-06",
+      "available_at": "2026-08-20",
+      "nonaccrual_cost_pct": "3.6",
+      "nonaccrual_fair_pct": "1.8",
+      "original_sha256": {
+        "index": "84602d6ad707c04693d412794f01c0b66aa1a10ec1f4c459d2868d9d4b60fcae",
+        "filing": "073a8957f14cd8f839735420a0dddd74e76ee683f0da0b03e448854cbd213ba8",
+        "exhibit": "7c5d383da677426691b9a9975c0c80d388f79b43b2ccead2e9eabab5df90cfe2"
+      }
+    }
+  ],
+  "originals_rehashed": 6,
+  "verified_nonaccrual_values": 4,
+  "cost_and_fair_denominators_distinct": true,
+  "original_contemporaneous_feed_pit_attested": false,
+  "untouched_24month_oos": false,
+  "synthetic_rows": 0,
+  "node_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "note": "These exact original SEC exhibits for Q1 and Q2 were independently rehashed from completed GitHub Actions artifact and transcribed using conservative exact-text parser. SEC model candidate availability uses original filed date plus 14 calendar days. Not a sector-wide Private Credit score."
+}

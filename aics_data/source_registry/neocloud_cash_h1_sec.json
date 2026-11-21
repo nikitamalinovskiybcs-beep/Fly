@@ -1,0 +1,152 @@
+{
+  "crwv_25_h1": {
+    "cik": "1769628",
+    "accession": "0001769628-25-000041",
+    "form": "10-Q",
+    "filed_at": "2025-08-13",
+    "available_at": "2025-08-27",
+    "source_page": "https://www.sec.gov/Archives/edgar/data/1769628/000176962825000041/crwv-20250630.htm",
+    "document_type": "10-Q",
+    "document_text_sha256": "e983c3f6d04dce88f6bc29a1218661a3fbb678d77c191640bd4d4a8c46770f4a",
+    "original": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962825000041/0001769628-25-000041.txt",
+      "bytes": 12552339,
+      "sha256": "79a88cdc87619d1b04b741823823050abdf064a8f3981d854f7a49274f40aa76"
+    }
+  },
+  "crwv_26_q1": {
+    "cik": "1769628",
+    "accession": "0001769628-26-000222",
+    "form": "10-Q",
+    "filed_at": "2026-05-08",
+    "available_at": "2026-05-22",
+    "source_page": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000222/crwv-20260331.htm",
+    "document_type": "10-Q",
+    "document_text_sha256": "5985c161e3ba441af1cf9bbad50a2ee0effde3bd5e255f18d3acc800f3b9f832",
+    "original": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000222/0001769628-26-000222.txt",
+      "bytes": 10409193,
+      "sha256": "295648283208330bdae111146c939649ef786a012e6b648598be6ed94d415f8e"
+    }
+  },
+  "crwv_26_release": {
+    "cik": "1769628",
+    "accession": "0001769628-26-000362",
+    "form": "8-K",
+    "filed_at": "2026-08-11",
+    "available_at": "2026-08-25",
+    "source_page": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000362/coreweave2q26earningspress.htm",
+    "document_type": "EX-99.1",
+    "document_text_sha256": "20eb2baede14aa550ab9e8d6033be3583702fb15e3f1e1ff2081f755c039fbd8",
+    "original": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000362/0001769628-26-000362.txt",
+      "bytes": 530955,
+      "sha256": "430e4c65c1e839ef6090ee4700270e5d62807780e884c8fd57c0f9592ec086ff"
+    }
+  },
+  "crwv_26_h1": {
+    "cik": "1769628",
+    "accession": "0001769628-26-000366",
+    "form": "10-Q",
+    "filed_at": "2026-08-12",
+    "available_at": "2026-08-26",
+    "source_page": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000366/crwv-20260630.htm",
+    "document_type": "10-Q",
+    "document_text_sha256": "a50f45f48899270f2018c2950b624102b33bb57ddebc999558211d06230d6e96",
+    "original": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000366/0001769628-26-000366.txt",
+      "bytes": 12588161,
+      "sha256": "ca366091455e6f3262a98868d3e62cfaef28a667729df7253270fd75cdd8f687"
+    }
+  },
+  "nbis_25_h1": {
+    "cik": "1513845",
+    "accession": "0001104659-25-075028",
+    "form": "6-K",
+    "filed_at": "2025-08-07",
+    "available_at": "2025-08-21",
+    "source_page": "https://www.sec.gov/Archives/edgar/data/1513845/000110465925075028/tm2522866d1_ex99-1.htm",
+    "document_type": "EX-99.1",
+    "document_text_sha256": "aeb411db838be59898fa3b3f9401db221b0b2ee41c1017287f4b19ce02949b7b",
+    "original": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465925075028/0001104659-25-075028.txt",
+      "bytes": 384824,
+      "sha256": "0eb72ae8a135848f7f2bd25e995345bc9f726d2e5e742ab64709d0f6c7813420"
+    }
+  },
+  "nbis_26_q1": {
+    "cik": "1513845",
+    "accession": "0001104659-26-059872",
+    "form": "6-K",
+    "filed_at": "2026-05-13",
+    "available_at": "2026-05-27",
+    "source_page": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926059872/tm2614392d1_ex99-1.htm",
+    "document_type": "EX-99.1",
+    "document_text_sha256": "61a932c78682afb59e3942a08a5340a956d56850724455c896377171f7a757e9",
+    "original": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926059872/0001104659-26-059872.txt",
+      "bytes": 4344843,
+      "sha256": "fe754463f408533de7bd84d6c4a34f7ae35162346659ffc2831e44504210dde1"
+    }
+  },
+  "nbis_26_release": {
+    "cik": "1513845",
+    "accession": "0001104659-26-094568",
+    "form": "6-K",
+    "filed_at": "2026-08-12",
+    "available_at": "2026-08-26",
+    "source_page": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926094568/tm2622968d1_ex99-1.htm",
+    "document_type": "EX-99.1",
+    "document_text_sha256": "b71a8a2723fff2cee70ba966f2bf3d03275fb988adfed89ae254b6b743a3bd39",
+    "original": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926094568/0001104659-26-094568.txt",
+      "bytes": 3853739,
+      "sha256": "02d21e468d069de5a1b6f0fe9a7929c6535473984301c3cbe7a40026676b817f"
+    }
+  },
+  "nbis_26_h1": {
+    "cik": "1513845",
+    "accession": "0001104659-26-094844",
+    "form": "6-K",
+    "filed_at": "2026-08-12",
+    "available_at": "2026-08-26",
+    "source_page": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926094844/nbis-20260812xex99d2.htm",
+    "document_type": "EX-99.2",
+    "document_text_sha256": "c8dad0cf406befe736a21f8a510aaa1cf35777752f37fe2068933ef4c1a4509b",
+    "original": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926094844/0001104659-26-094844.txt",
+      "bytes": 1887345,
+      "sha256": "4e679b0dc9706cb3a6ababcc315cb82ed2f7a4893faa9494b2a6bbcfaed319e5"
+    }
+  },
+  "crwv_jane_8k": {
+    "cik": "1769628",
+    "accession": "0001769628-26-000167",
+    "form": "8-K",
+    "filed_at": "2026-04-15",
+    "available_at": "2026-04-29",
+    "source_page": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000167/crwv-20260415.htm",
+    "document_type": "8-K",
+    "document_text_sha256": "e1570d22a3d6c70214aeb94d1780d99e6a813cf0fce1fe081d4dbc564b4308df",
+    "original": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000167/0001769628-26-000167.txt",
+      "bytes": 160304,
+      "sha256": "4cfaa5dbc446cb6198b99c7cdafa22bf7083bde5fb1535c395700475372dd3e1"
+    }
+  },
+  "crwv_proxy": {
+    "cik": "1769628",
+    "accession": "0001769628-26-000191",
+    "form": "DEF 14A",
+    "filed_at": "2026-04-22",
+    "available_at": "2026-05-06",
+    "source_page": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000191/crwv-20260422.htm",
+    "document_type": "DEF 14A",
+    "document_text_sha256": "43129d1c468daf215dc569e48224e482c18aa8290922df5fd61cfdc094e649a1",
+    "original": {
+      "url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000191/0001769628-26-000191.txt",
+      "bytes": 5715413,
+      "sha256": "86057134d4309cfad13de00ff279323f2f7004206b133f034f0d341fb31e0846"
+    }
+  }
+}

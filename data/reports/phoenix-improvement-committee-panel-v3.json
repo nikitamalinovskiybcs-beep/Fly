@@ -1,0 +1,164 @@
+{
+  "status": "completed",
+  "consensus_verdict": "RESEARCH",
+  "completed_providers": [
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "google_gemini",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "RESEARCH",
+        "summary": "The Phoenix improvement proposals present a comprehensive set of enhancements aimed at refining data contracts, calibration, risk assessment, and decision support mechanisms. Each proposal adheres to the constraints of not fabricating evidence and maintaining the fixed-24m OOS gate. The focus is on maximizing expected information gain while minimizing risks associated with implementation.",
+        "top_technical_reasons": [
+          "Proposals are designed to enhance data integrity and reliability.",
+          "Improvements focus on reducing risks associated with model calibration and decision-making.",
+          "Each proposal includes a clear metric gate to ensure performance validation."
+        ],
+        "candidate_safety": "High, as all proposals are subject to stringent validation against empirical baselines before any production promotion.",
+        "next_experiments": [
+          {
+            "hypothesis": "Adding source reliability scores will improve data quality assessments.",
+            "change": "Implement a scoring system for data sources based on historical accuracy.",
+            "metric_gate": "Measure the impact on OOS Brier and log-loss metrics.",
+            "why_it_is_informative": "This will provide insights into how source reliability affects overall model performance."
+          },
+          {
+            "hypothesis": "Validating timezone normalization will reduce discrepancies in data ingestion.",
+            "change": "Introduce a validation step for timezone normalization during data ingestion.",
+            "metric_gate": "Evaluate the reduction in data discrepancies post-implementation.",
+            "why_it_is_informative": "Understanding the impact of timezone normalization will help in refining data processing workflows."
+          },
+          {
+            "hypothesis": "Detecting duplicate observations will enhance data integrity.",
+            "change": "Develop a system to identify and flag duplicate observations across providers.",
+            "metric_gate": "Assess the reduction in data redundancy and its effect on model accuracy.",
+            "why_it_is_informative": "This will clarify the extent of data duplication issues and their impact on model performance."
+          },
+          {
+            "hypothesis": "Storing corporate-action adjustment provenance will improve transparency.",
+            "change": "Implement a tracking system for corporate-action adjustments.",
+            "metric_gate": "Monitor the effect on model interpretability and user trust.",
+            "why_it_is_informative": "This will provide insights into how provenance affects user confidence in model outputs."
+          },
+          {
+            "hypothesis": "Adding a human review queue for disputed facts will enhance data validation.",
+            "change": "Create a queue for human review of disputed data points.",
+            "metric_gate": "Evaluate the accuracy of resolved disputes and its impact on model performance.",
+            "why_it_is_informative": "This will help assess the effectiveness of human oversight in data validation processes."
+          }
+        ],
+        "data_or_label_risks": [
+          "Potential for incomplete data if source reliability is not accurately assessed.",
+          "Risk of introducing bias if timezone normalization is improperly validated.",
+          "Duplicate observations may still affect model performance if not effectively detected.",
+          "Lack of transparency in corporate actions could lead to mistrust in model outputs.",
+          "Human review processes may introduce delays or inconsistencies in data validation."
+        ],
+        "proposals": [
+          {
+            "title": "Add source reliability scores per field",
+            "component": "data_contracts",
+            "change": "Implement a scoring system for data sources based on historical accuracy.",
+            "rationale": "Enhancing data quality assessments through reliable source scoring.",
+            "implementation_sketch": "Develop a scoring algorithm that evaluates sources based on past performance metrics.",
+            "risk": 3,
+            "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors."
+          },
+          {
+            "title": "Validate timezone normalization at ingestion",
+            "component": "data_contracts",
+            "change": "Introduce a validation step for timezone normalization during data ingestion.",
+            "rationale": "To reduce discrepancies in data ingestion and improve overall data quality.",
+            "implementation_sketch": "Create a validation module that checks and corrects timezone discrepancies.",
+            "risk": 3,
+            "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors."
+          },
+          {
+            "title": "Detect duplicate observations across providers",
+            "component": "data_contracts",
+            "change": "Develop a system to identify and flag duplicate observations.",
+            "rationale": "To enhance data integrity and reduce redundancy.",
+            "implementation_sketch": "Implement a deduplication algorithm that scans incoming data for duplicates.",
+            "risk": 3,
+            "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors."
+          },
+          {
+            "title": "Store corporate-action adjustment provenance",
+            "component": "data_contracts",
+            "change": "Implement a tracking system for corporate-action adjustments.",
+            "rationale": "To improve transparency and accountability in data handling.",
+            "implementation_sketch": "Create a database schema to log all corporate-action adjustments with timestamps.",
+            "risk": 3,
+            "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors."
+          },
+          {
+            "title": "Add human review queue for disputed facts",
+            "component": "data_contracts",
+            "change": "Create a queue for human review of disputed data points.",
+            "rationale": "To enhance data validation and ensure accuracy.",
+            "implementation_sketch": "Develop a workflow for flagging disputed data and routing it to human reviewers.",
+            "risk": 3,
+            "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors."
+          }
+        ],
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

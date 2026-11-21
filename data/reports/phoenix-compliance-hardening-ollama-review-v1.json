@@ -1,0 +1,19 @@
+{
+  "verdict": "reject",
+  "summary": "The Phoenix proposal introduces unnecessary changes and does not address the current issues effectively. It should be rejected.",
+  "top_technical_reasons": [
+    "Adding new fields to existing commercial-readiness output without proper reasoning or testing is risky.",
+    "Separating claims from human approvals can lead to confusion in understanding the approval process.",
+    "Not implementing production weights change explicitly violates the proposal requirements and may impact future decisions."
+  ],
+  "candidate_safety": {
+    "replay": false,
+    "realized_trade": false
+  },
+  "next_experiments": [],
+  "data_or_label_risks": [],
+  "provider": "ollama",
+  "model": "qwen2.5:1.5b",
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

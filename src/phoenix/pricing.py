@@ -30,6 +30,7 @@ class PhoenixPricingEngine:
         n_simulations: int = 50000,
         use_local_vol: bool = False,
         seed: int = 42,
+        risk_free_rate: float = 0.05,
     ) -> PhoenixPricingResult:
         """Price a Phoenix/Autocall product via MC simulation.
 
@@ -50,16 +51,25 @@ class PhoenixPricingEngine:
         """
         if not tickers or not strikes or not observation_dates:
             return PhoenixPricingResult(fair_value_pct=0.0)
+        if n_simulations < 100:
+            raise ValueError("n_simulations must be at least 100")
+        if not 0 <= barrier_pct <= 1 or not 0 < coupon_rate:
+            raise ValueError("invalid barrier or coupon rate")
 
         rng = np.random.default_rng(seed)
         n = len(tickers)
-        r = 0.05
+        r = float(risk_free_rate)
 
         ivs = self._get_ivs(tickers, use_local_vol)
         corr_matrix = self._get_correlation_matrix(tickers)
         cholesky = np.linalg.cholesky(corr_matrix)
 
         obs_times = self._dates_to_years(observation_dates)
+        if any(
+            current <= previous
+            for previous, current in zip(obs_times, obs_times[1:])
+        ):
+            raise ValueError("observation_dates must be strictly increasing")
         n_obs = len(obs_times)
         dt_list = [obs_times[0]] + [obs_times[i] - obs_times[i - 1] for i in range(1, n_obs)]
 

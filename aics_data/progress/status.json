@@ -1,0 +1,230 @@
+{
+  "as_of": "2026-11-18",
+  "schema_version": "aics-progress-status-v1",
+  "scope": "PROJECT_MILESTONES_NOT_MODEL_QUALITY",
+  "total_nodes": 11,
+  "total_weight": 1050,
+  "milestones_per_node": 6,
+  "milestones_completed": 22,
+  "milestones_total": 66,
+  "project_progress_pct": 33.3,
+  "registry_nodes": 11,
+  "archived_candidate_nodes": 11,
+  "raw_ir_archive_nodes": [
+    "AI Demand",
+    "Hyperscalers",
+    "Insurers",
+    "Neoclouds",
+    "Power/Data Centers",
+    "SPV",
+    "Semiconductors Supply"
+  ],
+  "raw_price_archive_nodes": [
+    "AI Equities"
+  ],
+  "source_pit_attested_nodes": 0,
+  "audited_scoring_nodes": 0,
+  "untouched_24m_oos_nodes": 0,
+  "independently_certified_nodes": 0,
+  "certification_pct": 0.0,
+  "node_progress": [
+    {
+      "node": "Private Credit",
+      "weight": 150,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    },
+    {
+      "node": "Insurers",
+      "weight": 125,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    },
+    {
+      "node": "UST 30Y",
+      "weight": 125,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    },
+    {
+      "node": "Neoclouds",
+      "weight": 100,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    },
+    {
+      "node": "AI Equities",
+      "weight": 100,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    },
+    {
+      "node": "Hyperscalers",
+      "weight": 100,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    },
+    {
+      "node": "SPV",
+      "weight": 100,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    },
+    {
+      "node": "Repo",
+      "weight": 100,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    },
+    {
+      "node": "Power/Data Centers",
+      "weight": 50,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    },
+    {
+      "node": "Semiconductors Supply",
+      "weight": 50,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    },
+    {
+      "node": "AI Demand",
+      "weight": 50,
+      "gates": {
+        "primary_source_registry": true,
+        "raw_candidate_archive": true,
+        "independently_attested_pit": false,
+        "audited_node_scoring": false,
+        "untouched_24m_oos": false,
+        "independent_certification": false
+      },
+      "completed_milestones": 2,
+      "milestone_count": 6,
+      "project_progress_pct": 33.3,
+      "independently_certified": false,
+      "node_stress_score": null
+    }
+  ],
+  "archive": {
+    "source": "ALFRED historical as-of source snapshots",
+    "workflow_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44313687138",
+    "reported_sha256": "03d06b287dc591d6830223bd181db401d19ce618a785b40c25a999ab1ddd5cc3",
+    "independently_verified": false
+  },
+  "index_aics": null,
+  "predictive_skill_score": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "important": "Project completion percentage is NOT certified model readiness. The separate reproducibility/PIT/OOS process is authoritative."
+}

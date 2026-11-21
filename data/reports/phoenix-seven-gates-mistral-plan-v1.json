@@ -1,0 +1,67 @@
+{
+  "proposal_id": "phoenix-seven-gates-plan-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "decision": "HOLD",
+  "gate_plan": [
+    {
+      "gate": 1,
+      "name": "reachable deployment",
+      "status": "COMPLETE",
+      "evidence": "Streamlit app reachable after merge and reboot",
+      "owner": "Engineering"
+    },
+    {
+      "gate": 2,
+      "name": "fixed-24m OOS anchors",
+      "status": "INCOMPLETE",
+      "action": "Provide verified chronological 6/12/18/24 anchor evidence with timestamps and methodology",
+      "owner": "Data Engineering"
+    },
+    {
+      "gate": 3,
+      "name": "baseline metrics",
+      "status": "INCOMPLETE",
+      "action": "Compute documented baseline metrics and comparison thresholds using production data",
+      "owner": "ML Engineering"
+    },
+    {
+      "gate": 4,
+      "name": "provenance and settled evidence",
+      "status": "INCOMPLETE",
+      "action": "Attach lineage, model/version identifiers, finalized snapshots, and reproducible audit trails",
+      "owner": "Data Engineering"
+    },
+    {
+      "gate": 5,
+      "name": "live rollback drill",
+      "status": "INCOMPLETE",
+      "action": "Execute in staging or production, record success criteria and post-drill validation",
+      "owner": "DevOps"
+    },
+    {
+      "gate": 6,
+      "name": "key custody policy",
+      "status": "INCOMPLETE",
+      "action": "Document roles, access controls, rotation, recovery, and audit requirements",
+      "owner": "Policy Team"
+    },
+    {
+      "gate": 7,
+      "name": "human sign-off",
+      "status": "INCOMPLETE",
+      "action": "Model Risk, Compliance, and Suitability reviewers sign the packet",
+      "owner": "Human Reviewers"
+    }
+  ],
+  "blockers": [
+    "Gates 2-4 require verified external market data and cannot be fabricated by AI",
+    "Gate 7 requires human reviewer availability and approval"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

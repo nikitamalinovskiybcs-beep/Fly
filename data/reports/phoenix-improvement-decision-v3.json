@@ -1,0 +1,46 @@
+{
+  "proposal_id": "phoenix-100-improvements-v3",
+  "decision": "RESEARCH",
+  "catalog_count": 100,
+  "committee_verdict": "RESEARCH",
+  "committee_status": "quorum_unavailable",
+  "completed_providers": [
+    "openrouter"
+  ],
+  "unavailable_providers": [
+    "google_gemini",
+    "anthropic",
+    "cerebras",
+    "nvidia",
+    "openai",
+    "mistral",
+    "groq"
+  ],
+  "committee_supported_priorities": [
+    "source reliability and provenance",
+    "timezone and duplicate-data validation",
+    "corporate-action traceability",
+    "human review for disputed facts"
+  ],
+  "selected_top_10": [
+    "phoenix-201",
+    "phoenix-202",
+    "phoenix-203",
+    "phoenix-204",
+    "phoenix-213",
+    "phoenix-231",
+    "phoenix-251",
+    "phoenix-261",
+    "phoenix-271",
+    "phoenix-281"
+  ],
+  "implementation_phase": "phase_1_local_helpers_and_contract_tests",
+  "implementation_files": [
+    "src/research_improvements.py",
+    "tests/test_research_improvements.py"
+  ],
+  "acceptance_gate": "fixed-24m OOS Brier and log-loss beat empirical baseline at 6/12/18/24 anchors before promotion",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

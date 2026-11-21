@@ -1,0 +1,55 @@
+{
+  "schema": "aics-broadcom-2025q2-bounded-actual-above-guidance-original-sec-v1",
+  "research_asof": "2026-11-21",
+  "node": "AI Demand",
+  "node_weight": 50,
+  "issuer": "Broadcom Inc.",
+  "cik": "1730168",
+  "period": "2025-Q2",
+  "period_end": "2025-05-04",
+  "prior_guidance_filing": {
+    "period": "2025-Q1",
+    "filed_at": "2025-03-06",
+    "available_at": "2025-03-20",
+    "form": "8-K",
+    "exhibit": "EX-99.1",
+    "accession": "0001730168-25-000009",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000009/avgo-02022025x8kxex99.htm",
+    "source_index": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000009/0001730168-25-000009-index.htm",
+    "next_quarter_guidance_ai_revenue_usd_m": 4400,
+    "quantifier": "expected AI semiconductor revenue of $4.4 billion in Q2",
+    "raw_original_sha256": null
+  },
+  "actual_filing": {
+    "period": "2025-Q2",
+    "filed_at": "2025-06-05",
+    "available_at": "2025-06-19",
+    "form": "8-K",
+    "exhibit": "EX-99.1",
+    "accession": "0001730168-25-000061",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000061/avgo-05042025x8kxex99.htm",
+    "source_index": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000061/0001730168-25-000061-index.htm",
+    "reported_actual_relation": ">",
+    "reported_actual_lower_bound_strict_usd_m": 4400,
+    "reported_actual_exact_usd_m": null,
+    "original_text_summary": "Q2 AI revenue grew 46% year-over-year to over $4.4 billion",
+    "raw_original_sha256": null
+  },
+  "deduction": {
+    "rule": "For any unknown actual A strictly greater than published guidance G>0, 100*max(0, 1-A/G) = 0 exactly.",
+    "score": "0.00",
+    "joint_source_first_available_at": "2025-06-19",
+    "does_not_imply_exact_revenue_known": true,
+    "contemporaneous_original_reports_from_2025_but_retrieved_2026": true
+  },
+  "certification": {
+    "original_full_submission_bytes_rehashed": false,
+    "independent_2025_provider_delivery_attested": false,
+    "historical_pit_certified": false,
+    "independent_out_of_sample_model_verified": false,
+    "full_11_node_aics": null,
+    "historical_aics_sp500_spread": null,
+    "trades_created": false
+  },
+  "scope_warning": "Issuer statement over $4.4bn is a strict lower bound, not an exact 4.4bn revenue; 0 stress is logically exact under the single issuer's forecast-miss formula. First SEC availability is 2025-06-19, not Q2 end or June 5. No independent 2025 archived provider bytes, no AI-industry demand proxy certification, no trade."
+}

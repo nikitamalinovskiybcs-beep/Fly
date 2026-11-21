@@ -1,0 +1,54 @@
+{
+  "proposal_id": "phoenix-optional-library-adapters-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "generated_at": "2026-08-03T22:29:34.420190+00:00",
+  "decision": "RESEARCH",
+  "implementation_files": [
+    "src/optional_library_adapters.py",
+    "tests/test_optional_library_adapters.py"
+  ],
+  "baseline": "Phoenix canonical engine",
+  "target": "Independent library sanity checks for dates and vanilla pricing before structured-note adapters",
+  "observed_metrics": {
+    "focused_tests": "37 passed",
+    "full_suite": "582 passed",
+    "vanilla_max_abs_difference": 7.952863290583423e-06
+  },
+  "unavailable_providers_or_runtimes": [
+    "finmath-lib: Maven runtime unavailable",
+    "OpenGamma Strata: Maven runtime unavailable"
+  ],
+  "review": {
+    "decision": "proceed_with_guards",
+    "proposal": "Integrate the bounded optional-library adapter slice for Phoenix, contingent on resolving Maven dependency for finmath-lib and OpenGamma Strata.",
+    "objections": [
+      "Maven not installed in research environment blocks full availability of finmath-lib and OpenGamma Strata.",
+      "Production weights, verdicts, and trades remain unchanged, but canonical Phoenix integration requires all adapters."
+    ],
+    "acceptance_tests": [
+      "37 focused tests passed for QuantLib, FinancePy, and vollib European call parity fixtures.",
+      "Full suite clean with 582 tests passed.",
+      "Reference-only outputs confirmed; no impact on production data."
+    ],
+    "next_experiment": "Install Maven in research environment to enable finmath-lib and OpenGamma Strata adapters, then re-run full test suite.",
+    "safety_flags": [
+      "Ensure Maven installation does not conflict with existing Python/QuantLib dependencies.",
+      "Validate adapter outputs against canonical Phoenix benchmarks post-Maven integration."
+    ]
+  },
+  "acceptance_tests": [
+    "optional libraries remain optional imports",
+    "date schedule is explicit and tested",
+    "vanilla parity is within declared tolerance",
+    "no production engine or weights change",
+    "structured-note promotion requires common fixtures and OOS"
+  ],
+  "next_experiment": "Add QuantLib date/barrier convention fixtures and FinancePy/vollib Greek checks; do not infer Phoenix accuracy from vanilla parity.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

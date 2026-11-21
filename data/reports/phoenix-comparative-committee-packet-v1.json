@@ -1,0 +1,137 @@
+{
+  "status": "research_only",
+  "scope": "comparative audit of Phoenix calculator, storage, AI committee, resources and process integration",
+  "audit": {
+    "schema_version": "phoenix-comparative-audit-v1",
+    "scope": "Phoenix calculator and operating system comparative audit",
+    "evidence_basis": [
+      "528 isolated tests passed",
+      "Ruff, compileall, git diff check passed",
+      "fixed-24m benchmark candidates failed promotion gate",
+      "two-year evidence audit found 107 quotes but 0 settled Phoenix outcomes",
+      "local AI smoke tests completed for 9 installed models"
+    ],
+    "dimensions": {
+      "calculation_engine": {
+        "status": "strong_research_engine",
+        "strengths": [
+          "payoff engine",
+          "historical replay",
+          "Monte Carlo",
+          "fixed anchors"
+        ],
+        "gaps": [
+          "fixed-24m OOS candidates fail baseline",
+          "real settled labels missing"
+        ]
+      },
+      "evidence_and_provenance": {
+        "status": "blocked",
+        "strengths": [
+          "contracts",
+          "readiness registry",
+          "hallucination audit"
+        ],
+        "gaps": [
+          "BCS identity unverified",
+          "0 settled notes",
+          "no linked observation paths"
+        ]
+      },
+      "storage": {
+        "status": "implemented_not_fully_connected",
+        "strengths": [
+          "SQLite/local",
+          "Supabase/Firebase adapters",
+          "ClickHouse",
+          "Redis",
+          "R2 backup adapters"
+        ],
+        "gaps": [
+          "cloud credentials/backends not verified in this run",
+          "single canonical evidence store still needed"
+        ]
+      },
+      "ai_committee": {
+        "status": "working_research_only",
+        "strengths": [
+          "Groq",
+          "OpenRouter",
+          "Qwen",
+          "DeepSeek",
+          "Llama",
+          "Gemma"
+        ],
+        "gaps": [
+          "small local models hallucinate",
+          "Phi/SmolLM/TinyLlama/Granite are optional until panel-tested",
+          "provider availability varies"
+        ]
+      },
+      "safety_and_governance": {
+        "status": "strong",
+        "strengths": [
+          "research-only flags",
+          "no AI direct mutation",
+          "dissent/unavailable status",
+          "release gates"
+        ],
+        "gaps": [
+          "fact-checking must remain mandatory"
+        ]
+      },
+      "resources": {
+        "status": "constrained_but_operational",
+        "strengths": [
+          "Docker image reduced to ~1.14GB previously",
+          "local models free"
+        ],
+        "gaps": [
+          "8GB RAM limits concurrent judges",
+          "Phi-3 latency ~40.35s",
+          "new models consume disk/RAM"
+        ]
+      },
+      "dealer_calibration": {
+        "status": "blocked",
+        "strengths": [
+          "BCS quote contract",
+          "quote-fit report"
+        ],
+        "gaps": [
+          "no verified BCS observations"
+        ]
+      },
+      "ui_and_process": {
+        "status": "usable_research_dashboard",
+        "strengths": [
+          "alternatives",
+          "factor breakdown",
+          "quote-fit panel"
+        ],
+        "gaps": [
+          "single WHY BLOCKED path should surface evidence blockers prominently"
+        ]
+      }
+    },
+    "priority_actions": [
+      "collect verified settled 24m notes",
+      "capture timestamped BCS Capital quotes and observation paths",
+      "add fact-check gate for committee claims",
+      "run fixed-24m OOS after each data batch",
+      "keep slow local models optional under RAM budget"
+    ],
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "committee_questions": [
+    "which process boundaries should be unified first",
+    "what code changes improve calculator evidence and committee reliability",
+    "which local models should remain active under 8GB RAM",
+    "what is the highest-risk unsupported claim"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

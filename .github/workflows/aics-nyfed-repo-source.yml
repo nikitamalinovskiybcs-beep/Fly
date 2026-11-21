@@ -1,0 +1,61 @@
+name: AICS NY Fed Repo primary-source capture
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_nyfed_repo_rates.py'
+      - 'tests/test_aics_collect_nyfed_repo_rates.py'
+      - '.github/workflows/aics-nyfed-repo-source.yml'
+permissions:
+  contents: read
+jobs:
+  nyfed-secured-rates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile and verify no future dates, made-up values or partial publication
+        run: |
+          python -m py_compile scripts/aics_collect_nyfed_repo_rates.py
+          python -m unittest discover -s tests -p 'test_aics_collect_nyfed_repo_rates.py' -v
+      - name: Capture original 999-row maximum NY Fed JSON responses, 3 rate types
+        run: python -m scripts.aics_collect_nyfed_repo_rates
+      - name: Independently verify original file SHA-256 against capture manifest
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          base = Path('aics_data/nyfed_repo')
+          manifest = json.loads((base / 'manifest.json').read_text())
+          assert len(manifest['series']) == 3
+          assert not manifest['historical_pit_attested']
+          assert manifest['index_aics'] is None
+          assert manifest['node_stress_score'] is None
+          assert manifest['promotion'] == 'BLOCKED'
+          for item in manifest['series']:
+              source = base / item['file']
+              assert source.is_file()
+              raw = source.read_bytes()
+              assert hashlib.sha256(raw).hexdigest() == item['raw_sha256']
+              obj = json.loads(raw)
+              assert len(obj['refRates']) == item['row_count']
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              print('## Official New York Fed research source capture', file=out)
+              for item in manifest['series']:
+                  print(f"- {item['rate_type']}: {item['row_count']} original observations, "
+                        f"{item['oldest_effective_date']} through {item['newest_effective_date']}", file=out)
+              print('**Historical release-vintage PIT not independently verified; AICS = N/A.**', file=out)
+          PY
+      - name: Archive original bytes and verified receipt (review NY Fed terms before redistribution)
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-nyfed-repo-raw-as-captured
+          path: aics_data/nyfed_repo/
+          if-no-files-found: error
+          retention-days: 14

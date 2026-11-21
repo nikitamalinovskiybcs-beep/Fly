@@ -1,0 +1,72 @@
+name: AICS automated ten-stage evidence audit
+# Legacy manual/PR diagnostics. Master owns live schedule; never publishes AICS or trades.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/aics-ten-stage-auto.yml'
+      - 'scripts/aics_collect_evidence.py'
+      - 'scripts/aics_collect_xbrl.py'
+      - 'scripts/aics_validate_evidence.py'
+      - 'scripts/aics_validate_xbrl.py'
+      - 'scripts/aics_audit_node_coverage.py'
+      - 'scripts/aics_research_readiness.py'
+      - 'scripts/aics_ten_stage_receipt.py'
+      - 'tests/test_aics_research_safety.py'
+permissions:
+  contents: read
+concurrency:
+  group: aics-ten-stage-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Stage 1 - checkout audited code
+        uses: actions/checkout@v4
+      - name: Stage 2 - setup reproducible Python runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Stage 3 - compile all evidence scripts
+        run: python -m py_compile scripts/aics_collect_evidence.py scripts/aics_collect_xbrl.py scripts/aics_validate_evidence.py scripts/aics_validate_xbrl.py scripts/aics_audit_node_coverage.py scripts/aics_research_readiness.py scripts/aics_ten_stage_receipt.py
+      - name: Stage 4 - offline safety regression tests
+        run: python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
+      - name: Stage 5 - collect SEC and FRED evidence
+        if: github.event_name != 'pull_request'
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
+        run: python scripts/aics_collect_evidence.py
+      - name: Stage 6 - validate macro and filing evidence
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_validate_evidence.py
+      - name: Stage 7 - collect SEC companyfacts
+        if: github.event_name != 'pull_request' && always()
+        env:
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
+        run: python scripts/aics_collect_xbrl.py
+      - name: Stage 8 - validate SEC XBRL facts
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_validate_xbrl.py
+      - name: Stage 9 - audit 11 nodes and fixed weights
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_audit_node_coverage.py
+      - name: Stage 10 - produce fail-closed readiness verdict
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_research_readiness.py
+      - name: Produce auditable ten-stage receipt
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_ten_stage_receipt.py
+      - name: Archive source files, hashes, errors and readiness
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-ten-stage-audit
+          path: |
+            aics_data/live/
+            aics_data/xbrl/
+            aics_data/research/
+          if-no-files-found: warn
+          retention-days: 30

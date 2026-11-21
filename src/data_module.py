@@ -8,8 +8,11 @@ Pattern: try xfinlink first → if unavailable/error → yfinance fallback.
 """
 
 import datetime as dt
+import csv
+import io
 import os
 import time
+import urllib.request
 from typing import Dict, List
 
 import numpy as np
@@ -210,6 +213,34 @@ def fetch_ticker_data(tickers: List[str], period: str = "2y") -> Dict:
 def clear_ticker_data_cache() -> None:
     """Force the next analysis to fetch fresh market data."""
     _FETCH_CACHE.clear()
+
+
+def fetch_stooq_prices(
+    tickers: List[str],
+    timeout_seconds: int = 5,
+) -> Dict[str, List[float]]:
+    """Fetch free daily closes from Stooq for secondary source checks."""
+    result: Dict[str, List[float]] = {}
+    for ticker in dict.fromkeys(tickers):
+        symbol = f"{ticker.lower()}.us"
+        url = f"https://stooq.com/q/d/l/?s={symbol}&i=d"
+        try:
+            request = urllib.request.Request(
+                url,
+                headers={"User-Agent": "Phoenix/1.0 market-data-check"},
+            )
+            with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
+                rows = list(csv.DictReader(io.StringIO(response.read().decode())))
+            closes = [
+                float(row["Close"])
+                for row in rows
+                if row.get("Close") not in {None, "", "N/D"}
+            ]
+            if closes:
+                result[ticker] = closes
+        except (OSError, ValueError, KeyError):
+            continue
+    return result
 
 
 def fetch_iv_percentile(tickers: List[str]) -> Dict[str, float]:
@@ -503,8 +534,37 @@ def fetch_macro_factors() -> Dict:
     """Fetch macro factors that affect P(KI): VIX, Fed rates, credit spreads.
     These are market-wide risk indicators independent of specific tickers.
     """
-    result = {"vix": 18.0, "fed_rate": 4.5, "credit_spread": 1.2,
-              "regime": "normal", "macro_risk_score": 0.3}
+    result = {
+        "vix": 18.0,
+        "fed_rate": 4.5,
+        "credit_spread": 1.2,
+        "regime": "normal",
+        "macro_risk_score": 0.3,
+        "source": "fallback_defaults",
+        "is_real": False,
+    }
+
+    try:
+        from src.fred_data import get_fred_data
+
+        fred = get_fred_data()
+        for key in (
+            "vix",
+            "fed_rate",
+            "credit_spread",
+            "rate_10y",
+            "rate_2y",
+            "yield_curve_slope",
+            "dollar_index",
+            "oil",
+        ):
+            if fred.get(key) is not None:
+                result[key] = fred[key]
+        result["source"] = fred.get("source", "fred_partial")
+        result["is_real"] = bool(fred.get("available"))
+        result["fred_regime"] = fred.get("fred_regime", "normal")
+    except Exception:
+        pass
 
     if XFL_AVAILABLE:
         try:
@@ -529,7 +589,7 @@ def fetch_macro_factors() -> Dict:
             pass
 
     # Compute macro risk score (0=low risk, 1=extreme risk)
-    vix = result["vix"]
+    vix = float(result["vix"])
     if vix > 30:
         result["regime"] = "stress"
         result["macro_risk_score"] = min(1.0, (vix - 15) / 35)

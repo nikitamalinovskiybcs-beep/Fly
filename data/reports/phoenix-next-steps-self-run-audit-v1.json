@@ -1,0 +1,65 @@
+{
+  "proposal_id": "phoenix-next-steps-self-run-audit-v1",
+  "status": "research_only",
+  "completed_work": [
+    "Variable 10-cycle engine replay",
+    "Phoenix loss-model versus Monte Carlo input comparison",
+    "Available OOS and baseline artifact audit",
+    "Mistral review of promotion readiness"
+  ],
+  "variable_replay": {
+    "p_loss_min_pct": 8.5,
+    "p_loss_max_pct": 35.1,
+    "p_loss_range_pct": 26.6,
+    "agent_score_min": 70.0,
+    "agent_score_max": 70.0,
+    "interpretation": "Sensitivity exists when tenor or ticker inputs are perturbed, but this is a research fixture and not market evidence."
+  },
+  "engine_reconciliation": {
+    "supervised_loss_model_pct": 18.3,
+    "monte_carlo_research_fixture_pct": 0.0,
+    "comparable": false,
+    "reason": "Different labels, path distribution, calibration and payoff semantics."
+  },
+  "available_oos_baseline": {
+    "classical_baseline_activation": {
+      "source": "data/reports/classical-baseline-activation-v1.json",
+      "anchors": [6, 12, 18, 24],
+      "passed_anchors": 0,
+      "promotion_status": "blocked"
+    },
+    "fixed24m_calibration": {
+      "source": "data/reports/fixed24m-calibration-review-packet-v2.json",
+      "status": "research_only",
+      "finding": "Candidate Brier, log-loss and ECE were worse than empirical baseline at all anchors."
+    },
+    "current_24m_effectiveness": {
+      "source": "data/reports/current_24m_effectiveness.json",
+      "status": "research_only",
+      "source_data": "yfinance"
+    }
+  },
+  "mistral_review": {
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "decision": "DO_NOT_PROMOTE",
+    "blockers": [
+      "Research replay is not market evidence",
+      "No fixed-24m candidate passed all anchors",
+      "Calibration remains worse than empirical baseline",
+      "Replay and model outputs are not comparable"
+    ],
+    "next_steps": [
+      "Obtain market-validated replay inputs",
+      "Recalibrate fixed-24m model against baseline",
+      "Align labels, paths and calibration between engines",
+      "Keep research_only until the evidence gates pass"
+    ]
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

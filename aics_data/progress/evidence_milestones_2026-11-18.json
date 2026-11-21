@@ -1,0 +1,67 @@
+{
+  "schema_version": "aics-progress-milestones-v1",
+  "report_as_of": "2026-11-18",
+  "registry_path": "docs/aics_11_node_primary_source_registry_2026-11-18.md",
+  "research_archive": {
+    "description": "Historical ALFRED as-of snapshot archive documented in repository; primary provider values not independently re-attested",
+    "workflow_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44313687138",
+    "archive_sha256": "03d06b287dc591d6830223bd181db401d19ce618a785b40c25a999ab1ddd5cc3",
+    "supporting_document": "docs/aics_research_credit_monitor_2026-11-18.md",
+    "series_by_node": {
+      "Private Credit": [
+        "BAMLH0A0HYM2",
+        "BAMLH0A3HYC"
+      ],
+      "UST 30Y": [
+        "DGS30"
+      ],
+      "Repo": [
+        "SOFR"
+      ]
+    }
+  },
+  "independent_audit": {
+    "independently_pit_attested_nodes": [],
+    "independently_audited_score_nodes": [],
+    "untouched_oos_24mo_passed_nodes": [],
+    "independently_certified_nodes": []
+  },
+  "limitations": [
+    "Stage percentages measure completion of 6 documented project milestones, not model accuracy or validated index completeness.",
+    "One ALFRED ZIP archive supports three candidate node mappings; those mappings are not independent node stress scores.",
+    "No historical series or observations are fabricated or backfilled.",
+    "AICS=NA and predictive_skill=NA unless separate independent scientific gates pass.",
+    "The Insurers raw IR archive was downloaded from GitHub Actions and all 4 HTML SHA-256 values independently recalculated. This is only archive-stage evidence, not historical PIT or model scoring; GitHub artifact retention is 30 days.",
+    "Neoclouds and SPV receive raw-archive milestone only: 7 original CoreWeave/Nebius/Equinix IR pages were independently downloaded from Actions and rehashed. The legal structure of a true SPV is not established; files have 30-day artifact retention.",
+    "Seven current issuer IR reports and seven official IR homepages independently SHA256 rechecked. Hyperscalers, Semiconductors Supply, and AI Demand stage 2 only; Alphabet IR HTML is a shell and must be paired with original PDF. No SEC historical vintage or node score.",
+    "Power/Data Centers receives source archive stage only: four original Applied Digital and Equinix IR pages re-hashed; not regionally validated EIA power/stress observations.",
+    "Nasdaq AI Equities current-capture originals: 7 securities × 63 real daily price rows, 441 original observations for 2026-08-20 through 2026-11-17. All original JSON SHA256 and identity rechecked independently; this proves archive stage only and not historical PIT, constituent membership, split adjustment, node score, or OOS."
+  ],
+  "independently_recalculated_raw_archive_receipts": [
+    {
+      "node": "Insurers",
+      "receipt_path": "aics_data/progress/insurers_ir_raw_archive_receipt_2026-11-18.json",
+      "evidence_status": "CURRENT_IR_RAW_SHA_VERIFIED_NOT_HISTORICAL_PIT"
+    },
+    {
+      "node": "Neoclouds+SPV",
+      "receipt_path": "aics_data/progress/neocloud_spv_ir_raw_archive_receipt_2026-11-18.json",
+      "evidence_status": "SEVEN_CURRENT_OFFICIAL_IR_SOURCE_HTML_SHA_VERIFIED_NOT_HISTORICAL_SEC_PIT"
+    },
+    {
+      "node": "Hyperscalers+Semiconductors Supply+AI Demand",
+      "receipt_path": "aics_data/progress/hyperscaler_semiconductors_demand_ir_raw_archive_receipt_2026-11-18.json",
+      "evidence_status": "FOURTEEN_CURRENT_IR_HTML_SOURCE_FILES_SHA256_RECHECKED_NOT_PIT"
+    },
+    {
+      "node": "Power/Data Centers",
+      "receipt_path": "aics_data/progress/power_datacenters_ir_raw_archive_receipt_2026-11-18.json",
+      "evidence_status": "FOUR_OFFICIAL_APLD_EQIX_IR_HTML_BYTES_SHA256_RECHECKED_NOT_HISTORICAL_PIT"
+    },
+    {
+      "node": "AI Equities",
+      "receipt_path": "aics_data/progress/ai_equities_nasdaq_raw_archive_receipt_2026-11-18.json",
+      "evidence_status": "NASDAQ_DATED_RAW_PRICE_BYTES_SHA256_RECHECKED_NOT_PIT"
+    }
+  ]
+}

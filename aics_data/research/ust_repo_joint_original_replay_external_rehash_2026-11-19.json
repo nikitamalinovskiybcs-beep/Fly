@@ -1,0 +1,64 @@
+{
+  "schema_version": "aics-ust30-repo-joint-24-matched-real-original-replay-external-rehash-v1",
+  "research_as_of": "2026-11-19",
+  "source_data_cutoff": "2026-11-18",
+  "github_workflow_run_id": 44574558415,
+  "github_artifact_id": 14555817063,
+  "artifact_name": "aics-ust30-repo-joint-24-real-months-not-model",
+  "independently_downloaded_zip_size_bytes": 2490,
+  "independently_calculated_zip_sha256": "e9c051c6ab87a5410a2eb44cb2f4ee28e1771d8a6d67b7f574de47cd19c1eafc",
+  "zip_crc_test_passed": true,
+  "replayed_report_filename": "ust_repo_joint_24_month_research.json",
+  "replayed_report_bytes": 12434,
+  "independently_calculated_replay_json_sha256": "a36f9620325bf41324552912be07331f0c4ccd7ed5d3c7bfe28b23e028750595",
+  "original_committed_source_file_sha256": {
+    "aics_data/research/repo_24_month_observed_research_2026-11-18.json": "c2a4142e50453ec859d84bced6bfdf7df62410da37d4595c9284766ad72253f5",
+    "aics_data/research/ust30_24_month_public_observed_panel_2026-11-18.json": "586f6112a66597f53a20f34c1d71a172a0c254454d5eed2010ccd99a882e047d",
+    "aics_data/research/ust30_yield_change_volatility_2024_2026.json": "7c6a095d1f4154fe50f9d04d0665c4b40c85f3e4859cf0c54b5867e686e34590"
+  },
+  "matched_real_month_ends": 24,
+  "matched_window": [
+    "2024-11-30",
+    "2026-10-31"
+  ],
+  "source_arithmetic_method": "DGS30-SOFR and SOFR-IORB in exact basis points; no interpolation. Existing 20-daily-change DGS30 rolling sample standard deviation matched by as-of month-end.",
+  "retrospective_descriptive_comparison": {
+    "months_dgs30_minus_sofr_gt_100bp": 10,
+    "months_sofr_above_iorb": 5,
+    "months_both": 2,
+    "months_both_dates": [
+      "2025-12-31",
+      "2026-10-31"
+    ],
+    "strictly_not_a_model_threshold": true
+  },
+  "latest_observation": {
+    "cutoff": "2026-10-31",
+    "shared_market_effective_date": "2026-10-29",
+    "unverified_nyfed_publication_proxy_date": "2026-10-30",
+    "dgs30_percent": "5.32",
+    "sofr_percent": "3.94",
+    "iorb_percent": "3.9",
+    "dgs30_minus_sofr_bp": 138,
+    "sofr_minus_iorb_bp": 4,
+    "dgs30_20daily_sample_sd_bp": "4.98"
+  },
+  "change_september_to_october_2026": {
+    "dgs30_minus_sofr_bp": -33,
+    "sofr_minus_iorb_bp": 6,
+    "rolling_yield_change_sample_sd_bp": "0.57"
+  },
+  "observed_two_spread_movements_same_direction": false,
+  "historical_publisher_intraday_release_independently_attested": false,
+  "original_source_day_level_vintages_replayed_retrospectively": true,
+  "original_24_months_eligible_for_untouched_oos": false,
+  "synthetic_market_rows": 0,
+  "inferred_causal_stress_signal": false,
+  "ust30_node_score": null,
+  "repo_node_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "independent_pit_nodes_certified": 0,
+  "model_milestones_completed_after_analysis": 22,
+  "limitation": "The shared SOFR and UST data are source-linked archive candidates with retrospective ALFRED and NY Fed release-proxy limitations. The 100-bp cutoff is an ex-post descriptive ruler, not a frozen stress threshold. Inspecting all 24 months means they cannot also be counted as untouched OOS. This receipt records actual CI-replayed data, not independent historical release-time attestation."
+}

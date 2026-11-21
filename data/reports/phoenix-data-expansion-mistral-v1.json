@@ -1,0 +1,109 @@
+{
+  "proposal_id": "phoenix-data-expansion-mistral-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "decision": "REJECT_ADDITIONAL_ACQUISITION_UNTIL_QUALITY_IS_FIXED",
+  "local_audit": {
+    "settled_notes": {
+      "rows": 50,
+      "losses": 27,
+      "wins": 23,
+      "status": "research_only_until_provenance_is_attached"
+    },
+    "dealer_quotes": {
+      "total_rows": 895,
+      "valid_rows": 828,
+      "rejected_rows": 67,
+      "source_file": "data/dealer_quotes.csv",
+      "columns": ["basket", "n", "term_m", "prot_bar", "coupon", "status"],
+      "provenance_status": "incomplete",
+      "reason": "Rows do not contain source_id, observed_at, currency, dealer identity or dataset version."
+    },
+    "toxicity": {
+      "ticker_records": 55,
+      "small_sample_examples": {
+        "SBUX": {"losses": 0, "wins": 1},
+        "CRWD": "missing",
+        "BA": "missing",
+        "RCL": "missing"
+      },
+      "status": "incomplete"
+    },
+    "historical_prices": {
+      "source": "yfinance",
+      "status": "research_only",
+      "oos_status": "not_promotable"
+    }
+  },
+  "correction_to_ai_suggestion": [
+    "895 versus 828 is not an unexplained conflict: it is total rows versus valid rows after 67 rejects.",
+    "FINRA TRF or exchange tape is not a substitute for structured-note dealer quotes or settled-note outcomes.",
+    "No arbitrary minimum such as 5,000 settled notes or 10,000 quotes will be treated as a universal gate; sample size must be justified by product scope, coverage and validation power.",
+    "Synthetic data may be used for software tests, but never as market evidence or promotion evidence."
+  ],
+  "priority_lanes": [
+    {
+      "order": 1,
+      "lane": "dealer_quote_provenance",
+      "actions": [
+        "Preserve all 895 rows and rejection reasons",
+        "Attach source_id, observed_at, currency, source label, dataset version and quote-fit",
+        "Separate quote offers from settled outcomes"
+      ],
+      "acceptance": "Every valid quote is traceable or explicitly marked unverified."
+    },
+    {
+      "order": 2,
+      "lane": "settled_outcomes",
+      "actions": [
+        "Acquire authorized term sheets and maturity outcomes",
+        "Capture issuance date, maturity date, basket, barrier, autocall, coupon and realized payoff",
+        "Deduplicate by product identifier and preserve source documents"
+      ],
+      "acceptance": "Chronological labels are independently auditable."
+    },
+    {
+      "order": 3,
+      "lane": "market_history",
+      "actions": [
+        "Use authorized price/volatility data or user-provided source files",
+        "Store as-of timestamps, corporate-action treatment, timezone and missingness",
+        "Compute features only from information available at the as-of date"
+      ],
+      "acceptance": "No lookahead and reproducible snapshots."
+    },
+    {
+      "order": 4,
+      "lane": "risk_factors",
+      "actions": [
+        "Derive volatility, correlation, gap, barrier and autocall features from the same snapshots",
+        "Track confidence and minimum-observation warnings",
+        "Do not silently assign safe values to unknown tickers"
+      ],
+      "acceptance": "Unknown or insufficient data blocks production promotion."
+    },
+    {
+      "order": 5,
+      "lane": "oos_baseline",
+      "actions": [
+        "Freeze chronological datasets",
+        "Run empirical baseline and Phoenix candidates at 6/12/18/24",
+        "Require complete provenance and independent review"
+      ],
+      "acceptance": "A candidate beats baseline at every required anchor before promotion."
+    }
+  ],
+  "blockers": [
+    "No verified settled-note provenance packet",
+    "Dealer quote file lacks field-level provenance",
+    "CRWD/BA/RCL toxicity coverage is missing",
+    "SBUX history is too small for standalone calibration",
+    "Existing OOS candidates fail their anchor gates"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

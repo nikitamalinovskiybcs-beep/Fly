@@ -1,0 +1,73 @@
+name: AICS MET June 2026 eligible original insurer loan ACL
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_insurers_met_june_original.py'
+      - 'tests/test_aics_insurers_met_june_original.py'
+      - '.github/workflows/aics-insurers-met-q2-original.yml'
+permissions:
+  contents: read
+jobs:
+  met-june-sec-original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate MET exact SEC metadata, frozen as-of, credit math
+        run: |
+          python -m py_compile scripts/aics_insurers_met_june_original.py
+          python -m unittest discover -s tests -p test_aics_insurers_met_june_original.py -v
+      - name: Retrieve authentic full MET June 10-Q (filed August 6)
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_insurers_met_june_original \
+            --as-of 2026-11-19 \
+            --out aics_data/source_evidence/insurers_met_june_original
+      - name: Replay from saved original, verify actual ACL, forbid MET Q3 look-ahead
+        run: |
+          python -m scripts.aics_insurers_met_june_original \
+            --as-of 2026-11-19 --verify-existing \
+            --out aics_data/source_evidence/insurers_met_june_original
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          j=json.loads(Path("aics_data/source_evidence/insurers_met_june_original/research.json").read_text())
+          x=j["facts"]
+          assert j["sec_available_at"]=="2026-08-20"
+          assert j["period_end"]=="2026-06-30"
+          assert x["mortgage_loans_net_millions"]=={"2025-12-31":84593,"2026-06-30":82856}
+          assert x["mortgage_loan_acl_millions"]=={"2025-12-31":1193,"2026-06-30":1358}
+          assert x["acl_segment_end_millions"]=={
+            "commercial":1016,"agricultural":107,"residential":235,"total":1358}
+          assert x["acl_segment_six_month_provision_millions"]=={
+            "commercial":348,"agricultural":1,"residential":-33,"total":316}
+          assert x["mortgage_loans_net_change_millions"]==-1737
+          assert x["mortgage_acl_change_millions"]==165
+          assert j["met_september_q3_available_at"]=="2026-11-20"
+          assert j["met_september_q3_balance_usd"] is None
+          assert not j["met_september_q3_metrics_used"]
+          assert not j["independent_historical_pit_attested"]
+          assert not j["untouched_24_month_oos"]
+          assert j["insurers_node_score"] is None and j["index_aics"] is None
+          assert j["promotion"]=="BLOCKED"
+          print("## MET true 2026 June 10-Q original, SEC +14 available August 20")
+          print("Mortgage loans net: $82,856m vs $84,593m, 2025-12-31.")
+          print("ACL: $1,358m vs $1,193m; commercial $1,016m, agricultural $107m, residential $235m.")
+          print("Six-month provision $316m; net charge-offs $151m; rollforward $1,193m+$316m-$151m=$1,358m.")
+          print("MET Sep 2026 Q3 remains embargoed at frozen Nov 19. No PIT or AICS index.")
+          PY
+      - name: Archive real full SEC original and exact replay, 30 days
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-met-june-original-mortgage-credit-not-pit
+          path: aics_data/source_evidence/insurers_met_june_original/
+          retention-days: 30
+          if-no-files-found: warn

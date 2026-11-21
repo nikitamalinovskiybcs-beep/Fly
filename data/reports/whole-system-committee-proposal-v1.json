@@ -1,0 +1,50 @@
+{
+  "proposal_id": "phoenix-whole-system-improvement-v1",
+  "decision": "RESEARCH",
+  "scope": [
+    "market-data and provenance",
+    "Phoenix payoff and risk calculation",
+    "fixed-24m calibration and OOS benchmark",
+    "basket/autocall selection",
+    "AI agents and committee orchestration",
+    "storage and production reliability",
+    "Streamlit/UI decision clarity",
+    "security, CI and observability"
+  ],
+  "current_blockers": [
+    "zero validated settled 24m notes",
+    "zero verified BCS observations and quote-fit records",
+    "all fixed-24m candidate families fail the empirical baseline gate",
+    "production readiness is not yet independently approved"
+  ],
+  "bounded_implementation_slice": [
+    "add a single whole-system improvement manifest with owners and gates",
+    "add production-readiness checks to the existing health report",
+    "add committee proposal validation that rejects unsafe or unverifiable changes",
+    "add tests for cross-block safety invariants and missing-evidence blocking"
+  ],
+  "constraints": [
+    "committee output is research input, not market evidence",
+    "do not fabricate notes, quotes, outcomes, votes or consensus",
+    "do not change production weights or live verdict logic",
+    "do not create trades",
+    "do not promote without chronological fixed-24m OOS evidence and human review"
+  ],
+  "acceptance_tests": [
+    "every block has an explicit status, owner, metric gate and blocker",
+    "production-readiness is blocked when evidence or benchmark gates fail",
+    "unsafe committee proposals are rejected deterministically",
+    "production_weights_changed, verdict_mutated and trades_created remain false"
+  ],
+  "baseline": {
+    "system_status": "attention_required",
+    "failed_health_checks": [
+      "benchmark_gate"
+    ],
+    "data_readiness": "blocked",
+    "fixed_24m_status": "research_only"
+  },
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

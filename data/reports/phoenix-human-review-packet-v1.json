@@ -1,0 +1,38 @@
+{
+  "proposal_id": "phoenix-human-review-v1",
+  "review_scope": [
+    "model risk",
+    "compliance",
+    "client suitability"
+  ],
+  "reviewer_fields": {
+    "model_risk_reviewer": "",
+    "compliance_reviewer": "",
+    "suitability_reviewer": "",
+    "review_date": ""
+  },
+  "required_evidence": [
+    "fixed-24m chronological OOS with 6/12/18/24 anchors",
+    "baseline comparison for Brier, log-loss, and ECE",
+    "field-level provenance for prices, quotes, and labels",
+    "settled-note or explicitly labeled paper outcomes",
+    "worst-of payoff, KI, autocall, memory coupon, and stress disclosures",
+    "provider quorum, timeout, dissent, and unavailable handling",
+    "deployment health and rollback evidence",
+    "key custody and encrypted memory backup policy"
+  ],
+  "review_questions": [
+    "Are the data sources and quote-fit claims independently verifiable?",
+    "Are model estimates clearly separated from realized evidence?",
+    "Is the 60% barrier/worst-of risk suitable for the intended client?",
+    "Can a human stop the system before any live decision or trade?",
+    "Are rollback, audit retention, and incident procedures tested?"
+  ],
+  "decision": "PENDING_HUMAN_REVIEW",
+  "production_approval": false,
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

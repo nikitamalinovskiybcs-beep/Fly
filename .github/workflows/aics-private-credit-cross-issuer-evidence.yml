@@ -1,0 +1,116 @@
+name: AICS Private Credit ARCC OBDC original SEC cross issuer audit
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_private_credit_cross_issuer_research.py'
+      - 'tests/test_aics_private_credit_cross_issuer_research.py'
+      - 'aics_data/research/obdc_original_nonaccrual_source_receipt_2026-11-19.json'
+      - 'aics_data/research/arcc_q4_sec_corrected_nonaccrual_sources_2026-11-18.json'
+      - '.github/workflows/aics-private-credit-cross-issuer-evidence.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-two-original-bdcs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit test actual receipt and SEC publication gating with no synthetic finance rows
+        run: |
+          python -m py_compile scripts/aics_private_credit_cross_issuer_research.py
+          python -m unittest discover -s tests -p 'test_aics_private_credit_cross_issuer_research.py' -v
+      - name: Retrieve original SEC HTML source archives from completed signed GitHub Actions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          for id in 14478023804 14476018751 14474764347; do
+            curl --fail --silent --show-error --location --retry 2 --max-time 90 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GH_REPO/actions/artifacts/$id/zip" \
+              -o "$RUNNER_TEMP/$id.zip"
+          done
+      - name: Rehash all real originals and validate independent immutable receipt trail
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,zipfile
+          from pathlib import Path
+          base=Path(os.environ['RUNNER_TEMP'])
+          obdc=json.loads(Path('aics_data/research/obdc_original_nonaccrual_source_receipt_2026-11-19.json').read_text())
+          arcc=json.loads(Path('aics_data/research/arcc_q4_sec_corrected_nonaccrual_sources_2026-11-18.json').read_text())
+          assert obdc['source_actions_artifact_id']==14478023804
+          assert obdc['source_actions_run_id']==44415057328
+          assert hashlib.sha256((base/'14478023804.zip').read_bytes()).hexdigest()==obdc['source_actions_archive_sha256']
+          with zipfile.ZipFile(base/'14478023804.zip') as z:
+              names=set(z.namelist())
+              assert len(names)==7 and 'manifest.json' in names
+              manifest=z.read('manifest.json')
+              assert hashlib.sha256(manifest).hexdigest()==obdc['source_manifest_sha256']
+              m=json.loads(manifest)
+              assert m['original_sec_html_files_sha256_verified']==6
+              assert m['visible_numeric_values']==6
+              assert len(m['verified_source_periods'])==3
+              for original, pinned in zip(m['verified_source_periods'],obdc['original_periods']):
+                  assert original['period_end']==pinned['period_end']
+                  assert original['SEC_filed_at']==pinned['filed_at']
+                  assert original['SEC_available_at']==pinned['available_at']
+                  assert original['source_index_sha256']==pinned['index_sha256']
+                  assert original['source_exhibit_sha256']==pinned['exhibit_sha256']
+                  assert original['nonaccrual_amortized_cost_percent']==pinned['cost_pct']
+                  assert original['nonaccrual_fair_value_percent']==pinned['fair_pct']
+                  for field in ('index_sha256','exhibit_sha256'):
+                      digest=pinned[field]
+                      assert digest+'.html' in names
+                      assert hashlib.sha256(z.read(digest+'.html')).hexdigest()==digest
+          for key,id in (('q4',14476018751),('q1q3',14474764347)):
+              expected=arcc['source_archives'][key]['archive_sha256']
+              assert hashlib.sha256((base/f'{id}.zip').read_bytes()).hexdigest()==expected
+          assert arcc['confirmed_source_values']==10
+          assert arcc['new_verified_2025q4_model_available_at']=='2026-02-18'
+          assert arcc['synthetic_market_rows']==0
+          assert arcc['index_aics'] is None and arcc['promotion']=='BLOCKED'
+          print('Verified original SEC source ZIP hashes: 2 ARCC source archives and 6 OBDC HTML originals.')
+          PY
+      - name: Build as-of accurate two-issuer Private Credit research metrics
+        run: |
+          python -m scripts.aics_private_credit_cross_issuer_research --as-of 2026-11-19
+      - name: Validate 16 true source observations without node score, backdating or aggregation
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads(Path('docs/audit/aics_private_credit_two_bdc_verified_asof_research_2026-11-19.json').read_text())
+          assert r['total_source_periods_original']==8
+          assert r['original_nonaccrual_values_total']==16
+          assert r['asof_visible_original_values']==16
+          assert r['verified_original_sec_issuers']==['ARCC','OBDC']
+          assert r['latest_comparable_period']=='2026-09-30'
+          assert r['latest_comparison']['ARCC_minus_OBDC_cost_percentage_points']=='-0.5'
+          assert r['latest_comparison']['ARCC_minus_OBDC_fair_percentage_points']=='0.6'
+          assert r['cross_issuer_aggregation_or_average_performed'] is False
+          assert r['synthetic_observations_created']==0
+          assert r['historical_pit_release_attested'] is False
+          assert r['untouched_24_month_predictive_oos'] is False
+          assert r['private_credit_node_score'] is None
+          assert r['index_aics'] is None and r['promotion']=='BLOCKED'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## Private Credit: independently verified ARCC and OBDC original SEC disclosures',file=f)
+              print('Two issuers; 8 issuer-quarter source periods; 16 non-accrual values; all original SEC +14 dates validated.',file=f)
+              print('Q3 2026: ARCC 2.4% cost / 1.4% fair; OBDC 2.9% cost / 0.8% fair.',file=f)
+              print('No cross-issuer averaging, private-credit sector representativeness, full PIT or AICS score.',file=f)
+          PY
+      - name: Archive independently reproducible source-specific research comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-private-credit-two-original-sec-issuers-16-values
+          path: docs/audit/aics_private_credit_two_bdc_verified_asof_research_2026-11-19.json
+          if-no-files-found: error
+          retention-days: 30

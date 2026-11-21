@@ -1,0 +1,80 @@
+{
+  "status": "research_only",
+  "scope": "data expansion prioritization for Phoenix fixed-24m model",
+  "problem": "all tested candidates fail fixed-24m baseline and ECE gates",
+  "current_evidence": {
+    "baskets": 100,
+    "anchors": [
+      6,
+      12,
+      18,
+      24
+    ],
+    "candidate_gates": {
+      "raw": false,
+      "calibrated": false,
+      "quant": false,
+      "duration_transfer": false,
+      "path_quant": false,
+      "regime_quant": false
+    },
+    "promotion_gate": {
+      "eligible": false,
+      "required": "one candidate must beat baseline on Brier and log-loss at all four anchors with ECE <= 0.05",
+      "reason": "promotion blocked until one candidate passes all anchors"
+    }
+  },
+  "missing_data_candidates": [
+    {
+      "id": "settled_notes_24m",
+      "data": "settled 24-month Phoenix notes with payoff, KI, autocall, coupon memory and maturity outcome",
+      "owner": "dealer/operations",
+      "priority_question": "does it improve realized loss calibration?",
+      "minimum_sample": 100
+    },
+    {
+      "id": "observation_paths",
+      "data": "timestamped observation-date underlying levels and barrier monitoring paths",
+      "owner": "market-data pipeline",
+      "priority_question": "does it reduce path/payoff label error?",
+      "minimum_sample": 200
+    },
+    {
+      "id": "bcs_quotes",
+      "data": "BCS Capital quote timestamp, basket, barrier, tenor, coupon and quote status",
+      "owner": "BCS Capital workflow",
+      "priority_question": "does model coupon fit observed dealer economics?",
+      "minimum_sample": 50
+    },
+    {
+      "id": "iv_surface",
+      "data": "timestamped IV, skew, tenor and strike per underlying",
+      "owner": "market-data provider",
+      "priority_question": "does it improve P(KI) versus realized baseline?",
+      "minimum_sample": 500
+    },
+    {
+      "id": "correlation_history",
+      "data": "timestamped pairwise and tail correlation windows",
+      "owner": "market-data pipeline",
+      "priority_question": "does it improve worst-of dependence modeling?",
+      "minimum_sample": 200
+    },
+    {
+      "id": "loss_reason_labels",
+      "data": "structured reason codes for KI, autocall miss, coupon loss and early redemption",
+      "owner": "research/operations",
+      "priority_question": "does it separate label regimes and reduce calibration drift?",
+      "minimum_sample": 100
+    }
+  ],
+  "committee_questions": [
+    "rank the missing data by expected information gain and implementation cost",
+    "define minimum sample sizes and freshness/provenance contracts",
+    "define acceptance metrics for fixed-24m Brier, log-loss, ECE and BCS quote-fit",
+    "identify leakage or survivorship risks for each data source"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

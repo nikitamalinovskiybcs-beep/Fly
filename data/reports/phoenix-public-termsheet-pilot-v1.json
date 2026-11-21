@@ -1,0 +1,42 @@
+{
+  "dataset_id": "phoenix-public-termsheet-pilot-v1",
+  "generated_at": "2026-08-03T23:17:01.465001+00:00",
+  "provider": "payoff.ch public termsheet URLs",
+  "files": [
+    {
+      "url": "https://data.payoff.ch/termsheets/CH1530886964_en_20260530_015454.pdf",
+      "path": "data/reports/public_termsheets/CH1530886964_en_20260530_015454.pdf",
+      "status": 200,
+      "bytes": 166289,
+      "sha256": "42f578bf40c30809a83b33c3212e4c7dbfaefe2f13f6b589bf1b84e325a0ff4b",
+      "pdf_header": "%PDF"
+    },
+    {
+      "url": "https://data.payoff.ch/termsheets/CH1516228173_en_20260122_001122.pdf",
+      "path": null,
+      "status": "unavailable_http_404",
+      "bytes": 1466,
+      "sha256": "6b37b9a622225c57bf10e28f4f8f5c169f9476185b27284fe8b08aaee8bd8cb0",
+      "pdf_header": null
+    }
+  ],
+  "records": [
+    {
+      "isin": "CH1530886964",
+      "issuer": "Luzerner Kantonalbank AG",
+      "source_class": "public_final_terms",
+      "outcome_status": "missing_verified_outcome"
+    },
+    {
+      "isin": "CH1516228173",
+      "source_class": "public_final_terms",
+      "outcome_status": "missing_verified_outcome"
+    }
+  ],
+  "license_note": "Public termsheet files retained as source evidence; no bulk proprietary database copied.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

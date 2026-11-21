@@ -1,0 +1,62 @@
+name: AICS 11-node free-source PIT audit
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_fill_11_nodes_pit.py'
+      - 'tests/test_aics_pit_integrity.py'
+      - 'aics_data/progress/status.json'
+      - 'aics_data/source_registry/sec_spv_neoclouds_filings_2026-11-18.json'
+      - 'aics_data/research/nyfed_repo_original_archive_independent_rehash_2026_11_18.json'
+      - 'aics_data/research/alfred_iorb_power_vintage_revision_independent_receipt_2026_11_18.json'
+      - 'aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json'
+      - '.github/workflows/aics-run-and-audit.yml'
+permissions:
+  contents: read
+jobs:
+  audit-11:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile and run independent weight, SEC +14 and PIT integrity tests
+        run: |
+          python -m py_compile scripts/aics_fill_11_nodes_pit.py
+          python -m unittest discover -s tests -p 'test_aics_pit_integrity.py' -v
+      - name: Rebuild all-11 source coverage audit without speculative scoring
+        run: python -m scripts.aics_fill_11_nodes_pit --out docs/audit/aics_11_node_free_source_pit_2026-11-18.json
+      - name: Verify audit is research-only, never 9-of-11 certified
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          path = Path('docs/audit/aics_11_node_free_source_pit_2026-11-18.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          assert data['node_count'] == 11
+          assert data['fixed_total_weight'] == 1050
+          assert data['independently_verified_pit_nodes'] == 0
+          assert data['independently_certified_nodes'] == 0
+          assert data['index_aics'] is None
+          assert all(node['node_score'] is None for node in data['source_inventory'])
+          assert data['promotion'] == 'BLOCKED'
+          assert data['reweight_after_ipo_permitted'] is False
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              print('## 11-node free-source PIT gate', file=output)
+              print('Total node weight 1050; date-eligible SEC documents 4/5', file=output)
+              print('NY Fed raw observations independently rehashed 2997', file=output)
+              print('Certified nodes 0/11, AICS N/A, no independent 24-month OOS.', file=output)
+              print('FRED/ALFRED, SEC and NY Fed collectors are separate primary-source workflows.', file=output)
+          PY
+      - name: Deliver Investment Committee gap audit JSON (not an index or signal)
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-11-node-free-source-pit-audit-2026-11-18
+          path: docs/audit/aics_11_node_free_source_pit_2026-11-18.json
+          retention-days: 14
+          if-no-files-found: error

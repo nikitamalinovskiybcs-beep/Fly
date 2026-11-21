@@ -1,0 +1,42 @@
+{
+  "proposal_id": "phoenix-tabs-optimizer-v1",
+  "decision": "RESEARCH",
+  "metric_gate": "No frozen-output or safety-flag change; full suite green.",
+  "candidate_actions": [
+    {
+      "action": "REMOVE_OR_MERGE",
+      "target": "[7] АЛЬТЕРНАТИВЫ",
+      "reason": "Potentially duplicated by BEST STRUCTURED PRODUCT; verify quote-fit dependency first."
+    },
+    {
+      "action": "KEEP",
+      "target": "[6] САМООБУЧЕНИЕ",
+      "reason": "Calibration/replay evidence is not equivalent to agent diagnostics."
+    },
+    {
+      "action": "KEEP",
+      "target": "[11] BASKET SCORING",
+      "reason": "Contains distinct criteria, red flags, presets, and worst-of diagnostics."
+    },
+    {
+      "action": "KEEP",
+      "target": "[12] DATA & STORAGE and [15] API & CONNECTIONS",
+      "reason": "Persistence/backup and credential/connectivity operations have different safety roles."
+    }
+  ],
+  "optimizer_experiments": [
+    {
+      "hypothesis": "Removing [7] does not affect calculations or decision outputs.",
+      "change": "Remove only the expander rendering block after confirming smart_alts is UI-local.",
+      "acceptance": "No changed frozen outputs; no missing required provenance or quote evidence."
+    },
+    {
+      "hypothesis": "Caching repeated dealer/pipeline calls improves responsiveness.",
+      "change": "Measure call counts before changing cache boundaries.",
+      "acceptance": "Lower duplicate calls with identical outputs and no stale-data regression."
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

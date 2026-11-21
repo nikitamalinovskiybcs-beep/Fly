@@ -1,0 +1,95 @@
+{
+  "schema_version": "aics-ai-equities-prospective-official-directory-independent-rehash-v1",
+  "research_as_of": "2026-11-19",
+  "node": "AI Equities",
+  "fixed_weight": 100,
+  "github_workflow_run_id": 44562741837,
+  "github_workflow_artifact_id": 14548319201,
+  "github_workflow_artifact_name": "aics-ai-equities-live-nasdaq-directories-not-historical-pit",
+  "capture_at_utc": "2026-11-19T16:08:45.120158+00:00",
+  "artifact_zip_bytes": 225931,
+  "artifact_zip_sha256": "158916ab3515524192916598b41bc489ec868978a0432e913f4e5d1815f0cebc",
+  "artifact_zip_crc_integrity_checked": true,
+  "original_manifest_sha256": "45e6736a64266742523c1b0cf22bfbd25d081639b543e28ee4b1cc090594940d",
+  "archive_rehash_receipt_sha256": "3bb77ee0845b12dd7bf4d0d8fda7fbaff230f0dded3162e4fa57edaa524dc697",
+  "independently_rehashed_outside_github_actions": true,
+  "original_sources": [
+    {
+      "filename": "nasdaqlisted.txt",
+      "source_url": "https://www.nasdaqtrader.com/dynamic/symdir/nasdaqlisted.txt",
+      "file_creation_wallclock_timezone_not_attested": "2026-11-19T11:01:00",
+      "bytes": 348493,
+      "sha256": "f42831290925f08088f5ed2acb0404e4923a41475080ee9db07e5fbc2b5e6c19",
+      "source_listings": 5610
+    },
+    {
+      "filename": "otherlisted.txt",
+      "source_url": "https://www.nasdaqtrader.com/dynamic/symdir/otherlisted.txt",
+      "file_creation_wallclock_timezone_not_attested": "2026-11-19T11:01:00",
+      "bytes": 544575,
+      "sha256": "0032e6d08325291a67e3bb9acd8cad0218eedb393330cf84b46457451a7f5801",
+      "source_listings": 7692
+    }
+  ],
+  "research_symbols": [
+    {
+      "symbol": "NVDA",
+      "directory": "nasdaqlisted.txt",
+      "name": "NVIDIA Corporation - Common Stock"
+    },
+    {
+      "symbol": "MSFT",
+      "directory": "nasdaqlisted.txt",
+      "name": "Microsoft Corporation - Common Stock"
+    },
+    {
+      "symbol": "GOOGL",
+      "directory": "nasdaqlisted.txt",
+      "name": "Alphabet Inc. - Class A Common Stock"
+    },
+    {
+      "symbol": "AMZN",
+      "directory": "nasdaqlisted.txt",
+      "name": "Amazon.com, Inc. - Common Stock"
+    },
+    {
+      "symbol": "META",
+      "directory": "nasdaqlisted.txt",
+      "name": "Meta Platforms, Inc. - Class A Common Stock"
+    },
+    {
+      "symbol": "ORCL",
+      "directory": "otherlisted.txt",
+      "market_code": "N",
+      "name": "Oracle Corporation Common Stock"
+    },
+    {
+      "symbol": "MU",
+      "directory": "nasdaqlisted.txt",
+      "name": "Micron Technology, Inc. - Common Stock"
+    }
+  ],
+  "captured_original_files_count": 2,
+  "research_symbols_found": 7,
+  "provider_generation_time_zone_attested": false,
+  "historical_security_identity_attested": false,
+  "historical_basket_membership_attested": false,
+  "corporate_action_history_pit_attested": false,
+  "complete_split_dividend_history_attested": false,
+  "provider_license_approved": false,
+  "historical_initial_24_months_reconstructed": false,
+  "future_weekday_capture_enabled": true,
+  "first_eligible_asof_utc": "2026-11-19T16:08:45.120158+00:00",
+  "score_eligible": false,
+  "node_stress_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "limitations": [
+    "Original source bytes and ZIP were rehashed independently in the working container, but the raw files remain in a short-lived GitHub Actions artifact, not the public repository.",
+    "Prospective roster visibility begins at the actual first captured_at_utc timestamp; the exchange's file creation wall clock has no attested timezone and cannot be treated as historical delivery time.",
+    "Seven source symbols are research candidates, not a benchmark's historical constituent list or a certified trading basket.",
+    "Automated weekday future capture does not backfill missing 2024-2026 historical security identity, action feeds, or the untouched 24-month OOS.",
+    "Do not publish or redistribute licensed Nasdaq market data without source rights review."
+  ]
+}

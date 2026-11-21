@@ -8,12 +8,10 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
-import pandas as pd
 
-from src.autopilot.models import HealthReport, HealthStatus, AlertLevel
+from src.autopilot.models import HealthReport, HealthStatus
 from src.autopilot.safety import SafetySystem
 
 logger = logging.getLogger(__name__)

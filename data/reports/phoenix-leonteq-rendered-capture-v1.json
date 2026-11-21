@@ -1,0 +1,108 @@
+{
+  "run_id": "phoenix-leonteq-rendered-capture-v1",
+  "generated_at": "2026-08-03T23:25:35.917757+00:00",
+  "source": "Leonteq public rendered pages via web fetch",
+  "records": [
+    {
+      "isin": "CH1491781816",
+      "source_url": "https://certificati.leonteq.com/isin/CH1491781816",
+      "title": "Express Certificate on Netflix, Oracle, Snowflake",
+      "product_type": "Multi Express Certificate with Barrier",
+      "underlyings": [
+        "Netflix",
+        "Oracle",
+        "Snowflake"
+      ],
+      "issuer": "Leonteq Securities AG, Guernsey Branch, St. Peter Port, Guernsey",
+      "currency": "EUR (Quanto)",
+      "issue_price": 1000.0,
+      "barrier_pct": 60.0,
+      "barrier_observation": "maturity only",
+      "coupon_pct_pa": 21.0,
+      "coupon_frequency": "monthly",
+      "memory_effect": true,
+      "autocall_schedule_observed": true,
+      "next_autocall_trigger_pct": 92.0,
+      "final_observation": "05 Oct2028",
+      "expiry": "05 Nov2028",
+      "bid": 687.06,
+      "ask": 700.94,
+      "worst_performer_observed": "Oracle",
+      "distance_to_barrier_pct": -1.46,
+      "outcome_status": "public_page_observed_active",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1484603449",
+      "source_url": "https://certificati.leonteq.com/isin/CH1484603449",
+      "title": "Express Certificate on Banco BPM, Eni, Stellantis, UniCredit",
+      "product_type": "Multi Express Certificate with Barrier",
+      "underlyings": [
+        "Banco BPM",
+        "Eni",
+        "Stellantis",
+        "UniCredit"
+      ],
+      "issuer": "Leonteq Securities AG, Guernsey Branch, St. Peter Port, Guernsey",
+      "currency": "EUR",
+      "issue_price": 1000.0,
+      "barrier_pct": 60.0,
+      "barrier_observation": "maturity only",
+      "coupon_pct_pa": 35.0,
+      "coupon_frequency": null,
+      "memory_effect": null,
+      "autocall_schedule_observed": true,
+      "next_autocall_trigger_pct": 100.0,
+      "final_observation": "10 Sep2029",
+      "expiry": "09 Oct2029",
+      "bid": 509.92,
+      "ask": 519.92,
+      "worst_performer_observed": "Stellantis",
+      "distance_to_barrier_pct": -1.9,
+      "outcome_status": "public_page_observed_active",
+      "independent_verified": false
+    },
+    {
+      "isin": "CH1111681792",
+      "source_url": "https://certificati.leonteq.com/isin/CH1111681792",
+      "title": "Express Certificate on Mercedes-Benz, Renault, Stellantis, Volkswagen",
+      "product_type": "Multi Express Certificate with Barrier",
+      "underlyings": [
+        "Mercedes-Benz",
+        "Renault",
+        "Stellantis",
+        "Volkswagen"
+      ],
+      "issuer": "Leonteq Securities AG, Guernsey Branch, St. Peter Port, Guernsey",
+      "currency": "EUR",
+      "issue_price": 1000.0,
+      "barrier_pct": 60.0,
+      "barrier_observation": "maturity only",
+      "coupon_pct_pa": 8.0,
+      "coupon_frequency": "quarterly",
+      "memory_effect": true,
+      "expiry": "26 May2026",
+      "redemption_date": "02 Jun2026",
+      "redemption_cash": 437.06,
+      "barrier_hit_observed": true,
+      "outcome_status": "public_page_observed_lifecycle_pending_independent_settlement",
+      "independent_verified": false
+    }
+  ],
+  "counts": {
+    "records": 3,
+    "terms_with_barrier": 3,
+    "page_observed_outcomes": 3,
+    "independent_verified_outcomes": 0
+  },
+  "limitations": [
+    "Rendered public page evidence is not independent settlement verification.",
+    "Missing fields remain null when not shown on the page.",
+    "Quotes are public page observations, not settlement prices."
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

@@ -1,0 +1,343 @@
+{
+  "run": 44512858536,
+  "artifact": 14523693560,
+  "scope": "End-of-day monthly DGS30 inputs. Times are displayed calendar times; no timezone conversion or intraday claim.",
+  "records": [
+    {
+      "cutoff": "2024-11-30",
+      "observation": "2024-11-27",
+      "percent": "4.44",
+      "first_nonmissing_vintage": "2024-11-29",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2024-11-27&observation_end=2024-11-27&realtime_start=2024-11-26&realtime_end=2024-11-30&file_type=json",
+      "alfred_sha256": "96e5adcb92bb5ce63140e8b6caca082e13688217bc060d7dc158fc82622304fb",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2024",
+      "treasury_sha256": "7274c9a12dcb51269fad68b39d021f84853cd4bc0b53237984415d672a9238ca",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=5&rid=18&y=2024",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2024-12-31",
+      "observation": "2024-12-30",
+      "percent": "4.77",
+      "first_nonmissing_vintage": "2024-12-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2024-12-30&observation_end=2024-12-30&realtime_start=2024-12-29&realtime_end=2024-12-31&file_type=json",
+      "alfred_sha256": "447c52db10afb0fdd7bedd1407a124da1de99c86c3072c8a98668471b07933fe",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2024",
+      "treasury_sha256": "7274c9a12dcb51269fad68b39d021f84853cd4bc0b53237984415d672a9238ca",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=5&rid=18&y=2024",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-01-31",
+      "observation": "2025-01-30",
+      "percent": "4.76",
+      "first_nonmissing_vintage": "2025-01-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-01-30&observation_end=2025-01-30&realtime_start=2025-01-29&realtime_end=2025-01-31&file_type=json",
+      "alfred_sha256": "80e7f667d65f4329e254b1fcc3c32580142eb4c85ccb7139ec9e5bec06c9996f",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=1&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-02-28",
+      "observation": "2025-02-27",
+      "percent": "4.56",
+      "first_nonmissing_vintage": "2025-02-28",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-02-27&observation_end=2025-02-27&realtime_start=2025-02-26&realtime_end=2025-02-28&file_type=json",
+      "alfred_sha256": "554f23d52fbfc01a96326e154497df3dfe1d20dd9325484e14fe67d7088037fe",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=1&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-03-31",
+      "observation": "2025-03-28",
+      "percent": "4.64",
+      "first_nonmissing_vintage": "2025-03-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-03-28&observation_end=2025-03-28&realtime_start=2025-03-27&realtime_end=2025-03-31&file_type=json",
+      "alfred_sha256": "cb9e5f60ddd3303a17f52218946c687f4d3695dddcee203fbf0628729959e7d3",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=2&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-04-30",
+      "observation": "2025-04-29",
+      "percent": "4.64",
+      "first_nonmissing_vintage": "2025-04-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-04-29&observation_end=2025-04-29&realtime_start=2025-04-28&realtime_end=2025-04-30&file_type=json",
+      "alfred_sha256": "6f7ee6b11f19ed6b24ded026f4bf2ed0be282bd8a964321ee25a2b8a7e5698ee",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=2&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-05-31",
+      "observation": "2025-05-29",
+      "percent": "4.92",
+      "first_nonmissing_vintage": "2025-05-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-05-29&observation_end=2025-05-29&realtime_start=2025-05-28&realtime_end=2025-05-31&file_type=json",
+      "alfred_sha256": "b71eac708c9eafc03f94eb415f138a87aa5784aac0e989e2f4f4b9f4287aab90",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=3&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-06-30",
+      "observation": "2025-06-27",
+      "percent": "4.85",
+      "first_nonmissing_vintage": "2025-06-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-06-27&observation_end=2025-06-27&realtime_start=2025-06-26&realtime_end=2025-06-30&file_type=json",
+      "alfred_sha256": "2e99d036a230752247689a82c680987eda8300b9f165aaba0a30075e098da734",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=3&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-07-31",
+      "observation": "2025-07-30",
+      "percent": "4.89",
+      "first_nonmissing_vintage": "2025-07-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-07-30&observation_end=2025-07-30&realtime_start=2025-07-29&realtime_end=2025-07-31&file_type=json",
+      "alfred_sha256": "1999498bf078d994843ec63df9e8bc436fe0ff9ca054381f45f26e0d7239f182",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=3&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-08-31",
+      "observation": "2025-08-28",
+      "percent": "4.88",
+      "first_nonmissing_vintage": "2025-08-29",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-08-28&observation_end=2025-08-28&realtime_start=2025-08-27&realtime_end=2025-08-31&file_type=json",
+      "alfred_sha256": "318584e1e3cf264b94a2ac478741adcff5757a480344eb09a145113a0ddc22ec",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=4&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-09-30",
+      "observation": "2025-09-29",
+      "percent": "4.71",
+      "first_nonmissing_vintage": "2025-09-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-09-29&observation_end=2025-09-29&realtime_start=2025-09-28&realtime_end=2025-09-30&file_type=json",
+      "alfred_sha256": "c901106ec3111da5d5baf594574fc6fb422f33695202070ad6559539507a0f9d",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=4&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-10-31",
+      "observation": "2025-10-30",
+      "percent": "4.65",
+      "first_nonmissing_vintage": "2025-10-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-10-30&observation_end=2025-10-30&realtime_start=2025-10-29&realtime_end=2025-10-31&file_type=json",
+      "alfred_sha256": "a1b1a0dfb42b80a96a39ffb5e49286d87205fec6bc03c266dbcb7685650ffadf",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=5&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-11-30",
+      "observation": "2025-11-26",
+      "percent": "4.64",
+      "first_nonmissing_vintage": "2025-11-28",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-11-26&observation_end=2025-11-26&realtime_start=2025-11-25&realtime_end=2025-11-30&file_type=json",
+      "alfred_sha256": "05b1dbad401659cbd53c6063ecf055fba868504bf239585435468d60ef58d7a9",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=5&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2025-12-31",
+      "observation": "2025-12-30",
+      "percent": "4.81",
+      "first_nonmissing_vintage": "2025-12-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2025-12-30&observation_end=2025-12-30&realtime_start=2025-12-29&realtime_end=2025-12-31&file_type=json",
+      "alfred_sha256": "702a5dd960ef9d8059eca9a2bb83ea88a23c5e58e01e3cd88a2b975f24bcfc24",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "treasury_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=5&rid=18&y=2025",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2026-01-31",
+      "observation": "2026-01-29",
+      "percent": "4.85",
+      "first_nonmissing_vintage": "2026-01-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2026-01-29&observation_end=2026-01-29&realtime_start=2026-01-28&realtime_end=2026-01-31&file_type=json",
+      "alfred_sha256": "fa54b4a9649fc0cf869122de6e22df1d5912af96e16e8a1a1911b0fe5ecca5b8",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "treasury_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=1&rid=18&y=2026",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2026-02-28",
+      "observation": "2026-02-26",
+      "percent": "4.67",
+      "first_nonmissing_vintage": "2026-02-27",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2026-02-26&observation_end=2026-02-26&realtime_start=2026-02-25&realtime_end=2026-02-28&file_type=json",
+      "alfred_sha256": "9a7ae484490ab14329e26ddda14349416beaba162ff1f6cb596a41393576dd7d",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "treasury_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=1&rid=18&y=2026",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2026-03-31",
+      "observation": "2026-03-30",
+      "percent": "4.91",
+      "first_nonmissing_vintage": "2026-03-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2026-03-30&observation_end=2026-03-30&realtime_start=2026-03-29&realtime_end=2026-03-31&file_type=json",
+      "alfred_sha256": "74301a064b7789e5e507d578bdbf66addc62e85799b4d5729be6ba271fee66af",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "treasury_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=2&rid=18&y=2026",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2026-04-30",
+      "observation": "2026-04-29",
+      "percent": "4.98",
+      "first_nonmissing_vintage": "2026-04-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2026-04-29&observation_end=2026-04-29&realtime_start=2026-04-28&realtime_end=2026-04-30&file_type=json",
+      "alfred_sha256": "a3744c02199642d7c6f1074fa54874964fc83b268ebb5359721c96ac584c71db",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "treasury_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=2&rid=18&y=2026",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2026-05-31",
+      "observation": "2026-05-28",
+      "percent": "4.98",
+      "first_nonmissing_vintage": "2026-05-29",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2026-05-28&observation_end=2026-05-28&realtime_start=2026-05-27&realtime_end=2026-05-31&file_type=json",
+      "alfred_sha256": "3e1ee05a1f9be05791a723d99b9f3006f40e6a5d63b7f51ecae49ffd35469b25",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "treasury_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=3&rid=18&y=2026",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2026-06-30",
+      "observation": "2026-06-29",
+      "percent": "4.86",
+      "first_nonmissing_vintage": "2026-06-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2026-06-29&observation_end=2026-06-29&realtime_start=2026-06-28&realtime_end=2026-06-30&file_type=json",
+      "alfred_sha256": "0587110743e031d91ff9b614801cdcc53456c19ff26a114ef3f12d2f03658fb6",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "treasury_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=3&rid=18&y=2026",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2026-07-31",
+      "observation": "2026-07-30",
+      "percent": "5.21",
+      "first_nonmissing_vintage": "2026-07-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2026-07-30&observation_end=2026-07-30&realtime_start=2026-07-29&realtime_end=2026-07-31&file_type=json",
+      "alfred_sha256": "24c40ab1cdc7be2d4c75b10b372c701d0dad14b7b4047fac72b8ada3930cfbf8",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "treasury_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=3&rid=18&y=2026",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2026-08-31",
+      "observation": "2026-08-28",
+      "percent": "5.22",
+      "first_nonmissing_vintage": "2026-08-31",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2026-08-28&observation_end=2026-08-28&realtime_start=2026-08-27&realtime_end=2026-08-31&file_type=json",
+      "alfred_sha256": "199ac2487428e71e2c4e00ec0c8f80c1f6cf7b0b309c683df16ba6682fdba611",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "treasury_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=4&rid=18&y=2026",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2026-09-30",
+      "observation": "2026-09-29",
+      "percent": "5.59",
+      "first_nonmissing_vintage": "2026-09-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2026-09-29&observation_end=2026-09-29&realtime_start=2026-09-28&realtime_end=2026-09-30&file_type=json",
+      "alfred_sha256": "e2a259c2f4ca064c18c27778eb6144d6f4495c390d699f62e4548ae8f7409343",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "treasury_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=4&rid=18&y=2026",
+        "time_displayed": "3:15 pm"
+      }
+    },
+    {
+      "cutoff": "2026-10-31",
+      "observation": "2026-10-29",
+      "percent": "5.32",
+      "first_nonmissing_vintage": "2026-10-30",
+      "alfred_query": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&observation_start=2026-10-29&observation_end=2026-10-29&realtime_start=2026-10-28&realtime_end=2026-10-31&file_type=json",
+      "alfred_sha256": "ec2ea31a140b9637743f6dc5984ac32cf653509d12effa67d2e8828626272bfe",
+      "treasury_source": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "treasury_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94",
+      "h15_update": {
+        "source": "https://alfred.stlouisfed.org/releases/calendar?pageID=5&rid=18&y=2026",
+        "time_displayed": "3:15 pm"
+      }
+    }
+  ]
+}

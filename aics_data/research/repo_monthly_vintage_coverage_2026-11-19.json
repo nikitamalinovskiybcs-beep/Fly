@@ -1,0 +1,422 @@
+{
+  "run_id": 44514009935,
+  "artifact_id": 14524650969,
+  "scope": "Month-end historical availability of BGCR/TGCR at the verified SOFR observation dates. Missing vintages excluded.",
+  "counts": {
+    "BGCR no_exact_FRED_catalog_match": 24,
+    "TGCR before_first_catalog_vintage": 11,
+    "TGCR matched": 13
+  },
+  "records": [
+    {
+      "series": "BGCR",
+      "cutoff": "2024-11-30",
+      "observation": "2024-11-27",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2024-12-31",
+      "observation": "2024-12-30",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-01-31",
+      "observation": "2025-01-30",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-02-28",
+      "observation": "2025-02-27",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-03-31",
+      "observation": "2025-03-28",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-04-30",
+      "observation": "2025-04-29",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-05-31",
+      "observation": "2025-05-29",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-06-30",
+      "observation": "2025-06-27",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-07-31",
+      "observation": "2025-07-30",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-08-31",
+      "observation": "2025-08-28",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-09-30",
+      "observation": "2025-09-29",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-10-31",
+      "observation": "2025-10-30",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-11-30",
+      "observation": "2025-11-26",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2025-12-31",
+      "observation": "2025-12-30",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-01-31",
+      "observation": "2026-01-29",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-02-28",
+      "observation": "2026-02-26",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-03-31",
+      "observation": "2026-03-30",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-04-30",
+      "observation": "2026-04-29",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-05-31",
+      "observation": "2026-05-28",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-06-30",
+      "observation": "2026-06-29",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-07-31",
+      "observation": "2026-07-30",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-08-31",
+      "observation": "2026-08-28",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-09-30",
+      "observation": "2026-09-29",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "BGCR",
+      "cutoff": "2026-10-31",
+      "observation": "2026-10-29",
+      "status": "no_exact_FRED_catalog_match",
+      "first_vintage": null
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2024-11-30",
+      "observation": "2024-11-27",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2024-12-31",
+      "observation": "2024-12-30",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-01-31",
+      "observation": "2025-01-30",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-02-28",
+      "observation": "2025-02-27",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-03-31",
+      "observation": "2025-03-28",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-04-30",
+      "observation": "2025-04-29",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-05-31",
+      "observation": "2025-05-29",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-06-30",
+      "observation": "2025-06-27",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-07-31",
+      "observation": "2025-07-30",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-08-31",
+      "observation": "2025-08-28",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-09-30",
+      "observation": "2025-09-29",
+      "first_vintage": null,
+      "status": "before_first_catalog_vintage",
+      "catalog_start": "2025-10-17",
+      "query": "https://api.stlouisfed.org/fred/series/vintagedates?series_id=TGCRRATE&sort_order=asc&limit=1&realtime_start=1776-07-04&file_type=json"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-10-31",
+      "observation": "2025-10-30",
+      "status": "matched",
+      "first_vintage": "2025-10-31",
+      "rate_percent": "3.99",
+      "sofr_minus_rate_bp": "5.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2025-10-30&observation_end=2025-10-30&realtime_start=2025-10-29&realtime_end=2025-10-31&file_type=json",
+      "sha256": "2cf3b9314e1db2463491779c679d0a2d8f94dc71e52e1e19a60f939fbe6e8780"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-11-30",
+      "observation": "2025-11-26",
+      "status": "matched",
+      "first_vintage": "2025-11-28",
+      "rate_percent": "4.02",
+      "sofr_minus_rate_bp": "3.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2025-11-26&observation_end=2025-11-26&realtime_start=2025-11-25&realtime_end=2025-11-30&file_type=json",
+      "sha256": "4f516a18c6dc169cda55ff35ffaf91f7474d01e7300f18192b9ad7865a099a92"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2025-12-31",
+      "observation": "2025-12-30",
+      "status": "matched",
+      "first_vintage": "2025-12-31",
+      "rate_percent": "3.69",
+      "sofr_minus_rate_bp": "2.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2025-12-30&observation_end=2025-12-30&realtime_start=2025-12-29&realtime_end=2025-12-31&file_type=json",
+      "sha256": "993c6bef24b08f38a31f8990f53b3c2e5d2976b222f73363a45898d3e6870274"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-01-31",
+      "observation": "2026-01-29",
+      "status": "matched",
+      "first_vintage": "2026-01-30",
+      "rate_percent": "3.63",
+      "sofr_minus_rate_bp": "2.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2026-01-29&observation_end=2026-01-29&realtime_start=2026-01-28&realtime_end=2026-01-31&file_type=json",
+      "sha256": "9cc5cb1963cc3f54f81521e3de26d7e1d71a0228bbfafc4ba87154fca2f14391"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-02-28",
+      "observation": "2026-02-26",
+      "status": "matched",
+      "first_vintage": "2026-02-27",
+      "rate_percent": "3.65",
+      "sofr_minus_rate_bp": "2.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2026-02-26&observation_end=2026-02-26&realtime_start=2026-02-25&realtime_end=2026-02-28&file_type=json",
+      "sha256": "308f458e95a4b94b43cd4c85c3ffd16d6bc516bc34bf6037f6125ce9b3b2de72"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-03-31",
+      "observation": "2026-03-30",
+      "status": "matched",
+      "first_vintage": "2026-03-31",
+      "rate_percent": "3.62",
+      "sofr_minus_rate_bp": "1.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2026-03-30&observation_end=2026-03-30&realtime_start=2026-03-29&realtime_end=2026-03-31&file_type=json",
+      "sha256": "6e174f3ea12d1ff3fdd4cf5e83aaeab8db10569a2816fc1c21848af4d28922f3"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-04-30",
+      "observation": "2026-04-29",
+      "status": "matched",
+      "first_vintage": "2026-04-30",
+      "rate_percent": "3.61",
+      "sofr_minus_rate_bp": "2.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2026-04-29&observation_end=2026-04-29&realtime_start=2026-04-28&realtime_end=2026-04-30&file_type=json",
+      "sha256": "6a5d7d16ab8fd87ac20fb826b57f46f25dafcf9dafe08f4c3544ca72d6d36858"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-05-31",
+      "observation": "2026-05-28",
+      "status": "matched",
+      "first_vintage": "2026-05-29",
+      "rate_percent": "3.6",
+      "sofr_minus_rate_bp": "2.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2026-05-28&observation_end=2026-05-28&realtime_start=2026-05-27&realtime_end=2026-05-31&file_type=json",
+      "sha256": "efeda8e1e2ea5c4e270ec8170114735199a01d57c371e1ee2717ab7847a33be6"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-06-30",
+      "observation": "2026-06-29",
+      "status": "matched",
+      "first_vintage": "2026-06-30",
+      "rate_percent": "3.6",
+      "sofr_minus_rate_bp": "2.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2026-06-29&observation_end=2026-06-29&realtime_start=2026-06-28&realtime_end=2026-06-30&file_type=json",
+      "sha256": "3e0fb882511af21fb7ac6642af7f964b283e3413828b9c721c29557145745815"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-07-31",
+      "observation": "2026-07-30",
+      "status": "matched",
+      "first_vintage": "2026-07-31",
+      "rate_percent": "3.63",
+      "sofr_minus_rate_bp": "2.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2026-07-30&observation_end=2026-07-30&realtime_start=2026-07-29&realtime_end=2026-07-31&file_type=json",
+      "sha256": "9e0e9ead1d4cf54c881943cd765b82a4c56ea4e6c738d734352bff1b72217338"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-08-31",
+      "observation": "2026-08-28",
+      "status": "matched",
+      "first_vintage": "2026-08-31",
+      "rate_percent": "3.63",
+      "sofr_minus_rate_bp": "2.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2026-08-28&observation_end=2026-08-28&realtime_start=2026-08-27&realtime_end=2026-08-31&file_type=json",
+      "sha256": "3716d2e35078208f03d79bec84982fbbed2f154a74ffd8cba762f45da056dfc8"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-09-30",
+      "observation": "2026-09-29",
+      "status": "matched",
+      "first_vintage": "2026-09-30",
+      "rate_percent": "3.87",
+      "sofr_minus_rate_bp": "1.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2026-09-29&observation_end=2026-09-29&realtime_start=2026-09-28&realtime_end=2026-09-30&file_type=json",
+      "sha256": "97b57373eec7146ef7c767255935cf6eab37c4d5c616f3a967e35c4369194da1"
+    },
+    {
+      "series": "TGCR",
+      "cutoff": "2026-10-31",
+      "observation": "2026-10-29",
+      "status": "matched",
+      "first_vintage": "2026-10-30",
+      "rate_percent": "3.92",
+      "sofr_minus_rate_bp": "2.00",
+      "query": "https://api.stlouisfed.org/fred/series/observations?series_id=TGCRRATE&observation_start=2026-10-29&observation_end=2026-10-29&realtime_start=2026-10-28&realtime_end=2026-10-31&file_type=json",
+      "sha256": "4b6ad55a275d9a314173493140704a161e2f9a88ab8fb3568d7909d546b7a66e"
+    }
+  ]
+}

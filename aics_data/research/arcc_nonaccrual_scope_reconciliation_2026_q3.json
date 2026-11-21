@@ -1,0 +1,51 @@
+{
+  "issuer": "Ares Capital",
+  "node": "Private Credit",
+  "scope": "Issuer portfolio, retrospective quarterly comparison in Q3 presentation; earlier availability for individual quarters not inferred.",
+  "sources": [
+    "https://arcc.ares.com/media/document/cc2486d7-1623-4d8f-a3f7-5c6d7044fae7/assets/ARCC_Q3-2026_Earnings_Presentation_FINAL.pdf?disposition=inline",
+    "https://www.sec.gov/Archives/edgar/data/1287750/000162828026067382/arccq3-2026exhibit991.htm",
+    "https://www.sec.gov/Archives/edgar/data/1287750/000162828026067383/arcc-20260930.htm"
+  ],
+  "unit": "USD million except percentage fields",
+  "quarters": [
+    "2025Q3",
+    "2025Q4",
+    "2026Q1",
+    "2026Q2",
+    "2026Q3"
+  ],
+  "amortized_cost": [
+    509,
+    524,
+    614,
+    708,
+    711
+  ],
+  "fair_value": [
+    289,
+    350,
+    345,
+    405,
+    426
+  ],
+  "reported_cost_pct": [
+    1.8,
+    1.8,
+    2.1,
+    2.4,
+    2.4
+  ],
+  "reported_fair_value_pct": [
+    1,
+    1.2,
+    1.2,
+    1.4,
+    1.4
+  ],
+  "september_sec_percentages_available_at": "2026-11-10",
+  "presentation_dollar_series_pit_attested": false,
+  "sept_fair_value_divided_by_total_pct": 1.4582548865231233,
+  "sept_total_fair_value": 29213,
+  "reconciliation": "Computed percentage rounds to 1.5% at one decimal; issuer reports 1.4%. Denominator or amount scope needs reconciliation. Exclude reconstructed percentage from scoring."
+}

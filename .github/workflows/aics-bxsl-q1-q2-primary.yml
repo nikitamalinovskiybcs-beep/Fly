@@ -1,0 +1,78 @@
+name: AICS BXSL original Q1 Q2 SEC source verification
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_bxsl_q1_q2_sec_nonaccrual.py'
+      - 'tests/test_aics_collect_bxsl_q1_q2_sec_nonaccrual.py'
+      - '.github/workflows/aics-bxsl-q1-q2-primary.yml'
+permissions:
+  contents: read
+jobs:
+  q1-q2-original-sec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test SEC identity denominator and chronology fail-closed
+        run: |
+          python -m py_compile scripts/aics_collect_bxsl_q1_q2_sec_nonaccrual.py
+          python -m unittest discover -s tests -p 'test_aics_collect_bxsl_q1_q2_sec_nonaccrual.py' -v
+      - name: Fetch 6 authentic SEC original Q1 and Q2 HTML bytes
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_collect_bxsl_q1_q2_sec_nonaccrual --as-of 2026-11-19
+      - name: Independently verify 6 original SEC SHA-256 and exactly two denominators
+        run: |
+          python - <<'PY'
+          import datetime as dt, hashlib, json, os
+          from pathlib import Path
+          base=Path('aics_data/research/bxsl_q1_q2_2026_sec_originals')
+          data=json.loads((base/'manifest.json').read_text())
+          assert data['original_8k_quarters']==2
+          assert data['raw_original_sec_html_documents']==6
+          assert data['original_reported_nonaccrual_percentages']==4
+          assert len(data['source_periods'])==2
+          expected={'2026-03-31':('2026-05-21','4.7','3.1'),
+                    '2026-06-30':('2026-08-20','3.6','1.8')}
+          total=0
+          for row in data['source_periods']:
+              avail,cost,fair=expected[row['period_end']]
+              assert row['candidate_available_at']==avail
+              assert (dt.date.fromisoformat(avail)-dt.date.fromisoformat(row['source_filed_at'])).days==14
+              assert row['nonaccrual_amortized_cost_pct']==cost
+              assert row['nonaccrual_fair_value_pct']==fair
+              assert row['cost_denominator']!=row['fair_denominator']
+              assert row['historical_release_feed_pit_attested'] is False
+              assert row['score_eligible'] is False
+              for kind in ('index','filing','exhibit'):
+                  raw=(base/(row['raw_sha256'][kind]+'.html')).read_bytes()
+                  assert hashlib.sha256(raw).hexdigest()==row['raw_sha256'][kind]
+                  assert len(raw)==row['raw_bytes'][kind]
+                  total+=1
+          assert total==6
+          assert data['synthetic_financial_rows']==0
+          assert data['historical_realtime_feed_independently_attested'] is False
+          assert data['independent_24month_oos'] is False
+          assert data['node_score'] is None and data['index_aics'] is None
+          assert data['promotion']=='BLOCKED'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## BXSL Q1 and Q2 2026 original SEC',file=f)
+              print('Q1: 4.7% cost / 3.1% fair; SEC May 7 +14 => May 21.',file=f)
+              print('Q2: 3.6% cost / 1.8% fair; SEC Aug 6 +14 => Aug 20.',file=f)
+              print('6 original SEC HTML hashes verified; no market score or PIT certification.',file=f)
+          PY
+      - name: Preserve original six SEC files and all filing receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-bxsl-q1-q2-original-sec-nonaccrual
+          path: aics_data/research/bxsl_q1_q2_2026_sec_originals/
+          retention-days: 30
+          if-no-files-found: warn

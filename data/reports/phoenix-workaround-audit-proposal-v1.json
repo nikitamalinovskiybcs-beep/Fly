@@ -1,0 +1,31 @@
+{
+  "proposal_id": "phoenix-workaround-audit-v1",
+  "decision": "RESEARCH",
+  "metric_gate": "No frozen-output change; no evidence-gate weakening; full suite green.",
+  "bounded_slice": [
+    {
+      "target": "silent bare-pass handlers",
+      "action": "replace only where caller cannot distinguish failure from success",
+      "required_change": "structured degraded status or warning, no fabricated value"
+    },
+    {
+      "target": "fallback_defaults and fixed model fallbacks",
+      "action": "audit labels and evidence-gate behavior before any removal",
+      "required_change": "MISSING/BLOCKED status if fallback could affect selection"
+    },
+    {
+      "target": "duplicate provider/network work",
+      "action": "measure call count before refactor",
+      "required_change": "cache or shared result only when freshness semantics are preserved"
+    }
+  ],
+  "do_not_touch_without_oos": [
+    "self-learning agent interfaces",
+    "payoff/risk fallback formulas",
+    "autopilot optimization and safety guards",
+    "storage/cloud fallback behavior"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

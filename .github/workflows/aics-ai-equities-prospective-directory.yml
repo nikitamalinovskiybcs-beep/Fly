@@ -1,0 +1,75 @@
+name: AICS AI Equities prospective Nasdaq security directory originals
+on:
+  workflow_dispatch:
+  # Prospective observations only. GitHub scheduled jobs run on default branch.
+  # 03:35 UTC Tue-Sat follows the previous US trading day; holidays may
+  # produce stale source dates and MUST fail closed, never be backfilled.
+  schedule:
+    - cron: '35 3 * * 2-6'
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_ai_equities_symbol_directory.py'
+      - 'tests/test_aics_ai_equities_symbol_directory.py'
+      - '.github/workflows/aics-ai-equities-prospective-directory.yml'
+permissions:
+  contents: read
+jobs:
+  listing-snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline tests of official source roster, duplicates and false PIT
+        run: |
+          python -m py_compile scripts/aics_collect_ai_equities_symbol_directory.py
+          python -m unittest discover -s tests -p test_aics_ai_equities_symbol_directory.py -v
+      - name: Fetch both real official Nasdaq Trader current listing directories
+        run: |
+          python -m scripts.aics_collect_ai_equities_symbol_directory \
+            --mode collect \
+            --out aics_data/source_evidence/ai_equities_directory_live
+      - name: Rehash source bytes and recompute all seven current securities
+        run: |
+          python -m scripts.aics_collect_ai_equities_symbol_directory \
+            --mode audit \
+            --out aics_data/source_evidence/ai_equities_directory_live
+      - name: Assert contemporaneous current roster never becomes historical PIT
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          root=Path("aics_data/source_evidence/ai_equities_directory_live")
+          x=json.loads((root/"manifest.json").read_text(encoding="utf-8"))
+          y=json.loads((root/"rehash_receipt.json").read_text(encoding="utf-8"))
+          assert x["files_archived"]==2 and x["securities_observed"]==7
+          assert y["files_original_bytes_rehashed"]==2
+          assert not x["historical_security_identity_attested"]
+          assert not x["historical_basket_membership_attested"]
+          assert not x["corporate_action_pit_attested"]
+          assert not x["provider_license_approved"]
+          assert not y["historical_pit_attested"]
+          assert x["index_aics"] is None and y["index_aics"] is None
+          assert x["promotion"]=="BLOCKED" and y["promotion"]=="BLOCKED"
+          print("## Two live Nasdaq directory originals, seven current securities")
+          print(f"Capture UTC: {x['captured_at_utc']}")
+          for s in x["original_files"]:
+              print(f"- {s['filename']}: original raw SHA256 {s['sha256']}, {s['bytes']} bytes")
+          for s in x["observed_securities"]:
+              print(f"- {s['symbol']}: {s['directory']} / {s['market_code']}, current snapshot ONLY")
+          print(f"Prospective original capture UTC: {x['captured_at_utc']} (not provider release timestamp)")
+          assert x["scope"]=="PROSPECTIVE_CURRENT_DIRECTORY_NOT_HISTORICAL_MEMBERSHIP"
+          print("Current listing snapshot cannot prove historical stock universe or corporate actions.")
+          PY
+      - name: Preserve original Nasdaq listing text and SHA256 receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-ai-equities-live-nasdaq-directories-not-historical-pit
+          path: aics_data/source_evidence/ai_equities_directory_live/
+          retention-days: 30
+          if-no-files-found: warn

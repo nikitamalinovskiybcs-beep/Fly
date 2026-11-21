@@ -1,0 +1,21 @@
+{
+  "proposal_id": "supabase-storage-recovery-v1",
+  "decision": "RESEARCH",
+  "committee_verdict": "research_only",
+  "implemented_slice": [
+    "validate HTTPS endpoint syntax before client initialization",
+    "sanitize DNS and request failures into stable diagnostics",
+    "add offline tests for invalid and unresolvable endpoints"
+  ],
+  "observed_evidence": {
+    "configured_host": "nanugemilmzujgjuntat.supabase.co",
+    "dns_resolution": "failed",
+    "local_storage_tests": "57 passed",
+    "full_suite": "552 passed"
+  },
+  "blocker": "The configured Supabase project hostname does not resolve; a valid project URL cannot be inferred safely.",
+  "next_experiment": "Replace SUPABASE_URL with the exact URL from Supabase Dashboard Connect/API, apply docs/supabase_schema.sql, then rerun health-check.",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

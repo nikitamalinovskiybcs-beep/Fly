@@ -25,6 +25,7 @@ import numpy as np
 from typing import Dict, List, Tuple, Optional
 from datetime import datetime
 from scipy.stats import norm
+from src.agent_event_bus import AgentEventBus
 
 
 _AGENTS_DIR = os.path.expanduser("~/phoenix_agents")
@@ -893,12 +894,14 @@ class MetaAgent:
         for agent_name, score in calibration.items():
             current = self.weights[agent_name]
             target = max(0.05, min(1.0, score / 100.0))
-            self.weights[agent_name] = round(0.8 * current + 0.2 * target, 3)
+            self.weights[agent_name] = round(0.8 * current + 0.2 * target, 6)
 
         # Normalize weights
         total = sum(self.weights.values())
         if total > 0:
-            self.weights = {k: round(v / total, 3) for k, v in self.weights.items()}
+            self.weights = {
+                k: round(v / total, 6) for k, v in self.weights.items()
+            }
 
         _save_agent_state(self.NAME, {
             "weights": self.weights,
@@ -924,6 +927,7 @@ class AgentDirector:
         features: Dict[str, float],
         base_score: float,
         evidence_gate: Optional[Dict] = None,
+        event_bus: Optional[AgentEventBus] = None,
         **kwargs,
     ) -> Dict:
         """Run the cascade only when evidence is eligible for the task."""
@@ -943,12 +947,14 @@ class AgentDirector:
                     )
                 ],
                 "results": {},
+                "event_bus": {"status": "blocked"},
             }
         return run_all_self_learning_agents(
             tickers=tickers,
             yf_data=yf_data,
             features=features,
             base_score=base_score,
+            event_bus=event_bus,
             **kwargs,
         )
 
@@ -963,6 +969,7 @@ def run_all_self_learning_agents(
     current_accuracy: float = 0.0,
     current_win_rate: float = 0.0,
     evidence_gate: Optional[Dict] = None,
+    event_bus: Optional[AgentEventBus] = None,
 ) -> Dict:
     """Run all 8 agents in cascade order and return combined result.
 
@@ -978,6 +985,7 @@ def run_all_self_learning_agents(
             features=features,
             base_score=base_score,
             evidence_gate=evidence_gate,
+            event_bus=event_bus,
         )
 
     results = {}
@@ -1101,6 +1109,32 @@ def run_all_self_learning_agents(
     decision = meta_result.get("decision", "N/A")
     confidence = meta_result.get("confidence", 0.5)
 
+    event_bus_report = {"status": "disabled"}
+    if event_bus is not None:
+        snapshot_payload = {
+            "tickers": list(tickers),
+            "feature_keys": sorted(features),
+            "base_score": base_score,
+            "evidence_gate_passed": bool(
+                evidence_gate.get("passed")
+            ) if evidence_gate else None,
+            "production_weights_changed": False,
+            "verdict_mutated": False,
+            "trades_created": False,
+        }
+        snapshot_id = event_bus.publish_snapshot(payload=snapshot_payload)
+        for agent_name, signal in results.items():
+            event_bus.publish_signal(
+                snapshot_id=snapshot_id,
+                agent=agent_name,
+                signal=signal,
+            )
+        event_bus_report = {
+            "status": "published",
+            "snapshot_id": snapshot_id,
+            "signals": len(results),
+        }
+
     return {
         "agents_run": agents_run,
         "agents_ok": agents_ok,
@@ -1158,4 +1192,5 @@ def run_all_self_learning_agents(
             ).items()
             if abs(float(value.get("weighted_adj", 0))) >= 0.01
         ],
+        "event_bus": event_bus_report,
     }

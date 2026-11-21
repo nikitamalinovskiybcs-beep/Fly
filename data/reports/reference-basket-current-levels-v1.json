@@ -1,0 +1,59 @@
+{
+  "schema_version": "reference-basket-current-levels-v1",
+  "reference_date": "2024-11-01",
+  "latest_observation_date": "2026-07-31",
+  "source": "yfinance",
+  "source_note": "Provider returned 2026-07-31 as latest available observation; this is later than the session date and must be verified before using as live today data.",
+  "basket": [
+    "DAL",
+    "META",
+    "CRWD",
+    "BA",
+    "RCL",
+    "SBUX"
+  ],
+  "levels": {
+    "DAL": {
+      "strike": 58.389999,
+      "latest_close": 87.440002,
+      "pct_of_strike": 149.75,
+      "return_pct": 49.75
+    },
+    "META": {
+      "strike": 567.159973,
+      "latest_close": 556.710022,
+      "pct_of_strike": 98.16,
+      "return_pct": -1.84
+    },
+    "CRWD": {
+      "strike": 75.782501,
+      "latest_close": 190.86,
+      "pct_of_strike": 251.85,
+      "return_pct": 151.85
+    },
+    "BA": {
+      "strike": 154.589996,
+      "latest_close": 216.139999,
+      "pct_of_strike": 139.81,
+      "return_pct": 39.81
+    },
+    "RCL": {
+      "strike": 202.059998,
+      "latest_close": 318.299988,
+      "pct_of_strike": 157.53,
+      "return_pct": 57.53
+    },
+    "SBUX": {
+      "strike": 98.870003,
+      "latest_close": 105.25,
+      "pct_of_strike": 106.45,
+      "return_pct": 6.45
+    }
+  },
+  "worst_of": "META",
+  "worst_of_pct_of_strike": 98.16,
+  "barrier_status": "above 70%, 75%, and 85% barriers based on these levels",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

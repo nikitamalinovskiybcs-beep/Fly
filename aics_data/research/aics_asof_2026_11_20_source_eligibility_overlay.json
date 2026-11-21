@@ -1,0 +1,146 @@
+{
+  "schema": "aics-asof-close-source-eligibility-review-v1",
+  "market_close_date": "2026-11-20",
+  "reviewed_date": "2026-11-21",
+  "prior_release": "aics_data/progress/research_release_2026-11-19.json",
+  "equities_replay": "aics_data/research/aics_2026_11_20_close_research_rollover.json",
+  "method": "Do not change score on a new observation that is not the same unit, lookback window, legal instrument or independently traceable eligible source; use dated source review as overlay only.",
+  "nodes": [
+    {
+      "node": "Private Credit",
+      "score": 33.33,
+      "status": "CARRIED_NO_NEW_COMPARABLE_INPUT",
+      "note": "Three-BDC Q2/Q3 nonaccrual breadth remains the newest reproducible proxy in the sealed release; no new same-definition eligible quarter sourced."
+    },
+    {
+      "node": "Insurers",
+      "score": 0.91,
+      "status": "NEW_ELIGIBLE_EVIDENCE_SCORE_UNCHANGED",
+      "note": "MetLife Q3 10-Q is SEC+14 eligible 2026-11-20 but its mortgage ACL is not PRU nonaccrual-without-ACL; cannot silently substitute."
+    },
+    {
+      "node": "UST 30Y",
+      "score": 78.26,
+      "status": "NEW_DAILY_OBSERVATION_SCORE_UNCHANGED",
+      "note": "UST 30-year par yield 5.40 percent 2026-11-19 to 5.31 percent 2026-11-20 (-9 bp); node formula is October month-end 20-change volatility percentile."
+    },
+    {
+      "node": "Neoclouds",
+      "score": 75.78,
+      "status": "NEW_COREWEAVE_Q3_10Q_NOT_YET_ELIGIBLE",
+      "note": "CoreWeave Q3 10-Q filed 2026-11-12, SEC+14 eligible only 2026-11-26; keep prior Q2-based funding proxy."
+    },
+    {
+      "node": "AI Equities",
+      "score": 100,
+      "status": "RECALCULATED_2026_11_20",
+      "note": "Seven observed OHLC rows; 7 of 7 intraday decliners; score saturates at 100."
+    },
+    {
+      "node": "Hyperscalers",
+      "score": 13.09,
+      "status": "CARRIED_NO_NEW_COMPARABLE_INPUT",
+      "note": "Four-issuer quarterly operating cash flow and capex are retained; no new vetted four-issuer same-scope panel."
+    },
+    {
+      "node": "SPV",
+      "score": 33.95,
+      "status": "NEW_COREWEAVE_Q3_10Q_NOT_YET_ELIGIBLE",
+      "note": "CoreWeave facility drawn amounts/limits cannot be updated from the Q3 10-Q prior to SEC+14 eligibility 2026-11-26."
+    },
+    {
+      "node": "Repo",
+      "score": 86.96,
+      "status": "CARRIED_MONTH_END_METHOD",
+      "note": "SOFR-minus-IORB score uses October 31 vintage percentile against 23 earlier months; don't append one November day to the monthly window."
+    },
+    {
+      "node": "Power/Data Centers",
+      "score": 37.5,
+      "status": "CARRIED_NO_NEW_COMPARABLE_INPUT",
+      "note": "Polaris Forge 1 completed/contracted MW based on existing official release; new verified site commissioning not established."
+    },
+    {
+      "node": "Semiconductors Supply",
+      "score": 74.4,
+      "status": "LATEST_FED_RELEASE_CONFIRMED_UNCHANGED",
+      "note": "Fed 2026-11-17 G.17 supplemental table 2 for NAICS 3344, October provisional capacity utilization 74.4 pct; equals sealed input."
+    },
+    {
+      "node": "AI Demand",
+      "score": 0,
+      "status": "CARRIED_NO_NEW_COMPARABLE_INPUT",
+      "note": "Broadcom AI semiconductor revenue against prior guidance remains original Q2-to-Q3 observed pair; no confirmed newer same-definition eligible quarter."
+    }
+  ],
+  "newly_checked_official_evidence": [
+    {
+      "node": "UST 30Y",
+      "kind": "OFFICIAL_DAILY_MARKET_CONTEXT_ONLY",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value_month=202611&type=daily_treasury_yield_curve",
+      "observation_date": "2026-11-20",
+      "previous_date": "2026-11-19",
+      "previous_30y_pct": "5.40",
+      "current_30y_pct": "5.31",
+      "change_bp": "-9",
+      "source_release_timestamp_attested": false,
+      "score_recalibration_allowed": false
+    },
+    {
+      "node": "Insurers",
+      "kind": "NEW_SEC_ELIGIBLE_DIFFERENT_METRIC",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1099219/000109921926000062/0001099219-26-000062-index.htm",
+      "issuer": "MetLife",
+      "form": "10-Q",
+      "filed_at": "2026-11-06",
+      "available_at": "2026-11-20",
+      "period_end": "2026-09-30",
+      "mortgage_acl_usd_m": 1521,
+      "net_mortgage_loans_usd_m": 83839,
+      "prior_q2_mortgage_acl_usd_m": 1358,
+      "original_complete_submission_bytes": 43289538,
+      "original_byte_hash": null,
+      "independent_rehash": false,
+      "score_recalibration_allowed": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "kind": "LATEST_G17_CURRENT_RELEASE",
+      "source_url": "https://www.federalreserve.gov/releases/G17/20261117/table2_sup.htm",
+      "published_on": "2026-11-17",
+      "period": "2026-10",
+      "naics": "3344",
+      "preliminary_capacity_utilization_pct": "74.4",
+      "score_recalibration_allowed": false,
+      "reason": "Identical to the sealed proxy."
+    },
+    {
+      "node": "Neoclouds",
+      "kind": "INELIGIBLE_SEC_SOURCE_QUARANTINE",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000465/0001769628-26-000465-index.htm",
+      "filed_at": "2026-11-12",
+      "available_at": "2026-11-26",
+      "period_end": "2026-09-30",
+      "score_recalibration_allowed": false
+    },
+    {
+      "node": "SPV",
+      "kind": "INELIGIBLE_SEC_SOURCE_QUARANTINE",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000465/0001769628-26-000465-index.htm",
+      "filed_at": "2026-11-12",
+      "available_at": "2026-11-26",
+      "period_end": "2026-09-30",
+      "score_recalibration_allowed": false
+    }
+  ],
+  "score_changes": [],
+  "new_research_aics": "669.09",
+  "certified_aics": null,
+  "independent_pit_attested_nodes": 0,
+  "independent_oos_nodes": 0,
+  "total_weight": 1050,
+  "research_only": true,
+  "provider_retrieval_attested": false,
+  "production_verdict_changed": false,
+  "trades_created": false
+}

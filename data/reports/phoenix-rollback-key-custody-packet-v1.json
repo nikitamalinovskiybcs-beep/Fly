@@ -1,0 +1,47 @@
+{
+  "proposal_id": "phoenix-rollback-key-custody-v1",
+  "decision": "RESEARCH",
+  "rollback_drill": {
+    "status": "NOT_LIVE_DRILLED",
+    "target": "phoenixdashboard2026.streamlit.app",
+    "procedure": [
+      "Record current deployed commit and verify the UI smoke path",
+      "Deploy a previously reviewed commit or stop the current app",
+      "Verify the app is unavailable or shows the expected previous build",
+      "Restore the reviewed commit and reboot the app",
+      "Verify UI, dependency startup, audit logs, and safety flags"
+    ],
+    "success_criteria": [
+      "Rollback and restore are completed without data loss",
+      "App returns to a known reviewed commit",
+      "No production weights, verdicts, or trades are mutated"
+    ],
+    "evidence_required": [
+      "before/after commit identifiers",
+      "deployment logs",
+      "timestamped smoke-test result",
+      "operator and reviewer sign-off"
+    ]
+  },
+  "key_custody_policy": {
+    "status": "DRAFT_ONLY",
+    "rules": [
+      "Secrets stay in the platform secret store and never in Git or reports",
+      "Separate operator and reviewer access",
+      "Use least privilege and documented rotation/revocation",
+      "Encrypt memory bundles at rest and record key identifiers, not key values",
+      "Log access and restore events without logging secret material",
+      "Test recovery with a non-production fixture before any production use"
+    ],
+    "approval_required": [
+      "Security owner",
+      "Model-risk owner",
+      "Compliance owner"
+    ]
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

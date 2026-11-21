@@ -1,0 +1,51 @@
+name: AICS AI Equities primary price candidate capture
+# Manual independent re-capture; scheduled current candidates run in AICS Master.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify fail-closed equity-source intake using test-only fixtures
+        run: |
+          python -m py_compile scripts/aics_collect_ai_equities_prices.py
+          python -m unittest discover -s tests -p test_aics_ai_equities_prices.py -v
+          python -m unittest discover -s tests -p test_aics_ai_equities_capture.py -v
+      - name: Collect Nasdaq price candidates (current capture, never historical PIT)
+        run: python scripts/aics_collect_ai_equities_prices.py --out aics_data/source_evidence/ai_equities_live
+      - name: Independently rehash local original bytes and refuse historical PIT
+        run: python -m scripts.aics_validate_ai_equities_capture --out aics_data/source_evidence/ai_equities_live
+      - name: Report actually retrieved sources and blocked scores
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          path=Path('aics_data/source_evidence/ai_equities_live/manifest.json')
+          print("## AI Equities: raw Nasdaq data, never certified historical PIT")
+          if not path.is_file():
+              print("BLOCKED: no evidence manifest produced")
+          else:
+              x=json.loads(path.read_text())
+              assert x["index_aics"] is None and x["promotion"] == "BLOCKED"
+              assert not x["independently_verified_pit"]
+              print(f"Live raw source candidates: {x['archive_candidates']}/{x['attempted']}")
+              for item in x["sources"]:
+                  print(f"- {item['symbol']}: {item['status']}, sha256={item.get('sha256', 'none')}")
+              print("No model score or updated research progress is asserted.")
+          PY
+      - name: Preserve raw sources and capture evidence temporarily
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-ai-equities-raw-current-price-research
+          path: aics_data/source_evidence/ai_equities_live/
+          retention-days: 30
+          if-no-files-found: warn

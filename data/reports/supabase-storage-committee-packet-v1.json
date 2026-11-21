@@ -1,0 +1,32 @@
+{
+  "proposal_id": "supabase-storage-recovery-v1",
+  "status": "research_only",
+  "scope": "restore reliable Supabase connectivity while preserving local fallback",
+  "current_behavior": {
+    "credentials_configured": true,
+    "configured_host": "nanugemilmzujgjuntat.supabase.co",
+    "dns_resolution": "failed",
+    "local_sqlite_fallback": true,
+    "production_state_mutation": false
+  },
+  "constraints": [
+    "do not expose secrets",
+    "do not fabricate or guess a Supabase project URL",
+    "do not disable local persistence",
+    "do not mutate production weights, verdicts, or trades"
+  ],
+  "questions": [
+    "What is the safest code change for endpoint validation and diagnostics?",
+    "How should cloud failure and local fallback be exposed to operators?",
+    "Which acceptance tests prove recovery without requiring live credentials?"
+  ],
+  "acceptance_tests": [
+    "invalid or unresolvable URL remains disabled with sanitized diagnostics",
+    "valid configured URL is passed from StorageConfig to CloudSync",
+    "local writes continue when Supabase is unavailable",
+    "all production safety flags remain false"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

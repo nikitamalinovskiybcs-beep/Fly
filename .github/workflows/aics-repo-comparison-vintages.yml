@@ -1,0 +1,26 @@
+name: AICS repo comparison rate vintages
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/aics-repo-comparison-vintages.yml'
+      - 'scripts/aics_reconcile_repo_comparison_rates.py'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/14470900410/zip" > "$RUNNER_TEMP/nyfed.zip"
+      - env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/aics_reconcile_repo_comparison_rates.py "$RUNNER_TEMP/nyfed.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: repo-monthly-vintages
+          path: repo_monthly.json

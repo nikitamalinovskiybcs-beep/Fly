@@ -1,0 +1,11 @@
+{
+  "provider": "ollama",
+  "model": "qwen2.5:1.5b",
+  "status": "error",
+  "verdict": null,
+  "reason": "review missing a verdict",
+  "counts_as_approval": false,
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

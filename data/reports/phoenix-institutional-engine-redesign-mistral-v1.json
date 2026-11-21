@@ -1,0 +1,83 @@
+{
+  "proposal_id": "phoenix-institutional-engine-redesign-mistral-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "decision": "RESEARCH_REDESIGN",
+  "scope": "Adopt public institutional model-governance practices without copying proprietary algorithms",
+  "target_architecture": [
+    {
+      "layer": "data",
+      "controls": [
+        "immutable input provenance",
+        "ticker and settlement validation",
+        "data-quality gate",
+        "freshness and quote-fit checks"
+      ]
+    },
+    {
+      "layer": "model",
+      "controls": [
+        "separate loss model",
+        "deterministic barrier transformation with rationale",
+        "single payoff engine",
+        "Monte Carlo convergence and sensitivity checks"
+      ]
+    },
+    {
+      "layer": "governance",
+      "controls": [
+        "versioned model registry",
+        "assumptions and change log",
+        "independent challenger",
+        "human risk approval",
+        "hard safety stop"
+      ]
+    }
+  ],
+  "mistral_mandatory_now": [
+    "Add provenance and quality validation for the settled-note rows",
+    "Replace in-sample-only reporting with explicit OOS/holdout reporting",
+    "Add convergence checks and reconcile the two current engines",
+    "Keep safety flags explicit and false"
+  ],
+  "devin_correction": {
+    "mistral_suggested_unknown_toxicity": 0.0,
+    "decision": "REJECT_SUGGESTION",
+    "reason": "A zero default would understate risk. Unknown or insufficiently observed tickers should produce unavailable/interval risk and block production promotion, not silently become safe."
+  },
+  "bounded_implementation_slice": {
+    "decision": "NOW",
+    "files": [
+      "src/real_data.py",
+      "src/structured_product.py",
+      "src/phoenix_engine.py",
+      "src/provenance_contract.py"
+    ],
+    "changes": [
+      "Introduce explicit unknown/insufficient-observation status",
+      "Expose training versus held-out metrics separately",
+      "Record engine inputs and assumptions for reconciliation",
+      "Add small-sample warning for SBUX and similar tickers",
+      "Do not change production weights, verdicts or trades"
+    ]
+  },
+  "later_slices": [
+    "Canonical payoff reconciliation with aligned seeds and parameters",
+    "Versioned model registry and approval workflow",
+    "Independent challenger model",
+    "Human model-risk, compliance and suitability review"
+  ],
+  "acceptance_tests": [
+    "Unknown ticker cannot silently receive a safe risk classification",
+    "In-sample and OOS metrics are separate fields",
+    "Two engines expose aligned inputs or an explicit reconciliation delta",
+    "Insufficient SBUX observations produce a warning",
+    "All safety flags remain false"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

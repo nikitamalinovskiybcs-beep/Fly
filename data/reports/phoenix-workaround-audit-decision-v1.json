@@ -1,0 +1,70 @@
+{
+  "proposal_id": "phoenix-workaround-audit-v1",
+  "decision": "NOW",
+  "committee_verdict": "REVISE",
+  "provider_reviews": [
+    {
+      "provider": "mistral",
+      "model": "mistral-small-latest",
+      "status": "completed",
+      "verdict": "revise",
+      "summary": "Silent suppression and unlabeled fallbacks need stricter contracts; do not remove intentional degraded-mode handling."
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen2.5:1.5b",
+      "status": "completed",
+      "verdict": "approve",
+      "summary": "The bounded audit is consistent with safety constraints."
+    },
+    {
+      "provider": "groq",
+      "model": null,
+      "status": "skipped",
+      "reason": "Not invoked for this bounded local audit slice."
+    },
+    {
+      "provider": "openrouter",
+      "model": null,
+      "status": "skipped",
+      "reason": "Not invoked for this bounded local audit slice."
+    }
+  ],
+  "selected_change": {
+    "files": [
+      "src/agents.py"
+    ],
+    "removed": [
+      "Synthetic historical basket generation from DataCollectorAgent.",
+      "Hard-coded cross-reference baskets presented as collected notes."
+    ],
+    "preserved": [
+      "Validation of externally sourced SETTLED_NOTES.",
+      "Existing local storage and reporting.",
+      "Research-only agent interfaces."
+    ],
+    "reason": "These routines created non-settled records that could be mistaken for realized evidence."
+  },
+  "baseline": {
+    "data_collector": "generated up to 20 random historical baskets plus 8 hard-coded patterns",
+    "synthetic_evidence_risk": "present"
+  },
+  "target": {
+    "data_collector": "validate only externally sourced settled notes",
+    "synthetic_evidence_risk": "absent"
+  },
+  "observed_metric": {
+    "synthetic_generators_removed": 2,
+    "production_outputs_changed": false
+  },
+  "acceptance_tests": [
+    "DataCollectorAgent.run reports zero synthetic additions.",
+    "Existing settled-note validation remains available.",
+    "Focused and full suites pass.",
+    "Production safety flags remain false."
+  ],
+  "next_experiment": "Audit decision-affecting fixed fallbacks for explicit MISSING/BLOCKED propagation before changing them.",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

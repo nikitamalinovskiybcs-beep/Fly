@@ -1,0 +1,178 @@
+{
+  "research_as_of": "2026-11-18",
+  "series": "DGS30",
+  "method": "For each month-end vintage take its latest 21 reported yields. Express 20 changes in basis points and calculate their sample standard deviation (divisor 19), without annualizing.",
+  "date_check": "Treasury reported dates and values matched throughout each window. Historical window selection used only that month's ALFRED vintage.",
+  "alfred_archive_sha256": "03d06b287dc591d6830223bd181db401d19ce618a785b40c25a999ab1ddd5cc3",
+  "alfred_public_exports": "aics_data/research/alfred_macro_export_reconciliation_2026-11-19.json",
+  "closing_release_evidence": "aics_data/research/ust_month_end_release_dates_2026-11-19.json",
+  "treasury_calendar_sources": [
+    {
+      "year": "2024",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2024",
+      "retrieved_xml_sha256": "7274c9a12dcb51269fad68b39d021f84853cd4bc0b53237984415d672a9238ca"
+    },
+    {
+      "year": "2025",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2025",
+      "retrieved_xml_sha256": "a6d2919695bd5a28279c2ecf62f3dd56e5a1062f4e38f300d1e8593093e4d8cf"
+    },
+    {
+      "year": "2026",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "retrieved_xml_sha256": "72cb613ee76d503b6518b8b3756013467df96b742840d21d005cb41d09565e94"
+    }
+  ],
+  "matched_date_value_pairs_across_windows": 504,
+  "matched_inputs_sha256_cutoff_date_yield_csv": "d1feb09f938bf995debfff2af176459ce8ea45edee496bcbc3798808fd528c8b",
+  "unique_matched_dates": 494,
+  "months": [
+    {
+      "as_of": "2024-11-30",
+      "first_yield_date": "2024-10-29",
+      "last_yield_date": "2024-11-27",
+      "sample_sd_daily_change_bp": "7.22"
+    },
+    {
+      "as_of": "2024-12-31",
+      "first_yield_date": "2024-11-29",
+      "last_yield_date": "2024-12-30",
+      "sample_sd_daily_change_bp": "4.29"
+    },
+    {
+      "as_of": "2025-01-31",
+      "first_yield_date": "2024-12-31",
+      "last_yield_date": "2025-01-30",
+      "sample_sd_daily_change_bp": "4.19"
+    },
+    {
+      "as_of": "2025-02-28",
+      "first_yield_date": "2025-01-29",
+      "last_yield_date": "2025-02-27",
+      "sample_sd_daily_change_bp": "6.09"
+    },
+    {
+      "as_of": "2025-03-31",
+      "first_yield_date": "2025-02-28",
+      "last_yield_date": "2025-03-28",
+      "sample_sd_daily_change_bp": "4.85"
+    },
+    {
+      "as_of": "2025-04-30",
+      "first_yield_date": "2025-03-31",
+      "last_yield_date": "2025-04-29",
+      "sample_sd_daily_change_bp": "7.72"
+    },
+    {
+      "as_of": "2025-05-31",
+      "first_yield_date": "2025-04-30",
+      "last_yield_date": "2025-05-29",
+      "sample_sd_daily_change_bp": "5.38"
+    },
+    {
+      "as_of": "2025-06-30",
+      "first_yield_date": "2025-05-29",
+      "last_yield_date": "2025-06-27",
+      "sample_sd_daily_change_bp": "4.86"
+    },
+    {
+      "as_of": "2025-07-31",
+      "first_yield_date": "2025-07-01",
+      "last_yield_date": "2025-07-30",
+      "sample_sd_daily_change_bp": "4.88"
+    },
+    {
+      "as_of": "2025-08-31",
+      "first_yield_date": "2025-07-31",
+      "last_yield_date": "2025-08-28",
+      "sample_sd_daily_change_bp": "3.52"
+    },
+    {
+      "as_of": "2025-09-30",
+      "first_yield_date": "2025-08-29",
+      "last_yield_date": "2025-09-29",
+      "sample_sd_daily_change_bp": "4.45"
+    },
+    {
+      "as_of": "2025-10-31",
+      "first_yield_date": "2025-10-01",
+      "last_yield_date": "2025-10-30",
+      "sample_sd_daily_change_bp": "3.72"
+    },
+    {
+      "as_of": "2025-11-30",
+      "first_yield_date": "2025-10-28",
+      "last_yield_date": "2025-11-26",
+      "sample_sd_daily_change_bp": "3.30"
+    },
+    {
+      "as_of": "2025-12-31",
+      "first_yield_date": "2025-12-01",
+      "last_yield_date": "2025-12-30",
+      "sample_sd_daily_change_bp": "2.39"
+    },
+    {
+      "as_of": "2026-01-31",
+      "first_yield_date": "2025-12-30",
+      "last_yield_date": "2026-01-29",
+      "sample_sd_daily_change_bp": "3.17"
+    },
+    {
+      "as_of": "2026-02-28",
+      "first_yield_date": "2026-01-28",
+      "last_yield_date": "2026-02-26",
+      "sample_sd_daily_change_bp": "3.52"
+    },
+    {
+      "as_of": "2026-03-31",
+      "first_yield_date": "2026-03-02",
+      "last_yield_date": "2026-03-30",
+      "sample_sd_daily_change_bp": "5.11"
+    },
+    {
+      "as_of": "2026-04-30",
+      "first_yield_date": "2026-04-01",
+      "last_yield_date": "2026-04-29",
+      "sample_sd_daily_change_bp": "2.41"
+    },
+    {
+      "as_of": "2026-05-31",
+      "first_yield_date": "2026-04-29",
+      "last_yield_date": "2026-05-28",
+      "sample_sd_daily_change_bp": "4.07"
+    },
+    {
+      "as_of": "2026-06-30",
+      "first_yield_date": "2026-05-29",
+      "last_yield_date": "2026-06-29",
+      "sample_sd_daily_change_bp": "3.38"
+    },
+    {
+      "as_of": "2026-07-31",
+      "first_yield_date": "2026-07-01",
+      "last_yield_date": "2026-07-30",
+      "sample_sd_daily_change_bp": "3.46"
+    },
+    {
+      "as_of": "2026-08-31",
+      "first_yield_date": "2026-07-31",
+      "last_yield_date": "2026-08-28",
+      "sample_sd_daily_change_bp": "4.34"
+    },
+    {
+      "as_of": "2026-09-30",
+      "first_yield_date": "2026-08-31",
+      "last_yield_date": "2026-09-29",
+      "sample_sd_daily_change_bp": "4.41"
+    },
+    {
+      "as_of": "2026-10-31",
+      "first_yield_date": "2026-09-30",
+      "last_yield_date": "2026-10-29",
+      "sample_sd_daily_change_bp": "4.98"
+    }
+  ],
+  "node_score": null,
+  "index_aics": null,
+  "untouched_oos": false
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": "phoenix-before-after-v1",
+  "scope": "comparison from initial Phoenix state to current research state",
+  "comparison": {
+    "automated_tests": {
+      "before": "approximately 143",
+      "after": 530,
+      "change": "substantially increased coverage; current full suite passes"
+    },
+    "docker_context_or_image": {
+      "before_gb": 13.5,
+      "after_gb": 1.14,
+      "change_pct": -91.56,
+      "basis": "prior measured build after excluding data/numerai"
+    },
+    "idle_container_memory": {
+      "after_mib": 66,
+      "basis": "prior measured smoke run"
+    },
+    "ai_committee": {
+      "before": "limited/unreliable provider participation",
+      "after": "10 free/configured candidates/providers installed or available; 6 fast/default-capable, optional slow models",
+      "change": "more diversity with resource scheduling"
+    },
+    "safety": {
+      "before": "less explicit",
+      "after": "research-only flags, immutable release gate, fact-check contracts, unavailable/dissent preservation",
+      "change": "material governance improvement"
+    },
+    "evidence_quality": {
+      "before": "insufficient",
+      "after": "still insufficient: 0 settled 24m notes, 0 verified BCS observations",
+      "change": "process improved, market evidence not yet improved"
+    },
+    "model_accuracy": {
+      "before": "not proven",
+      "after": "not proven; fixed-24m candidates still fail empirical baseline/ECE",
+      "change": "measurement improved, predictive edge not demonstrated"
+    },
+    "orchestration": {
+      "before": "partially separated",
+      "after": "unified research orchestrator with explicit stages; Streamlit runtime wiring remains pending",
+      "change": "partial improvement"
+    }
+  },
+  "honest_conclusion": "Phoenix is materially safer, more testable, smaller, and more auditable, but not yet more accurate in a proven production sense.",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

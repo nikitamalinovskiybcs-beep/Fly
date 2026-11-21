@@ -1,0 +1,104 @@
+{
+  "catalog_id": "phoenix-github-public-repo-catalog-v1",
+  "generated_at": "2026-08-03T21:42:23.746598+00:00",
+  "scope": "Public GitHub repositories relevant to structured products and autocallables.",
+  "repositories": [
+    {
+      "url": "https://github.com/ShrishDhuria/autocallable-pricer",
+      "class": "methodology_and_reference_code",
+      "evidence": "public code; no verified term-sheet/outcome corpus stated"
+    },
+    {
+      "url": "https://github.com/yschang306/FIN514-Structure_Product_Valuation_Projects",
+      "class": "academic_methodology",
+      "evidence": "valuation notebooks and simulations; synthetic/illustrative"
+    },
+    {
+      "url": "https://github.com/sanyalelizabet/structured-products-analytics",
+      "class": "analytics_methodology",
+      "evidence": "payoff/risk monitoring and market-data integration; outcome provenance to verify"
+    },
+    {
+      "url": "https://github.com/Redmek/Structured-Products-Pricing---Phoenix-Autocall---Reverse-Barrier-Convertible",
+      "class": "educational_methodology",
+      "evidence": "Monte Carlo and Greeks examples"
+    },
+    {
+      "url": "https://github.com/mboumezou/autocall-athena-pricer",
+      "class": "methodology_and_backtest_reference",
+      "evidence": "local-vol/CIR and yfinance historical backtesting; not settled-note evidence"
+    }
+  ],
+  "committee_review": {
+    "proposal_id": "phoenix-github-public-repo-catalog-v1",
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "decision": "RESEARCH",
+    "review": {
+      "decision": "partial_adoption",
+      "repo_classifications": {
+        "ShrishDhuria/autocallable-pricer": {
+          "type": "synthetic",
+          "methodology": "code",
+          "outcomes": "simulated",
+          "phoenix_relevance": "high",
+          "notes": "Provides reusable Monte Carlo framework for worst-of autocallables with Heston model, but lacks verified term-sheet corpus or real market validation."
+        },
+        "yschang306/FIN514-Structure_Product_Valuation_Projects": {
+          "type": "education",
+          "methodology": "code",
+          "outcomes": "simulated",
+          "phoenix_relevance": "medium",
+          "notes": "Academic notebooks with autocall/worst-of examples and simulations, useful for methodology but not real-world evidence."
+        },
+        "sanyalelizabet/structured-products-analytics": {
+          "type": "real_structured_note",
+          "methodology": "analytics",
+          "outcomes": "real_market_data",
+          "phoenix_relevance": "high",
+          "notes": "Buy-side analytics with market-data integration and scenario/payoff monitoring, providing real structured-note outcomes."
+        },
+        "Redmek/Structured-Products-Pricing---Phoenix-Autocall---Reverse-Barrier-Convertible": {
+          "type": "education",
+          "methodology": "code",
+          "outcomes": "simulated",
+          "phoenix_relevance": "low",
+          "notes": "Educational Monte Carlo/Greeks examples, not suitable for real-world Phoenix research."
+        },
+        "mboumezou/autocall-athena-pricer": {
+          "type": "synthetic",
+          "methodology": "code",
+          "outcomes": "simulated",
+          "phoenix_relevance": "medium",
+          "notes": "Athena pricer with local vol/CIR and historical backtesting, but lacks real term-sheet corpus or OOS validation."
+        }
+      },
+      "useful_for_phoenix": [
+        "ShrishDhuria/autocallable-pricer",
+        "sanyalelizabet/structured-products-analytics",
+        "mboumezou/autocall-athena-pricer"
+      ],
+      "blockers": [
+        "Lack of verified term-sheet corpora in most repos",
+        "Limited real-world OOS evidence",
+        "Educational repos (Redmek) not suitable for production research"
+      ],
+      "next_experiment": "Validate worst-of autocall pricing models using real term-sheet data from sanyalelizabet/structured-products-analytics repository.",
+      "safety_flags": [
+        "No repos provide verified term-sheet corpora",
+        "Most repos rely on simulated or historical data",
+        "Athena pricer uses yfinance (potential data quality issues)"
+      ]
+    },
+    "baseline": "Phoenix has canonical payoff and Monte Carlo code but limited validated term/outcome data",
+    "target": "Reuse public methodology without treating public code or simulations as market evidence",
+    "next_experiment": "Clone only selected permissively licensed repos into an isolated reference directory and compare payoff semantics/tests; do not copy proprietary algorithms.",
+    "final_devin_validation": "Public sources classified; no code imported and no model weights changed."
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

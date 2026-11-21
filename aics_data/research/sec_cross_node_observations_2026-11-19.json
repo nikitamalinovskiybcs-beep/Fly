@@ -1,0 +1,76 @@
+{
+  "as_of": "2026-11-19",
+  "unit": "USD million",
+  "scope": "Issuer-level research observations. Comparative values use the availability date of the cited filing.",
+  "records": [
+    {
+      "node": "Private Credit",
+      "issuer": "Ares Capital",
+      "filed_at": "2026-10-27",
+      "source": "https://www.sec.gov/Archives/edgar/data/1287750/000162828026067383/arcc-20260930.htm",
+      "dates": [
+        "2025-12-31",
+        "2026-09-30"
+      ],
+      "fair_value": [
+        29485,
+        29213
+      ],
+      "amortized_cost": [
+        29250,
+        29478
+      ],
+      "fair_value_less_cost": [
+        235,
+        -265
+      ],
+      "change_in_gap": -500,
+      "available_at": "2026-11-10"
+    },
+    {
+      "node": "Hyperscalers",
+      "issuer": "Microsoft",
+      "filed_at": "2026-10-28",
+      "source": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436133/msft-20260930.htm",
+      "quarter_ends": [
+        "2025-09-30",
+        "2026-09-30"
+      ],
+      "cash_additions_to_ppe_outflow_magnitude": [
+        19394,
+        39367
+      ],
+      "increase": 19973,
+      "scope": "Consolidated cash outflows for property and equipment.",
+      "available_at": "2026-11-11"
+    },
+    {
+      "node": "Semiconductors Supply",
+      "issuer": "NVIDIA",
+      "filed_at": "2026-08-26",
+      "source": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+      "dates": [
+        "2026-01-25",
+        "2026-07-26"
+      ],
+      "raw_materials": [
+        3807,
+        11341
+      ],
+      "work_in_process": [
+        8822,
+        13377
+      ],
+      "finished_goods": [
+        8774,
+        6857
+      ],
+      "inventory": [
+        21403,
+        31575
+      ],
+      "increase": 10172,
+      "available_at": "2026-09-09"
+    }
+  ]
+}

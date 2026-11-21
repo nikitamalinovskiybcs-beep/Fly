@@ -1,0 +1,30 @@
+{
+  "provider": "mistral",
+  "status": 200,
+  "response": {
+    "id": "e493048f3fea4aa388d47fb587af49fa",
+    "created": 1785799376,
+    "model": "mistral-small-latest",
+    "usage": {
+      "prompt_tokens": 321,
+      "total_tokens": 1121,
+      "completion_tokens": 800,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "service_tier": "standard"
+    },
+    "object": "chat.completion",
+    "choices": [
+      {
+        "index": 0,
+        "finish_reason": "length",
+        "message": {
+          "role": "assistant",
+          "tool_calls": null,
+          "content": "Here\u2019s a structured review of the provided Leonteq ISIN candidate list, focusing on **deduplication**, **evidence classes**, and **fields requiring verification** (without inferring outcomes or altering production data):\n\n---\n\n### **1. Deduplication**\n- **Check for duplicates**: All ISINs in the list appear unique (no identical entries).\n- **Cross-reference with known Leonteq issuance patterns**:\n  - Leonteq often uses sequential or structured numbering (e.g., `CH15717xxx` for Swiss ISINs, `LU` for Luxembourg).\n  - The `CH15717xxx` series dominates, suggesting a potential batch or program. Verify if these are distinct products or variants (e.g., different underlyings, maturities, or structures).\n  - Example: `CH1571729198` and `CH1571729214` may be related (sequential last digits).\n\n**Action**: Group by prefix (e.g., `CH15717`, `LU3413012975`) and validate uniqueness via Leonteq\u2019s official sources (e.g., [Leonteq website](https://www.leonteq.com), Bloomberg, or Refinitiv).\n\n---\n\n### **2. Evidence Classes**\nAssign confidence levels to each ISIN based on available evidence. Proposed classes:\n\n| **Evidence Class**       | **Criteria**                                                                 | **Example ISINs**                     |\n|--------------------------|-----------------------------------------------------------------------------|---------------------------------------|\n| **Verified (High Confidence)** | ISIN found on Leonteq\u2019s official site, KID, or termsheet.                  | `LU3413012975` (Luxembourg-domiciled) |\n| **Likely Valid (Medium Confidence)** | ISIN follows Leonteq\u2019s naming convention but lacks direct confirmation.    | `CH15717xxx` series                   |\n| **Unverified (Low Confidence)** | ISIN exists in public databases but lacks Leonteq-specific documentation.   | `CH1111681792`, `CH1143296924`        |\n| **Suspicious (Reject)**  | ISIN format deviates from Leonteq\u2019s patterns or appears generic.           | None in this list                     |\n\n**Notes**:\n- **Swiss ISINs (`CH15717xxx`)**: Likely valid if they match Leonteq\u2019s Swiss program (e.g., `CH15717` prefix is used for structured products).\n- **Luxembourg ISINs (`LU`)**: `LU3413012975` is a strong candidate (Luxembourg is a common domicile for structured products).\n- **Older ISINs (`CH1381840318`, `CH1143298409`)**: May be legacy products; verify if still active.\n\n---\n\n### **3. Fields Requiring Verification (Unverified Until Capture)**\nThe following fields **must not be assumed** and require confirmation via **KID/termsheet/page capture**:\n\n| **Field**               | **Reason for Verification**                                                                 | **Example ISINs**                     |\n|-------------------------|---------------------------------------------------------------------------------------------|---------------------------------------|\n| **Issuer**              | Leonteq may act as issuer, arranger, or distributor. Confirm via KID.                      | All                                   |\n| **Underlying Asset**    | Critical for product classification (e.g., equity, index, commodity).                       | `CH15717xxx` series                   |\n| **Maturity Date**       | Affect"
+        }
+      }
+    ]
+  }
+}

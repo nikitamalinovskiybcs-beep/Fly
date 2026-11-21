@@ -1,0 +1,12 @@
+{
+  "source_record": "aics_data/research/arcc_nonaccrual_schedule_2026_q3.json",
+  "unit": "USD million except percentages",
+  "assumptions": "Each of the 35 displayed fair values is rounded to the nearest 0.1 million, and total investment fair value to the nearest million. Treat displayed zeros symmetrically for a conservative bound. Percentages rounded to nearest tenth.",
+  "line_count": 35,
+  "reported_sum": 426.1,
+  "reported_portfolio": 29213,
+  "min_ratio_pct": 1.4525818542796995,
+  "max_ratio_pct": 1.4646127513906717,
+  "reported_pct": 1.4,
+  "conclusion": "Under these assumptions, display precision alone cannot explain 1.4%. The filing does not establish the reason for the difference."
+}

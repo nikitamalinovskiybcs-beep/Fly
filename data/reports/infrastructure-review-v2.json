@@ -1,0 +1,29 @@
+{
+  "status": "ready_for_committee_revote",
+  "scope": "code, process, deployment, storage, observability and safety infrastructure",
+  "checks": {
+    "syntax_imports": "pass",
+    "ruff": "pass",
+    "pytest_isolated": "pass",
+    "streamlit_health_check": "pass",
+    "deployment_port_alignment": "pass",
+    "container_hardening": "pass",
+    "dependency_reproducibility": "pass",
+    "dependency_audit": "configured",
+    "release_manifest": "pass",
+    "artifact_retention": "pass",
+    "rollback_controls": "pass",
+    "unified_health_schema": "pass",
+    "drift_monitoring": "pass",
+    "fixed_24m_promotion_gate": "blocked"
+  },
+  "committee_questions": [
+    "is fixed-24m evidence sufficient for production promotion",
+    "what minimum realized or paper sample is required",
+    "which calibration candidate should be tested next",
+    "what BCS Capital quote-fit tolerance is appropriate"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

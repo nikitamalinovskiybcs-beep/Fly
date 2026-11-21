@@ -1,0 +1,35 @@
+{
+  "audit_id": "phoenix-xfinlink-numerix-status-v1",
+  "generated_at": "2026-08-03T22:06:55.767033+00:00",
+  "xfinlink": {
+    "role": "primary optional market-data provider with yfinance fallback",
+    "implementation": "src/data_module.py",
+    "requires": "XFINLINK_API_KEY",
+    "provenance_fields": [
+      "source",
+      "is_real",
+      "as_of"
+    ],
+    "current_caveat": "availability and field-level source/timestamp coverage must be measured per fetch; fallback can silently use yfinance when Xfinlink unavailable",
+    "decision": "retain as optional source; never mix fallback data without source labels"
+  },
+  "numerix": {
+    "role": "industry benchmark concept only",
+    "actual_access": "not available",
+    "current_code_behavior": "hard-coded benchmark fixtures and estimated gap analysis; no live Numerix observations",
+    "important_correction": "Numerix-calibrated/grade language is not evidence of measured Numerix accuracy",
+    "decision": "rename/report as research benchmark until licensed or independently supplied observations"
+  },
+  "required_next_tests": [
+    "run source availability and provenance audit on representative tickers",
+    "record provider/model/as_of/retrieval timestamp for every market snapshot",
+    "replace hard-coded Numerix claims with explicit synthetic_reference labels",
+    "compare Xfinlink/yfinance values only on same as_of dates",
+    "obtain authorized Numerix/broker benchmark before claiming accuracy"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

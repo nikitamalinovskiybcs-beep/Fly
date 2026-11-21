@@ -1,0 +1,363 @@
+{
+  "schema": "aics-hyperscalers-2025-q1-q3-original-sec-quarterly-cash-gap-v1",
+  "asof_research": "2026-11-21",
+  "node": "Hyperscalers",
+  "fixed_weight": 100,
+  "total_weight": 1050,
+  "units": "USD million",
+  "cash_ppe_definition": "Gross cash purchases or additions to property and equipment, positive magnitude; no netting of sales or incentives and no capital lease principal",
+  "sources": {
+    "MS1": {
+      "issuer": "Microsoft",
+      "cik": "789019",
+      "accession": "0000950170-25-061046",
+      "filed_at": "2025-04-30",
+      "available_at": "2025-05-14",
+      "type": "10-Q",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025061046/msft-20250331.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025061046/0000950170-25-061046-index.htm",
+      "raw_sha256": null
+    },
+    "MS2FY": {
+      "issuer": "Microsoft",
+      "cik": "789019",
+      "accession": "0000950170-25-100235",
+      "filed_at": "2025-07-30",
+      "available_at": "2025-08-13",
+      "type": "10-K",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/0000950170-25-100235-index.htm",
+      "raw_sha256": null
+    },
+    "MS3": {
+      "issuer": "Microsoft",
+      "cik": "789019",
+      "accession": "0001193125-25-256321",
+      "filed_at": "2025-10-29",
+      "available_at": "2025-11-12",
+      "type": "10-Q",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312525256321/msft-20250930.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312525256321/0001193125-25-256321-index.htm",
+      "raw_sha256": null
+    },
+    "AM1": {
+      "issuer": "Amazon",
+      "cik": "1018724",
+      "accession": "0001018724-25-000036",
+      "filed_at": "2025-05-02",
+      "available_at": "2025-05-16",
+      "type": "10-Q",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000036/amzn-20250331.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000036/0001018724-25-000036-index.htm",
+      "raw_sha256": null
+    },
+    "AM2": {
+      "issuer": "Amazon",
+      "cik": "1018724",
+      "accession": "0001018724-25-000086",
+      "filed_at": "2025-08-01",
+      "available_at": "2025-08-15",
+      "type": "10-Q",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000086/amzn-20250630.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000086/0001018724-25-000086-index.htm",
+      "raw_sha256": null
+    },
+    "AM3": {
+      "issuer": "Amazon",
+      "cik": "1018724",
+      "accession": "0001018724-25-000121",
+      "filed_at": "2025-10-30",
+      "available_at": "2025-11-13",
+      "type": "8-K EX-99.1",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000121/amzn-20250930xex991.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872425000121/0001018724-25-000121-index.htm",
+      "raw_sha256": null
+    },
+    "GO1": {
+      "issuer": "Alphabet",
+      "cik": "1652044",
+      "accession": "0001652044-25-000040",
+      "filed_at": "2025-04-24",
+      "available_at": "2025-05-08",
+      "type": "8-K EX-99.1",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000040/googexhibit991q12025.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000040/0001652044-25-000040-index.htm",
+      "raw_sha256": null
+    },
+    "GO2": {
+      "issuer": "Alphabet",
+      "cik": "1652044",
+      "accession": "0001652044-25-000056",
+      "filed_at": "2025-07-23",
+      "available_at": "2025-08-06",
+      "type": "8-K EX-99.1",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000056/googexhibit991q22025.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000056/0001652044-25-000056-index.htm",
+      "raw_sha256": null
+    },
+    "GO3": {
+      "issuer": "Alphabet",
+      "cik": "1652044",
+      "accession": "0001652044-25-000087",
+      "filed_at": "2025-10-29",
+      "available_at": "2025-11-12",
+      "type": "8-K EX-99.1",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000087/googexhibit991q32025.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204425000087/0001652044-25-000087-index.htm",
+      "raw_sha256": null
+    },
+    "ME1": {
+      "issuer": "Meta",
+      "cik": "1326801",
+      "accession": "0001326801-25-000050",
+      "filed_at": "2025-04-30",
+      "available_at": "2025-05-14",
+      "type": "8-K EX-99.1",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680125000050/meta-03312025xexhibit991.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1326801/000132680125000050/0001326801-25-000050-index.htm",
+      "raw_sha256": null
+    },
+    "ME2": {
+      "issuer": "Meta",
+      "cik": "1326801",
+      "accession": "0001628280-25-036719",
+      "filed_at": "2025-07-30",
+      "available_at": "2025-08-13",
+      "type": "8-K EX-99.1",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828025036719/meta-06302025xexhibit991.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828025036719/0001628280-25-036719-index.htm",
+      "raw_sha256": null
+    },
+    "ME3": {
+      "issuer": "Meta",
+      "cik": "1326801",
+      "accession": "0001628280-25-047114",
+      "filed_at": "2025-10-29",
+      "available_at": "2025-11-12",
+      "type": "8-K EX-99.1",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828025047114/meta-09302025xexhibit991.htm",
+      "index_url": "https://www.sec.gov/Archives/edgar/data/1326801/000162828025047114/0001628280-25-047114-index.htm",
+      "raw_sha256": null
+    }
+  },
+  "issuer_quarters": [
+    {
+      "period": "2025-Q1",
+      "issuer": "Microsoft",
+      "operating_cash_usd_m": 37044,
+      "cash_ppe_usd_m": 16745,
+      "ocf_minus_cash_ppe_usd_m": 20299,
+      "cash_ppe_pct_of_operating_cash": 45.203,
+      "eligible_at": "2025-05-14",
+      "source_ids": [
+        "MS1"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    },
+    {
+      "period": "2025-Q1",
+      "issuer": "Amazon",
+      "operating_cash_usd_m": 17015,
+      "cash_ppe_usd_m": 25019,
+      "ocf_minus_cash_ppe_usd_m": -8004,
+      "cash_ppe_pct_of_operating_cash": 147.0408,
+      "eligible_at": "2025-05-16",
+      "source_ids": [
+        "AM1"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    },
+    {
+      "period": "2025-Q1",
+      "issuer": "Alphabet",
+      "operating_cash_usd_m": 36150,
+      "cash_ppe_usd_m": 17197,
+      "ocf_minus_cash_ppe_usd_m": 18953,
+      "cash_ppe_pct_of_operating_cash": 47.5712,
+      "eligible_at": "2025-05-08",
+      "source_ids": [
+        "GO1"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    },
+    {
+      "period": "2025-Q1",
+      "issuer": "Meta",
+      "operating_cash_usd_m": 24026,
+      "cash_ppe_usd_m": 12941,
+      "ocf_minus_cash_ppe_usd_m": 11085,
+      "cash_ppe_pct_of_operating_cash": 53.8625,
+      "eligible_at": "2025-05-14",
+      "source_ids": [
+        "ME1"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    },
+    {
+      "period": "2025-Q2",
+      "issuer": "Microsoft",
+      "operating_cash_usd_m": 42647,
+      "cash_ppe_usd_m": 17079,
+      "ocf_minus_cash_ppe_usd_m": 25568,
+      "cash_ppe_pct_of_operating_cash": 40.0474,
+      "eligible_at": "2025-08-13",
+      "source_ids": [
+        "MS1",
+        "MS2FY"
+      ],
+      "method": "FY2025 10-K 136162 operating / 64551 cash PPE less 2025-03-31 10-Q 9m 93515 / 47472; no future sources"
+    },
+    {
+      "period": "2025-Q2",
+      "issuer": "Amazon",
+      "operating_cash_usd_m": 32515,
+      "cash_ppe_usd_m": 32183,
+      "ocf_minus_cash_ppe_usd_m": 332,
+      "cash_ppe_pct_of_operating_cash": 98.9789,
+      "eligible_at": "2025-08-15",
+      "source_ids": [
+        "AM2"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    },
+    {
+      "period": "2025-Q2",
+      "issuer": "Alphabet",
+      "operating_cash_usd_m": 27747,
+      "cash_ppe_usd_m": 22446,
+      "ocf_minus_cash_ppe_usd_m": 5301,
+      "cash_ppe_pct_of_operating_cash": 80.8952,
+      "eligible_at": "2025-08-06",
+      "source_ids": [
+        "GO2"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    },
+    {
+      "period": "2025-Q2",
+      "issuer": "Meta",
+      "operating_cash_usd_m": 25561,
+      "cash_ppe_usd_m": 16538,
+      "ocf_minus_cash_ppe_usd_m": 9023,
+      "cash_ppe_pct_of_operating_cash": 64.7001,
+      "eligible_at": "2025-08-13",
+      "source_ids": [
+        "ME2"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    },
+    {
+      "period": "2025-Q3",
+      "issuer": "Microsoft",
+      "operating_cash_usd_m": 45057,
+      "cash_ppe_usd_m": 19394,
+      "ocf_minus_cash_ppe_usd_m": 25663,
+      "cash_ppe_pct_of_operating_cash": 43.0433,
+      "eligible_at": "2025-11-12",
+      "source_ids": [
+        "MS3"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    },
+    {
+      "period": "2025-Q3",
+      "issuer": "Amazon",
+      "operating_cash_usd_m": 35525,
+      "cash_ppe_usd_m": 35095,
+      "ocf_minus_cash_ppe_usd_m": 430,
+      "cash_ppe_pct_of_operating_cash": 98.7896,
+      "eligible_at": "2025-11-13",
+      "source_ids": [
+        "AM3"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    },
+    {
+      "period": "2025-Q3",
+      "issuer": "Alphabet",
+      "operating_cash_usd_m": 48414,
+      "cash_ppe_usd_m": 23953,
+      "ocf_minus_cash_ppe_usd_m": 24461,
+      "cash_ppe_pct_of_operating_cash": 49.4754,
+      "eligible_at": "2025-11-12",
+      "source_ids": [
+        "GO3"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    },
+    {
+      "period": "2025-Q3",
+      "issuer": "Meta",
+      "operating_cash_usd_m": 29999,
+      "cash_ppe_usd_m": 18829,
+      "ocf_minus_cash_ppe_usd_m": 11170,
+      "cash_ppe_pct_of_operating_cash": 62.7654,
+      "eligible_at": "2025-11-12",
+      "source_ids": [
+        "ME3"
+      ],
+      "method": "2025 original SEC direct three-month cash flow columns; gross positive cash PPE outflow"
+    }
+  ],
+  "quarter_totals": [
+    {
+      "period": "2025-Q1",
+      "asof_after_all_sec_plus14": "2025-05-16",
+      "issuers": 4,
+      "operating_cash_usd_m": 114235,
+      "cash_ppe_usd_m": 71902,
+      "gap_usd_m": 42333,
+      "cash_ppe_pct_of_operating_cash": 62.9422,
+      "negative_gap_issuers": [
+        "Amazon"
+      ]
+    },
+    {
+      "period": "2025-Q2",
+      "asof_after_all_sec_plus14": "2025-08-15",
+      "issuers": 4,
+      "operating_cash_usd_m": 128470,
+      "cash_ppe_usd_m": 88246,
+      "gap_usd_m": 40224,
+      "cash_ppe_pct_of_operating_cash": 68.69,
+      "negative_gap_issuers": []
+    },
+    {
+      "period": "2025-Q3",
+      "asof_after_all_sec_plus14": "2025-11-13",
+      "issuers": 4,
+      "operating_cash_usd_m": 158995,
+      "cash_ppe_usd_m": 97271,
+      "gap_usd_m": 61724,
+      "cash_ppe_pct_of_operating_cash": 61.1787,
+      "negative_gap_issuers": []
+    }
+  ],
+  "comparison_to_existing_2026_q3": {
+    "period": "2026-Q3",
+    "ocf_usd_m": 175498,
+    "cash_ppe_usd_m": 201923,
+    "gap_usd_m": -26425,
+    "source": "aics_data/research/hyperscalers_operating_cash_flow_coverage_2026_q3.json",
+    "gap_change_vs_q3_2025_usd_m": -88149,
+    "cash_ppe_growth_pct": 107.5881
+  },
+  "sec_rule": "filed_at + 14 calendar days; for Microsoft 2025-Q2 latest of two filings",
+  "flags": {
+    "all_original_period_sources_2025": true,
+    "original_sec_html_bytes_independently_rehashed": false,
+    "independently_historically_pit_attested": false,
+    "untouched_24_month_oos": false,
+    "full_historical_aics": null,
+    "actual_aics_sp500_spread": null,
+    "certified_hyperscalers_stress_score": null,
+    "no_main_24m_ledger_promotion": true,
+    "trades_created": false
+  },
+  "limitations": [
+    "Research-only source comparison, not independent archive of received-at historical SEC feed",
+    "Microsoft 2025 Q2 derives from original FY2025 10-K less original FY2025 nine-month 10-Q, both filed in 2025",
+    "Corporate total cash PP&E is not AI-only CapEx; cash payments differ from contractual commitments and noncash financing",
+    "Do not fabricate 2025 Q4 or forward-fill monthly observations, and do not apply unvalidated old AICS thresholds"
+  ]
+}

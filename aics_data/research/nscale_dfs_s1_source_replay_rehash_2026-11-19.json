@@ -1,0 +1,59 @@
+{
+  "schema_version": "aics-nscale-dfs-s1-original-replay-external-rehash-v1",
+  "research_as_of": "2026-11-19",
+  "original_sec_filed_at": "2026-09-18",
+  "sec_available_at": "2026-10-02",
+  "source_filing_accession": "0001193125-26-395475",
+  "source_issuer_cik": "2110365",
+  "github_workflow_run_id": 44475562317,
+  "github_workflow_artifact_id": 14505823806,
+  "github_workflow_artifact_name": "aics-nscale-ward-ex10-23-and-s1-originals",
+  "downloaded_zip_size_bytes": 721730,
+  "downloaded_zip_sha256": "0a6b6c9101a089a2d9ee531f1d363b61302ad4f0b1812206c9719ca524802af0",
+  "zip_crc_test_passed": true,
+  "original_source_files_independently_sha_rehashed_outside_actions": [
+    {
+      "source_id": "nscale_s1_narrative",
+      "size_bytes": 7958866,
+      "sha256": "82ca06374fb97f55f66e334679103e8153b9686a44a86dae425ab0bfc1074020"
+    },
+    {
+      "source_id": "ward_ex10_23",
+      "size_bytes": 2063726,
+      "sha256": "9f2c58438f85705ea9cd69180c38e2c54ddb3979ee8d47f03218464f7a298ba6"
+    }
+  ],
+  "workflow_manifest_size_bytes": 3126,
+  "workflow_manifest_sha256": "07aeb85c13bf82f56b2777a4ced4246142e6ba19280ea43c6109bade6bdcc378",
+  "replayed_dfs_report_size_bytes": 2202,
+  "replayed_dfs_report_sha256": "fa5b760f582a57d78749fcc7223ff6074b821a36946e70f7f849480234fff264",
+  "extracted_from_same_original_s1": {
+    "as_reported_at": "2026-09-04",
+    "provider": "Dell Financial Services L.L.C.",
+    "customer_spv_borrowers": [
+      "Nscale Ward County Borrower SPV, LLC",
+      "Nscale NC Borrower SPV, LLC"
+    ],
+    "guarantor": "Nscale Global Holdings Ltd",
+    "executed_payment_schedules": 40,
+    "approximate_initial_term_rent_usd": 2540000000,
+    "approximate_included_financing_charges_usd": 34800000,
+    "gpu_facility_ceiling_north_carolina_usd": 1200000000,
+    "gpu_facility_ceiling_ward_county_usd": 1850000000
+  },
+  "rent_obligation_is_drawn_gpu_principal": false,
+  "gpu_facility_and_dfs_rent_additive": false,
+  "paid_rent_usd": null,
+  "outstanding_lease_liability_usd": null,
+  "drawn_gpu_principal_usd": null,
+  "legally_enforceable_parent_guarantee_amount_usd": null,
+  "combined_economic_exposure_usd": null,
+  "independent_historical_provider_pit_attested": false,
+  "independent_24_month_oos": false,
+  "original_2026_live_capture_attested": false,
+  "synthetic_market_rows": 0,
+  "spv_node_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "note": "The current retrospectively fetched S-1 original bytes were rehashed outside GitHub Actions and the source-to-research JSON was verified. The $2.54bn approximate initial-term rent includes $34.8m finance charges; it cannot be added to the two GPU commitment ceilings or called funded principal. ZIP raw originals expire after GitHub Actions retention."
+}

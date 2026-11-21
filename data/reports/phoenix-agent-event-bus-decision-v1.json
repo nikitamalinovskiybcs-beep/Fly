@@ -1,0 +1,68 @@
+{
+  "proposal_id": "phoenix-agent-event-bus-v1",
+  "decision": "NOW",
+  "committee_verdict": "APPROVE_WITH_RESEARCH_ONLY_SCOPE",
+  "provider_reviews": [
+    {
+      "provider": "mistral",
+      "model": "mistral-small-latest",
+      "status": "completed",
+      "verdict": "approve"
+    },
+    {
+      "provider": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "status": "completed",
+      "verdict": "approve"
+    },
+    {
+      "provider": "openrouter",
+      "model": "openai/gpt-4o-mini",
+      "status": "completed",
+      "verdict": "approve"
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen2.5:1.5b",
+      "status": "completed",
+      "verdict": "acceptance"
+    }
+  ],
+  "implementation_files": [
+    "src/agent_event_bus.py",
+    "src/self_learning_agents.py",
+    "tests/test_agent_event_bus.py"
+  ],
+  "changes": [
+    "Add local append-only hash-linked event journal.",
+    "Publish one immutable agent snapshot and typed research signals.",
+    "Reject unsafe production mutation flags.",
+    "Preserve AgentDirector's existing output contract.",
+    "Keep evidence-blocked runs fully blocked and event-free."
+  ],
+  "acceptance_tests": [
+    "Event replay validates the hash chain.",
+    "Unsafe event payloads are rejected.",
+    "Agent Director publishes nine records for a successful cascade.",
+    "Evidence-blocked cascade publishes no events.",
+    "All event records carry false safety flags and research lineage."
+  ],
+  "baseline": {
+    "agent_interaction": "synchronous cascade with independent state files"
+  },
+  "target": {
+    "agent_interaction": "local immutable snapshot and signal exchange with deterministic replay"
+  },
+  "observed_metric": {
+    "event_bus_tests": "3 passed",
+    "published_records": 9,
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "blockers": [
+    "fixed-24m OOS and human review remain required for promotion",
+    "full suite retains the pre-existing persistent MetaAgent state failure"
+  ],
+  "next_experiment": "Add asynchronous scheduling only after event replay, drift monitoring, and human approval controls are validated."
+}

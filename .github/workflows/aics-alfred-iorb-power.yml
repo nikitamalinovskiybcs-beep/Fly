@@ -1,0 +1,70 @@
+name: AICS ALFRED IORB Power historical as-of capture
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_alfred_iorb_power.py'
+      - 'tests/test_aics_collect_alfred_iorb_power.py'
+      - '.github/workflows/aics-alfred-iorb-power.yml'
+permissions:
+  contents: read
+jobs:
+  historical-as-of:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test exact ALFRED as-of chronology with independent mock vintages
+        run: |
+          python -m py_compile scripts/aics_collect_alfred_iorb_power.py
+          python -m unittest discover -s tests -p 'test_aics_collect_alfred_iorb_power.py' -v
+      - name: Capture official dated IORB and WPU0543 as-of source JSON
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python -m scripts.aics_collect_alfred_iorb_power
+      - name: Independently rehash every original ALFRED JSON and block scoring
+        if: always()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import json
+          import os
+          path = Path('aics_data/pit/free_gaps_2026_11_18/manifest.json')
+          if not path.is_file():
+              raise SystemExit('BLOCKED: No ALFRED source manifest')
+          manifest = json.loads(path.read_text())
+          assert len(manifest['snapshot_dates']) == 24
+          assert manifest['expected_snapshots'] == 48
+          assert manifest['aics_index'] is None
+          assert manifest['node_stress_scores'] == {'Repo': None, 'Power/Data Centers': None}
+          assert not manifest['provider_publication_lag_pit_attested']
+          assert manifest['promotion'] == 'BLOCKED'
+          checked = 0
+          for row in manifest['series_results']:
+              if row['status'] != 'downloaded_unverified':
+                  continue
+              raw = path.parent / row['raw_file']
+              assert raw.is_file()
+              assert hashlib.sha256(raw.read_bytes()).hexdigest() == row['raw_sha256']
+              checked += 1
+          assert checked == manifest['successful_snapshots']
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+              print('## ALFRED IORB + industrial electricity vintages', file=f)
+              print(f"Source snapshots: {checked}/48, blocked: {len(manifest['blocked'])}", file=f)
+              print('As-of candidate archive only, no independently attested source-release PIT.', file=f)
+              print('AICS N/A; no OOS or index certification.', file=f)
+          PY
+      - name: Preserve historical source snapshots and fail-closed report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-alfred-iorb-power-24-asof-vintages
+          path: aics_data/pit/free_gaps_2026_11_18/
+          if-no-files-found: warn
+          retention-days: 14

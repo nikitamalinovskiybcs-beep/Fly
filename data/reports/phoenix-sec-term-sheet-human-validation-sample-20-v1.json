@@ -1,0 +1,513 @@
+{
+  "sample_id": "phoenix-sec-term-sheet-human-validation-sample-20-v1",
+  "generated_at": "2026-08-03T22:24:10.225191+00:00",
+  "status": "pending_human_review",
+  "sample_size": 20,
+  "sampling_method": "deterministic coverage strata over underlyings/barriers/coupon extraction",
+  "review_fields": [
+    "issuer",
+    "guarantor",
+    "underlyings",
+    "worst_of_logic",
+    "coupon_amount_and_frequency",
+    "coupon_barrier",
+    "autocall_barrier",
+    "knock_in_barrier",
+    "pricing_date",
+    "issue_date",
+    "maturity_date",
+    "settlement_type",
+    "preliminary_vs_final",
+    "source_hash"
+  ],
+  "records": [
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325003544/dp226436_424b2-us2554077d.htm",
+      "accession": "0000950103-25-003544",
+      "sha256": "5f9f8a36ad1e5079d0d13bf23eebbdb8146baf9a38a2504c2e15ea59d77469b8",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Autocallable Phoenix Securities Based on the Worst Performing of the S&P 500 \u00ae Index, the Russell 2000 \u00ae Index and the Nasdaq-100 Index \u00ae",
+        "underlyings_raw": "the S&P 500 \u00ae Index, the Russell 2000 \u00ae Index and the Nasdaq-100 Index \u00ae",
+        "pricing_date_raw": "March , 2025 (expected to be March 24, 2025) Issue date: March , 2025 (expected",
+        "issue_date_raw": "March , 2025 (expected to be March 27, 2025) Interim valuation dates: Expected t",
+        "maturity_date_raw": "March , 2028",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": [
+          "5",
+          "0",
+          "0.00",
+          "5",
+          "0",
+          "1",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321016790/dp160774_424b2-us2170430.htm",
+      "accession": "0000950103-21-016790",
+      "sha256": "9832e8a863262e3a4c2d8668afa03778625488e493b44a360017516a5fa2e500",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Autocallable Phoenix Securities Based on the Worst Performing of the S&P 500 \u00ae Index, the EURO STOXX 50 \u00ae Index and the Russell 2000 \u00ae Index",
+        "underlyings_raw": "the S&P 500 \u00ae Index, the EURO STOXX 50 \u00ae Index and the Russell 2000 \u00ae Index",
+        "pricing_date_raw": "October , 2021 (expected to be October 29, 2021) Issue date: November , 2021 (th",
+        "issue_date_raw": "November , 2021 (three business days after the pricing date). Interim valuation",
+        "maturity_date_raw": "November , 2023",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": [
+          "5",
+          "0",
+          "0.00",
+          "5",
+          "0",
+          "1",
+          "0",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324009866/dp214418_424b2-us2498805d.htm",
+      "accession": "0000950103-24-009866",
+      "sha256": "40b9879f000d7097e791ea64de12bdfb710d66fc98fd1f63d7b08a9764961b68",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Autocallable Phoenix Securities Based on the Worst Performing of the S&P 500 \u00ae Index and the Russell 2000 \u00ae Index",
+        "underlyings_raw": "the S&P 500 \u00ae Index and the Russell 2000 \u00ae Index",
+        "pricing_date_raw": "July , 2024 (expected to be July 15, 2024) Issue date: July , 2024 (expected to",
+        "issue_date_raw": "July , 2024 (expected to be July 18, 2024) Interim valuation dates: Expected to",
+        "maturity_date_raw": "January , 2026",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": [
+          "5",
+          "0",
+          "5.00",
+          "5",
+          "0",
+          "1",
+          "0",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325013607/dp236286_424b2-us2524155d.htm",
+      "accession": "0000950103-25-013607",
+      "sha256": "c7613b0f80884d3602e35e421bda572f8b76fca0db700cb48524d52c9cbf9787",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Autocallable Phoenix Securities Based on the Worst Performing of the S&P 500 \u00ae Index, the Russell 2000 \u00ae Index and the Nasdaq-100 Index \u00ae",
+        "underlyings_raw": "the S&P 500 \u00ae Index, the Russell 2000 \u00ae Index and the Nasdaq-100 Index \u00ae",
+        "pricing_date_raw": "November , 2025 (expected to be November 5, 2025) Issue date: November , 2025 (e",
+        "issue_date_raw": "November , 2025 (expected to be November 10, 2025) Interim valuation dates: Expe",
+        "maturity_date_raw": "November , 2028",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": [
+          "0",
+          "0",
+          "0.00",
+          "5",
+          "0",
+          "1",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325007802/dp230583_424b2-us2578259d.htm",
+      "accession": "0000950103-25-007802",
+      "sha256": "e8be56f3e112a78d64c1e17fd33c87381cf09f2c8315334102bb7a4f56604e1f",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Autocallable Phoenix Securities Based on the Worst Performing of the S&P 500 \u00ae Index, the Russell 2000 \u00ae Index and the Nasdaq-100 Index \u00ae",
+        "underlyings_raw": "the S&P 500 \u00ae Index, the Russell 2000 \u00ae Index and the Nasdaq-100 Index \u00ae",
+        "pricing_date_raw": "June , 2025 (expected to be June 25, 2025) Issue date: June , 2025 (expected to",
+        "issue_date_raw": "June , 2025 (expected to be June 30, 2025) Interim valuation dates: Expected to",
+        "maturity_date_raw": "June , 2028",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": [
+          "5",
+          "0",
+          "0.00",
+          "5",
+          "0",
+          "1",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321018411/dp162351_424b2-us2173499.htm",
+      "accession": "0000950103-21-018411",
+      "sha256": "d8c7f2e077bed6b34d53ba247d1b1343791512b35d244ba22440a0cfbbc3b6da",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Autocallable Phoenix Securities Based on the American Depositary Shares of Alibaba Group Holding Limited",
+        "underlyings_raw": null,
+        "pricing_date_raw": "November 22, 2021 Issue date: November 26, 2021 Interim valuation dates: March 4",
+        "issue_date_raw": "November 26, 2021 Interim valuation dates: March 4, 2022, June 3, 2022 and Septe",
+        "maturity_date_raw": "December 7, 2022",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "1",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010321017827/dp161737_424b2-us2172429.htm",
+      "accession": "0000950103-21-017827",
+      "sha256": "d60b4e762c52f1a37799ccc53d962c094c2c3d7aac5346e0b7bc363ea35b6421",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Autocallable Phoenix Securities Based on the Common Stock of PayPal Holdings, Inc",
+        "underlyings_raw": null,
+        "pricing_date_raw": "November 11, 2021 Issue date: November 16, 2021 Interim valuation date: February",
+        "issue_date_raw": "November 16, 2021 Interim valuation date: February 14, 2022, subject to postpone",
+        "maturity_date_raw": "April 18, 2022",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "1",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010322017384/dp182094_424b2-us2205770.htm",
+      "accession": "0000950103-22-017384",
+      "sha256": "e5fb8dc698e8925216d0959a93198bd7fc7eb565668e493a9faf5cfb78eef7eb",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Autocallable Phoenix Securities Based on the S&P 500 \u00ae Index",
+        "underlyings_raw": null,
+        "pricing_date_raw": "October 4, 2022 Issue date: October 6, 2022 Interim valuation dates: December 27",
+        "issue_date_raw": "October 6, 2022 Interim valuation dates: December 27, 2022, March 27, 2023, June",
+        "maturity_date_raw": "October 1, 2024",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": [
+          "5",
+          "5.00",
+          "0",
+          "0",
+          "0",
+          "0",
+          "5",
+          "1"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010326008816/dp248306_424b2-us26m5876d.htm",
+      "accession": "0000950103-26-008816",
+      "sha256": "ab267c2a8631822b5e9e188d208815e1489079402763cec05caea1af3af80172",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Autocallable Phoenix Securities Based on the Invesco QQQ Trust SM , Series 1",
+        "underlyings_raw": null,
+        "pricing_date_raw": "June , 2026 (expected to be June 11, 2026) Issue date: June , 2026 (expected to",
+        "issue_date_raw": "June , 2026 (expected to be June 16, 2026) Interim valuation dates: Expected to",
+        "maturity_date_raw": "June , 2027",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": [
+          "1",
+          "7",
+          "1",
+          "0",
+          "0",
+          "0",
+          "0",
+          "7"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010325015525/dp238187_424b2-us25a1296d.htm",
+      "accession": "0000950103-25-015525",
+      "sha256": "6b92e15f6a855b2742c0c9fe6499834cfca83d7d56454b50bd4bfe1dce06a1da",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Autocallable Phoenix Securities Based on the Invesco QQQ Trust SM , Series 1",
+        "underlyings_raw": null,
+        "pricing_date_raw": "November 26, 2025 Issue date: December 2, 2025 Interim valuation dates: December",
+        "issue_date_raw": "December 2, 2025 Interim valuation dates: December 26, 2025, January 26, 2026, F",
+        "maturity_date_raw": "December 2, 2026",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": [
+          "1",
+          "4",
+          "7",
+          "0",
+          "0",
+          "0",
+          "0",
+          "4"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1000275/000121465914004099/a62143424b2.htm",
+      "accession": "0001214659-14-004099",
+      "sha256": "24c6a14d9eba7ef0111a0395057a7c31a132e1e6a209591ca4a682c8d22f3cda",
+      "extracted_fields": {
+        "issuer": null,
+        "title": "Phoenix Autocallable Notes",
+        "underlyings_raw": null,
+        "pricing_date_raw": null,
+        "issue_date_raw": null,
+        "maturity_date_raw": "June 17, 2015",
+        "coupon_pct_raw": "5",
+        "barrier_pct_candidates": [
+          "5",
+          "0",
+          "5",
+          "0",
+          "5",
+          "1",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1000275/000121465915003352/j428151424b2.htm",
+      "accession": "0001214659-15-003352",
+      "sha256": "5bedc6257465cf1e6081fb0123461cb9f343ef7fd74d70e02020dd1266edba4a",
+      "extracted_fields": {
+        "issuer": null,
+        "title": "Phoenix Autocallable Notes Linked to the Worst Performing of Two Equity Indices,",
+        "underlyings_raw": "Two Equity Indices,",
+        "pricing_date_raw": null,
+        "issue_date_raw": "April 30, 2015 Maturity Date: February 1, 2017 The Notes will not be listed on a",
+        "maturity_date_raw": "February 1, 2017",
+        "coupon_pct_raw": "0",
+        "barrier_pct_candidates": [
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1000275/000114036116047819/form424b2.htm",
+      "accession": "0001140361-16-047819",
+      "sha256": "506046399a91ceb6c33a02586ff409b94b4d5cd6ac286368e92dd036db2b9b64",
+      "extracted_fields": {
+        "issuer": null,
+        "title": "Phoenix Autocallable Notes Linked to the Worst Performing of Two Equity Indices,",
+        "underlyings_raw": "Two Equity Indices,",
+        "pricing_date_raw": null,
+        "issue_date_raw": "January 15, 2016 Maturity Date: January 18, 2023 Coupon Observation Dates: Quart",
+        "maturity_date_raw": "January 18, 2023",
+        "coupon_pct_raw": "2",
+        "barrier_pct_candidates": [
+          "2",
+          "0",
+          "2",
+          "2",
+          "0",
+          "0",
+          "2",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1000275/000121465915002698/l330151424b2.htm",
+      "accession": "0001214659-15-002698",
+      "sha256": "2b092075b8f80d6a7cf9b87bf86aa3062e2f491c3906f32689c9077483271f63",
+      "extracted_fields": {
+        "issuer": null,
+        "title": "Phoenix Autocallable Notes Linked to the Worst Performing of Three Equity Indices,",
+        "underlyings_raw": "Three Equity Indices,",
+        "pricing_date_raw": null,
+        "issue_date_raw": "March 31, 2015 Maturity Date: March 31, 2020 The Notes will not be listed on any",
+        "maturity_date_raw": "March 31, 2020",
+        "coupon_pct_raw": "0",
+        "barrier_pct_candidates": [
+          "0",
+          "5",
+          "0",
+          "5",
+          "5",
+          "0"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324005654/dp210236_424b2-us2484925d.htm",
+      "accession": "0000950103-24-005654",
+      "sha256": "a352ab4ecbc2f5538997d964a8d65f8cd8d8483b4ab53f097a43806c2560ecff",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Callable Phoenix Securities Based on the Worst Performing of the SPDR \u00ae Gold Trust and the SPDR \u00ae S&P 500 \u00ae ETF Trust",
+        "underlyings_raw": "the SPDR \u00ae Gold Trust and the SPDR \u00ae S&P 500 \u00ae ETF Trust",
+        "pricing_date_raw": "April , 2024 (expected to be April 24, 2024) Issue date: April , 2024 (expected",
+        "issue_date_raw": "April , 2024 (expected to be April 29, 2024) Final valuation date: Expected to b",
+        "maturity_date_raw": "April , 2027",
+        "coupon_pct_raw": "0",
+        "barrier_pct_candidates": [
+          "1",
+          "5",
+          "0",
+          "5",
+          "0",
+          "0",
+          "1",
+          "1"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/831001/000095010324005822/dp210370_424b2-us2484925d.htm",
+      "accession": "0000950103-24-005822",
+      "sha256": "64ea35cf3d7fd0af83665d9cf0a582b33c8bac289c2897eb7351cf7f983dd652",
+      "extracted_fields": {
+        "issuer": "Citigroup Global Markets Holdings Inc., a wholly owned subsidiary of Citigroup Inc.",
+        "title": "Callable Phoenix Securities Based on the Worst Performing of the SPDR \u00ae Gold Trust and the SPDR \u00ae S&P 500 \u00ae ETF Trust",
+        "underlyings_raw": "the SPDR \u00ae Gold Trust and the SPDR \u00ae S&P 500 \u00ae ETF Trust",
+        "pricing_date_raw": "April 24, 2024 Issue date: April 29, 2024 Final valuation date: April 26, 2027,",
+        "issue_date_raw": "April 29, 2024 Final valuation date: April 26, 2027, subject to postponement if",
+        "maturity_date_raw": "April 29, 2027",
+        "coupon_pct_raw": "0",
+        "barrier_pct_candidates": [
+          "1",
+          "5",
+          "0",
+          "5",
+          "0",
+          "0",
+          "1",
+          "1"
+        ]
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1114446/000119312515332762/d91807d424b2.htm",
+      "accession": "0001193125-15-332762",
+      "sha256": "5cd673c2d5f8bc32bedd872e3931d69d57a28d8e722aff2fe768cf9556666518",
+      "extracted_fields": {
+        "issuer": "UBS AG (\u201cUBS\u201d or the \u201cissuer\u201d) linked to the performance of the S&P 500 \u00ae Index (the \u201cunderlying ind",
+        "title": "Phoenix Securities linked to the S&P 500 \u00ae Index",
+        "underlyings_raw": null,
+        "pricing_date_raw": null,
+        "issue_date_raw": null,
+        "maturity_date_raw": "September 30, 2025",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": []
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1114446/000119312515417820/d54421d424b2.htm",
+      "accession": "0001193125-15-417820",
+      "sha256": "1c0ddb1430c0e4a088560508d5518683e9010d7cf906dc51dfb258631ee8e953",
+      "extracted_fields": {
+        "issuer": "UBS AG (\u201cUBS\u201d or the \u201cissuer\u201d) linked to the performance of the EURO STOXX 50 \u00ae Index (the \u201cunderlyi",
+        "title": "Phoenix Securities linked to the EURO STOXX 50 \u00ae Index",
+        "underlyings_raw": null,
+        "pricing_date_raw": null,
+        "issue_date_raw": null,
+        "maturity_date_raw": "December 31, 2020",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": []
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1114446/000119312515332664/d60708d424b2.htm",
+      "accession": "0001193125-15-332664",
+      "sha256": "93dade1e75d098a5b743bf649e367b3ddc06b796f0909944018421bd146141c6",
+      "extracted_fields": {
+        "issuer": "UBS AG (\u201cUBS\u201d or the \u201cissuer\u201d) linked to the shares of the iShares \u00ae MSCI \u00ae EAFE ETF (the \u201cunderlyin",
+        "title": "Phoenix Securities linked to the iShares \u00ae MSCI \u00ae EAFE ETF",
+        "underlyings_raw": null,
+        "pricing_date_raw": null,
+        "issue_date_raw": null,
+        "maturity_date_raw": "September 30, 2020",
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": []
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    },
+    {
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1997464/000110465926073332/tm2616472d3_424b2.pdf",
+      "accession": "0001104659-26-073332",
+      "sha256": "b45582aa95c71ccb7be67e735fe4eb402f232a77f901e91938ef64d1faa7a8d6",
+      "extracted_fields": {
+        "issuer": null,
+        "title": null,
+        "underlyings_raw": null,
+        "pricing_date_raw": null,
+        "issue_date_raw": null,
+        "maturity_date_raw": null,
+        "coupon_pct_raw": null,
+        "barrier_pct_candidates": []
+      },
+      "human_status": "pending",
+      "ai_status": "not_a_substitute_for_human"
+    }
+  ],
+  "quality_gate": {
+    "required_agreement": "100% for critical payoff fields in sample",
+    "training_allowed": false,
+    "oos_allowed": false
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

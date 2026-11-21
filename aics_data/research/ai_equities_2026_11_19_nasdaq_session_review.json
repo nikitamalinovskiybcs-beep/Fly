@@ -1,0 +1,174 @@
+{
+  "analysis_date": "2026-11-20",
+  "collection_started_utc": "2026-11-20T04:58:41.591879+00:00",
+  "index_session": "2026-11-19",
+  "source": "Nasdaq Market Activity historical OHLC for regular sessions, viewed after both sessions. ORCL is NYSE-listed.",
+  "universe": "Seven securities in the dated 19 November research roster, also used for the descriptive comparison on 18 November.",
+  "equity_return": "Equal opening notional, close/open minus one. Overnight moves and distributions are excluded.",
+  "index_inputs": "Ten node scores from the November 18 research inputs plus the session breadth on November 19. Only November 19 has a released full index.",
+  "original_vendor_file": "ai_equities_2026_11_19_session.json",
+  "sources": [
+    {
+      "symbol": "NVDA",
+      "url": "https://api.nasdaq.com/api/quote/NVDA/historical?assetclass=stocks&fromdate=2026-11-18&todate=2026-11-19&limit=100",
+      "bytes": 496,
+      "sha256": "e29ab36a0121e225a5dd523fd33cd13ee91045ccd1fcb8c41580b3c7965fcbaf"
+    },
+    {
+      "symbol": "MSFT",
+      "url": "https://api.nasdaq.com/api/quote/MSFT/historical?assetclass=stocks&fromdate=2026-11-18&todate=2026-11-19&limit=100",
+      "bytes": 491,
+      "sha256": "ead17133c55100da63a8c1acf45d7da1e937f25063f93b8643cc89b3c2554891"
+    },
+    {
+      "symbol": "GOOGL",
+      "url": "https://api.nasdaq.com/api/quote/GOOGL/historical?assetclass=stocks&fromdate=2026-11-18&todate=2026-11-19&limit=100",
+      "bytes": 492,
+      "sha256": "a62d111b1074015f82296468822ba59ebe61de35bcbc7e65f850334f6575efd0"
+    },
+    {
+      "symbol": "AMZN",
+      "url": "https://api.nasdaq.com/api/quote/AMZN/historical?assetclass=stocks&fromdate=2026-11-18&todate=2026-11-19&limit=100",
+      "bytes": 491,
+      "sha256": "98e065aceffda87a98fbc96e3cf8372551c3c4308a85bf41951fe4d969712a0f"
+    },
+    {
+      "symbol": "META",
+      "url": "https://api.nasdaq.com/api/quote/META/historical?assetclass=stocks&fromdate=2026-11-18&todate=2026-11-19&limit=100",
+      "bytes": 491,
+      "sha256": "f521f9262c513d1e1fa670273c0015e1daba221017b9f751c4fc61eb4afcf4f7"
+    },
+    {
+      "symbol": "ORCL",
+      "url": "https://api.nasdaq.com/api/quote/ORCL/historical?assetclass=stocks&fromdate=2026-11-18&todate=2026-11-19&limit=100",
+      "bytes": 494,
+      "sha256": "3ce5724fb0e015bff47db0bc44f7fe63d0cffcb19d4b7e680ed9619ac8227810"
+    },
+    {
+      "symbol": "MU",
+      "url": "https://api.nasdaq.com/api/quote/MU/historical?assetclass=stocks&fromdate=2026-11-18&todate=2026-11-19&limit=100",
+      "bytes": 490,
+      "sha256": "96a2acc7f572f31bd4c1e2178785a976374da340549587e3768b7a5cac2567a6"
+    }
+  ],
+  "result": {
+    "equity_basket_sessions": [
+      {
+        "session": "2026-11-18",
+        "decliners": [
+          "GOOGL",
+          "META",
+          "MU",
+          "NVDA",
+          "ORCL"
+        ],
+        "constituents": 7,
+        "equal_weight_open_to_close_pct": "-0.884353"
+      },
+      {
+        "session": "2026-11-19",
+        "decliners": [
+          "AMZN",
+          "GOOGL",
+          "META",
+          "MSFT",
+          "MU",
+          "NVDA",
+          "ORCL"
+        ],
+        "constituents": 7,
+        "equal_weight_open_to_close_pct": "-5.436899"
+      }
+    ],
+    "price_fields_differing_from_first_capture_on_nov_19": {
+      "open": [
+        "NVDA",
+        "GOOGL",
+        "AMZN",
+        "META",
+        "ORCL",
+        "MU"
+      ],
+      "close": [
+        "ORCL"
+      ]
+    },
+    "initial_basket_open_to_close_pct": -5.447379,
+    "raw_point_total": "514.6875",
+    "hot_nodes": 5,
+    "multiplier": "1.3",
+    "points_added_by_multiplier": "154.40625",
+    "research_aics": 669.09,
+    "contributions_at_observed_multiplier": [
+      {
+        "node": "AI Equities",
+        "weight": 100,
+        "score": 100.0,
+        "points": "130.00"
+      },
+      {
+        "node": "UST 30Y",
+        "weight": 125,
+        "score": 78.26,
+        "points": "127.1725"
+      },
+      {
+        "node": "Repo",
+        "weight": 100,
+        "score": 86.96,
+        "points": "113.048"
+      },
+      {
+        "node": "Neoclouds",
+        "weight": 100,
+        "score": 75.78,
+        "points": "98.514"
+      },
+      {
+        "node": "Private Credit",
+        "weight": 150,
+        "score": 33.33,
+        "points": "64.9935"
+      },
+      {
+        "node": "Semiconductors Supply",
+        "weight": 50,
+        "score": 74.4,
+        "points": "48.36"
+      },
+      {
+        "node": "SPV",
+        "weight": 100,
+        "score": 33.95,
+        "points": "44.135"
+      },
+      {
+        "node": "Power/Data Centers",
+        "weight": 50,
+        "score": 37.5,
+        "points": "24.375"
+      },
+      {
+        "node": "Hyperscalers",
+        "weight": 100,
+        "score": 13.09,
+        "points": "17.017"
+      },
+      {
+        "node": "Insurers",
+        "weight": 125,
+        "score": 0.91,
+        "points": "1.47875"
+      },
+      {
+        "node": "AI Demand",
+        "weight": 50,
+        "score": 0,
+        "points": "0.0"
+      }
+    ],
+    "full_index_ytd_change": null,
+    "certified_aics": null
+  },
+  "independently_certified": false
+}

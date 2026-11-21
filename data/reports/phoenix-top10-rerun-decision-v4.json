@@ -1,0 +1,84 @@
+{
+  "proposal_id": "phoenix-top10-rerun-v4",
+  "decision": "RESEARCH",
+  "committee_verdict": "RESEARCH_ONLY",
+  "selected_implementation": [
+    "phoenix-201",
+    "phoenix-202",
+    "phoenix-203",
+    "phoenix-204",
+    "phoenix-213",
+    "phoenix-231",
+    "phoenix-251",
+    "phoenix-261",
+    "phoenix-271",
+    "phoenix-281"
+  ],
+  "implementation_scope": "local research contracts and validation helpers only",
+  "provider_reviews": [
+    {
+      "provider": "mistral",
+      "model": "mistral-small-latest",
+      "status": "completed",
+      "verdict": "reject",
+      "reason": "Promotion gate fails because fixed-24m OOS and provenance remain incomplete."
+    },
+    {
+      "provider": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "status": "completed",
+      "verdict": "revise",
+      "reason": "Further evaluation is required before promotion."
+    },
+    {
+      "provider": "openrouter",
+      "model": "openai/gpt-4o-mini",
+      "status": "completed",
+      "verdict": "research_only",
+      "reason": "Safe for local research only until further committee review."
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen2.5:1.5b",
+      "status": "error",
+      "reason": "review missing a verdict"
+    }
+  ],
+  "implementation_files": [
+    "src/research_improvements.py"
+  ],
+  "changes": [
+    "Detect duplicate observations across providers without silently discarding conflicts.",
+    "Add corporate-action lineage hashes.",
+    "Require fixed-24m term and 6/12/18/24 anchors in walk-forward manifests.",
+    "Add sample size and human-review fields to agent ablation records.",
+    "Add strict committee proposal contract validation.",
+    "Normalize migration checksums deterministically.",
+    "Expand evidence badges to REALIZED/PAPER/HISTORICAL_REPLAY/SIMULATION/ESTIMATED.",
+    "Add source quality records with stale-row and reliability metrics."
+  ],
+  "acceptance_tests": [
+    "All new helpers are deterministic and fail closed on invalid contracts.",
+    "No helper changes production weights, verdicts, or trades.",
+    "Fixed-24m remains mandatory for walk-forward promotion.",
+    "Cross-provider duplicates are reported, not silently treated as independent evidence.",
+    "Evidence badges distinguish realized, paper, replay, simulation, estimated, and missing states."
+  ],
+  "baseline": {
+    "research_helpers": "partial provenance and generic FACT/SIMULATION badge behavior"
+  },
+  "target": {
+    "research_helpers": "explicit evidence classes, duplicate conflicts, lineage, and strict committee contracts"
+  },
+  "observed_metric": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "blockers": [
+    "fixed-24m OOS evidence is still incomplete",
+    "realized-note and dealer-quote evidence remain insufficient for promotion",
+    "human model-risk and compliance review remains required"
+  ],
+  "next_experiment": "Run the helpers against independently sourced market and note records; do not promote outputs."
+}

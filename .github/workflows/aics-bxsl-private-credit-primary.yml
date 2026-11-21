@@ -1,0 +1,74 @@
+name: AICS BXSL primary SEC cost fair nonaccrual verification
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_bxsl_original_nonaccrual.py'
+      - 'tests/test_aics_collect_bxsl_original_nonaccrual.py'
+      - '.github/workflows/aics-bxsl-private-credit-primary.yml'
+permissions:
+  contents: read
+jobs:
+  verify-bxsl-sec-original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: SEC filing and footnote tampering unit tests
+        run: |
+          python -m py_compile scripts/aics_collect_bxsl_original_nonaccrual.py
+          python -m unittest discover -s tests -p 'test_aics_collect_bxsl_original_nonaccrual.py' -v
+      - name: Download original BXSL SEC 8-K index, main report and 99.1 presentation
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_collect_bxsl_original_nonaccrual --as-of 2026-11-19
+      - name: Independently verify all three exact original SEC HTML hashes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from datetime import date,timedelta
+          import hashlib,json,os
+          base=Path('aics_data/research/bxsl_q3_2026_original_sec')
+          r=json.loads((base/'manifest.json').read_text())
+          assert r['issuer']=='BXSL' and r['cik']=='0001736035'
+          assert r['accession']=='0001213900-26-115721'
+          assert r['period_end']=='2026-09-30'
+          assert r['sec_filed_at']=='2026-11-04'
+          assert r['sec_available_at']=='2026-11-18'
+          assert date.fromisoformat(r['sec_available_at'])==date.fromisoformat(r['sec_filed_at'])+timedelta(days=14)
+          assert r['source_cost_nonaccrual_pct']=='2.8'
+          assert r['source_fair_nonaccrual_pct']=='2.1'
+          assert r['cost_denominator']!='' and r['fair_denominator']!=''
+          assert r['original_sec_html_count']==3
+          for key in ['index','filing','exhibit']:
+              sha=r['raw_sec_sha256'][key]
+              raw=(base/(sha+'.html')).read_bytes()
+              assert hashlib.sha256(raw).hexdigest()==sha
+              assert len(raw)==r['original_source_bytes'][key]
+          assert r['visible_after_sec_embargo'] is True
+          assert r['visible_values']==2
+          assert r['historical_live_capture_pit_independently_attested'] is False
+          assert r['independent_24_month_oos'] is False
+          assert r['synthetic_financial_observations']==0
+          assert r['private_credit_node_score'] is None
+          assert r['aics_index'] is None and r['promotion']=='BLOCKED'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as s:
+              print('## BXSL original SEC source: Q3 2026 verified',file=s)
+              print('3 SEC original HTML sources rehashed; BXSL 2.8% non-accrual at cost and 2.1% at fair market value.',file=s)
+              print('SEC filed 2026-11-04; model candidate available 2026-11-18 (+14 calendar days).',file=s)
+              print('Research only; do not aggregate issuer percentages, fabricate history, or certify AICS.',file=s)
+          PY
+      - name: Preserve original BXSL SEC index, 8-K, exhibit and raw SHA receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-bxsl-original-sec-nonaccrual-q3-2026
+          path: aics_data/research/bxsl_q3_2026_original_sec/
+          retention-days: 30
+          if-no-files-found: warn

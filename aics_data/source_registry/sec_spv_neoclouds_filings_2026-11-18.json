@@ -1,0 +1,103 @@
+{
+  "schema_version": "aics-sec-spv-neocloud-candidates-v1",
+  "as_of": "2026-11-18",
+  "policy": {
+    "sec_available_at_rule": "filed_at_plus_14_calendar_days",
+    "future_filing_exclusion": true,
+    "strict_primary_sec_documents": true,
+    "allow_unverified_score_promotion": false,
+    "spv_candidate_is_proven_spv": false,
+    "index_aics": null,
+    "predictive_skill_score": null
+  },
+  "documents": [
+    {
+      "source_id": "NBIS_CITI_6K_20261022",
+      "issuer": "Nebius Group",
+      "cik": "0001513845",
+      "form": "6-K",
+      "accession": "0001104659-26-117978",
+      "filed_at": "2026-10-22",
+      "available_at": "2026-11-05",
+      "period_end": null,
+      "document_url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926117978/tm2628078d1_6k.htm",
+      "candidate_nodes": [
+        "SPV",
+        "Neoclouds"
+      ],
+      "candidate_role": "financing_disclosure_not_confirmed_spv",
+      "source_evidence_url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926117978/"
+    },
+    {
+      "source_id": "NBIS_CITI_EX99_20261022",
+      "issuer": "Nebius Group",
+      "cik": "0001513845",
+      "form": "6-K",
+      "accession": "0001104659-26-117978",
+      "filed_at": "2026-10-22",
+      "available_at": "2026-11-05",
+      "period_end": null,
+      "document_url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926117978/tm2628078d1_ex99-1.htm",
+      "candidate_nodes": [
+        "SPV",
+        "Neoclouds"
+      ],
+      "candidate_role": "financing_announcement_exhibit_not_confirmed_spv",
+      "source_evidence_url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926117978/"
+    },
+    {
+      "source_id": "EQIX_10Q_20261028",
+      "issuer": "Equinix",
+      "cik": "0001101239",
+      "form": "10-Q",
+      "accession": "0001101239-26-000180",
+      "filed_at": "2026-10-28",
+      "available_at": "2026-11-11",
+      "period_end": "2026-09-30",
+      "document_url": "https://www.sec.gov/Archives/edgar/data/1101239/000110123926000180/eqix-20260930.htm",
+      "candidate_nodes": [
+        "SPV"
+      ],
+      "candidate_role": "datacenter_commitments_candidate_not_direct_spv",
+      "source_evidence_url": "https://www.sec.gov/Archives/edgar/data/1101239/000110123926000180/0001101239-26-000180-index.htm"
+    },
+    {
+      "source_id": "APLD_10Q_20261007",
+      "issuer": "Applied Digital",
+      "cik": "0001144879",
+      "form": "10-Q",
+      "accession": "0001144879-26-000059",
+      "filed_at": "2026-10-07",
+      "available_at": "2026-10-21",
+      "period_end": "2026-08-31",
+      "document_url": "https://www.sec.gov/Archives/edgar/data/1144879/000114487926000059/apld-20260831.htm",
+      "candidate_nodes": [
+        "Neoclouds",
+        "SPV"
+      ],
+      "candidate_role": "datacenter_leases_and_debt_candidate_not_direct_spv",
+      "source_evidence_url": "https://www.sec.gov/Archives/edgar/data/1144879/000114487926000059/0001144879-26-000059-index.html"
+    },
+    {
+      "source_id": "CRWV_10Q_20261112",
+      "issuer": "CoreWeave",
+      "cik": "0001769628",
+      "form": "10-Q",
+      "accession": "0001769628-26-000465",
+      "filed_at": "2026-11-12",
+      "available_at": "2026-11-26",
+      "period_end": "2026-09-30",
+      "document_url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000465/crwv-20260930.htm",
+      "candidate_nodes": [
+        "Neoclouds"
+      ],
+      "candidate_role": "neocloud_filing_excluded_until_2026_11_26",
+      "source_evidence_url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000465/0001769628-26-000465-index.htm"
+    }
+  ],
+  "notes": [
+    "SEC accession prefixes may be filing-agent CIKs and need not equal issuer CIK, particularly for 6-K filings.",
+    "Registry contains links to primary sources and filing dates, not independently PIT-verified risk observations.",
+    "No numeric debt, SPV obligation, or AI capacity values are inferred from filenames or submission metadata."
+  ]
+}

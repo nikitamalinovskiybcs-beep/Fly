@@ -1,0 +1,100 @@
+name: AICS ARCC verified SEC available-at panel
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_arcc_verified_asof_panel.py'
+      - 'tests/test_aics_arcc_verified_asof_panel.py'
+      - 'aics_data/research/arcc_q4_sec_corrected_nonaccrual_sources_2026-11-18.json'
+      - '.github/workflows/aics-arcc-verified-asof-panel.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  corrected-original-sec-panel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test exact corrected original February filing and SEC +14-day look-ahead protections
+        run: |
+          python -m py_compile scripts/aics_arcc_verified_asof_panel.py
+          python -m unittest discover -s tests -p 'test_aics_arcc_verified_asof_panel.py' -v
+      - name: Fetch corrected SEC source verification receipt and both real original archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          for id in 14476383379 14476018751 14474764347; do
+            curl --fail --silent --show-error --location --retry 2 --max-time 90 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GH_REPO/actions/artifacts/$id/zip" \
+              -o "$RUNNER_TEMP/$id.zip"
+          done
+      - name: Byte-match corrected timeline and both original SEC archive hashes before calculations
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,zipfile
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP'])
+          durable = json.loads(Path('aics_data/research/arcc_q4_sec_corrected_nonaccrual_sources_2026-11-18.json').read_text())
+          with zipfile.ZipFile(root/'14476383379.zip') as z:
+              files=z.namelist()
+              assert len(files)==1
+              original=z.read(files[0])
+          digest=hashlib.sha256(original).hexdigest()
+          assert digest==durable['reverified_timeline_report_sha256']=='38e6c0bb5ba64ed2edb1a76728cca3e74c455dfc1104e5b66cce2f9def79a5d1'
+          (root/'corrected_original_timeline.json').write_bytes(original)
+          assert hashlib.sha256((root/'14476018751.zip').read_bytes()).hexdigest()==durable['source_archives']['q4']['archive_sha256']
+          assert hashlib.sha256((root/'14474764347.zip').read_bytes()).hexdigest()==durable['source_archives']['q1q3']['archive_sha256']
+          assert durable['confirmed_source_values']==10
+          assert durable['new_verified_2025q4_model_available_at']=='2026-02-18'
+          assert durable['index_aics'] is None and durable['promotion']=='BLOCKED'
+          PY
+      - name: Recalculate eligible ARCC SEC periods from corrected original source timeline
+        run: |
+          python -m scripts.aics_arcc_verified_asof_panel \
+            --verified "$RUNNER_TEMP/corrected_original_timeline.json" \
+            --as-of 2026-11-18
+      - name: Require 10 real reported values, no 2024 backdating or fake model score
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads(Path('docs/audit/aics_arcc_verified_asof_panel_2026-11-19.json').read_text())
+          assert d['schema_version']=='aics-arcc-verified-sec-available-at-research-panel-v2'
+          assert len(d['source_observations'])==5
+          assert d['verified_values_available_by_cutoff']==10
+          assert d['source_observations'][0]['period_end']=='2024-12-31'
+          assert d['source_observations'][0]['available_at']=='2026-02-18'
+          assert d['source_observations'][1]['period_end']=='2025-12-31'
+          assert d['source_observations'][1]['available_at']=='2026-02-18'
+          assert d['source_observations'][-1]['period_end']=='2026-09-30'
+          assert d['source_observations'][-1]['available_at']=='2026-11-10'
+          assert all(x['available_at'] <= d['research_cutoff'] for x in d['source_observations'])
+          assert all(x['score_eligible'] is False for x in d['source_observations'])
+          assert d['retrospective_2024_values_visible_in_2024'] is False
+          assert d['synthetic_financial_observations']==0
+          assert d['SEC_embargo_calendar_days']==14
+          assert d['full_historical_pit_attested'] is False
+          assert d['private_credit_node_score'] is None and d['index_aics'] is None
+          assert d['promotion']=='BLOCKED'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('ARCC corrected source: 5 original periods, 10 verified values.',file=f)
+              print('2025Q4 original SEC filed Feb 4, AICS candidate available Feb 18 (+14 days).',file=f)
+              print('2024 comparative appears in 2026 original; NOT visible in 2024.',file=f)
+              print('Three immutable upstream original archives rehashed; 0/11 AICS nodes certified.',file=f)
+          PY
+      - name: Archive corrected research panel for audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-arcc-corrected-sec-asof-panel-5-periods
+          path: docs/audit/aics_arcc_verified_asof_panel_2026-11-19.json
+          if-no-files-found: error
+          retention-days: 30

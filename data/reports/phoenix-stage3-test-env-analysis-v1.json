@@ -1,0 +1,26 @@
+{
+  "proposal_id": "phoenix-stage3-test-env-v1",
+  "decision": "BLOCKED",
+  "observed": {
+    "full_suite": "567 passed, 3 failed",
+    "failures": [
+      "tests/test_self_learning_agents.py::test_meta_walk_forward_update",
+      "tests/test_storage.py::TestStorageConfig::test_defaults_disabled",
+      "tests/test_storage.py::TestStorageConfig::test_status_report"
+    ]
+  },
+  "root_causes": {
+    "meta_walk_forward_update": "state-dependent rounded weight remains unchanged",
+    "supabase_defaults": "session environment exposes SUPABASE_URL and SUPABASE_KEY, while tests expect clean defaults"
+  },
+  "safe_next_actions": [
+    "Make MetaAgent update behavior deterministic without weakening the assertion",
+    "Run storage tests in a clean environment and isolate secrets from test defaults",
+    "Do not force-disable configured Supabase in application code"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

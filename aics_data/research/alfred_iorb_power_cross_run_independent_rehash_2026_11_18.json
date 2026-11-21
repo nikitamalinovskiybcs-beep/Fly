@@ -1,0 +1,60 @@
+{
+  "schema_version": "aics-alfred-iorb-power-independent-rehash-receipt-v1",
+  "as_of": "2026-11-18",
+  "independent_check": "Downloaded the merged GitHub Actions ZIP and independently SHA-256 rehashed every original JSON against its per-file recorded hash",
+  "merged_workflow_run_id": 44398846009,
+  "merged_artifact_id": 14471917435,
+  "merged_artifact_zip_sha256": "8565519b21979e7d13475d954122fc651d65baa6025a0ef55b9b4b34f83ff627",
+  "merged_manifest_sha256": "0c38278bc99c1eb9fb39a8474eb7eb630e7e22752f3e2446e944fa4fda658b3e",
+  "source_workflow_runs": [
+    {
+      "run_id": 44396812187,
+      "artifact_id": 14470887017,
+      "captured_at_utc": "2026-11-18T21:00:04.351606Z",
+      "originals_in_run": 47,
+      "selected_in_merged": 47
+    },
+    {
+      "run_id": 44397399928,
+      "artifact_id": 14471996734,
+      "captured_at_utc": "2026-11-18T21:03:16.432749Z",
+      "originals_in_run": 43,
+      "selected_in_merged": 1
+    }
+  ],
+  "historical_month_end_asof_window": {
+    "start": "2024-11-30",
+    "end": "2026-10-31",
+    "month_end_snapshots_per_series": 24
+  },
+  "series_ids": [
+    "IORB",
+    "WPU0543"
+  ],
+  "unique_original_raw_json_files": 48,
+  "original_provider_response_observation_rows": 39934,
+  "total_original_json_bytes": 3801858,
+  "all_original_file_sha256_verified": true,
+  "identical_overlap_files_verified_in_merge": 42,
+  "modified_or_synthetic_originals": 0,
+  "source_original_2018_release_vintages_verified": false,
+  "independent_historical_publication_time_pit_verified": false,
+  "untouched_24_month_out_of_sample_verified": false,
+  "research_candidate_nodes": [
+    "Repo",
+    "Power/Data Centers"
+  ],
+  "node_scores": {
+    "Repo": null,
+    "Power/Data Centers": null
+  },
+  "aics_index": null,
+  "aics_promotion": "BLOCKED",
+  "progress_milestones_promoted": 0,
+  "notes": [
+    "Twenty-four ALFRED historical as-of requests per series were fetched on 2026-11-18; not original vintage publication captures from 2024-2026.",
+    "Neither retrieved observation dates nor today-replayed ALFRED snapshots certify exact historical release timestamps.",
+    "The aggregate row count is a file-level count including repeated dates across separate vintage snapshots, not unique economic observations.",
+    "Numerai and NY Fed candidates do not establish audited node scores, independent 24-month OOS or a certified AICS."
+  ]
+}

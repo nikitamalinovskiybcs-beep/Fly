@@ -1,0 +1,47 @@
+{
+  "scope": "Four named issuers, consolidated cash purchases/additions to property and equipment, positive outflow magnitudes. Research comparison only.",
+  "unit": "USD million",
+  "quarter_ends": [
+    "2025-09-30",
+    "2026-09-30"
+  ],
+  "rows": [
+    {
+      "issuer": "Microsoft",
+      "prior": 19394,
+      "current": 39367,
+      "filed_at": "2026-10-28",
+      "available_at": "2026-11-11",
+      "source": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436133/msft-20260930.htm"
+    },
+    {
+      "issuer": "Amazon",
+      "prior": 35095,
+      "current": 77259,
+      "filed_at": "2026-10-30",
+      "available_at": "2026-11-13",
+      "source": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000040/amzn-20260930.htm"
+    },
+    {
+      "issuer": "Alphabet",
+      "prior": 23953,
+      "current": 51355,
+      "filed_at": "2026-10-28",
+      "available_at": "2026-11-11",
+      "source": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm"
+    },
+    {
+      "issuer": "Meta",
+      "prior": 18829,
+      "current": 33942,
+      "filed_at": "2026-10-21",
+      "available_at": "2026-11-04",
+      "source": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026066700/meta-09302026xexhibit991.htm"
+    }
+  ],
+  "prior": 97271,
+  "current": 201923,
+  "change": 104652,
+  "growth_pct": 107.59,
+  "available_at": "2026-11-13"
+}

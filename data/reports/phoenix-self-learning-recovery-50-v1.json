@@ -1,0 +1,21 @@
+{
+  "run_id": "phoenix-self-learning-recovery-50-v1",
+  "summary": {
+    "cycles": 50,
+    "guardian_failures": 0,
+    "degraded": 0,
+    "mean_score": 69.74,
+    "events": 450,
+    "memory": 50,
+    "ready_cycles": 50,
+    "disagreement_exceeds_threshold": 0,
+    "nonzero_signal_delta_cycles": 50
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "evidence_class": "research_fixture_not_market_evidence",
+  "note": "ready status is research fixture only; disagreement metric remains nonzero and no market evidence is created"
+}

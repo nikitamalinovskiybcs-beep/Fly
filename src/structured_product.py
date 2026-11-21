@@ -121,7 +121,9 @@ def score_product(
     Higher is better.
     """
     tox = compute_toxicity(basket)["avg_tox"]
-    p_loss = compute_p_loss(basket, term_months=tenor_months)["p_loss"]
+    base_p_loss = compute_p_loss(basket, term_months=tenor_months)["p_loss"]
+    barrier_scale = (barrier / 0.65) ** 1.5
+    p_loss = min(0.999, base_p_loss * barrier_scale)
     coupon = predict_dealer_coupon(
         basket, term_months=tenor_months, prot_bar=barrier,
     )["predicted_coupon"]

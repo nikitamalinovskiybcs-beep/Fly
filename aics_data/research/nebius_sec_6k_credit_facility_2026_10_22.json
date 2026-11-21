@@ -1,0 +1,56 @@
+{
+  "schema_version": "aics-research-source-terms-v1",
+  "record_id": "NBIS_TERM_LOAN_20261022",
+  "as_of": "2026-11-18",
+  "issuer": "Nebius Group N.V.",
+  "source_type": "SEC_6K_PRIMARY_HTML_MANUALLY_REVIEWED",
+  "source_url": "https://www.sec.gov/Archives/edgar/data/1513845/000110465926117978/tm2628078d1_6k.htm",
+  "source_filing_date": "2026-10-22",
+  "available_at": "2026-11-05",
+  "source_accession": "0001104659-26-117978",
+  "historical_cutoff_rule": "SEC_FILED_PLUS_14_CALENDAR_DAYS",
+  "terms": {
+    "facility_type": "senior_secured_term_loan_bridge",
+    "aggregate_principal_capacity_usd": 3500000000,
+    "amount_currently_drawn_usd": null,
+    "borrowing_reference_rate": "Term SOFR",
+    "initial_margin_basis_points": 275,
+    "step_up_basis_points_per_90_day_period": 25,
+    "max_margin_basis_points": 350,
+    "margin_adjustments_possible": true,
+    "agreement_date": "2026-10-17",
+    "maturity_date": "2027-10-16",
+    "stated_purpose": "GPU infrastructure capacity buildout and general corporate purposes",
+    "collateral_summary": "Substantially all each borrower's assets, subject to exceptions and permitted liens",
+    "covenants": "Minimum liquidity financial covenant and other terms",
+    "borrower_entities": [
+      "Nebius Group N.V.",
+      "Nebius Inc.",
+      "Nebius B.V."
+    ]
+  },
+  "candidate_nodes": [
+    "Neoclouds",
+    "SPV"
+  ],
+  "spv_legal_structure_proven": false,
+  "observed_stress_score_0_100": null,
+  "spv_node_score": null,
+  "neoclouds_node_score": null,
+  "index_aics": null,
+  "model_score": null,
+  "score_eligible": false,
+  "independently_verified_pit": false,
+  "original_source_bytes_archived": false,
+  "raw_source_sha256": null,
+  "source_data_limitations": [
+    "Term sheet values manually transcribed from SEC 6-K filing text; raw HTML SHA-256 not yet captured.",
+    "Facility capacity is an aggregate contractual principal amount and cannot be interpreted as actual outstanding drawn balance.",
+    "Floating-rate benchmark is Term SOFR, not necessarily daily SOFR. No coupon yield is calculated.",
+    "Borrower subsidiaries and asset security do not by themselves establish SPV legal classification or economic stress.",
+    "Terms may be adjusted; contractual step-ups are not market time-series observations.",
+    "Security interest and minimum liquidity covenant are described qualitatively."
+  ],
+  "research_only": true,
+  "trades_created": false
+}

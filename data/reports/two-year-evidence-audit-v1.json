@@ -1,0 +1,35 @@
+{
+  "status": "evidence_audit",
+  "scope": "first research two-year Phoenix evidence audit",
+  "quote_records_total": 895,
+  "quote_records_24m": 107,
+  "quote_source_label": "unknown_not_verified_as_bcs_capital",
+  "quote_outcome_linkage": "missing",
+  "paper_trade_records_total": 23,
+  "paper_trade_records_closed": 11,
+  "paper_trade_records_open": 12,
+  "realized_24m_phoenix_notes": 0,
+  "realized_outcomes_available": false,
+  "proof_status": "insufficient_for_model_validation",
+  "why_not_proof": [
+    "24m quote rows are offers, not settled note outcomes",
+    "dealer identity is not verified as BCS Capital",
+    "paper trades are equity trades, not structured-note payoff records",
+    "no timestamped observation paths linked to note ids"
+  ],
+  "next_required_fields": [
+    "note_id",
+    "dealer",
+    "quote_timestamp",
+    "basket",
+    "barrier",
+    "term_months",
+    "coupon_pa",
+    "observation_path",
+    "outcome_type",
+    "payoff"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

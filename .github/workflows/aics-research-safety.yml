@@ -1,0 +1,281 @@
+name: AICS research safety tests
+on:
+  pull_request:
+    paths:
+      - 'scripts/aics_*.py'
+      - 'scripts/test_aics_index.py'
+      - 'tests/test_aics*.py'
+      - 'aics_data/**'
+      - '.github/workflows/aics-research-safety.yml'
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_*.py'
+      - 'scripts/test_aics_index.py'
+      - 'tests/test_aics_*.py'
+      - 'aics_data/research/**'
+      - 'aics_data/progress/**'
+      - 'aics_data/source_registry/**'
+      - 'docs/aics_*.md'
+      - '.github/workflows/aics-research-safety.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run complete offline AICS regression suite and formula invariants
+        run: |
+          python -m py_compile scripts/aics_*.py tests/test_aics*.py
+          python -m unittest discover -s tests -p 'test_aics*.py'
+          python -m unittest discover -s scripts -p 'test_aics_index.py'
+      - name: Reconcile the frozen OMI and Telegram company universe
+        run: python -m scripts.aics_reconcile_company_universe --out aics_data/source_evidence/omi_telegram_company_reconciliation.json
+      - name: Archive research-only company reconciliation with no numerical AICS
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-37-company-provenance-reconciliation
+          path: aics_data/source_evidence/omi_telegram_company_reconciliation.json
+          retention-days: 30
+          if-no-files-found: error
+      - name: Check independently pinned SEC raw receipt lineage and real candidate arithmetic
+        run: |
+          python -m py_compile scripts/aics_validate_sec_rehash_receipt.py
+          python -m scripts.aics_validate_sec_rehash_receipt
+      - name: Validate real ALFRED macro snapshot receipt and licensed series quarantine
+        run: |
+          python -m py_compile scripts/aics_validate_alfred_macro_rehash.py
+          python -m scripts.aics_validate_alfred_macro_rehash
+      - name: Reconcile original SEC Nscale SPV contract lineage without inventing drawn debt
+        run: |
+          python -m scripts.aics_spv_nscale_contract_gate --out aics_data/source_evidence/spv_nscale_contract_gate_2026-11-19.json
+      - name: Preserve Nscale contract-only research evidence (not PIT or AICS)
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-spv-nscale-original-contract-research-not-pit
+          path: aics_data/source_evidence/spv_nscale_contract_gate_2026-11-19.json
+          retention-days: 30
+          if-no-files-found: error
+  ir-source-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Archive genuine MetLife and Prudential IR pages without API secrets
+        run: >
+          python scripts/aics_collect_priority_ir.py
+          --as-of 2026-11-18
+          --issuer MetLife
+          --issuer "Prudential Financial"
+          --out aics_data/source_evidence/ir_insurers_trial
+      - name: Show exactly which external sources were retrieved
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("aics_data/source_evidence/ir_insurers_trial/manifest.json")
+          print("## AICS Insurers: real official IR source retrieval trial")
+          if not p.exists():
+              print("BLOCKED: No IR source manifest was produced.")
+          else:
+              x=json.loads(p.read_text(encoding="utf-8"))
+              assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+              assert not x["all_reports_historically_pit_verified"]
+              print(f"Original IR earnings pages archived: {x['archived_candidates']}/{x['candidate_count']}")
+              print(f"Official landing pages archived: {x['landing_pages_archived']}/{x['landing_pages_checked']}")
+              for row in x["candidates"]+x["landing_pages"]:
+                  print(f"- {row['issuer']}: {row['status']} {row.get('sha256','no-hash')}")
+              print("Current HTML archival is not historical-PIT verification or certified Insurers stress.")
+          PY
+      - name: Preserve original HTML bytes, SHA256 and receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-met-pru-ir-live-research
+          path: aics_data/source_evidence/ir_insurers_trial/
+          retention-days: 30
+          if-no-files-found: warn
+  ir-neocloud-spv-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Archive real CoreWeave, Nebius and Equinix official IR originals
+        run: >
+          python scripts/aics_collect_priority_ir.py
+          --as-of 2026-11-18
+          --issuer CoreWeave
+          --issuer "Nebius Group"
+          --issuer Equinix
+          --out aics_data/source_evidence/ir_neocloud_spv_trial
+      - name: Report live Neocloud/SPV research retrieval counts
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("aics_data/source_evidence/ir_neocloud_spv_trial/manifest.json")
+          print("## CoreWeave Nebius Equinix official IR source bytes")
+          if not p.exists():
+              print("BLOCKED: no manifest produced, see source collection logs.")
+          else:
+              x=json.loads(p.read_text(encoding='utf-8'))
+              assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+              assert not x["all_reports_historically_pit_verified"]
+              print(f"Raw original IR reports: {x['archived_candidates']}/{x['candidate_count']}")
+              print(f"Official IR indexes: {x['landing_pages_archived']}/{x['landing_pages_checked']}")
+              for r in x["candidates"]+x["landing_pages"]:
+                  print(f"- {r['issuer']}: {r['status']} {r.get('sha256','no-hash')}")
+              print("These are raw source archives only, not proven SPV risks or PIT scores.")
+          PY
+      - name: Preserve Neocloud/SPV raw HTML and SHA256 manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-neocloud-spv-ir-live-research
+          path: aics_data/source_evidence/ir_neocloud_spv_trial/
+          retention-days: 30
+          if-no-files-found: warn
+  ir-hyperscaler-semiconductors-demand-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Archive genuine hyperscaler, semiconductor and cloud-demand IR releases
+        run: >
+          python scripts/aics_collect_priority_ir.py
+          --as-of 2026-11-18
+          --issuer Microsoft
+          --issuer Alphabet
+          --issuer Amazon
+          --issuer Meta
+          --issuer NVIDIA
+          --issuer Micron
+          --issuer Oracle
+          --out aics_data/source_evidence/ir_hyperscaler_semis_demand_trial
+      - name: Publish exact source provenance, failures and no-score gate
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("aics_data/source_evidence/ir_hyperscaler_semis_demand_trial/manifest.json")
+          print("## AICS Hyperscalers / Semiconductors / AI Demand IR originals")
+          if not p.exists():
+              print("BLOCKED: source capture emitted no original source manifest.")
+          else:
+              x=json.loads(p.read_text(encoding="utf-8"))
+              assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+              assert not x["all_reports_historically_pit_verified"]
+              print(f"Original IR releases: {x['archived_candidates']}/{x['candidate_count']}")
+              print(f"Official landing pages: {x['landing_pages_archived']}/{x['landing_pages_checked']}")
+              for row in x["candidates"]+x["landing_pages"]:
+                  print(f"- {row['issuer']}: {row['status']} {row.get('sha256','no-hash')}")
+              print("No issuer release is a certified historical SEC vintage or independently validated 0-100 node score.")
+          PY
+      - name: Preserve original source bytes SHA256 and manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-hyperscaler-semiconductors-demand-ir-research
+          path: aics_data/source_evidence/ir_hyperscaler_semis_demand_trial/
+          retention-days: 30
+          if-no-files-found: warn
+  ir-power-datacenters-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Archive Applied Digital and Equinix official IR capacity evidence
+        run: >
+          python scripts/aics_collect_priority_ir.py
+          --as-of 2026-11-18
+          --issuer "Applied Digital"
+          --issuer Equinix
+          --out aics_data/source_evidence/ir_power_datacenters_trial
+      - name: Show source capture and no-calibration limitations
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("aics_data/source_evidence/ir_power_datacenters_trial/manifest.json")
+          print("## AICS Power/Data Centers IR primary evidence")
+          if not p.exists():
+              print("No genuine source manifest. Capture did not complete.")
+          else:
+              x=json.loads(p.read_text(encoding="utf-8"))
+              assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+              assert not x["all_reports_historically_pit_verified"]
+              print(f"Original earnings pages: {x['archived_candidates']}/{x['candidate_count']}")
+              print(f"Official IR index pages: {x['landing_pages_archived']}/{x['landing_pages_checked']}")
+              for item in x["candidates"]+x["landing_pages"]:
+                  print(f"- {item['issuer']}: {item['status']} {item.get('sha256','no-hash')}")
+              print("No data-center-specific EIA vintages, regional grid connection data or 0-100 score validated.")
+          PY
+      - name: Preserve Power/Data Centers original source HTML and SHA256
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-power-datacenters-ir-source-evidence
+          path: aics_data/source_evidence/ir_power_datacenters_trial/
+          retention-days: 30
+          if-no-files-found: warn
+  omi-publisher-pdf-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Archive genuine publisher-hosted AI risk policy PDF and SHA256
+        run: python scripts/aics_archive_omi_policy_pdf.py --output aics_data/source_evidence/omi_brace_impact_pdf
+      - name: Show byte-level status and secondary-source quarantine
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path('aics_data/source_evidence/omi_brace_impact_pdf/receipt.json')
+          print('## OMI Brace for Impact October 2026 PDF provenance')
+          if not p.exists():
+              print('No source receipt; download failed before verification')
+          else:
+              r=json.loads(p.read_text())
+              assert r['promotion']=='BLOCKED'
+              assert r['index_aics'] is None
+              assert not r['original_primary_financial_claims_verified']
+              print(f"Original full policy PDF downloaded: {r['archive_count']}")
+              for x in r['source_candidates']:
+                  print(f"- {x['requested_url']}: {x['status']} {x.get('source_sha256','no-hash')}")
+              print('This is a *secondary* policy paper. None of its numeric claims are authenticated as primary-source market data.')
+          PY
+      - name: Preserve original PDF bytes, URL, and SHA256
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-omi-policy-paper-source-pdf-research-only
+          path: aics_data/source_evidence/omi_brace_impact_pdf/
+          retention-days: 30
+          if-no-files-found: warn
