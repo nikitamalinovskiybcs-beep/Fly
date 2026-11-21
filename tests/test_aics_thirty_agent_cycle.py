@@ -76,7 +76,8 @@ class ThirtyAgentCycleTests(unittest.TestCase):
         self.assertEqual(report["cycle_decision"],
                          "RESEARCH_ONLY_NOT_AUTONOMOUS_PRODUCTION")
         tasks={x["experiment"] for x in report["next_experiments"]}
-        self.assertIn("2026_Q1_4_ISSUER_CASHFLOW_GAP",tasks)
+        self.assertNotIn("2026_Q1_4_ISSUER_CASHFLOW_GAP",tasks)
+        self.assertTrue(report["model_improvement"]["2026_q1_4issuer_cashflow_complete"])
         self.assertIn("ORIGINAL_SEC_NUMERIC_SOURCE_TO_NODE",tasks)
         self.assertIn("AI_EQUITIES_HISTORICAL_CONSTITUENTS",tasks)
         self.assertIn("SPV_CREDIT_RECOURSE_NETWORK",tasks)
