@@ -2,7 +2,7 @@
 import copy
 import unittest
 
-from scripts.aics_fed_g17_first_release_monthly import INPUT, read
+from scripts.aics_fed_g17_first_release_monthly import INPUT, INITIAL, read, initial_publication
 import json
 
 class FedG17FirstReleaseTest(unittest.TestCase):
@@ -19,6 +19,31 @@ class FedG17FirstReleaseTest(unittest.TestCase):
         self.assertEqual(events[-1]["observation_month"],"2026-10")
         self.assertEqual(events[-1]["score"],"74.40")
         self.assertTrue(all(x["historically_pit_certified"] is False for x in events))
+
+
+    def test_oct_2024_fed_original_first_available_nov_15(self):
+        original=json.loads(INITIAL.read_text(encoding="utf-8"))
+        event=initial_publication(original)
+        self.assertEqual(event["observation_month"],"2024-10")
+        self.assertEqual(event["available_at"],"2024-11-15")
+        self.assertEqual(event["score"],"78.70")
+        self.assertFalse(event["historically_pit_certified"])
+        self.assertTrue(event["observation_first_published"])
+
+    def test_oct_2024_release_not_eligible_before_actual_date(self):
+        original=json.loads(INITIAL.read_text(encoding="utf-8"))
+        for key,badval in (
+            ("available_at","2024-10-31"),
+            ("official_release_date","2024-10-15"),
+            ("score","78.80"),
+            ("independent_original_source_bytes_rehashed",True),
+            ("source_original_bytes_sha256","0"*64),
+            ("certified_aics",39.35),
+        ):
+            bad=copy.deepcopy(original)
+            bad[key]=badval
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError,"date gate"):
+                initial_publication(bad)
 
     def test_shutdown_values_released_in_december_not_earlier(self):
         events={x["observation_month"]:x for x in read(self.data)}
