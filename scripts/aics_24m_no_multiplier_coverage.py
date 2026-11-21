@@ -19,6 +19,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 from scripts.aics_score_reproducibility_gate import WEIGHTS
+from scripts.aics_neocloud_2025_sec_quarters import calculate as neocloud_2025_original_sec
 
 ROOT = Path("aics_data/research")
 SP500 = ROOT / "sp500_24_month_closes_2026-11-21.json"
@@ -98,6 +99,15 @@ def candidates():
             "independently_attested_historical_pit": False,
             "independently_24month_oos_verified": False
         })
+
+    # Three actual contemporaneous 2025 original-SEC reporting quarters:
+    # Q1 group perimeter differs from later continuing operations, and
+    # historical provider delivery has not been independently PIT-attested.
+    for old in neocloud_2025_original_sec():
+        add("Neoclouds", old["available_at"], old["score"],
+            ROOT / "neoclouds_2025_q1_q3_sec_cashflow_research_2026-11-21.json",
+            old["period"] + " original 2025 SEC two-issuer cash-funding gap",
+            old["scope_warning"])
 
     neo_path = ROOT / "neocloud_cash_coverage_2026_h1.json"
     neo = load(neo_path)
