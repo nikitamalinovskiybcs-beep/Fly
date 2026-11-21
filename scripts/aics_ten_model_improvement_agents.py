@@ -19,6 +19,10 @@ from pathlib import Path
 from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_sec_quarter_cashflow_gate import audit as audit_cashflow
 from scripts.aics_historical_crisis_analog import build as historical_crisis_analog
+from scripts.aics_spv_funding_transmission_bridge import (
+    build as spv_bridge_build, CORE as SPV_CORE, CLOUD as SPV_CLOUD,
+    NSCALE as SPV_NSCALE, DFS as SPV_DFS,
+)
 from scripts.aics_early_imbalance_cashflow_shadow import (
     build as early_imbalance_build,
     Y2025 as EARLY_CASH_2025,
@@ -374,6 +378,35 @@ def run(*, v17, v18, spx, shadow, finance=None, waves=None, as_of=None):
             or imbalance["similarity_to_2008_pct"] is not None
             or imbalance["primary_source_document_bytes_independently_historical_pit_attested"] is not False):
         raise ValueError("Precrisis cash imbalance improperly promoted")
+    bridge = spv_bridge_build(
+        read(SPV_CORE), read(SPV_CLOUD), read(SPV_NSCALE),
+        read(SPV_DFS), imbalance=imbalance, as_of=as_of)
+    if (bridge["full_11node_aics"] is not None
+            or bridge["verified_2008_funding_contagion_matrix"] is not None
+            or bridge["forecast_crisis_probability"] is not None
+            or bridge["weights_total_unchanged"] != 1050
+            or bridge["trades_created"] is not False):
+        raise ValueError("Original SPV borrowing and economic cashflow cannot promote a crisis probability")
+    payloads[2]["verified_instrument_balance_edges_not_named_lender_exposure"] = (
+        bridge["proven_same_date_coreweave_facility_balance_edges"])
+    payloads[2]["named_lender_current_exposure_edges"] = bridge["named_lender_to_borrower_current_exposure_edges"]
+    payloads[2]["legal_recourse_and_dfs_rent_ledgers_only"] = (
+        bridge["coreweave"] is not None and bridge["nscale"] is not None)
+    payloads[8]["spv_recourse_and_buildout_research"] = {
+        "coreweave_reported_spv_debt_usd_m":
+            bridge["coreweave"]["separate_facility_reported_debt_sum_usd_m"] if bridge["coreweave"] else None,
+        "coreweave_separate_facility_ceiling_usd_m":
+            bridge["coreweave"]["separate_facility_ceiling_sum_usd_m"] if bridge["coreweave"] else None,
+        "nscale_combined_ward_nc_gpu_contractual_ceiling_usd_m":
+            bridge["nscale"]["combined_two_gpu_ceiling_usd_m"] if bridge["nscale"] else None,
+        "nscale_lease_initial_rent_usd_m_not_drawn_debt":
+            bridge["nscale"]["dell_initial_term_rent_usd_m_includes_financing_charges"] if bridge["nscale"] else None,
+        "nscale_gpu_drawn_total_usd_m": None,
+        "parent_enforceable_guarantee_total_usd_m": None,
+        "named_lender_exposure_edges_verified": 0,
+        "2008_funding_contagion_probability": None,
+        "source_research_only": True,
+    }
     payloads[8]["early_cash_imbalance_research"] = {
         "source_periods": [
             {"period":q["period"],"issuer_count":q["issuer_count"],
