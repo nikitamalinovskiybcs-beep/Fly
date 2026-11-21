@@ -221,8 +221,22 @@ def collect(*, out=Path("aics_data/agent_runs"), now=None, contact=None,
                                 raw_path=str(saved), **evidence)
                 except (HTTPError, URLError, TimeoutError, ValueError, KeyError,
                         TypeError, OSError, UnicodeError) as exc:
+                    # Restricted diagnostic vocabulary, never log API keys/URLs.
+                    known_errors = {
+                        "Unexpected source redirect": "unapproved_http_redirect",
+                        "SEC CIK mismatches original source": "sec_cik_mismatch",
+                        "No SEC recent filing metadata": "sec_recent_missing",
+                        "SEC filing arrays missing": "sec_fields_missing",
+                        "SEC metadata columns mismatch": "sec_field_lengths",
+                        "Empty or oversized source response": "empty_or_oversized",
+                        "Original FRED observation list missing": "fred_observations_missing",
+                        "EIA metadata response missing": "eia_catalog_structure",
+                        "Invalid original source bytes": "invalid_response_bytes",
+                    }
                     item.update(status="blocked_source_fetch_or_validation",
-                                error_class=type(exc).__name__)
+                                error_class=type(exc).__name__,
+                                error_code=(f"http_{exc.code}" if isinstance(exc, HTTPError)
+                                            else known_errors.get(str(exc), "other_validation_error")))
             reused[source_id] = item
     agents = []
     for node, source_ids in NODE_TASKS.items():
