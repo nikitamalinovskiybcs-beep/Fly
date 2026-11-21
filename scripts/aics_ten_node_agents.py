@@ -122,7 +122,11 @@ def validate_original(spec, raw, *, at):
     if not isinstance(obj, dict):
         raise ValueError("Expected original publisher JSON object")
     if kind == "sec_submissions_current":
-        if str(obj.get("cik")) != str(int(spec["cik"])):
+        # SEC submission JSON may publish the CIK as a zero-padded string,
+        # whereas other endpoints return a JSON integer. Identity is numeric.
+        cik = obj.get("cik")
+        if (isinstance(cik, bool) or not isinstance(cik, (int, str))
+                or not str(cik).isdigit() or int(cik) != int(spec["cik"])):
             raise ValueError("SEC CIK mismatches original source")
         recent = obj.get("filings", {}).get("recent", {})
         if not isinstance(recent, dict):
