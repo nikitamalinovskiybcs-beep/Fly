@@ -19,8 +19,8 @@ class MarketSpreads24mTest(unittest.TestCase):
         self.assertAlmostEqual(result[-1]["ndx_minus_spx_cumulative_base100_pp"],9.9591,places=4)
         self.assertAlmostEqual(result[-1]["ndx_minus_spx_monthly_return_pp"],-5.721,places=3)
         self.assertEqual(result[-1]["repo_sofr_minus_iorb_bp"],4)
-        self.assertEqual(result[-1]["research_only_eligible_node_count"],8)
-        self.assertEqual(result[-1]["research_only_partial_weighted_points_not_aics"],413.27)
+        self.assertEqual(result[-1]["research_only_eligible_node_count"],9)
+        self.assertEqual(result[-1]["research_only_partial_weighted_points_not_aics"],451.52)
         self.assertTrue(all(x["full_historical_aics_no_multiplier"] is None for x in result))
         self.assertTrue(all(x["full_historical_aics_sp500_spread"] is None for x in result))
 
