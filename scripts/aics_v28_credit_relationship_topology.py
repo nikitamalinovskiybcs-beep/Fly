@@ -249,20 +249,25 @@ def build(*, bridge, ward, nc_contract, kvandal, nebius, as_of):
     }
 
 
+def from_originals(bridge, *, as_of):
+    """Reconcile pinned original source receipts without new network requests."""
+    registry_bytes=REGISTRY.read_bytes()
+    gate=nc_audit(json.loads(registry_bytes),read(OBSERVED),registry_bytes)
+    return build(bridge=bridge,ward=read(WARD),nc_contract=gate,
+                 kvandal=read(KVANDAL),nebius=read(NEBIUS),as_of=as_of)
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("--out",type=Path,default=OUT)
     p.add_argument("--as-of",default=dt.datetime.now(dt.timezone.utc).date().isoformat())
     a=p.parse_args()
     asof=dt.date.fromisoformat(a.as_of)
-    registry_bytes=REGISTRY.read_bytes()
-    gate=nc_audit(json.loads(registry_bytes),read(OBSERVED),registry_bytes)
     cash=build_imbalance(read(Y2025),read(Q42025),read(Q22026),read(Q32026),
                          q1=read(Q12026),as_of=asof)
     spv=build_spv(read(CORE),read(CLOUD),read(NSCALE),read(DFS),
                   imbalance=cash,as_of=asof)
-    report=build(bridge=spv,ward=read(WARD),nc_contract=gate,
-                 kvandal=read(KVANDAL),nebius=read(NEBIUS),as_of=asof)
+    report=from_originals(spv,as_of=asof)
     report["input_file_sha256"]={
         str(path):hashlib.sha256(path.read_bytes()).hexdigest()
         for path in (WARD,KVANDAL,NEBIUS,REGISTRY,OBSERVED,CORE,CLOUD,NSCALE,DFS)
