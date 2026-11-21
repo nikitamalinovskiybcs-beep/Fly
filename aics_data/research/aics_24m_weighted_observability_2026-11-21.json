@@ -6,15 +6,14 @@
   "months_with_at_least_one_research_node": 24,
   "months_with_full_eleven_node_aics": 0,
   "months_with_historical_aics_sp500_spread": 0,
-  "sum_known_weight_months": 7925,
+  "sum_known_weight_months": 8075,
   "sum_total_possible_weight_months": 25200,
-  "average_known_weight_pct_not_pit": "31.45",
+  "average_known_weight_pct_not_pit": "32.04",
   "first_month_known_weight_pct_not_pit": "16.67",
   "last_month_known_weight_pct_not_pit": "90.48",
   "months_by_known_research_node_count": {
     "2": 7,
-    "3": 3,
-    "4": 11,
+    "4": 14,
     "7": 2,
     "10": 1
   },
@@ -175,13 +174,12 @@
     },
     {
       "month": "2025-06",
-      "known_research_nodes": 3,
-      "known_research_node_weight": 275,
+      "known_research_nodes": 4,
+      "known_research_node_weight": 325,
       "total_possible_node_weight": 1050,
-      "source_eligible_weight_pct_not_pit": "26.19",
-      "unobserved_node_weight": 775,
+      "source_eligible_weight_pct_not_pit": "30.95",
+      "unobserved_node_weight": 725,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -196,13 +194,12 @@
     },
     {
       "month": "2025-07",
-      "known_research_nodes": 3,
-      "known_research_node_weight": 275,
+      "known_research_nodes": 4,
+      "known_research_node_weight": 325,
       "total_possible_node_weight": 1050,
-      "source_eligible_weight_pct_not_pit": "26.19",
-      "unobserved_node_weight": 775,
+      "source_eligible_weight_pct_not_pit": "30.95",
+      "unobserved_node_weight": 725,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -217,13 +214,12 @@
     },
     {
       "month": "2025-08",
-      "known_research_nodes": 3,
-      "known_research_node_weight": 275,
+      "known_research_nodes": 4,
+      "known_research_node_weight": 325,
       "total_possible_node_weight": 1050,
-      "source_eligible_weight_pct_not_pit": "26.19",
-      "unobserved_node_weight": 775,
+      "source_eligible_weight_pct_not_pit": "30.95",
+      "unobserved_node_weight": 725,
       "missing_nodes": [
-        "AI Demand",
         "AI Equities",
         "Hyperscalers",
         "Power/Data Centers",
@@ -508,5 +504,5 @@
   "independent_historical_pit_verified": false,
   "production_index": null,
   "trades_created": false,
-  "explanation": "Weight availability is data-completeness only. It does not attest timestamped source delivery, prediction, calibration, market timing, or a real AICS index."
+  "explanation": "Weight availability is data-completeness only. It does not attest timestamped source delivery, prediction, calibration, market timing, or a real AICS index. First 2025 Q2 AI Demand original SEC actual strictly over prior guidance provides 0/100 already from 2025-06-19; extra 50 known weight each June-Aug 2025. No exact revenue claimed."
 }
