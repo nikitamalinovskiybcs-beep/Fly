@@ -87,6 +87,21 @@ class AicsTenNodeCollectorTest(unittest.TestCase):
             self.assertEqual(manifest["agent_count"], 10)
             self.assertNotIn("PRIVATE_TEST_KEY", (Path(tmp) / "manifest.json").read_text())
 
+    def test_sec_real_world_zero_padded_string_cik_is_same_identity(self):
+        spec = sources(NOW, fred_api_key="x")["SEC_ARCC"]
+        original = {
+            "cik": "0001287750",
+            "filings": {"recent": {
+                "form": ["10-Q"], "filingDate": ["2026-11-20"],
+                "accessionNumber": ["0001287750-26-000001"]
+            }},
+        }
+        parsed = validate_original(spec, json.dumps(original).encode(), at=NOW)
+        self.assertEqual(parsed["reported_recent_filing_rows"], 1)
+        original["cik"] = "0001287751"
+        with self.assertRaises(ValueError):
+            validate_original(spec, json.dumps(original).encode(), at=NOW)
+
     def test_missing_credentials_block_sec_and_fred_without_silent_success(self):
         with tempfile.TemporaryDirectory() as tmp:
             x = collect(out=Path(tmp), now=NOW, live=True, transport=fake_primary,
