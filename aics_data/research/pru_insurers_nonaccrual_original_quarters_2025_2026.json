@@ -4,11 +4,51 @@
   "node": "Insurers",
   "node_weight": 125,
   "issuer_count": 1,
-  "periods": 7,
-  "period_coverage": "2025-Q1 through 2026-Q3, including original 2025-Q4 annual 10-K after SEC+14",
+  "periods": 9,
+  "period_coverage": "2024-Q3 through 2026-Q3, nine original SEC quarters 10-Q/10-K with 14 calendar day embargo",
   "source_type": "Issuer-hosted original SEC 10-Q current observation, original named footnote plus net loans balance table",
   "score_formula": "100 * same-quarter non-accrual loans with no related ACL / same-quarter total commercial mortgage and other loans net, percentages with half-up 0.01",
   "events": [
+    {
+      "quarter": "2024-Q3",
+      "period_end": "2024-09-30",
+      "filed_at": "2024-10-31",
+      "available_at": "2024-11-14",
+      "accession": "0001137774-24-000247",
+      "issuer": "Prudential Financial, Inc.",
+      "cik": "1137774",
+      "form": "10-Q",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1137774/000113777424000247/pru-20240930.htm",
+      "source_index": "https://www.sec.gov/Archives/edgar/data/1137774/000113777424000247/0001137774-24-000247-index.htm",
+      "source_raw_sha256": null,
+      "original_provider_delivery_pit_attested": false,
+      "metric_name": "Loans on non-accrual status that did not have a related allowance for credit losses / same filing narrow commercial mortgage and other loans net portfolio",
+      "nonaccrual_no_related_acl_usd_m": 138,
+      "commercial_mortgage_and_other_loans_net_usd_m": 53500,
+      "score_pct": "0.26",
+      "denominator_table": "Original 2024 Q3 10-Q Commercial Mortgage and Other Loans — Investment Mix, not 62,573 consolidated net loans",
+      "source_retrieved_retroactively_on": "2026-11-21"
+    },
+    {
+      "quarter": "2024-Q4",
+      "period_end": "2024-12-31",
+      "filed_at": "2025-02-13",
+      "available_at": "2025-02-27",
+      "accession": "0001137774-25-000044",
+      "issuer": "Prudential Financial, Inc.",
+      "cik": "1137774",
+      "form": "10-K",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1137774/000113777425000044/pru-20241231.htm",
+      "source_index": "https://www.sec.gov/Archives/edgar/data/1137774/000113777425000044/0001137774-25-000044-index.htm",
+      "source_raw_sha256": null,
+      "original_provider_delivery_pit_attested": false,
+      "metric_name": "Loans on non-accrual status that did not have a related allowance for credit losses / same filing narrow commercial mortgage and other loans net portfolio",
+      "nonaccrual_no_related_acl_usd_m": 207,
+      "commercial_mortgage_and_other_loans_net_usd_m": 53987,
+      "score_pct": "0.38",
+      "denominator_table": "Original 2024 10-K Commercial Mortgage and Other Loans — Investment Mix, not larger consolidated balance-sheet total",
+      "source_retrieved_retroactively_on": "2026-11-21"
+    },
     {
       "quarter": "2025-Q1",
       "period_end": "2025-03-31",
@@ -134,7 +174,7 @@
       "source_original_denominator_reconciliation_date": "2026-11-21"
     }
   ],
-  "comparability": "Same exact nonaccrual-without-ACL numerator and narrow credit-investment portfolio NET denominator; excludes differently scoped consolidated headline balances (2025-12-31 headline 64,715 vs portfolio table 56,195; 2026-09-30 headline 67,004 vs portfolio table 58,685). 2026Q3 prior 0.91 was incorrect scope and replaced by 1.04. Does not measure entire insurer or AI-specific credit exposure.",
+  "comparability": "Same exact nonaccrual-without-ACL numerator and narrow credit-investment portfolio NET denominator; excludes differently scoped consolidated headline balances (2025-12-31 headline 64,715 vs portfolio table 56,195; 2026-09-30 headline 67,004 vs portfolio table 58,685). 2026Q3 prior 0.91 was incorrect scope and replaced by 1.04. Does not measure entire insurer or AI-specific credit exposure. The two original 2024 filed-and-dated SEC documents establish a research-only issuer loan proxy starting 2024-11-14 (2024-Q3 138/53,500=0.26) and 2025-02-27 (2024-Q4 207/53,987=0.38). No copying December 2024 fact from later 2025 filings.",
   "lookahead": "SEC filed_at +14 calendar days. No annualized interpolation, no cross-issuer denominator substitution.",
   "raw_original_bytes_independently_rehashed": false,
   "independently_historically_contemporaneous_pit_certified": false,
@@ -151,5 +191,6 @@
     "corrected_score_pct": "1.04",
     "changed_only_from_original_filing_eligible_at": "2026-11-18",
     "upstream_research_shadow_must_be_reconciled": true
-  }
+  },
+  "earliest_original_insurer_proxy_available_at": "2024-11-14"
 }
