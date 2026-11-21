@@ -161,11 +161,30 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "completion_evidence": "Contemporaneous 2024-2026 constituent roster, splits, dividends, original quotes and availability timestamps",
             "decision": "RESEARCH",
         })
+    spv_research = imp[8]["research_result"]["spv_recourse_and_buildout_research"]
+    credit_research = imp[2]["research_result"]
+    if (
+        credit_research["verified_instrument_balance_edges_not_named_lender_exposure"] != 2
+        or credit_research["named_lender_current_exposure_edges"] != 0
+        or spv_research["coreweave_reported_spv_debt_usd_m"] != 3938
+        or spv_research["coreweave_separate_facility_ceiling_usd_m"] != 11600
+        or spv_research["nscale_combined_ward_nc_gpu_contractual_ceiling_usd_m"] != 3050
+        or spv_research["nscale_lease_initial_rent_usd_m_not_drawn_debt"] != 2540
+        or spv_research["nscale_gpu_drawn_total_usd_m"] is not None
+        or spv_research["parent_enforceable_guarantee_total_usd_m"] is not None
+        or spv_research["named_lender_exposure_edges_verified"] != 0
+        or spv_research["2008_funding_contagion_probability"] is not None
+        or spv_research["source_research_only"] is not True
+    ):
+        raise ValueError("SPV original-data bridge cannot be confused with lender exposures")
     if imp[2]["research_result"]["source_level_credit_exposure_edges_verified"] == 0:
         experiments.append({
             "priority": len(experiments) + 1,
             "experiment": "SPV_CREDIT_RECOURSE_NETWORK",
-            "completion_evidence": "Original lender-to-borrower exposure, dates, recourse and guarantees without adding commitments to balances",
+            "documented_named_spv_facility_balances": 2,
+            "coreweave_same_date_reported_debt_usd_m": 3938,
+            "named_current_lender_borrower_exposure_edges": 0,
+            "completion_evidence": "Original named lender-to-borrower outstanding exposure, dates, recourse and enforceable guarantees; never add commitments, lease rents or consolidated balances",
             "decision": "RESEARCH",
         })
     if imp[7]["research_result"]["independent_out_of_sample_months"] == 0:
@@ -217,6 +236,11 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "historical_2000_2008_similarity_percent": None,
             "2026_q1_4issuer_cashflow_complete": q1_complete,
             "credit_exposure_edges_verified": 0,
+            "same_date_named_spv_borrower_facility_balance_edges": 2,
+            "coreweave_same_date_reported_debt_usd_m": 3938,
+            "nscale_ward_nc_gpu_drawn_balance_usd_m": None,
+            "spv_parent_enforceable_guarantee_total_usd_m": None,
+            "cross_issuer_causal_funding_transmission_established": False,
             "approved_ai_equities_history_points": 0,
             "untouched_oos_months": 0,
             "new_predictive_skill": None,
