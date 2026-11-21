@@ -271,7 +271,7 @@ def build():
             "missing_nodes": sorted(NAMES - set(score_nodes)),
             "new_node_events_in_month": fresh,
             "latest_eligible_research_scores": score_nodes,
-            "partial_known_weighted_points_not_aics": str(partial.quantize(Q)) if count else None,
+            "partial_known_weighted_points_not_aics": str(partial.quantize(Q, rounding=ROUND_HALF_UP)) if count else None,
             "full_11_node_aics_no_multiplier": None,
             "aics_sp500_normalized_spread": None,
             "independent_historical_pit_confirmed": False,
