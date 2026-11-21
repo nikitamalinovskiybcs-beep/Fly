@@ -1,0 +1,3012 @@
+{
+  "schema": "aics-24m-multi-node-first-public-date-research-overlay-v1",
+  "window": [
+    "2024-11",
+    "2026-10"
+  ],
+  "asof_research": "2026-11-21",
+  "node_weights": {
+    "Private Credit": 150,
+    "Insurers": 125,
+    "UST 30Y": 125,
+    "Neoclouds": 100,
+    "AI Equities": 100,
+    "Hyperscalers": 100,
+    "SPV": 100,
+    "Repo": 100,
+    "Power/Data Centers": 50,
+    "Semiconductors Supply": 50,
+    "AI Demand": 50
+  },
+  "source_events": [
+    {
+      "node": "Insurers",
+      "available_at": "2024-11-14",
+      "score": "0.26",
+      "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+      "measurement": "2024-Q3 original Prudential SEC 10-Q nonaccrual-without-ACL divided by 53,500 narrow net portfolio",
+      "note": "2024-10-31 10-Q +14 calendar days; 138/53,500. Narrow portfolio, not consolidated 62,573, no independent historical bytes or provider PIT verification.",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2024-11-01",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 1,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2024-11-15",
+      "score": "78.70",
+      "source": "aics_data/research/fed_g17_naics3344_oct2024_first_release_2026-11-21.json",
+      "measurement": "2024-10 initial Fed G.17 NAICS 3344 preliminary (released Nov 15)",
+      "note": "First-published Fed date; original bytes not independently archived, research only",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2024-11-15",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2024-12-17",
+      "score": "78.80",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2024-11 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2024-12-17",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-01-17",
+      "score": "79.20",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2024-12 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-01-17",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-02-14",
+      "score": "76.20",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-01 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-02-14",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Insurers",
+      "available_at": "2025-02-27",
+      "score": "0.38",
+      "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+      "measurement": "2024-Q4 original Prudential SEC 10-K nonaccrual-without-ACL divided by 53,987 narrow net portfolio",
+      "note": "2025-02-13 original 10-K +14 calendar days; 207/53,987. Do not predate using later 2025 filings. Source read retrospectively, not independently historical PIT.",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-02-14",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 1,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-03-18",
+      "score": "81.10",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-02 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-03-18",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-04-16",
+      "score": "79.80",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-03 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-04-16",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Insurers",
+      "available_at": "2025-05-15",
+      "score": "0.51",
+      "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+      "measurement": "2025-Q1 same-scope PRU no-ACL nonaccrual ratio",
+      "note": "Insurer single-issuer proxy; not AI-specific, original bytes not independently rehashed",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-05-02",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 1,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-05-15",
+      "score": "79.50",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-04 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-05-15",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Neoclouds",
+      "available_at": "2025-06-03",
+      "score": "100.00",
+      "source": "aics_data/research/neoclouds_2025_q1_q3_sec_cashflow_research_2026-11-21.json",
+      "measurement": "2025-Q1 original 2025 SEC two-issuer cash-funding gap",
+      "note": "2025 Q1 Nebius original release includes before-Toloka-deconsolidation whole-group cash flow. 2025 Q2/Q3 Nebius uses continuing-operations scope; do not imply fully homogeneous issuer scope across Q1-Q3. All three are research-only scoped proxy candidates.",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-05-21",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 2,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-06-17",
+      "score": "80.80",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-05 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-06-17",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "AI Demand",
+      "available_at": "2025-06-19",
+      "score": "0.00",
+      "source": "aics_data/research/broadcom_ai_demand_2025q2_strict_lower_bound_sec_2026-11-21.json",
+      "measurement": "2025-Q2 original SEC AI revenue strictly > $4.4bn prior guidance",
+      "note": "Exact quarterly AI revenue not disclosed; source provides a strict >4400 lower bound, ensuring zero stress mathematically, not missing-value imputation",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-06-06",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 2,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-07-16",
+      "score": "81.70",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-06 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-07-16",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Insurers",
+      "available_at": "2025-08-14",
+      "score": "0.77",
+      "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+      "measurement": "2025-Q2 same-scope PRU no-ACL nonaccrual ratio",
+      "note": "Insurer single-issuer proxy; not AI-specific, original bytes not independently rehashed",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-08-01",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 1,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-08-15",
+      "score": "82.30",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-07 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-08-15",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Neoclouds",
+      "available_at": "2025-08-27",
+      "score": "100.00",
+      "source": "aics_data/research/neoclouds_2025_q1_q3_sec_cashflow_research_2026-11-21.json",
+      "measurement": "2025-Q2 original 2025 SEC two-issuer cash-funding gap",
+      "note": "2025 Q1 Nebius original release includes before-Toloka-deconsolidation whole-group cash flow. 2025 Q2/Q3 Nebius uses continuing-operations scope; do not imply fully homogeneous issuer scope across Q1-Q3. All three are research-only scoped proxy candidates.",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-08-14",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 2,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-09-16",
+      "score": "83.60",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-08 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-09-16",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "AI Demand",
+      "available_at": "2025-09-18",
+      "score": "0.00",
+      "source": "aics_data/research/broadcom_ai_demand_2025q3_2026q2_original_sec_guidance_2026-11-21.json",
+      "measurement": "2025-Q3 original SEC actual AI semiconductor revenue / prior dated AI guidance",
+      "note": "Original issuer figures in rounded USD millions, retrospective 2026 intake; provider PIT, demand sector breadth and predictive skill unverified",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-09-05",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 2,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Insurers",
+      "available_at": "2025-11-13",
+      "score": "0.74",
+      "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+      "measurement": "2025-Q3 same-scope PRU no-ACL nonaccrual ratio",
+      "note": "Insurer single-issuer proxy; not AI-specific, original bytes not independently rehashed",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-10-31",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 1,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Neoclouds",
+      "available_at": "2025-11-27",
+      "score": "51.90",
+      "source": "aics_data/research/neoclouds_2025_q1_q3_sec_cashflow_research_2026-11-21.json",
+      "measurement": "2025-Q3 original 2025 SEC two-issuer cash-funding gap",
+      "note": "2025 Q1 Nebius original release includes before-Toloka-deconsolidation whole-group cash flow. 2025 Q2/Q3 Nebius uses continuing-operations scope; do not imply fully homogeneous issuer scope across Q1-Q3. All three are research-only scoped proxy candidates.",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-11-14",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 2,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-12-03",
+      "score": "75.50",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-09 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-12-03",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-12-23",
+      "score": "74.70",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-10 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-12-23",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2025-12-23",
+      "score": "74.40",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-11 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2025-12-23",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-01-16",
+      "score": "73.60",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2025-12 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-01-16",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-02-18",
+      "score": "73.50",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2026-01 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-02-18",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Insurers",
+      "available_at": "2026-02-26",
+      "score": "0.79",
+      "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+      "measurement": "2025-Q4 same-scope PRU original SEC 10-K no-ACL nonaccrual ratio",
+      "note": "Non-accrual without related ACL / net commercial mortgage and other loans in narrow credit portfolio table, 442 / 56,195; not the 64,715 balance-sheet headline. SEC +14, retrospective primary-source review, not provider PIT.",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-02-13",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 1,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Neoclouds",
+      "available_at": "2026-03-12",
+      "score": "60.87",
+      "source": "aics_data/research/neoclouds_2025_q4_sec_original_cashflow_2026-11-21.json",
+      "measurement": "2025-Q4 original SEC exhibit cashflow shortfall, CoreWeave plus Nebius",
+      "note": "Different issuer cash capex classifications: CoreWeave includes capitalized software, Nebius PP&E and intangible assets. The 2025Q4 Nebius continuing-operations scope is not comparable to 2025Q1 whole-group original. Neither includes all noncash and leased capex.",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-02-27",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 2,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-03-16",
+      "score": "73.00",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2026-02 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-03-16",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "AI Demand",
+      "available_at": "2026-03-18",
+      "score": "0.00",
+      "source": "aics_data/research/broadcom_ai_demand_2025q3_2026q2_original_sec_guidance_2026-11-21.json",
+      "measurement": "2026-Q1 original SEC actual AI semiconductor revenue / prior dated AI guidance",
+      "note": "Original issuer figures in rounded USD millions, retrospective 2026 intake; provider PIT, demand sector breadth and predictive skill unverified",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-03-05",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 2,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-04-16",
+      "score": "70.20",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2026-03 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-04-16",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-05-15",
+      "score": "72.20",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2026-04 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-05-15",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Insurers",
+      "available_at": "2026-05-20",
+      "score": "0.44",
+      "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+      "measurement": "2026-Q1 same-scope PRU no-ACL nonaccrual ratio",
+      "note": "Insurer single-issuer proxy; not AI-specific, original bytes not independently rehashed",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-05-07",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 1,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Neoclouds",
+      "available_at": "2026-05-27",
+      "score": "48.45",
+      "source": "aics_data/research/neocloud_cash_coverage_2026_h1.json",
+      "measurement": "2026-Q1 two-issuer cash-funding gap",
+      "note": "Quarterly cash-purchase scope differs between issuers; no historical provider PIT certification",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-05-14",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 2,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-06-15",
+      "score": "75.40",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2026-05 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-06-15",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "AI Demand",
+      "available_at": "2026-06-17",
+      "score": "0.00",
+      "source": "aics_data/research/broadcom_ai_demand_2025q3_2026q2_original_sec_guidance_2026-11-21.json",
+      "measurement": "2026-Q2 original SEC actual AI semiconductor revenue / prior dated AI guidance",
+      "note": "Original issuer figures in rounded USD millions, retrospective 2026 intake; provider PIT, demand sector breadth and predictive skill unverified",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-06-04",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 2,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-07-17",
+      "score": "72.20",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2026-06 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-07-17",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Hyperscalers",
+      "available_at": "2026-08-14",
+      "score": "0.00",
+      "source": "aics_data/research/hyperscalers_cash_coverage_june_to_september_2026.json",
+      "measurement": "2026-Q2 four-issuer total cash funding shortfall",
+      "note": "",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-08-01",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 4,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-08-18",
+      "score": "75.40",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2026-07 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-08-18",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Insurers",
+      "available_at": "2026-08-19",
+      "score": "1.32",
+      "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+      "measurement": "2026-Q2 same-scope PRU no-ACL nonaccrual ratio",
+      "note": "Insurer single-issuer proxy; not AI-specific, original bytes not independently rehashed",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-08-06",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 1,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Private Credit",
+      "available_at": "2026-08-20",
+      "score": "66.67",
+      "source": "aics_data/research/private_credit_3bdc_3quarter_22values_2026-11-19.json",
+      "measurement": "Breadth of rising nonaccrual across three BDCs, 2026-06-30",
+      "note": "No portfolio representativeness claim; never substitute fair-value percentages",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-08-20",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Neoclouds",
+      "available_at": "2026-08-26",
+      "score": "75.78",
+      "source": "aics_data/research/neocloud_cash_coverage_2026_h1.json",
+      "measurement": "2026-Q2 two-issuer cash-funding gap",
+      "note": "Quarterly cash-purchase scope differs between issuers; no historical provider PIT certification",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-08-13",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 6,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "SPV",
+      "available_at": "2026-08-26",
+      "score": "33.95",
+      "source": "aics_data/research/neocloud_cash_coverage_2026_h1.json",
+      "measurement": "2026-Q2 two reported DDTL facilities, debt divided by ceiling",
+      "note": "",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-08-13",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 1,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "AI Demand",
+      "available_at": "2026-09-16",
+      "score": "0.00",
+      "source": "aics_data/research/broadcom_ai_semiconductor_revenue_2026_q2_q3.json",
+      "measurement": "2026-Q3 Broadcom AI semiconductor revenue versus earlier Q2 guidance",
+      "note": "",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-09-03",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 2,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-09-18",
+      "score": "73.90",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2026-08 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-09-18",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Power/Data Centers",
+      "available_at": "2026-10-02",
+      "score": "37.50",
+      "source": "aics_data/research/applied_digital_polaris_capacity_2026-10-02.json",
+      "measurement": "Polaris Forge 1 operational share versus contracted buildout",
+      "note": "Site-level proxy, not an industry-wide power stress score",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-10-02",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-10-16",
+      "score": "76.50",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2026-09 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-10-16",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Repo",
+      "available_at": "2026-10-31",
+      "score": "86.96",
+      "source": "aics_data/research/repo_24_month_observed_research_2026-11-18.json",
+      "measurement": "October 2026 SOFR-IORB spread against 23 prior months",
+      "note": "NY Fed publication date is only a proxy; original 24-month source PIT not attested",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-10-31",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "UST 30Y",
+      "available_at": "2026-10-31",
+      "score": "78.26",
+      "source": "aics_data/research/ust30_yield_change_volatility_2024_2026.json",
+      "measurement": "October 2026 percentile of 20-change Treasury 30Y yield volatility",
+      "note": "Retrospective ALFRED archive: contemporary provider source-release proof not certified",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-10-31",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Hyperscalers",
+      "available_at": "2026-11-13",
+      "score": "13.09",
+      "source": "aics_data/research/hyperscalers_operating_cash_flow_coverage_2026_q3.json",
+      "measurement": "2026-Q3 four-issuer total cash funding shortfall",
+      "note": "",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-10-31",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 4,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Semiconductors Supply",
+      "available_at": "2026-11-17",
+      "score": "74.40",
+      "source": "aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json",
+      "measurement": "2026-10 first-published Fed G.17 NAICS 3344 utilization",
+      "note": "Federal Reserve official dated release; source bytes not independently archived, indicator includes other electronic components",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-11-17",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Insurers",
+      "available_at": "2026-11-18",
+      "score": "1.04",
+      "source": "aics_data/research/pru_insurers_nonaccrual_original_quarters_2025_2026.json",
+      "measurement": "2026-Q3 same-scope PRU no-ACL nonaccrual ratio",
+      "note": "Same no-related-ACL numerator 610 / original net narrow loan portfolio 58,685. Prior 0.91 used mismatched consolidated 67,004 and is corrected in 2026-11-21 source audit; source eligible 2026-11-18, outside completed 24-month panel.",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-11-05",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 1,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Private Credit",
+      "available_at": "2026-11-18",
+      "score": "33.33",
+      "source": "aics_data/research/private_credit_3bdc_3quarter_22values_2026-11-19.json",
+      "measurement": "Breadth of rising nonaccrual across three BDCs, 2026-09-30",
+      "note": "No portfolio representativeness claim; never substitute fair-value percentages",
+      "independently_attested_historical_pit": false,
+      "independently_24month_oos_verified": false,
+      "research_eligible_date": "2026-11-18",
+      "source_policy": "preserved_baseline_non_sec_or_unverified",
+      "source_count": null,
+      "independently_original_public_timestamp_verified": false,
+      "historical_pit_certified": false
+    },
+    {
+      "node": "Hyperscalers",
+      "available_at": "2025-05-16",
+      "score": "0.00",
+      "source": "aics_data/research/aics_24m_hyperscalers_research_first_public_overlay_2026-11-21.json",
+      "measurement": "2025-Q1 first-original cash funding 4 issuers",
+      "note": "Original four-issuer 2025 SEC data; research-only post-filing next-calendar-day proxy",
+      "research_eligible_date": "2025-05-03",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 4,
+      "historical_pit_certified": false,
+      "new_candidate_2025": true
+    },
+    {
+      "node": "Hyperscalers",
+      "available_at": "2025-08-15",
+      "score": "0.00",
+      "source": "aics_data/research/aics_24m_hyperscalers_research_first_public_overlay_2026-11-21.json",
+      "measurement": "2025-Q2 first-original cash funding 4 issuers",
+      "note": "Original four-issuer 2025 SEC data; research-only post-filing next-calendar-day proxy",
+      "research_eligible_date": "2025-08-02",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 5,
+      "historical_pit_certified": false,
+      "new_candidate_2025": true
+    },
+    {
+      "node": "Hyperscalers",
+      "available_at": "2025-11-13",
+      "score": "0.00",
+      "source": "aics_data/research/aics_24m_hyperscalers_research_first_public_overlay_2026-11-21.json",
+      "measurement": "2025-Q3 first-original cash funding 4 issuers",
+      "note": "Original four-issuer 2025 SEC data; research-only post-filing next-calendar-day proxy",
+      "research_eligible_date": "2025-10-31",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 4,
+      "historical_pit_certified": false,
+      "new_candidate_2025": true
+    },
+    {
+      "node": "Hyperscalers",
+      "available_at": "2026-02-19",
+      "score": "0.00",
+      "source": "aics_data/research/aics_24m_hyperscalers_research_first_public_overlay_2026-11-21.json",
+      "measurement": "2025-Q4 first-original cash funding 4 issuers",
+      "note": "Original four-issuer 2025 SEC data; research-only post-filing next-calendar-day proxy",
+      "research_eligible_date": "2026-02-06",
+      "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy",
+      "source_count": 4,
+      "historical_pit_certified": false,
+      "new_candidate_2025": true
+    }
+  ],
+  "converted_existing_sec_events": 23,
+  "preserved_legacy_or_nonsec_events": 30,
+  "new_original_2025_hyperscaler_events": 4,
+  "baseline_source_weight_months": 8075,
+  "baseline_research_coverage_pct": "32.04",
+  "new_calendar_end_research_weight_months": 9675,
+  "new_calendar_end_research_coverage_pct": "38.39",
+  "new_last_weekday_proxy_weight_months": 9450,
+  "new_last_weekday_proxy_coverage_pct": "37.50",
+  "monthly_calendar_end_research": [
+    {
+      "month": "2024-11",
+      "cutoff_date": "2024-11-30",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "39.68",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.26",
+          "research_eligible_date": "2024-11-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "78.70",
+          "research_eligible_date": "2024-11-15",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2024-12",
+      "cutoff_date": "2024-12-31",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "39.73",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.26",
+          "research_eligible_date": "2024-11-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "78.80",
+          "research_eligible_date": "2024-12-17",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-01",
+      "cutoff_date": "2025-01-31",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "39.93",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.26",
+          "research_eligible_date": "2024-11-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "79.20",
+          "research_eligible_date": "2025-01-17",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-02",
+      "cutoff_date": "2025-02-28",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "38.58",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.38",
+          "research_eligible_date": "2025-02-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "76.20",
+          "research_eligible_date": "2025-02-14",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-03",
+      "cutoff_date": "2025-03-31",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "41.03",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.38",
+          "research_eligible_date": "2025-02-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "81.10",
+          "research_eligible_date": "2025-03-18",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-04",
+      "cutoff_date": "2025-04-30",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "40.38",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.38",
+          "research_eligible_date": "2025-02-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "79.80",
+          "research_eligible_date": "2025-04-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-05",
+      "cutoff_date": "2025-05-31",
+      "known_node_count": 4,
+      "known_weight": 375,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "140.39",
+      "hyperscalers_source": "2025-Q1 first-original cash funding 4 issuers",
+      "node_scores": {
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-05-03",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.51",
+          "research_eligible_date": "2025-05-02",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-05-21",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "79.50",
+          "research_eligible_date": "2025-05-15",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-06",
+      "cutoff_date": "2025-06-30",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "141.04",
+      "hyperscalers_source": "2025-Q1 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-06-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-05-03",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.51",
+          "research_eligible_date": "2025-05-02",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-05-21",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "80.80",
+          "research_eligible_date": "2025-06-17",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-07",
+      "cutoff_date": "2025-07-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "141.49",
+      "hyperscalers_source": "2025-Q1 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-06-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-05-03",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.51",
+          "research_eligible_date": "2025-05-02",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-05-21",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "81.70",
+          "research_eligible_date": "2025-07-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-08",
+      "cutoff_date": "2025-08-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "142.11",
+      "hyperscalers_source": "2025-Q2 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-06-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-08-02",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.77",
+          "research_eligible_date": "2025-08-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-08-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "82.30",
+          "research_eligible_date": "2025-08-15",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-09",
+      "cutoff_date": "2025-09-30",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "142.76",
+      "hyperscalers_source": "2025-Q2 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-08-02",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.77",
+          "research_eligible_date": "2025-08-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-08-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "83.60",
+          "research_eligible_date": "2025-09-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-10",
+      "cutoff_date": "2025-10-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "142.73",
+      "hyperscalers_source": "2025-Q3 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.74",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-08-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "83.60",
+          "research_eligible_date": "2025-09-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-11",
+      "cutoff_date": "2025-11-30",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "94.63",
+      "hyperscalers_source": "2025-Q3 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.74",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "51.90",
+          "research_eligible_date": "2025-11-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "83.60",
+          "research_eligible_date": "2025-09-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-12",
+      "cutoff_date": "2025-12-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "90.03",
+      "hyperscalers_source": "2025-Q3 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.74",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "51.90",
+          "research_eligible_date": "2025-11-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "74.40",
+          "research_eligible_date": "2025-12-23",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-01",
+      "cutoff_date": "2026-01-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "89.63",
+      "hyperscalers_source": "2025-Q3 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.74",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "51.90",
+          "research_eligible_date": "2025-11-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "73.60",
+          "research_eligible_date": "2026-01-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-02",
+      "cutoff_date": "2026-02-28",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "98.61",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.79",
+          "research_eligible_date": "2026-02-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "60.87",
+          "research_eligible_date": "2026-02-27",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "73.50",
+          "research_eligible_date": "2026-02-18",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-03",
+      "cutoff_date": "2026-03-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "98.36",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-03-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.79",
+          "research_eligible_date": "2026-02-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "60.87",
+          "research_eligible_date": "2026-02-27",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "73.00",
+          "research_eligible_date": "2026-03-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-04",
+      "cutoff_date": "2026-04-30",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "96.96",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-03-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.79",
+          "research_eligible_date": "2026-02-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "60.87",
+          "research_eligible_date": "2026-02-27",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "70.20",
+          "research_eligible_date": "2026-04-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-05",
+      "cutoff_date": "2026-05-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "85.10",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-03-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.44",
+          "research_eligible_date": "2026-05-07",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "48.45",
+          "research_eligible_date": "2026-05-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "72.20",
+          "research_eligible_date": "2026-05-15",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-06",
+      "cutoff_date": "2026-06-30",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "86.70",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-06-04",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.44",
+          "research_eligible_date": "2026-05-07",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "48.45",
+          "research_eligible_date": "2026-05-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "75.40",
+          "research_eligible_date": "2026-06-15",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-07",
+      "cutoff_date": "2026-07-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "85.10",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-06-04",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.44",
+          "research_eligible_date": "2026-05-07",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "48.45",
+          "research_eligible_date": "2026-05-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "72.20",
+          "research_eligible_date": "2026-07-17",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-08",
+      "cutoff_date": "2026-08-31",
+      "known_node_count": 7,
+      "known_weight": 675,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Repo",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "249.09",
+      "hyperscalers_source": "2026-Q2 four-issuer total cash funding shortfall",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-06-04",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-08-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "1.32",
+          "research_eligible_date": "2026-08-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "75.78",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Private Credit": {
+          "score": "66.67",
+          "research_eligible_date": "2026-08-20",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        },
+        "SPV": {
+          "score": "33.95",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "75.40",
+          "research_eligible_date": "2026-08-18",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-09",
+      "cutoff_date": "2026-09-30",
+      "known_node_count": 7,
+      "known_weight": 675,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Repo",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "248.34",
+      "hyperscalers_source": "2026-Q2 four-issuer total cash funding shortfall",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-09-03",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-08-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "1.32",
+          "research_eligible_date": "2026-08-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "75.78",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Private Credit": {
+          "score": "66.67",
+          "research_eligible_date": "2026-08-20",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        },
+        "SPV": {
+          "score": "33.95",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "73.90",
+          "research_eligible_date": "2026-09-18",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-10",
+      "cutoff_date": "2026-10-31",
+      "known_node_count": 10,
+      "known_weight": 950,
+      "missing_nodes": [
+        "AI Equities"
+      ],
+      "partial_weighted_points_not_full_aics": "466.26",
+      "hyperscalers_source": "2026-Q3 four-issuer total cash funding shortfall",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-09-03",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "13.09",
+          "research_eligible_date": "2026-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "1.32",
+          "research_eligible_date": "2026-08-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "75.78",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Power/Data Centers": {
+          "score": "37.50",
+          "research_eligible_date": "2026-10-02",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        },
+        "Private Credit": {
+          "score": "66.67",
+          "research_eligible_date": "2026-08-20",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        },
+        "Repo": {
+          "score": "86.96",
+          "research_eligible_date": "2026-10-31",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        },
+        "SPV": {
+          "score": "33.95",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "76.50",
+          "research_eligible_date": "2026-10-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        },
+        "UST 30Y": {
+          "score": "78.26",
+          "research_eligible_date": "2026-10-31",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    }
+  ],
+  "monthly_last_weekday_market_proxy": [
+    {
+      "month": "2024-11",
+      "cutoff_date": "2024-11-29",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "39.68",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.26",
+          "research_eligible_date": "2024-11-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "78.70",
+          "research_eligible_date": "2024-11-15",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2024-12",
+      "cutoff_date": "2024-12-31",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "39.73",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.26",
+          "research_eligible_date": "2024-11-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "78.80",
+          "research_eligible_date": "2024-12-17",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-01",
+      "cutoff_date": "2025-01-31",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "39.93",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.26",
+          "research_eligible_date": "2024-11-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "79.20",
+          "research_eligible_date": "2025-01-17",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-02",
+      "cutoff_date": "2025-02-28",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "38.58",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.38",
+          "research_eligible_date": "2025-02-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "76.20",
+          "research_eligible_date": "2025-02-14",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-03",
+      "cutoff_date": "2025-03-31",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "41.03",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.38",
+          "research_eligible_date": "2025-02-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "81.10",
+          "research_eligible_date": "2025-03-18",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-04",
+      "cutoff_date": "2025-04-30",
+      "known_node_count": 2,
+      "known_weight": 175,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Hyperscalers",
+        "Neoclouds",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "40.38",
+      "hyperscalers_source": null,
+      "node_scores": {
+        "Insurers": {
+          "score": "0.38",
+          "research_eligible_date": "2025-02-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "79.80",
+          "research_eligible_date": "2025-04-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-05",
+      "cutoff_date": "2025-05-30",
+      "known_node_count": 4,
+      "known_weight": 375,
+      "missing_nodes": [
+        "AI Demand",
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "140.39",
+      "hyperscalers_source": "2025-Q1 first-original cash funding 4 issuers",
+      "node_scores": {
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-05-03",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.51",
+          "research_eligible_date": "2025-05-02",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-05-21",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "79.50",
+          "research_eligible_date": "2025-05-15",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-06",
+      "cutoff_date": "2025-06-30",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "141.04",
+      "hyperscalers_source": "2025-Q1 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-06-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-05-03",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.51",
+          "research_eligible_date": "2025-05-02",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-05-21",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "80.80",
+          "research_eligible_date": "2025-06-17",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-07",
+      "cutoff_date": "2025-07-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "141.49",
+      "hyperscalers_source": "2025-Q1 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-06-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-05-03",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.51",
+          "research_eligible_date": "2025-05-02",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-05-21",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "81.70",
+          "research_eligible_date": "2025-07-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-08",
+      "cutoff_date": "2025-08-29",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "142.11",
+      "hyperscalers_source": "2025-Q2 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-06-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-08-02",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.77",
+          "research_eligible_date": "2025-08-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-08-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "82.30",
+          "research_eligible_date": "2025-08-15",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-09",
+      "cutoff_date": "2025-09-30",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "142.76",
+      "hyperscalers_source": "2025-Q2 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-08-02",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.77",
+          "research_eligible_date": "2025-08-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-08-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "83.60",
+          "research_eligible_date": "2025-09-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-10",
+      "cutoff_date": "2025-10-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "142.73",
+      "hyperscalers_source": "2025-Q3 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.74",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "100.00",
+          "research_eligible_date": "2025-08-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "83.60",
+          "research_eligible_date": "2025-09-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-11",
+      "cutoff_date": "2025-11-28",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "94.63",
+      "hyperscalers_source": "2025-Q3 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.74",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "51.90",
+          "research_eligible_date": "2025-11-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "83.60",
+          "research_eligible_date": "2025-09-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2025-12",
+      "cutoff_date": "2025-12-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "90.03",
+      "hyperscalers_source": "2025-Q3 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.74",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "51.90",
+          "research_eligible_date": "2025-11-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "74.40",
+          "research_eligible_date": "2025-12-23",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-01",
+      "cutoff_date": "2026-01-30",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "89.63",
+      "hyperscalers_source": "2025-Q3 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.74",
+          "research_eligible_date": "2025-10-31",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "51.90",
+          "research_eligible_date": "2025-11-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "73.60",
+          "research_eligible_date": "2026-01-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-02",
+      "cutoff_date": "2026-02-27",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "98.61",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2025-09-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.79",
+          "research_eligible_date": "2026-02-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "60.87",
+          "research_eligible_date": "2026-02-27",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "73.50",
+          "research_eligible_date": "2026-02-18",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-03",
+      "cutoff_date": "2026-03-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "98.36",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-03-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.79",
+          "research_eligible_date": "2026-02-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "60.87",
+          "research_eligible_date": "2026-02-27",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "73.00",
+          "research_eligible_date": "2026-03-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-04",
+      "cutoff_date": "2026-04-30",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "96.96",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-03-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.79",
+          "research_eligible_date": "2026-02-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "60.87",
+          "research_eligible_date": "2026-02-27",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "70.20",
+          "research_eligible_date": "2026-04-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-05",
+      "cutoff_date": "2026-05-29",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "85.10",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-03-05",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.44",
+          "research_eligible_date": "2026-05-07",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "48.45",
+          "research_eligible_date": "2026-05-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "72.20",
+          "research_eligible_date": "2026-05-15",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-06",
+      "cutoff_date": "2026-06-30",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "86.70",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-06-04",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.44",
+          "research_eligible_date": "2026-05-07",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "48.45",
+          "research_eligible_date": "2026-05-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "75.40",
+          "research_eligible_date": "2026-06-15",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-07",
+      "cutoff_date": "2026-07-31",
+      "known_node_count": 5,
+      "known_weight": 425,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Private Credit",
+        "Repo",
+        "SPV",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "85.10",
+      "hyperscalers_source": "2025-Q4 first-original cash funding 4 issuers",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-06-04",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-02-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "0.44",
+          "research_eligible_date": "2026-05-07",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "48.45",
+          "research_eligible_date": "2026-05-14",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "72.20",
+          "research_eligible_date": "2026-07-17",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-08",
+      "cutoff_date": "2026-08-31",
+      "known_node_count": 7,
+      "known_weight": 675,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Repo",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "249.09",
+      "hyperscalers_source": "2026-Q2 four-issuer total cash funding shortfall",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-06-04",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-08-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "1.32",
+          "research_eligible_date": "2026-08-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "75.78",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Private Credit": {
+          "score": "66.67",
+          "research_eligible_date": "2026-08-20",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        },
+        "SPV": {
+          "score": "33.95",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "75.40",
+          "research_eligible_date": "2026-08-18",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-09",
+      "cutoff_date": "2026-09-30",
+      "known_node_count": 7,
+      "known_weight": 675,
+      "missing_nodes": [
+        "AI Equities",
+        "Power/Data Centers",
+        "Repo",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "248.34",
+      "hyperscalers_source": "2026-Q2 four-issuer total cash funding shortfall",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-09-03",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-08-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "1.32",
+          "research_eligible_date": "2026-08-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "75.78",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Private Credit": {
+          "score": "66.67",
+          "research_eligible_date": "2026-08-20",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        },
+        "SPV": {
+          "score": "33.95",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "73.90",
+          "research_eligible_date": "2026-09-18",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    },
+    {
+      "month": "2026-10",
+      "cutoff_date": "2026-10-30",
+      "known_node_count": 8,
+      "known_weight": 725,
+      "missing_nodes": [
+        "AI Equities",
+        "Repo",
+        "UST 30Y"
+      ],
+      "partial_weighted_points_not_full_aics": "268.39",
+      "hyperscalers_source": "2026-Q2 four-issuer total cash funding shortfall",
+      "node_scores": {
+        "AI Demand": {
+          "score": "0.00",
+          "research_eligible_date": "2026-09-03",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Hyperscalers": {
+          "score": "0.00",
+          "research_eligible_date": "2026-08-01",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Insurers": {
+          "score": "1.32",
+          "research_eligible_date": "2026-08-06",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Neoclouds": {
+          "score": "75.78",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Power/Data Centers": {
+          "score": "37.50",
+          "research_eligible_date": "2026-10-02",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        },
+        "Private Credit": {
+          "score": "66.67",
+          "research_eligible_date": "2026-08-20",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        },
+        "SPV": {
+          "score": "33.95",
+          "research_eligible_date": "2026-08-13",
+          "source_policy": "verified_original_sec_filed_date_plus_one_calendar_day_proxy"
+        },
+        "Semiconductors Supply": {
+          "score": "76.50",
+          "research_eligible_date": "2026-10-16",
+          "source_policy": "preserved_baseline_non_sec_or_unverified"
+        }
+      },
+      "full_aics": null,
+      "aics_sp500_spread": null,
+      "historical_pit_certified": false
+    }
+  ],
+  "weekend_month_end_rule": "Last weekday, NOT independently proven NYSE holiday/session calendar or price-bar timestamp",
+  "date_only_sec_rule": "next_calendar_day_after_original_file_date; no original exact dissemination timestamp",
+  "do_not_conflate_calendar_month_end_with_sp500_last_close": true,
+  "independently_historical_pit_attested": false,
+  "independently_oos_24m": false,
+  "complete_11_node_aics_months": 0,
+  "aics_sp500_spread_months": 0,
+  "production_change": false,
+  "trades_created": false
+}
