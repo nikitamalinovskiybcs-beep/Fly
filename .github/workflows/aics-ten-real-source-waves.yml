@@ -11,6 +11,9 @@ on:
       - scripts/aics_sec_quarter_cashflow_gate.py
       - tests/test_aics_sec_quarter_cashflow_gate.py
       - scripts/aics_ten_model_improvement_agents.py
+      - scripts/aics_early_imbalance_cashflow_shadow.py
+      - tests/test_aics_early_imbalance_2026_q1.py
+      - aics_data/research/hyperscalers_2026_q1_original_sec_cashflow_2026-11-22.json
       - scripts/aics_thirty_agent_cycle.py
       - tests/test_aics_thirty_agent_cycle.py
       - tests/test_aics_ten_model_improvement_agents.py
@@ -54,6 +57,11 @@ jobs:
         run: |
           python -m compileall -q scripts/aics_historical_crisis_analog.py tests/test_aics_historical_crisis_analog.py
           python -m unittest discover -s tests -p 'test_aics_historical_crisis_analog.py' -v
+      - name: Validate first-filed 2026 Q1 SEC+14 cashflow and seven-quarter progression
+        run: |
+          python -m compileall -q scripts/aics_early_imbalance_cashflow_shadow.py tests/test_aics_early_imbalance_2026_q1.py
+          python -m unittest discover -s tests -p 'test_aics_early_imbalance_2026_q1.py' -v
+          python -m scripts.aics_early_imbalance_cashflow_shadow --as-of 2026-11-22 --out aics_data/research/aics_precrisis_imbalance_4hyperscalers_2025_2026_research_2026-11-22.json
       - name: Verify integrated 30-agent cycle research and fail-closed gates
         run: |
           python -m compileall -q scripts/aics_thirty_agent_cycle.py tests/test_aics_thirty_agent_cycle.py
@@ -100,6 +108,8 @@ jobs:
           assert cycle['source_collection']['direct_quarter_research_candidates']==finance['direct_original_3month_pair_candidates']
           assert cycle['analysis']['historical_full_aics_months']==0
           assert cycle['model_improvement']['untouched_oos_months']==0
+          assert cycle['model_improvement']['2026_q1_4issuer_cashflow_complete'] is True
+          assert '2026_Q1_4_ISSUER_CASHFLOW_GAP' not in {x['experiment'] for x in cycle['next_experiments']}
           assert cycle['cycle_decision']=='RESEARCH_ONLY_NOT_AUTONOMOUS_PRODUCTION'
           assert cycle['complete_11_node_aics'] is None
           assert cycle['crisis_probability'] is None
@@ -112,6 +122,10 @@ jobs:
           assert improvements['agents'][8]['research_result']['historical_crisis_analog']['feature_axis_count']==8
           assert improvements['agents'][8]['research_result']['historical_crisis_analog']['full_AICS'] is None
           assert improvements['total_distinct_workflow_agent_roles']==30
+          q1periods = {p['period']:p for p in improvements['agents'][8]['research_result']['early_cash_imbalance_research']['source_periods']}
+          assert q1periods['2026-Q1']['issuer_count']==4
+          assert q1periods['2026-Q1']['cash_gap_usd_m']=='20977'
+          assert q1periods['2026-Q1']['source_eligible_at']=='2026-05-13'
           assert improvements['original_quarter_finance_audit_loaded'] is True
           assert improvements['live_source_wave_manifest_loaded'] is True
           assert len(improvements['agents'])==10
@@ -170,6 +184,7 @@ jobs:
               print('Latest SEC Company Facts represent a current API snapshot; numeric records are **not historical first-delivery PIT attested**.',file=stream)
               print('Model-improvement agents are research diagnostics; unvalidated market forecasting and autonomous weights remain OFF.',file=stream)
               print('30-role integration uses original source waves and separate retrospective analytics; no new issuer-score ingestion is falsely claimed.',file=stream)
+              print('- V26: 2026 Q1 now original-SEC-sourced, four-company gap +$20.977bn and SEC+14 as-of May 13; Q4-to-Q3 cash gap trend is seven consecutive calendar quarters.',file=stream)
               for experiment in cycle['next_experiments']:
                   print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
           PY
