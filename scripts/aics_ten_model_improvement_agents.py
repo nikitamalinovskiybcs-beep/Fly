@@ -18,6 +18,7 @@ from pathlib import Path
 
 from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_sec_quarter_cashflow_gate import audit as audit_cashflow
+from scripts.aics_historical_crisis_analog import build as historical_crisis_analog
 
 ROOT = Path("aics_data/research")
 V17 = ROOT / "aics_24m_multi_node_publication_overlay_2026-11-21.json"
@@ -345,6 +346,11 @@ def run(*, v17, v18, spx, shadow, finance=None, waves=None, as_of=None):
     payloads += [
         model_challenger(spx,payloads[7]),
     ]
+    # The original objective: compare current AI-chain stress with the
+    # 2000 buildout crash AND 2008 shadow-banking funding panic.
+    # Keep it inside the existing ModelChallenger role: ten model
+    # improvement agents remain ten, historical numeric analogs remain null.
+    payloads[8]["historical_crisis_analog"] = historical_crisis_analog(v18)
     payloads += [
         ml_calibration_governor(v18,payloads[7],payloads[8],finance),
     ]
