@@ -4,8 +4,8 @@
   "node": "Insurers",
   "node_weight": 125,
   "issuer_count": 1,
-  "periods": 6,
-  "period_coverage": "2025-Q1 through 2026-Q3, excluding 2025-Q4 because a suitable original as-of filing was not revalidated",
+  "periods": 7,
+  "period_coverage": "2025-Q1 through 2026-Q3, including original 2025-Q4 annual 10-K after SEC+14",
   "source_type": "Issuer-hosted original SEC 10-Q current observation, original named footnote plus net loans balance table",
   "score_formula": "100 * same-quarter non-accrual loans with no related ACL / same-quarter total commercial mortgage and other loans net, percentages with half-up 0.01",
   "events": [
@@ -61,6 +61,26 @@
       "score_pct": "0.74"
     },
     {
+      "quarter": "2025-Q4",
+      "period_end": "2025-12-31",
+      "filed_at": "2026-02-12",
+      "available_at": "2026-02-26",
+      "accession": "0001137774-26-000048",
+      "issuer": "Prudential Financial, Inc.",
+      "cik": "1137774",
+      "form": "10-K",
+      "source_url": "https://www.sec.gov/Archives/edgar/data/1137774/000113777426000048/pru-20251231.htm",
+      "source_index": "https://www.sec.gov/Archives/edgar/data/1137774/000113777426000048/0001137774-26-000048-index.htm",
+      "source_raw_sha256": null,
+      "original_provider_delivery_pit_attested": false,
+      "metric_name": "Loans on non-accrual status that did not have a related allowance for credit losses, divided by total commercial mortgage and other loans, net (narrow investment portfolio table)",
+      "nonaccrual_no_related_acl_usd_m": 442,
+      "commercial_mortgage_and_other_loans_net_usd_m": 56195,
+      "score_pct": "0.79",
+      "denominator_table": "Original 2025 10-K Investment Mix: total commercial mortgage and other loans, net; do NOT use balance-sheet headline 64,715 which includes a different aggregate scope",
+      "source_retrieved_retroactively_on": "2026-11-21"
+    },
+    {
       "quarter": "2026-Q1",
       "period_end": "2026-03-31",
       "filed_at": "2026-05-06",
@@ -108,11 +128,13 @@
       "original_provider_delivery_pit_attested": false,
       "metric_name": "Loans on non-accrual status that did not have a related allowance for credit losses, divided by total commercial mortgage and other loans, net",
       "nonaccrual_no_related_acl_usd_m": 610,
-      "commercial_mortgage_and_other_loans_net_usd_m": 67004,
-      "score_pct": "0.91"
+      "commercial_mortgage_and_other_loans_net_usd_m": 58685,
+      "score_pct": "1.04",
+      "denominator_table": "Original 2026-Q3 10-Q commercial mortgage and other loans portfolio net: 58,685. Previous 67,004 incorrectly used consolidated balance-sheet headline; 0.91 was a mixed-scope ratio.",
+      "source_original_denominator_reconciliation_date": "2026-11-21"
     }
   ],
-  "comparability": "The same PRU numerator and same net loans denominator each period; not total NPL and not an AI-specific insurance credit exposure measure. Comparative 2024-12-31 or 2025-12-31 values in later filings MUST NOT be as-of backfilled.",
+  "comparability": "Same exact nonaccrual-without-ACL numerator and narrow credit-investment portfolio NET denominator; excludes differently scoped consolidated headline balances (2025-12-31 headline 64,715 vs portfolio table 56,195; 2026-09-30 headline 67,004 vs portfolio table 58,685). 2026Q3 prior 0.91 was incorrect scope and replaced by 1.04. Does not measure entire insurer or AI-specific credit exposure.",
   "lookahead": "SEC filed_at +14 calendar days. No annualized interpolation, no cross-issuer denominator substitution.",
   "raw_original_bytes_independently_rehashed": false,
   "independently_historically_contemporaneous_pit_certified": false,
@@ -121,5 +143,13 @@
   "research_only": true,
   "model_production_formula_modified": false,
   "hot_node_multiplier_applied": false,
-  "trades_created": false
+  "trades_created": false,
+  "september_2026_correction_notice": {
+    "previous_denominator_usd_m": 67004,
+    "correct_portfolio_denominator_usd_m": 58685,
+    "previous_score_pct": "0.91",
+    "corrected_score_pct": "1.04",
+    "changed_only_from_original_filing_eligible_at": "2026-11-18",
+    "upstream_research_shadow_must_be_reconciled": true
+  }
 }
