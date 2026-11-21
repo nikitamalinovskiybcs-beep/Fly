@@ -68,7 +68,7 @@ jobs:
         run: |
           python -m compileall -q scripts/aics_spv_funding_transmission_bridge.py tests/test_aics_spv_funding_transmission_bridge.py
           python -m unittest discover -s tests -p 'test_aics_spv_funding_transmission_bridge.py' -v
-          python -m scripts.aics_spv_funding_transmission_bridge --as-of 2026-11-22 --out aics_data/research/aics_v27_spv_funding_transmission_research_2026-11-22.json
+          python -m scripts.aics_spv_funding_transmission_bridge --as-of 2026-11-22 --out aics_data/agent_runs/ten_real_collection_rounds/aics_v27_spv_funding_transmission_research_2026-11-22.json
       - name: Verify integrated 30-agent cycle research and fail-closed gates
         run: |
           python -m compileall -q scripts/aics_thirty_agent_cycle.py tests/test_aics_thirty_agent_cycle.py
@@ -122,6 +122,14 @@ jobs:
           assert cycle['model_improvement']['nscale_ward_nc_gpu_drawn_balance_usd_m'] is None
           assert cycle['model_improvement']['spv_parent_enforceable_guarantee_total_usd_m'] is None
           assert cycle['model_improvement']['cross_issuer_causal_funding_transmission_established'] is False
+          spv = json.loads((path/'aics_v27_spv_funding_transmission_research_2026-11-22.json').read_text())
+          assert spv['proven_same_date_coreweave_facility_balance_edges']==2
+          assert spv['coreweave']['separate_facility_reported_debt_sum_usd_m']==3938
+          assert spv['nscale']['ward_drawn_balance_usd_m'] is None
+          assert spv['nscale']['outstanding_lease_liability_usd_m'] is None
+          assert spv['named_lender_to_borrower_current_exposure_edges']==0
+          assert spv['verified_2008_funding_contagion_matrix'] is None
+          assert spv['full_11node_aics'] is None and spv['trades_created'] is False
           assert '2026_Q1_4_ISSUER_CASHFLOW_GAP' not in {x['experiment'] for x in cycle['next_experiments']}
           assert cycle['cycle_decision']=='RESEARCH_ONLY_NOT_AUTONOMOUS_PRODUCTION'
           assert cycle['complete_11_node_aics'] is None
