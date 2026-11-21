@@ -175,6 +175,21 @@ def build(*, waves, finance, v17, v18, spx, shadow):
         or funding["financial_contagion_causality_established"] is not False
         or funding["production_score"] is not None):
         raise ValueError("Matched original financing data must not imply reprice or contagion")
+    interest=imp[8]["research_result"]["interest_repo_dual_clock_research"]
+    if (interest["coreweave_Q3_IR_interest_to_revenue_pct"]!="23.1"
+        or interest["coreweave_Q3_IR_interest_expense_usd_m"]!=846
+        or interest["coreweave_Q3_SEC_eligible_at"]!="2026-11-26"
+        or interest["coreweave_Q3_SEC_date_gate_passed"] is not False
+        or interest["interest_Q3_public_IR_only_not_AICS_eligible"] is not True
+        or interest["repo_latest_month"]!="2026-10-31"
+        or interest["repo_sofr_minus_iorb_bps"]!=4
+        or interest["repo_monthly_spread_is_not_borrower_loan_repricing"] is not True
+        or interest["same_loan_real_repricing_points"]!=0
+        or interest["same_loan_credit_spread_change_bps"] is not None
+        or interest["current_lender_debt_exposure_usd_m"] is not None
+        or interest["independent_24m_OOS_skill"] is not None
+        or interest["model_risk_score"] is not None):
+        raise ValueError("IR and market repo rates cannot certify a current AICS credit warning")
     direct_pairs = imp[0]["research_result"]["direct_quarter_pairs"]
     if direct_pairs != finance["direct_original_3month_pair_candidates"]:
         raise ValueError("Agent cashflow evidence disagrees with original finance gate")
@@ -290,6 +305,12 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "v28_source_dated_credit_legal_edges": 9,
             "v29_contractual_maturity_records": 3,
             "v30_real_q2_issuer_funding_mechanisms_reconciled":2,
+            "v31_q3_coreweave_ir_interest_to_revenue_pct_research_only":"23.1",
+            "v31_q3_sec_date_eligible_at":"2026-11-26",
+            "v31_sec_10q_date_gate_passed":False,
+            "v31_repo_oct2026_sofr_minus_iorb_bps_retrospective":4,
+            "v31_matched_same_loan_repricing_observations":0,
+            "v31_independently_confirmed_early_warning_skill":None,
             "v30_coreweave_net_q2_financing_usd_m":"10071",
             "v30_nebius_net_q2_financing_usd_m":"2864.9",
             "v30_mixed_equity_vs_debt_mechanisms_not_same_loan_repricing":True,
