@@ -24,6 +24,7 @@ from scripts.aics_neocloud_2025_q4_sec_original import calculate as neocloud_202
 from scripts.aics_fed_g17_first_release_monthly import read as g17_naics3344_first_releases
 from scripts.aics_fed_g17_first_release_monthly import initial_publication as g17_initial_publication
 from scripts.aics_pru_insurers_original_quarters import calculate as pru_insurers_quarters
+from scripts.aics_broadcom_ai_demand_original_2025_2026 import calculate as broadcom_early_ai_demand
 
 ROOT = Path("aics_data/research")
 SP500 = ROOT / "sp500_24_month_closes_2026-11-21.json"
@@ -212,6 +213,15 @@ def candidates():
         raise ValueError("SPV debt cannot exceed valid referenced ceilings")
     add("SPV", facilities["available_at"], 100 * debt / ceiling, neo_path,
         "2026-Q2 two reported DDTL facilities, debt divided by ceiling")
+
+    # Three original 2025-26 Broadcom SEC earnings EX-99.1 actual/guidance pairs.
+    # A real observed zero-stress is NOT a missing-node zero-filled score.
+    # Q4 2025 actual excluded because not stated as exact original 8-K amount.
+    for original in broadcom_early_ai_demand():
+        add("AI Demand", original["available_at"], original["score"],
+            ROOT / "broadcom_ai_demand_2025q3_2026q2_original_sec_guidance_2026-11-21.json",
+            original["period"] + " original SEC actual AI semiconductor revenue / prior dated AI guidance",
+            "Original issuer figures in rounded USD millions, retrospective 2026 intake; provider PIT, demand sector breadth and predictive skill unverified")
 
     demand_path = ROOT / "broadcom_ai_semiconductor_revenue_2026_q2_q3.json"
     prev, now = load(demand_path)["records"]
