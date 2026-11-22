@@ -28,6 +28,8 @@ on:
       - scripts/aics_pit100_target_exact_missing_sec_sources.py
       - scripts/aics_priority100_workbench.py
       - tests/test_aics_priority100_workbench.py
+      - scripts/aics_pru_original_9_numeric_replay.py
+      - tests/test_aics_pru_original_9_numeric_replay.py
       - tests/test_aics_pit100_target_exact_missing_sec_sources.py
       - tests/test_aics_pit100_original_scoring_accession_lineage.py
       - tests/test_aics_pit100_sec_sgml_clock_audit.py
@@ -298,6 +300,11 @@ jobs:
           python -m compileall -q scripts/aics_priority100_workbench.py tests/test_aics_priority100_workbench.py
           python -m unittest discover -s tests -p 'test_aics_priority100_workbench.py' -v
           python -m scripts.aics_priority100_workbench --out aics_data/agent_runs/ten_real_collection_rounds/aics_priority100_evidence_queue.json
+      - name: Replay nine PRU original SEC disclosure ratios independently and keep source mismatches blocked
+        run: |
+          python -m compileall -q scripts/aics_pru_original_9_numeric_replay.py tests/test_aics_pru_original_9_numeric_replay.py
+          python -m unittest discover -s tests -p 'test_aics_pru_original_9_numeric_replay.py' -v
+          python -m scripts.aics_pru_original_9_numeric_replay --out aics_data/agent_runs/ten_real_collection_rounds/aics_pru_nine_original_source_numeric_replay.json
       - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
         run: |
           python - <<'PY'
@@ -393,6 +400,12 @@ jobs:
           alfred = json.loads((path/'aics_pit100_24m_alfred_two_source_vintages.json').read_text())
           lead = json.loads((path/'aics_pit100_24m_expost_leadlag_falsification.json').read_text())
           priorities = json.loads((path/'aics_priority100_evidence_queue.json').read_text())
+          pru_replay = json.loads((path/'aics_pru_nine_original_source_numeric_replay.json').read_text())
+          assert pru_replay['schema']=='aics-pru-9-SEC-original-disclosure-numeric-replay-v1'
+          assert pru_replay['original_prudential_filing_count']==9
+          assert pru_replay['independently_reproduced_scoped_issuer_research_ratios']+pru_replay['missing_or_ambiguous_research_ratios']==9
+          assert pru_replay['certified_AICS_nodes']==0
+          assert pru_replay['production_AICS'] is None and pru_replay['trades_created'] is False
           assert priorities['schema']=='aics-priority100-evidence-workbench-v1'
           assert priorities['deterministic_specialized_audit_tasks_executed']==100
           assert len({x['task_id'] for x in priorities['priority_queue']})==100
@@ -732,6 +745,7 @@ jobs:
               print(f"- Exact SEC score-event identity audit: **{source_links['exact_original_filing_accession_in_100_primary_archive_and_header']}/36** original issuer accessions inside the 100-file current capture; **{source_links['source_event_cohorts_with_all_header_accessions']}/19** full original source-event cohorts, no metrics independently parsed and no historical first-delivery attested.",file=stream)
               print(f"- SEC targeted missing-score source gap fill: **{filled['targeted_original_primary_and_SGML_both_sha_archived']}/{filled['targeted_missing_exact_original_accession_attempts']}** exact original SEC scoring documents+headers archived, combined exact identities **{filled['combined_original_score_source_accessions_now_hashed_and_clock_matched']}/36**; **{filled['exact_sources_with_SECGML_acceptance_day_different_from_filed_day']}** original SEC acceptances precede official filed dates. Accounting disclosure verification and historical delivery still unconfirmed.",file=stream)
               print(f"- Historical ALFRED as-of: **{alfred['official_historical_vintage_original_responses_archived']}/48** DGS30/IORB original-as-of retrievals; first intraday delivery still unknown.",file=stream)
+              print(f"- Original PRU SEC numerical replay: **{pru_replay['independently_reproduced_scoped_issuer_research_ratios']}/9** source disclosures independently reconciled, **{pru_replay['missing_or_ambiguous_research_ratios']}** blocked; still **0** historical first-feed attestations and **0** full Insurers node certifications.",file=stream)
               print(f"- PRIORITY100: **{priorities['deterministic_specialized_audit_tasks_executed']}** separately assigned evidence tasks: 36 original SEC documents, 19 source-derived accounting cohorts, 24 market months, 11 model nodes, 10 fail-closed forecast controls. Exact current-source hashes checked **{priorities['exact_referenced_SEC_source_and_SGML_bytes_currently_verified']}/36**. Accounting values independently verified **0**, source-to-score certified **0**, production index NULL.",file=stream)
               print(f"- Fixed first-month source cohort research-only lead/lag: **{lead['matched_complete_first_cohort_forward_returns']}** matched observed next-month S&P returns, EXPOST Pearson **{lead['descriptive_correlation_risk_vs_following_month_SP500_return_pearson']}**; OOS forecast skill NULL.",file=stream)
               for experiment in cycle['next_experiments']:
