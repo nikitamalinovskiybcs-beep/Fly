@@ -165,17 +165,31 @@ def build(crosswalk, targeted, reports, headers, reconciled, lead, status,
         })
 
     for row, diag in zip(months, diagnostics):
+        # Reconciler's *_source_nodes_research_only fields are node COUNTS,
+        # not iterable rosters. Recover exact node names from missing_nodes.
+        # Verify the complement, count, and frozen weights independently.
+        market_missing = row["market_missing_nodes"]
+        calendar_missing = row["calendar_missing_nodes"]
+        if (not isinstance(market_missing, list)
+            or not isinstance(calendar_missing, list)
+            or len(market_missing) != len(set(market_missing))
+            or len(calendar_missing) != len(set(calendar_missing))
+            or not set(market_missing).issubset(WEIGHTS)
+            or not set(calendar_missing).issubset(WEIGHTS)):
+            raise ValueError("Missing-node lists invalid or duplicate")
+        market_nodes = set(WEIGHTS) - set(market_missing)
+        calendar_nodes = set(WEIGHTS) - set(calendar_missing)
         if (row["full_11node_AICS"] is not None or row["AICS_SP500_spread"] is not None
             or row["market_cutoff_date"] != diag["market_cutoff_date"]
             or not 0 <= row["market_known_weight_research_only"] <= 1050
             or not 0 <= row["calendar_known_weight_research_only"] <= 1050
-            or set(row["market_source_nodes_research_only"]) !=
-               set(WEIGHTS) - set(row["market_missing_nodes"])
-            or set(row["calendar_source_nodes_research_only"]) !=
-               set(WEIGHTS) - set(row["calendar_missing_nodes"])
-            or sum(WEIGHTS[n] for n in row["market_source_nodes_research_only"]) !=
+            or type(row["market_source_nodes_research_only"]) is not int
+            or type(row["calendar_source_nodes_research_only"]) is not int
+            or row["market_source_nodes_research_only"] != len(market_nodes)
+            or row["calendar_source_nodes_research_only"] != len(calendar_nodes)
+            or sum(WEIGHTS[n] for n in market_nodes) !=
                row["market_known_weight_research_only"]
-            or sum(WEIGHTS[n] for n in row["calendar_source_nodes_research_only"]) !=
+            or sum(WEIGHTS[n] for n in calendar_nodes) !=
                row["calendar_known_weight_research_only"]):
             raise ValueError("Incomplete monthly evidence was incorrectly promoted or distorted")
         tasks.append({
