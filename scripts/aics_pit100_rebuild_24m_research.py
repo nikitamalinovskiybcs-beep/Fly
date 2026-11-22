@@ -30,7 +30,7 @@ OUT=Path("aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_rebuilt_24
 HORIZON=90
 G17=Path("aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json")
 G17_RELEASE="https://www.federalreserve.gov/releases/g17/20251223/table7.htm"
-G17_PERIOD=re.compile(r"^(20[0-9]{2}-(?:0[1-9]|1[0-2])) (?:first-published|initial) Fed G\\.17")
+G17_PERIOD=re.compile(r"^(20[0-9]{2}-(?:0[1-9]|1[0-2])) (?:first-published|initial) Fed G\.17")
 
 
 def event_roster(overlay,credit):
