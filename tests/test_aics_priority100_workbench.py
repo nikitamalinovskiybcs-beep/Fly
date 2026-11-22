@@ -87,8 +87,8 @@ class PriorityHundredTests(unittest.TestCase):
             cutoff = f"{month}-28"
             months.append({
                 "month": month, "market_cutoff_date": cutoff,
-                "market_source_nodes_research_only": listed,
-                "calendar_source_nodes_research_only": listed,
+                "market_source_nodes_research_only": len(listed),
+                "calendar_source_nodes_research_only": len(listed),
                 "market_missing_nodes": sorted(set(WEIGHTS)-set(listed)),
                 "calendar_missing_nodes": sorted(set(WEIGHTS)-set(listed)),
                 "market_known_weight_research_only": 275,
@@ -158,6 +158,26 @@ class PriorityHundredTests(unittest.TestCase):
     def test_synthetic_prediction_promoted_fails(self):
         wrong = copy.deepcopy(self.args)
         wrong[5]["independent_24m_out_of_sample_forecast_labels"] = 24
+        with self.assertRaises(ValueError):
+            build(*wrong)
+
+    def test_real_reconciler_count_schema_rejects_list_as_count(self):
+        wrong = copy.deepcopy(self.args)
+        wrong[4]["monthly_aligned_research_panel"][0]["market_source_nodes_research_only"] = [
+            "Insurers", "Private Credit"
+        ]
+        with self.assertRaises(ValueError):
+            build(*wrong)
+
+    def test_month_missing_node_partition_rejects_duplicate(self):
+        wrong = copy.deepcopy(self.args)
+        wrong[4]["monthly_aligned_research_panel"][0]["market_missing_nodes"].append("AI Equities")
+        with self.assertRaises(ValueError):
+            build(*wrong)
+
+    def test_reconciled_count_mismatch_rejects(self):
+        wrong = copy.deepcopy(self.args)
+        wrong[4]["monthly_aligned_research_panel"][0]["market_source_nodes_research_only"] = 11
         with self.assertRaises(ValueError):
             build(*wrong)
 
