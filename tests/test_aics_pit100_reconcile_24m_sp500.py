@@ -57,8 +57,8 @@ class IndependentPIT100MonthlyReconcilation(unittest.TestCase):
         for mode in ("market","calendar"):
             s=next(v for v in self.simple[mode+"_monthly_rebuilt"] if v["month"]=="2025-12")
             b=next(v for v in self.rich["monthly_rebuilt_panels"][mode] if v["month"]=="2025-12")
-            self.assertEqual(s["node_scores_rebuilt_from_original_events"]["Semiconductors Supply"]["research_score_not_PIT_certified"],"74.4")
-            self.assertEqual(b["event_source_scores"]["Semiconductors Supply"]["score_0_100_research_only"],"74.4")
+            self.assertEqual(s["node_scores_rebuilt_from_original_events"]["Semiconductors Supply"]["research_score_not_PIT_certified"],"74.40")
+            self.assertEqual(b["event_source_scores"]["Semiconductors Supply"]["score_0_100_research_only"],"74.40")
 
     def test_retrospective_sp500_is_not_reused_as_aics_feature(self):
         x=reconcile(self.simple,self.rich,self.sp500)
