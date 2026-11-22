@@ -1,0 +1,86 @@
+name: AICS V52 conductor - horizon split and crisis event falsification
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v52_horizon_credit_model_robustness.py
+      - tests/test_aics_v52_horizon_credit_model_robustness.py
+      - scripts/aics_v51_credit_magnitude_early_warning.py
+      - aics_data/research/private_credit_2024q2_2026q1_first_sec_cost_breadth_2026-11-22.json
+      - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
+      - aics_data/research/sp500_24_month_closes_2026-11-21.json
+      - .github/workflows/aics-v52-model-robustness.yml
+
+jobs:
+  model-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout historical model observations
+        uses: actions/checkout@v4
+      - name: Configure Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify robust V52 shadow model and no historical forecast invention
+        run: |
+          python -m compileall -q scripts/aics_v52_horizon_credit_model_robustness.py tests/test_aics_v52_horizon_credit_model_robustness.py
+          python -m unittest discover -s tests -p 'test_aics_v52_horizon_credit_model_robustness.py' -v
+      - name: Run 100 ex-post scenario falsifications on real 24-month source panel
+        run: |
+          python -m scripts.aics_v52_horizon_credit_model_robustness --out aics_data/research/aics_v52_horizon_credit_model_robustness_2026-11-22.json
+      - name: Refuse to claim in-sample result as OOS forecast skill
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('aics_data/research/aics_v52_horizon_credit_model_robustness_2026-11-22.json').read_text())
+          assert r['100_coordinated_model_falsification_scenarios']==100
+          assert r['number_of_horizon_director_roles']==10
+          assert r['actually_new_independently_trained_agents']==0
+          assert len(r['100_expost_model_falsification_tasks'])==100
+          assert r['primary_crisis_10pct_positive_months_by_1_3_6m']==[0,0,0]
+          assert r['primary_crisis_AUC_all_undefined'] is True
+          assert r['six_month_distinct_positive_episode_count']==2
+          assert r['six_month_v51_auc_better_after_every_positive_episode_omission'] is False
+          assert r['six_month_one_episode_omission_min_V51_auc_gap']==0.0
+          assert r['model_improved_independent_crisis_warning_performance'] is None
+          assert r['production_11node_AICS'] is None
+          assert r['trades_created'] is False
+          summary={k:v for k,v in r.items() if k!='100_expost_model_falsification_tasks'}
+          Path('aics_v52_model_conductor_scoreboard.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n')
+          for event in r['secondary_5pct_same_month_model_comparison']:
+              print('V52 HORIZON',event['horizon_months'],'N',event['matched_history_months'],
+                    'event months',event['positive_label_months'],'episodes',event['distinct_positive_episodes'],
+                    'AUC old',event['AUC_legacy_expost'],
+                    'AUC V51',event['AUC_V51_severity_expost'],
+                    'AUC V52',event['AUC_V52_horizon_split_expost'],
+                    'AUC market',event['AUC_past_3month_market_loss_expost'])
+          print('Six-month V51 improvement survives leave-one-episode?',r['six_month_v51_auc_better_after_every_positive_episode_omission'])
+          print('Original 11-node AICS= None, independent OOS= None')
+          PY
+      - name: Executive evidence summary
+        run: |
+          python - <<'PY'
+          import json,os
+          r=json.load(open('aics_v52_model_conductor_scoreboard.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V52 — model improvement over raw 100-agent data audits',file=f)
+              print('**100/100** model-side stress evaluations, 10 horizon research roles; no 100 trained AIs.',file=f)
+              print('Original 11-node AICS unchanged; short-term old breadth and long-term V51 severity held in separate unapproved channels.',file=f)
+              for x in r['secondary_5pct_same_month_model_comparison']:
+                  print('**'+str(x['horizon_months'])+' months:** '+str(x['positive_label_months'])+' positive monthly labels from '+str(x['distinct_positive_episodes'])+' episodes, AUC old/new/horizon split/market = '+str([x['AUC_legacy_expost'],x['AUC_V51_severity_expost'],x['AUC_V52_horizon_split_expost'],x['AUC_past_3month_market_loss_expost']])+'.',file=f)
+              print('Six-month V51 vs old advantage collapses to '+str(r['six_month_one_episode_omission_min_V51_auc_gap'])+' when an observed event episode is removed.',file=f)
+              print('No 10% future crash in 1/3/6 months; no certified PIT 11-node AICS, unseen OOS or trades.',file=f)
+          PY
+      - name: Save model-experiment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v52-100-model-tests-episode-falsification
+          path: |
+            aics_data/research/aics_v52_horizon_credit_model_robustness_2026-11-22.json
+            aics_v52_model_conductor_scoreboard.json
+          if-no-files-found: error
