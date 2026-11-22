@@ -17,7 +17,8 @@ def html(issuer,*,bad_cost=False):
     if issuer=="BXSL":
         value="2.7" if bad_cost else "1.8"
         return (f"<html><body>Percentage of assets on non-accrual, "
-                f"at amortized cost (4)(5) {value} % 0.3 %"
+                f"at amortized cost (4)(5) {value} % 0.3 % "
+                f"Original statement disclosure fixture for exact-source archival verification."
                 f"</body></html>").encode()
     amount="1,900" if bad_cost else "1,800"
     return (
