@@ -16,6 +16,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import re
 from collections import Counter
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
@@ -33,6 +34,9 @@ OUT=RUN/"aics_24m_publication_date_rebuilt_research_panel.json"
 REPORT=RUN/"aics_24m_publication_date_rebuild_quality_report.md"
 SEC_LEGACY="verified_original_sec_filed_date_plus_one_calendar_day_proxy"
 NON_SEC="preserved_baseline_non_sec_or_unverified"
+G17_ORIGINAL=Path("aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json")
+G17_RELEASE="https://www.federalreserve.gov/releases/g17/20251223/table7.htm"
+G17_MEASURE=re.compile(r"^(20[0-9]{2}-(?:0[1-9]|1[0-2])) (?:first-published|initial) Fed G\\.17")
 FRESH_DAYS=90
 TOTAL_WEIGHT=1050
 MONTHS=24
@@ -60,6 +64,19 @@ def normalized_events(overlay,credit):
         or credit.get("historical_pit_source_bytes_independently_attested") is not False
         or credit.get("scores_are_expost_not_preregistered") is not True):
         raise ValueError("Original source-ledger lineage required")
+    original=read_bytes(G17_ORIGINAL)
+    if (original.get("schema")!="aics-g17-naics3344-first-release-monthly-24-v1"
+        or original.get("independent_historical_pit_certified") is not False):
+        raise ValueError("Original G17 source publication lineage is not certified")
+    joint={e["observation_month"]:e for e in original["observations"]
+           if e["observation_month"] in ("2025-10","2025-11")}
+    if (set(joint)!={"2025-10","2025-11"}
+        or any(e["official_release_date"]!="2025-12-23"
+               or e["source_url"].lower()!=G17_RELEASE.lower()
+               for e in joint.values())
+        or {x:dec(e["initially_observed_utilization_pct"]) for x,e in joint.items()}!=
+           {"2025-10":Decimal("74.7"),"2025-11":Decimal("74.4")}):
+        raise ValueError("Official G.17 Oct/Nov two-period release must have exact original values")
     events=[]
     for i,r in enumerate(overlay["source_events"]):
         if (r["node"] not in WEIGHTS
@@ -78,11 +95,20 @@ def normalized_events(overlay,credit):
             source_kind="NON_SEC_RESEARCH_RELEASE_DATE_PROXY"
         else:
             raise ValueError("Unknown original publication source policy")
+        g17period=G17_MEASURE.match(str(r.get("measurement",""))) if r["node"]=="Semiconductors Supply" else None
+        observation_month=g17period.group(1) if g17period else None
+        if observation_month in joint:
+            evidence=joint[observation_month]
+            if (filing.isoformat()!=evidence["official_release_date"]
+                or dec(r["score"])!=dec(evidence["initially_observed_utilization_pct"])):
+                raise ValueError("Multiple observation periods on same G17 publication do not conflict")
         events.append({
             "event_key":f"V17:{i:02d}",
             "node":r["node"],"score":str(dec(r["score"])),
+            "observation_month":observation_month,
             "first_public_research_day_proxy":filing.isoformat(),
             "source_kind":source_kind,"source_path":r["source"],
+            "original_joint_publication_url":G17_RELEASE if observation_month in joint else None,
             "measurement":r.get("measurement"),
             "legacy_original_plus14_or_release_date":r["available_at"],
             "historical_pubtime_intraday_verified":False,
@@ -117,15 +143,22 @@ def normalized_events(overlay,credit):
 
 
 def ambiguous_public_release_pairs(events):
-    """Quarantine distinct values for a node on the same date-only release."""
+    """Quarantine only conflicting values of the SAME observed period/vintage.
+
+    A single Fed G17 publication may legitimately contain Oct and Nov values;
+    differing month-of-measurement values are not a source-date conflict.
+    """
     buckets={}
     for e in events:
-        buckets.setdefault((e["node"],e["first_public_research_day_proxy"]),[]).append(e)
+        key=(e["node"],e["first_public_research_day_proxy"],
+             e.get("observation_month") or e["event_key"])
+        buckets.setdefault(key,[]).append(e)
     conflicts=[]
-    for (node,day),bucket in sorted(buckets.items()):
+    for (node,day,observation_month),bucket in sorted(buckets.items()):
         if len({dec(e["score"]) for e in bucket})>1:
             conflicts.append({
                 "node":node,"claimed_public_day":day,
+                "observation_month":observation_month,
                 "source_event_keys":[e["event_key"] for e in bucket],
                 "original_measured_items":[e.get("measurement") for e in bucket],
                 "conflicting_recorded_scores":[e["score"] for e in bucket],
@@ -150,8 +183,10 @@ def replay_at(events,cutoff,*,market_close):
         if e_date>cutoff:
             raise ValueError("A future observation leaked into historical replay")
         existing=recent.get(event["node"])
-        if existing is None or (e_date,event["event_key"])>(
-                date(existing["first_public_research_day_proxy"]),existing["event_key"]):
+        if existing is None or (
+            e_date,event.get("observation_month") or "",event["event_key"])>(
+                date(existing["first_public_research_day_proxy"]),
+                existing.get("observation_month") or "",existing["event_key"]):
             recent[event["node"]]=event
     scores={}
     for node,event in sorted(recent.items()):
@@ -230,8 +265,15 @@ def build(overlay,credit,sp500,pit100,*,as_of):
         raise ValueError("Require genuine completed 100-role PIT public-date audit")
     events=normalized_events(overlay,credit)
     conflicts=ambiguous_public_release_pairs(events)
-    if len(conflicts)!=1 or conflicts[0]["node"]!="Semiconductors Supply":
-        raise ValueError("Original same-date conflicting G.17 releases need independent review")
+    if conflicts:
+        raise ValueError("True duplicate same measurement/release source conflicts require quarantine review")
+    joint=[e for e in events if e["node"]=="Semiconductors Supply"
+           and e["first_public_research_day_proxy"]=="2025-12-23"
+           and e.get("observation_month") in ("2025-10","2025-11")]
+    if (len(joint)!=2
+        or {e["observation_month"]:dec(e["score"]) for e in joint}!=
+        {"2025-10":Decimal("74.7"),"2025-11":Decimal("74.4")}):
+        raise ValueError("Both valid October and November 2025 releases must survive")
     # Guard using original PIT100 primary preflight as an independently
     # separate materialization of the dated SEC +1 legacy ledger.
     panels={}
@@ -351,6 +393,16 @@ def build(overlay,credit,sp500,pit100,*,as_of):
         "active_policy":POLICY,
         "source_events_recomputed_from_unchanged_original_ledgers":64,
         "same_day_ambiguous_release_conflicts_quarantined":conflicts,
+        "same_day_joint_different_observation_periods_validated":{
+            "original_release_date":"2025-12-23",
+            "original_official_federal_reserve_release_url":G17_RELEASE,
+            "source_observation_values":[
+                {"observation_month":e["observation_month"],"value":e["score"],
+                 "original_event_key":e["event_key"]}
+                for e in sorted(joint,key=lambda x:x["observation_month"])],
+            "separate_measurement_months_not_duplicate_release_data":True,
+            "independent_original_first_delivery_timestamp_attested":False,
+        },
         "original_PIT100_roles_individually_verified_against_rebuild":100,
         "original_PIT100_execution_count":pit100["PIT_runs_successfully_computed"],
         "SEC_14day_artificial_delay_active":False,
@@ -438,7 +490,7 @@ def markdown_report(report):
         "",
         "## Original data conflicts discovered during reconstruction",
         "",
-        "**G.17 source conflict:** two Semiconductor Supply observations claiming 2025-12-23 first-public dates have different original values (2025-10 and 2025-11 measured periods). Both are quarantined until independently verified against the actual dated original Federal Reserve release/vintage. The preceding unambiguous observation is kept separately with its source age; no interpolated value is used.",
+        "**G.17 joint release, not a conflict:** the official Federal Reserve published October and November 2025 preliminary NAICS 3344 measurements together on December 23, 2025. The original values are **74.70** for October and **74.40** for November. Both dated original research candidates are preserved; November 74.40 is the latest known source measurement at December month-end. The original publication is archived as a Fed release URL, but first historical feed receipt is not independently attested.",
         "",
         "## Quality gates, still open",
         "",
