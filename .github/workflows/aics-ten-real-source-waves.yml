@@ -25,6 +25,8 @@ on:
       - scripts/aics_pit100_reconcile_24m_sp500.py
       - scripts/aics_pit100_sec_sgml_clock_audit.py
       - scripts/aics_pit100_original_scoring_accession_lineage.py
+      - scripts/aics_pit100_target_exact_missing_sec_sources.py
+      - tests/test_aics_pit100_target_exact_missing_sec_sources.py
       - tests/test_aics_pit100_original_scoring_accession_lineage.py
       - tests/test_aics_pit100_sec_sgml_clock_audit.py
       - scripts/aics_pit100_alfred_24m_vintage_audit.py
@@ -129,6 +131,10 @@ jobs:
         run: |
           python -m compileall -q scripts/aics_pit100_original_scoring_accession_lineage.py tests/test_aics_pit100_original_scoring_accession_lineage.py
           python -m unittest discover -s tests -p 'test_aics_pit100_original_scoring_accession_lineage.py' -v
+      - name: Verify original SEC scoring-source targeted gap fill and fail-closed provenance
+        run: |
+          python -m compileall -q scripts/aics_pit100_target_exact_missing_sec_sources.py tests/test_aics_pit100_target_exact_missing_sec_sources.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_target_exact_missing_sec_sources.py' -v
       - name: Verify ten model improvement agent evidence and forecasting gates
         run: |
           python -m compileall -q scripts/aics_ten_model_improvement_agents.py tests/test_aics_ten_model_improvement_agents.py
@@ -244,6 +250,15 @@ jobs:
             --reports aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_original_sec_reports_manifest.json \
             --headers aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_sec_sgml_header_clock_audit.json \
             --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_original_source_accession_to_node_lineage.json
+      - name: Download missing exact original issuer score-source SEC documents and headers
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
+        run: |
+          python -m scripts.aics_pit100_target_exact_missing_sec_sources \
+            --crosswalk aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_original_source_accession_to_node_lineage.json \
+            --as-of "$AICS_ASOF_UTC" \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_targeted_missing_sec_original_score_docs.json \
+            --rawdir aics_data/agent_runs/ten_real_collection_rounds/pit100_targeted_missing_original_scoring_docs_raw
       - name: Fetch 48 ALFRED asof vintages for DGS30 and IORB across 24 months
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
@@ -336,6 +351,25 @@ jobs:
           rec = json.loads((path/'aics_pit100_reconciled_24m_sp500_monthly.json').read_text())
           sgml = json.loads((path/'aics_pit100_100_sec_sgml_header_clock_audit.json').read_text())
           source_links = json.loads((path/'aics_pit100_original_source_accession_to_node_lineage.json').read_text())
+          filled = json.loads((path/'aics_pit100_targeted_missing_sec_original_score_docs.json').read_text())
+          assert filled['schema']=='aics-PIT100-targeted-original-scoring-accession-SGML-fill-v1'
+          assert filled['original_research_filing_claims']==36
+          assert filled['original_claims_already_matched_via_unrelated_100_sample']==source_links['exact_original_filing_accession_in_100_primary_archive_and_header']
+          assert filled['targeted_missing_exact_original_accession_attempts']+filled['original_claims_already_matched_via_unrelated_100_sample']==36
+          assert filled['targeted_original_primary_and_SGML_both_sha_archived']+filled['targeted_original_source_download_failures']==filled['targeted_missing_exact_original_accession_attempts']
+          assert filled['combined_original_score_source_accessions_now_hashed_and_clock_matched']==filled['original_claims_already_matched_via_unrelated_100_sample']+filled['targeted_original_primary_and_SGML_both_sha_archived']
+          assert filled['still_missing_original_exact_source_accessions_after_targeted_fetch']==filled['targeted_original_source_download_failures']
+          assert filled['original_accounting_values_automatically_verified_from_source_bytes']==0
+          assert filled['historically_PIT_certified_11node_scores']==0
+          assert filled['full_11node_AICS'] is None and filled['trades_created'] is False
+          for row in filled['targeted_source_results']:
+              if row['success_exact_original_scoring_document_and_sgml']:
+                  import gzip
+                  orig=gzip.decompress(Path(row['original_doc_gzip_archived_path']).read_bytes())
+                  hdr=gzip.decompress(Path(row['original_header_gzip_archived_path']).read_bytes())
+                  assert hashlib.sha256(orig).hexdigest()==row['original_doc_raw_sha256']
+                  assert hashlib.sha256(hdr).hexdigest()==row['original_header_raw_sha256']
+                  assert row['historical_first_data_feed_receipt_attested'] is False
           assert source_links['schema']=='aics-PIT100-original-scoring-accession-to-SEC-SGML-crosswalk-v1'
           assert source_links['research_underlying_original_filing_references']==36
           assert source_links['research_source_cohorts']==19
@@ -676,6 +710,7 @@ jobs:
               print(f"- PIT100 ORIGINAL SEC REPORT FETCH: **{downloaded['genuine_original_sec_http_attempts']}** unique filing HTTP attempts by scoped acquisition workers, **{downloaded['source_document_bytes_archived_successfully']}** full original primary report payloads SHA-256 verified, **{downloaded['source_document_failures_recorded_without_fabrication']}** explicit failures. Historic first-receipt timestamp remains unverified.",file=stream)
               print(f"- Original SEC SGML ET clocks: **{sgml['original_SEC_header_SHA256_archives_successful']}/100** archived original index headers; after 16 ET **{sgml['original_SEC_header_at_or_after16_ET']}**, JSON timezone classes **{sgml['json_raw_timestamp_against_SGML_diagnostics']}**. Acceptance is NOT first public dissemination.",file=stream)
               print(f"- Exact SEC score-event identity audit: **{source_links['exact_original_filing_accession_in_100_primary_archive_and_header']}/36** original issuer accessions inside the 100-file current capture; **{source_links['source_event_cohorts_with_all_header_accessions']}/19** full original source-event cohorts, no metrics independently parsed and no historical first-delivery attested.",file=stream)
+              print(f"- SEC targeted missing-score source gap fill: **{filled['targeted_original_primary_and_SGML_both_sha_archived']}/{filled['targeted_missing_exact_original_accession_attempts']}** exact original SEC scoring documents+headers archived, combined exact identities **{filled['combined_original_score_source_accessions_now_hashed_and_clock_matched']}/36**. Accounting disclosure verification and historical delivery still unconfirmed.",file=stream)
               print(f"- Historical ALFRED as-of: **{alfred['official_historical_vintage_original_responses_archived']}/48** DGS30/IORB original-as-of retrievals; first intraday delivery still unknown.",file=stream)
               print(f"- Fixed first-month source cohort research-only lead/lag: **{lead['matched_complete_first_cohort_forward_returns']}** matched observed next-month S&P returns, EXPOST Pearson **{lead['descriptive_correlation_risk_vs_following_month_SP500_return_pearson']}**; OOS forecast skill NULL.",file=stream)
               for experiment in cycle['next_experiments']:
