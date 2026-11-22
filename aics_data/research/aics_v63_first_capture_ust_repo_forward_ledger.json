@@ -1,0 +1,18 @@
+{
+  "schema": "aics-v63-first-capture-ust-repo-monthly-shadow-ledger-v1",
+  "registered_at_date": "2026-11-22",
+  "method_registry_git_blob_sha1": "c08d3872644f8e09a60cd32c1c8c0f9ce05f98b6",
+  "methods_are_posthoc_research_only": true,
+  "source_first_delivery_independent_PIT_certified": false,
+  "full_11node_AICS": null,
+  "official_AICS": null,
+  "trades_created": false,
+  "completed_monthly_snapshots": [],
+  "notes": [
+    "This is deliberately EMPTY as of registration 2026-11-22. Do not add Oct 2026 or earlier as newly prospective.",
+    "All 4 candidate score formulas were formed after historical 2024-2026 outcomes; now frozen to examine future behavior only, never treated as independently validated.",
+    "The first November 2026 joint-rate effective month close can only be captured after first real following December observation is available across DGS30/SOFR/IORB.",
+    "Provider source effective day differs from publication; FRED retrieval UTC is actual observation by collector, not independently attested provider publication PIT.",
+    "No 11-node official index, no trades, no approved method."
+  ]
+}
