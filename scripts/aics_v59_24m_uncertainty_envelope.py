@@ -140,7 +140,12 @@ def month_bound(row):
             raise ValueError("Unavailable known original research publication date") from exc
         if published>expected:
             raise ValueError("Future look-ahead research node score in prior month")
-    published_raw=exact_score(row.get("partial_weighted_points_not_full_aics"))
+    try:
+        published_raw=D(row.get("partial_weighted_points_not_full_aics"))
+    except (TypeError,InvalidOperation,ValueError) as exc:
+        raise ValueError("Invalid original partial weighted score") from exc
+    if not published_raw.is_finite() or not ZERO<=published_raw<=D(TOTAL):
+        raise ValueError("Original raw index contribution out of range")
     if abs(raw-published_raw)>D("0.01"):
         raise ValueError("Original displayed partial score differs from raw input")
     missing_set=set(missing)
