@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import unittest
 from scripts.aics_pit100_original_scoring_accession_lineage import (
-    extract,build,read_bytes,OVERLAY,CREDIT,PRU,NEO,
+    extract,build,read_bytes,OVERLAY,CREDIT,PRU,NEO,canonical_primary_doc_url,
 )
 
 def fixtures(source_rows):
@@ -75,6 +75,44 @@ class OriginalSECScoringAccessionCrosswalkTests(unittest.TestCase):
         self.assertEqual(sum(x["same_exact_CIK_accession_header_clock_verified"] for x in r["source_claims"]),2)
         self.assertTrue(all(x["historical_public_dissemination_before_market_close_attested"] is False
                             for x in r["source_claims"]))
+
+    def test_prudential_official_mirror_matches_same_sec_accession_and_filename(self):
+        cik="1137774"
+        acc="0001137774-26-000221"
+        mirror=f"https://investor.prudential.com/financials/sec-filings/content/{acc}/pru-20260930.htm"
+        original=f"https://www.sec.gov/Archives/edgar/data/{cik}/{acc.replace('-', '')}/pru-20260930.htm"
+        self.assertEqual(canonical_primary_doc_url(mirror,cik=cik,accession=acc),
+                         canonical_primary_doc_url(original,cik=cik,accession=acc))
+        self.assertIsNone(canonical_primary_doc_url(
+            mirror.replace("pru-20260930.htm","different-table.htm"),cik="99999",accession=acc))
+        self.assertNotEqual(canonical_primary_doc_url(
+            mirror.replace("pru-20260930.htm","other.htm"),cik=cik,accession=acc),
+            canonical_primary_doc_url(original,cik=cik,accession=acc))
+        self.assertIsNone(canonical_primary_doc_url(
+            mirror.replace("investor.prudential.com","investor-prudential.evil.example"),
+            cik=cik,accession=acc))
+        self.assertIsNone(canonical_primary_doc_url(
+            mirror.replace(acc,"0001137774-26-000176"),cik=cik,accession=acc))
+
+    def test_crosswalk_canonical_mirror_not_same_full_url(self):
+        manifest,headers=fixtures(self.rows)
+        x=self.rows[0]
+        assert x["CIK"]=="1137774"
+        acc=x["accession"]
+        file=x["source_original_doc_url"].rsplit("/",1)[-1]
+        manifest["tasks"][0]["source_url"]=(
+            f"https://investor.prudential.com/financials/sec-filings/content/{acc}/{file}"
+        )
+        out=build(*self.data,manifest,headers)
+        r=next(x for x in out["source_claims"] if x["accession"]==acc)
+        self.assertTrue(r["same_exact_primary_document_url_matched_to_source"])
+        self.assertTrue(r["source_url_mirror_normalized_for_same_CIK_accession_filename"])
+        self.assertFalse(r["literal_reference_URL_equals_archived_primary_doc_URL"])
+        self.assertEqual(out["explicit_PRU_official_mirror_URL_normalizations"],1)
+        manifest["tasks"][0]["source_url"]=manifest["tasks"][0]["source_url"].replace(file,"incorrect.htm")
+        failed=build(*self.data,manifest,headers)
+        row=next(x for x in failed["source_claims"] if x["accession"]==acc)
+        self.assertFalse(row["same_exact_primary_document_url_matched_to_source"])
 
     def test_unrelated_100_filing_headers_do_not_certify_scoring_inputs(self):
         manifest,headers=fixtures(self.rows)
