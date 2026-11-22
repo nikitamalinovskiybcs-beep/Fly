@@ -18,6 +18,8 @@ on:
       - scripts/aics_v30_cashflow_financing_bridge.py
       - scripts/aics_v31_interest_repo_dual_clock.py
       - scripts/aics_v32_v34_autonomous_research_rotation.py
+      - scripts/aics_v35_v39_five_version_batch.py
+      - tests/test_aics_v35_v39_five_version_batch.py
       - tests/test_aics_v32_v34_autonomous_research_rotation.py
       - tests/test_aics_v31_interest_repo_dual_clock.py
       - aics_data/research/coreweave_q3_ir_interest_burden_2026-11-18.json
@@ -113,6 +115,10 @@ jobs:
         run: |
           python -m compileall -q scripts/aics_v32_v34_autonomous_research_rotation.py tests/test_aics_v32_v34_autonomous_research_rotation.py
           python -m unittest discover -s tests -p 'test_aics_v32_v34_autonomous_research_rotation.py' -v
+      - name: Validate five real-data research gates V35 through V39 in one batch
+        run: |
+          python -m compileall -q scripts/aics_v35_v39_five_version_batch.py tests/test_aics_v35_v39_five_version_batch.py
+          python -m unittest discover -s tests -p 'test_aics_v35_v39_five_version_batch.py' -v
       - name: Verify integrated 30-agent cycle research and fail-closed gates
         run: |
           python -m compileall -q scripts/aics_thirty_agent_cycle.py tests/test_aics_thirty_agent_cycle.py
@@ -140,6 +146,10 @@ jobs:
           python -m scripts.aics_v32_v34_autonomous_research_rotation --as-of "$AICS_ASOF_UTC" \
             --cycle aics_data/agent_runs/ten_real_collection_rounds/aics_thirty_agent_research_cycle.json \
             --out aics_data/agent_runs/ten_real_collection_rounds/aics_autonomous_v32_v34_research_rotation.json
+      - name: Execute AICS V35-V39 source-driven research batch on 30-role live cycle
+        run: |
+          python -m scripts.aics_v35_v39_five_version_batch --as-of "$AICS_ASOF_UTC" \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_v35_v39_five_version_result.json
       - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
         run: |
           python - <<'PY'
@@ -160,6 +170,25 @@ jobs:
           cycle = json.loads((path/'aics_thirty_agent_research_cycle.json').read_text())
           assert cycle['agent_groups']['total_distinct_roles_executed']==30
           rotation = json.loads((path/'aics_autonomous_v32_v34_research_rotation.json').read_text())
+          five = json.loads((path/'aics_v35_v39_five_version_result.json').read_text())
+          assert five['schema']=='aics-v35-v39-source-validated-five-version-batch-v1'
+          assert five['as_of']==cycle['cutoff_date']
+          assert five['version_count']==5
+          assert [r['name'].split('_')[0] for r in five['versions']]==['V35','V36','V37','V38','V39']
+          assert five['versions'][0]['observed_complete_calendar_quarters']==7
+          assert five['versions'][0]['first_four_issuer_negative_gap_quarter']=='2026-Q3'
+          assert five['versions'][0]['first_eligible_source_date']=='2026-11-13'
+          assert five['versions'][1]['total_observed_deterioration_usd_m']=='-33134'
+          assert five['versions'][1]['largest_contributing_issuer']=='Amazon'
+          assert five['versions'][1]['largest_contributor_share_of_net_deterioration_pct']=='78.52'
+          assert five['versions'][2]['source_eligible_q2_issuers']==2
+          assert five['versions'][3]['earliest_known_contract_maturity']=='2027-10-16'
+          assert five['versions'][3]['matched_instrument_new_spread_change_bps'] is None
+          assert five['versions'][4]['approved_full_AICS'] is None
+          assert five['versions'][4]['2008_historical_first_crisis_warning_reproduced'] is False
+          assert five['synthetic_rows_added']==0
+          assert five['production_weights_changed'] is False
+          assert five['trades_created'] is False
           assert rotation['agents_exec_group_count']==30
           assert rotation['utc_as_of']==cycle['cutoff_date']
           assert rotation['v32_matched_loan_pricing_audit']['same_facility_two_eligible_amendments_verified']==0
@@ -354,6 +383,7 @@ jobs:
               print('- V30: Q2 source-reconciled financing cash CoreWeave +$10.071bn (debt issuance and repayments) vs Nebius +$2.8649bn (mostly equity), alongside distinct cash PP&E deficits. Different loan spread is not matched-loan repricing; no bank contagion skill.',file=stream)
               print('- V31: CoreWeave Q3 IR net interest/revenue 23.1% is descriptive only, AICS SEC+14 not until 2026-11-26; October repo SOFR-minus-IORB +4bps market proxy is NOT a matched-borrower loan repricing.',file=stream)
               print(f"- V32–V34 autonomous research rotation: **{rotation['autonomous_cycle_scope']}**; original loan repricing pairs **0**, actual Q2 funding bridges **{len(rotation['v33_issuer_funding_and_liquidity_audit']['source_eligible_2026Q2_issuer_bridges'])}**, source-derived next experiment **{rotation['automatic_next_research_priority']}**.",file=stream)
+              print(f"- V35–V39 FIVE real-source research gates: **{five['versions'][0]['observed_complete_calendar_quarters']}** original four-hyperscaler quarters; Q2→Q3 total gap **{five['versions'][1]['total_observed_deterioration_usd_m']} USDm**; biggest deterioration issuer **{five['versions'][1]['largest_contributing_issuer']}** (**{five['versions'][1]['largest_contributor_share_of_net_deterioration_pct']}%**); two separate issuer funding models and 2008 contamination STOP.",file=stream)
               print(f"- UTC report cutoff: **{cycle['cutoff_date']}**. Trigger: **{os.environ.get('GITHUB_EVENT_NAME','unknown')}**. Research only; auto-production: OFF.",file=stream)
               for experiment in cycle['next_experiments']:
                   print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
