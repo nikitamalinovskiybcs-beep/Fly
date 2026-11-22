@@ -87,7 +87,7 @@ def _cohort_sample(v51,closes,horizon,threshold):
     for i,row in enumerate(months):
         # Same source panel and prior 3m market feature used for ALL variants;
         # exclude last h observations if their next closes are unobserved.
-        if (i<3 or i+h>=len(closes)
+        if (i<3 or i+horizon>=len(closes)
             or row["matched_same_original_3BDC_source_family"] is not True):
             continue
         old=dec(row["fixed_cohort_breadth_legacy_normalized_NOT_AICS"])
