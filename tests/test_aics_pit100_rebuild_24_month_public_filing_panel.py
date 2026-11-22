@@ -84,27 +84,31 @@ class PIT100OriginalSourceMonthlyRebuildTests(unittest.TestCase):
         self.assertIn("2024-11",text)
         self.assertIn("2026-10",text)
         self.assertIn("S&P 500",text)
-        self.assertIn("G.17 source conflict",text)
+        self.assertIn("G.17 joint release",text)
         self.assertIn("**no +14-day delay**",text)
 
-    def test_same_day_ambiguous_G17_release_is_quarantined_not_averaged(self):
+    def test_fed_official_dec23_joint_oct_and_nov_measurements_are_both_valid(self):
         e=normalized_events(self.overlay,self.credit)
         conflicts=ambiguous_public_release_pairs(e)
-        self.assertEqual(len(conflicts),1)
-        c=conflicts[0]
-        self.assertEqual(c["node"],"Semiconductors Supply")
-        self.assertEqual(c["claimed_public_day"],"2025-12-23")
-        self.assertEqual(set(c["conflicting_recorded_scores"]),{"74.70","74.40"})
+        self.assertEqual(conflicts,[])
+        source=[r for r in e if r["node"]=="Semiconductors Supply"
+                and r["first_public_research_day_proxy"]=="2025-12-23"]
+        self.assertEqual(len(source),2)
+        self.assertEqual({x["observation_month"]:x["score"] for x in source},
+                         {"2025-10":"74.7","2025-11":"74.4"})
+        self.assertTrue(all(x["original_joint_publication_url"] ==
+                            "https://www.federalreserve.gov/releases/g17/20251223/table7.htm"
+                            for x in source))
         m=replay_at(e,"2025-12-31",market_close=False)
         self.assertEqual(
             m["event_source_scores"]["Semiconductors Supply"]["score_0_100_research_only"],
-            "75.50")
-        self.assertEqual(m["quarantined_conflicting_source_records"],2)
-        self.assertIn("2025-12-23",m["ambiguous_publication_source_dates"])
+            "74.4")
+        self.assertEqual(m["quarantined_conflicting_source_records"],0)
+        self.assertEqual(m["ambiguous_publication_source_dates"],[])
         jan=replay_at(e,"2026-01-30",market_close=True)
         self.assertEqual(
             jan["event_source_scores"]["Semiconductors Supply"]["score_0_100_research_only"],
-            "73.60")
+            "73.6")
 
     def test_new_public_filing_cutoff_no_same_day_market_leakage(self):
         e=normalized_events(self.overlay,self.credit)
