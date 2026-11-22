@@ -26,6 +26,8 @@ on:
       - scripts/aics_pit100_sec_sgml_clock_audit.py
       - scripts/aics_pit100_original_scoring_accession_lineage.py
       - scripts/aics_pit100_target_exact_missing_sec_sources.py
+      - scripts/aics_priority100_workbench.py
+      - tests/test_aics_priority100_workbench.py
       - tests/test_aics_pit100_target_exact_missing_sec_sources.py
       - tests/test_aics_pit100_original_scoring_accession_lineage.py
       - tests/test_aics_pit100_sec_sgml_clock_audit.py
@@ -291,6 +293,11 @@ jobs:
           python -m scripts.aics_pit100_24m_expost_leadlag_diagnostic \
             --reconciled aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_reconciled_24m_sp500_monthly.json \
             --rich aics_data/agent_runs/ten_real_collection_rounds/aics_24m_publication_date_rebuilt_research_panel.json
+      - name: Run 100 priority evidence work units - 36 originals, 19 cohorts, 24 months, 11 nodes, 10 safety
+        run: |
+          python -m compileall -q scripts/aics_priority100_workbench.py tests/test_aics_priority100_workbench.py
+          python -m unittest discover -s tests -p 'test_aics_priority100_workbench.py' -v
+          python -m scripts.aics_priority100_workbench --out aics_data/agent_runs/ten_real_collection_rounds/aics_priority100_evidence_queue.json
       - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
         run: |
           python - <<'PY'
@@ -385,6 +392,18 @@ jobs:
           assert source_links['complete_11node_AICS'] is None and source_links['trades_created'] is False
           alfred = json.loads((path/'aics_pit100_24m_alfred_two_source_vintages.json').read_text())
           lead = json.loads((path/'aics_pit100_24m_expost_leadlag_falsification.json').read_text())
+          priorities = json.loads((path/'aics_priority100_evidence_queue.json').read_text())
+          assert priorities['schema']=='aics-priority100-evidence-workbench-v1'
+          assert priorities['deterministic_specialized_audit_tasks_executed']==100
+          assert len({x['task_id'] for x in priorities['priority_queue']})==100
+          assert priorities['priority_0_original_document_tasks']==36
+          assert priorities['priority_0_original_event_cohort_tasks']==19
+          assert priorities['priority_1_monthly_source_tasks']==24
+          assert priorities['priority_1_node_score_tasks']==11
+          assert priorities['priority_2_safety_control_tasks']==10
+          assert priorities['original_accounting_values_independently_recomputed']==0
+          assert priorities['independently_certified_nodes']==0
+          assert priorities['full_11node_AICS'] is None and priorities['trades_created'] is False
           assert sgml['schema']=='aics-PIT100-first-original-SEC-SGML-timezone-clocks-audit-v1'
           assert sgml['distinct_original_SEC_report_tasks_referenced']==100
           assert sgml['original_SEC_header_http_attempts']==100
@@ -713,6 +732,7 @@ jobs:
               print(f"- Exact SEC score-event identity audit: **{source_links['exact_original_filing_accession_in_100_primary_archive_and_header']}/36** original issuer accessions inside the 100-file current capture; **{source_links['source_event_cohorts_with_all_header_accessions']}/19** full original source-event cohorts, no metrics independently parsed and no historical first-delivery attested.",file=stream)
               print(f"- SEC targeted missing-score source gap fill: **{filled['targeted_original_primary_and_SGML_both_sha_archived']}/{filled['targeted_missing_exact_original_accession_attempts']}** exact original SEC scoring documents+headers archived, combined exact identities **{filled['combined_original_score_source_accessions_now_hashed_and_clock_matched']}/36**; **{filled['exact_sources_with_SECGML_acceptance_day_different_from_filed_day']}** original SEC acceptances precede official filed dates. Accounting disclosure verification and historical delivery still unconfirmed.",file=stream)
               print(f"- Historical ALFRED as-of: **{alfred['official_historical_vintage_original_responses_archived']}/48** DGS30/IORB original-as-of retrievals; first intraday delivery still unknown.",file=stream)
+              print(f"- PRIORITY100: **{priorities['deterministic_specialized_audit_tasks_executed']}** separately assigned evidence tasks: 36 original SEC documents, 19 source-derived accounting cohorts, 24 market months, 11 model nodes, 10 fail-closed forecast controls. Exact current-source hashes checked **{priorities['exact_referenced_SEC_source_and_SGML_bytes_currently_verified']}/36**. Accounting values independently verified **0**, source-to-score certified **0**, production index NULL.",file=stream)
               print(f"- Fixed first-month source cohort research-only lead/lag: **{lead['matched_complete_first_cohort_forward_returns']}** matched observed next-month S&P returns, EXPOST Pearson **{lead['descriptive_correlation_risk_vs_following_month_SP500_return_pearson']}**; OOS forecast skill NULL.",file=stream)
               for experiment in cycle['next_experiments']:
                   print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
