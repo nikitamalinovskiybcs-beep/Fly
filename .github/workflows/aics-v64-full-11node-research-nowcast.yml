@@ -1,0 +1,58 @@
+name: AICS V64 - full 11-node 24m research dashboard
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v64_full_11node_research_nowcast.py
+      - .github/workflows/aics-v64-full-11node-research-nowcast.yml
+
+jobs:
+  full-eleven-node-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout real research source records
+        uses: actions/checkout@v4
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run full 11-node AICS research with 24 historical coverage records
+        run: |
+          python -m scripts.aics_v64_full_11node_research_nowcast \
+            --out aics_data/research/aics_v64_full_11node_research_nowcast_24m_2026-11-22.json
+      - name: Print decision and ensure hypothetical result never becomes a production signal
+        run: |
+          python - <<'PY'
+          import json
+          p='aics_data/research/aics_v64_full_11node_research_nowcast_24m_2026-11-22.json'
+          r=json.load(open(p))
+          assert r['eleven_nodes']==11 and r['total_weights']==1050
+          assert len(r['history_24_months_observed_coverage_and_exact_missing_node_bounds'])==24
+          assert len(r['six_unapproved_scenario_models'])==6
+          assert len(r['october_full_11node_contributions_with_provenance'])==11
+          assert r['latest_original_known_weight']==725
+          assert r['research_indicator_central_six_scenario_median_1050']==470.66
+          assert [r['research_six_scenario_min'],r['research_six_scenario_max']]==[427.98,513.33]
+          assert r['official_aics_score'] is None
+          assert r['trading_recommendation_from_research_indicator'] is None
+          assert r['independent_PIT_certified_nodes']==0
+          assert r['strict_project_readiness']=='22/66'
+          assert r['new_matured_prospective_expert_forecast_count']==0
+          assert r['trades_created'] is False
+          print('FULL 11-NODE AICS RESEARCH NOWCAST OCT 2026:',r['research_indicator_central_six_scenario_median_1050'])
+          print('SIX SENSITIVITY CASE RANGE:',r['research_six_scenario_min'],r['research_six_scenario_max'])
+          print('OFFICIAL AICS:',r['official_aics_score'])
+          print('FROZEN FIVE EXPERTS:',r['five_frozen_predictive_specialists'])
+          PY
+      - name: Preserve readable JSON research report with no extra fabricated data
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v64-full-11node-24months-research-nowcast
+          path: aics_data/research/aics_v64_full_11node_research_nowcast_24m_2026-11-22.json
+          if-no-files-found: error
