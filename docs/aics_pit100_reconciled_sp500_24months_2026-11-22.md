@@ -18,14 +18,11 @@
 
 *50,00% и 50,89%* — доли наблюдаемого суммарного веса источников в 24-месячных исследовательских срезах, **не** точность предсказания, не сертификация модели. *725/1050* или *950/1050* — веса присутствующих кандидатных рядов, а **не** величина индекса AICS.
 
-## Одна реальная ошибка источника, выявленная сравнением
+## Исправление после первоисточника ФРС от 23 декабря 2025
 
-Две разные архивные записи **Semiconductors Supply / Fed G.17** имели одинаковую заявленную дату выпуска **2025-12-23**:
+**Обновление 22.11.2026: прежнее объявление двух записей «конфликтом» было ошибочным.** ФРС во время задержек публикации одновременно выпустила значения NAICS 3344 за **октябрь 2025 — 74,70** и за **ноябрь 2025 — 74,40** с одной датой выхода **23.12.2025**. Это **разные месяцы измерения**, а не два несовместимых числа за один месяц. Прямой архив ФРС: [выпуск G.17 23.12.2025](https://www.federalreserve.gov/releases/g17/20251223/table7.htm) и [официальное разъяснение](https://www.federalreserve.gov/releases/g17/g17_technical_qa.htm).
 
-- Ретроспективная оценка 74,70;
-- Ретроспективная оценка 74,40.
-
-Раньше один алгоритм выбирал последнюю запись по внутреннему порядку, другой помещал обе в карантин. Теперь **оба алгоритма помещают обе конфликтующие записи в карантин**. Предыдущее однозначное исходное исследовательское наблюдение **75,50** (2025-12-03) хранится с собственной датой и возрастом, но не признаётся independently first-release PIT-certified. Это исправление действительно изменяет исследовательский срез декабря 2025-го.
+В исправленной версии оба изначально датированных наблюдения сохранены, декабрьский месячный исследовательский срез использует более позднее наблюдение **за ноябрь — 74,40**, а не устаревшее сентябрьское 75,50. Подтверждение самой даты официального выпуска **не** подтверждает первый исторический момент доставки data-feed или самостоятельную сертификацию индекса. Прежние результаты и артефакт 45010911937 — архивная предисправительная версия; новая сверка производится в [ежедневном GitHub workflow](../.github/workflows/aics-ten-real-source-waves.yml).
 
 ## Реальный 24-месячный S&P500 контекст
 
@@ -59,4 +56,4 @@ Existing two independent original panels and the source original bytes / SHA-256
 
 Next necessary work: independently validate historical source timestamps (SEC acceptance/public dissemination intraday, dated Fed G.17 and ALFRED release vintages, revised equity constituent universe), then audit fixed node scoring formulas and out-of-sample dates. More deterministic roles/tests alone do not establish predictive skill.
 
-**Conclusion:** both 24-month research reproductions have no remaining source-score/node-month disagreements, and the G.17 timing ambiguity is quarantined. This is a materially corrected *research data panel*, **not** a newly certified AICS forecast.
+**Conclusion (updated):** original G.17 October and November 2025 observations were jointly released Dec 23, 2025 and are not a duplicate observation conflict. New research replays preserve both with the latest observation month selected. Source first delivery and certified AICS predictive performance remain unproven.
