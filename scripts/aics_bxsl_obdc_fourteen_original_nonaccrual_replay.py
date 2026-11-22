@@ -16,7 +16,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 from scripts.aics_arcc_seven_original_nonaccrual_replay import (
-    LEDGER, QUEUE, REPORTS, TARGETED, OUT as ARCC_OUT, PERIODS, VisibleText,
+    LEDGER, QUEUE, REPORTS, TARGETED, PERIODS, VisibleText,
 )
 from scripts.aics_priority100_workbench import ROOT,verify_gzip_original
 
