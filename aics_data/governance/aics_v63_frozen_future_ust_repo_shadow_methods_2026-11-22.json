@@ -1,0 +1,73 @@
+{
+  "schema": "aics-v63-preregistered-future-only-research-ust-repo-source-to-shadow-v1",
+  "registered_at_date": "2026-11-22",
+  "first_eligible_original_market_month": "2026-11",
+  "registration_rule": "No change to risk transforms or their baselines after this freeze; no new score on old months",
+  "hypotheses_posthoc_invented_after_known_2024_2026_history": true,
+  "model_family_is_not_independently_untouched_oos_even_after_future_appraisal": true,
+  "candidate_promotion": "BLOCKED",
+  "authoritative_v62_official_score_method_registry_sha1": "240e5bcd1bbaf1cf808cc184485e9b51956eb8a3",
+  "original_11node_weights_total": 1050,
+  "trading_allowed": false,
+  "source_series": {
+    "DGS30": {
+      "uri": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS30",
+      "unit": "percent per annum",
+      "source_date_not_first_published_at": true
+    },
+    "SOFR": {
+      "uri": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=SOFR",
+      "unit": "percent per annum",
+      "effective_day_and_next_publication_differ": true
+    },
+    "IORB": {
+      "uri": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=IORB",
+      "unit": "percent per annum",
+      "source_date_not_first_published_at": true
+    }
+  },
+  "model_source_policy": {
+    "all_3_original_csv_requested_same_sequential_run": true,
+    "one_utc_capture_instant_after_all_3_downloads": true,
+    "sha256_each_original_response": true,
+    "raw_csv_remains_ephemeral_not_source_controlled": true,
+    "source_http_failure_blocks_no_fallback": true,
+    "same_date_required_for_three_rates": true,
+    "at_least_21_recent_nonmissing_dgs30_trading_dates_for_20_changes": true,
+    "max_days_between_last_joint_observation_and_month_end": 7,
+    "require_next_month_joint_observation_before_finalizing_prior_month": true,
+    "no_same_month_early_score": true,
+    "no_backfill_of_october_2026_or_earlier": true,
+    "first_delivery_independent_PIT_attested": false
+  },
+  "shadow_scenarios_unapproved_and_not_probabilities": [
+    {
+      "id": "UST_VOL10_POSTHOC_LOCKED",
+      "rule": "min(100,max(0,100*sample_SD_of_last_20_daily_DGS30_yield_changes_in_bp/10))",
+      "original_history_already_seen_before_selection": true,
+      "units": "research score 0-100"
+    },
+    {
+      "id": "UST_VOL_PLUS_RISE_POSTHOC_LOCKED",
+      "rule": "0.5*UST_VOL10 + 0.5*min(100,max(0,100*max(current_month_DGS30_minus_prior_prospectively_logged_month_DGS30_in_bp,0)/50))",
+      "requires_prior_month_prospectively_logged_rate": true,
+      "units": "research score 0-100"
+    },
+    {
+      "id": "REPO_PREMIUM_20_POSTHOC_LOCKED",
+      "rule": "min(100,max(0,100*max(SOFR_minus_IORB_in_basis_points,0)/20))",
+      "original_history_already_seen_before_selection": true,
+      "units": "research score 0-100"
+    },
+    {
+      "id": "REPO_PREMIUM_10_POSTHOC_LOCKED",
+      "rule": "min(100,max(0,100*max(SOFR_minus_IORB_in_basis_points,0)/10))",
+      "original_history_already_seen_before_selection": true,
+      "units": "research score 0-100"
+    }
+  ],
+  "single_default_official_replacement_selected": null,
+  "predeclared_success_metric": "future only comparison of threshold stability, forward risk direction and operational source completeness; no outcome-sensitive expert selection",
+  "further_governance_needed": "Independent source-first-delivery audit and committee-approved economic source-to-score method before any official 11-node index or trade",
+  "full_11_node_AICS": null
+}
