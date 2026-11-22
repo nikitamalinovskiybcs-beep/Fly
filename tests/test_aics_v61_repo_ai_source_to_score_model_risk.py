@@ -51,6 +51,11 @@ class AICS61OriginalRepoAIModelRiskTests(unittest.TestCase):
         self.assertTrue(all(x["official_full_AICS"] is None for x in months))
         self.assertTrue(all(not x["trades_created"] for x in months))
         self.assertTrue(all(x["new_approved_node_scores"]==0 for x in months))
+        self.assertTrue(all(all(t["risk_if_ALL_nonapproved_shadows_assumed_NOT_REAL_AICS"] is None
+                                for t in r["six_nonofficial_score_combinations"])
+                            for r in months[:2]))
+        self.assertTrue(all(t["still_missing_unscored_original_nodes"]==[]
+                            for t in months[-1]["six_nonofficial_score_combinations"]))
 
     def test_october_actual_sofr_iorb_and_equity_retrospective_breadth(self):
         oct=self.report["three_months_2026Q3_research_model_definition_risk"][-1]
@@ -122,7 +127,7 @@ class AICS61OriginalRepoAIModelRiskTests(unittest.TestCase):
 
     def test_month_count_and_original_official_aics_fail_closed(self):
         r=self.report
-        self.assertEqual(r["months_where_posthoc_reasonable_normalizers_disagree_on_450_500_regime"],2)
+        self.assertEqual(r["months_where_posthoc_reasonable_normalizers_disagree_on_450_500_regime"],1)
         self.assertTrue(r["official_index_still_unknown_for_all_24_months"])
         self.assertTrue(r["strict_readiness_delivered_milestones_22_of_66_unchanged"])
         self.assertFalse(r["trading_approved"])
