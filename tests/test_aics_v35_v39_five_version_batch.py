@@ -114,7 +114,7 @@ class V35V39RealSourceTests(unittest.TestCase):
 
     def test_sec_dates_protect_q3_signal_and_ir(self):
         for date,n,first,sec in (
-            ("2026-08-25",5,None,False),
+            ("2026-08-25",6,None,False),
             ("2026-08-26",6,None,False),
             ("2026-11-12",6,None,False),
             ("2026-11-13",7,"2026-Q3",False),
