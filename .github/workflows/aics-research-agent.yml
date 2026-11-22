@@ -1,0 +1,32 @@
+name: AICS autonomous research diagnostics
+on:
+  workflow_run:
+    workflows: ["AICS evidence collection"]
+    types: [completed]
+  workflow_dispatch:
+  schedule:
+    - cron: '45 9 * * 1-5'
+permissions:
+  contents: read
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Collect evidence for research diagnostics
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
+        run: python scripts/aics_collect_evidence.py || true
+      - name: Diagnose and record next research experiments
+        run: python scripts/aics_research_agent.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aics-agent-research
+          path: aics_data/live/
+          retention-days: 30
