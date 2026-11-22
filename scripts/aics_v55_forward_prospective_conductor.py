@@ -118,7 +118,7 @@ def validate_freeze(frozen):
     }
 
 
-def score_candidate(data):
+def score_candidate(data,*,actual_now=None):
     """Fail closed on missing new observations, time leaks and fake certs."""
     if (data.get("schema")!="aics-v55-prospective-research-snapshot-v1"
         or data.get("certified_11node_AICS") is not None
@@ -135,6 +135,9 @@ def score_candidate(data):
     if close_date<=FROZEN_DATE:
         raise ValueError("Genuine new market close must be after the freeze")
     asof=iso_instant(data.get("forecast_created_at_utc"))
+    wallclock=(actual_now if actual_now is not None else dt.datetime.now(dt.timezone.utc))
+    if wallclock.tzinfo is None or asof>wallclock.astimezone(dt.timezone.utc):
+        raise ValueError("A self-reported future timestamp cannot create a current prospective forecast")
     close_retrieved=iso_instant(data.get("market_close_retrieved_at_utc"))
     if asof.date()<close_date or close_retrieved.date()<close_date or close_retrieved>asof:
         raise ValueError("No scoring prior to real market close and publication")
@@ -201,9 +204,9 @@ def score_candidate(data):
     }
 
 
-def build(frozen,snapshot=None):
+def build(frozen,snapshot=None,*,actual_now=None):
     contract=validate_freeze(frozen)
-    candidate=score_candidate(snapshot) if snapshot is not None else None
+    candidate=score_candidate(snapshot,actual_now=actual_now) if snapshot is not None else None
     return {
         "schema":"aics-v55-forward-only-model-conductor-v1",
         "registry_recorded_at":"2026-11-22",
