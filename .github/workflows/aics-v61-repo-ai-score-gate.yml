@@ -1,0 +1,99 @@
+name: AICS V61 - Repo and AI Equities source-to-score model risk
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v61_repo_ai_source_to_score_model_risk.py
+      - tests/test_aics_v61_repo_ai_source_to_score_model_risk.py
+      - aics_data/research/repo_24_month_observed_research_2026-11-18.json
+      - aics_data/research/ai_equities_aug_oct_2026_retrospective_shadow_2026-11-21.json
+      - aics_data/research/ai_equities_prospective_directory_first_capture_2026-11-19.json
+      - aics_data/research/ust_repo_joint_original_replay_external_rehash_2026-11-19.json
+      - scripts/aics_v60_ust30_shadow_score_hypotheses.py
+      - .github/workflows/aics-v61-repo-ai-score-gate.yml
+
+jobs:
+  source-to-score-falsification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout original retrospective source receipts
+        uses: actions/checkout@v4
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify research provenance, three-month source gaps and no official AICS promotion
+        run: |
+          python -m compileall -q scripts/aics_v61_repo_ai_source_to_score_model_risk.py tests/test_aics_v61_repo_ai_source_to_score_model_risk.py
+          python -m unittest discover -s tests -p 'test_aics_v61_repo_ai_source_to_score_model_risk.py' -v
+      - name: Recompute actual-source to unapproved-score ambiguity matrix
+        run: |
+          python -m scripts.aics_v61_repo_ai_source_to_score_model_risk \
+            --out aics_data/research/aics_v61_three_unapproved_scores_model_risk_matrix_2026-11-22.json
+      - name: Fail closed on false 11-node backfill, historical PIT or trading claims
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('aics_data/research/aics_v61_three_unapproved_scores_model_risk_matrix_2026-11-22.json')
+          x=json.loads(p.read_text())
+          assert x['real_repo_original_monthly_observations']==24
+          assert x['ust30_actual_monthly_observations_already']==24
+          assert x['real_nasdaq_equity_retro_session_months']==3
+          assert x['real_nasdaq_current_seven_company_directory_found']==7
+          assert x['AI_retro_price_retrieved_after_2026_Aug_Sep_Oct'] is True
+          assert x['new_score_normalizers_10_20_basis_points_are_post_hoc_research_only'] is True
+          assert x['scenarios_calculated_real_original_source_not_real_scores']==18
+          assert x['months_where_posthoc_reasonable_normalizers_disagree_on_450_500_regime']==1
+          assert x['research_24m_independent_PIT_certified_nodes']==0
+          assert x['official_full_11node_AICS'] is None
+          assert x['trading_approved'] is False and x['new_trades_created']==0
+          rows=x['three_months_2026Q3_research_model_definition_risk']
+          assert all(z['official_full_AICS'] is None for z in rows)
+          assert all(y['risk_if_ALL_nonapproved_shadows_assumed_NOT_REAL_AICS'] is None
+                     for z in rows[:2] for y in z['six_nonofficial_score_combinations'])
+          oct=rows[-1]
+          assert oct['conditional_old_interval']==[322.06,801.07]
+          pairs={(y['candidate_UST_rule'],y['candidate_Repo_rule']):
+                   y['risk_if_ALL_nonapproved_shadows_assumed_NOT_REAL_AICS']
+                 for y in oct['six_nonofficial_score_combinations']}
+          assert pairs=={
+            ('Vol10','RepoZeroBoundary'):465.33,
+            ('Vol10','RepoPremium20bpPostHoc'):489.33,
+            ('Vol10','RepoPremium10bpPostHoc'):513.33,
+            ('VolPlusRise','RepoZeroBoundary'):427.98,
+            ('VolPlusRise','RepoPremium20bpPostHoc'):451.98,
+            ('VolPlusRise','RepoPremium10bpPostHoc'):475.98}
+          print('Observed Repo source months:',x['real_repo_original_monthly_observations'])
+          print('Observed AI retro research months:',x['real_nasdaq_equity_retro_session_months'])
+          print('V61 October what-if scores (UNAPPROVED, NOT historical AICS):')
+          for key,value in sorted(pairs.items()):
+              print('  ',key,value)
+          print('Real official full AICS: NULL')
+          PY
+      - name: Report negative model-selection and historical source gap result
+        run: |
+          python - <<'PY'
+          import json,os
+          r=json.load(open('aics_data/research/aics_v61_three_unapproved_scores_model_risk_matrix_2026-11-22.json'))
+          rows=r['three_months_2026Q3_research_model_definition_risk']
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V61 — original prices exist, scoring and old PIT do not',file=f)
+              print('Repo **24/24 real historical monthly rates**, UST **24/24**, AI equities **3/24 retrospective one-session basket readings**. No new source history fabricated.',file=f)
+              print('Oct 2026 market raw: SOFR-IORB **+4bp**, four of seven AI research equities down on the last session. Neither is an official stress-score.',file=f)
+              print('The 6 posthoc 0–100 risk conversions, if substituted as if official, force **ENTRY, WATCH and CASH** on the SAME original October raw data. This is a falsification of score certainty, **not a trading signal**.',file=f)
+              print('Aug/Sep have other original unknown node(s); keep conditional envelopes, NEVER fabricate full scores.',file=f)
+              print('Historical official AICS **null**; source-PIT certified **0/11**; strict delivery readiness **22/66**; no trades.',file=f)
+          PY
+      - name: Preserve source-evidence gated scenario analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v61-unapproved-repo-ai-ust-scoring-flips-trading-thresholds
+          path: aics_data/research/aics_v61_three_unapproved_scores_model_risk_matrix_2026-11-22.json
+          if-no-files-found: error
