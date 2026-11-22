@@ -20,6 +20,10 @@ from scripts.aics_score_reproducibility_gate import WEIGHTS
 from scripts.aics_sec_quarter_cashflow_gate import audit as audit_cashflow
 from scripts.aics_historical_crisis_analog import build as historical_crisis_analog
 from scripts.aics_v28_credit_relationship_topology import from_originals as credit_network_build
+from scripts.aics_v40_v49_ten_pit_forensics_agents import (
+    build_from_repository as pit_forensics_build,
+    NAMES as PIT_ASSIGNMENTS,
+)
 from scripts.aics_v31_interest_repo_dual_clock import (
     build as interest_repo_build, INTEREST as IR_Q3_INTEREST,
     REPO as HISTORICAL_REPO,
@@ -560,6 +564,22 @@ def run(*, v17, v18, spx, shadow, finance=None, waves=None, as_of=None):
     ]
     if len(payloads)!=10:
         raise ValueError("All 10 model improvement agents must execute")
+    # Reassign ten EXISTING model-improvement research roles, not invent
+    # ten more agent executions or self-modifying trading/weight authority.
+    pit=pit_forensics_build(as_of=as_of,waves=waves,finance=finance)
+    if (len(pit["ten_agent_research_results"])!=10
+        or pit["source_premature_SEC_proxies"]!=27
+        or pit["private_credit_premature_quarters"]!=7
+        or pit["market_close_quarantined_node_months"]!=4
+        or pit["calendar_close_quarantined_node_months"]!=5
+        or pit["approved_pit_certified_nodes"]!=0
+        or pit["approved_11node_aics"] is not None
+        or pit["trades_created"] is not False):
+        raise ValueError("PIT source evidence must quarantine old +1 rather than certify a model")
+    for i,payload in enumerate(payloads):
+        if pit["ten_agent_research_results"][i]["name"]!=PIT_ASSIGNMENTS[i]:
+            raise ValueError("All ten PIT audit roles must execute in declared order")
+        payload["pit_source_date_forensics_assignment"]=pit["ten_agent_research_results"][i]
     agents=[]
     for name, result in zip(NAMES,payloads):
         agents.append({
@@ -580,6 +600,20 @@ def run(*, v17, v18, spx, shadow, finance=None, waves=None, as_of=None):
         "original_quarter_finance_audit_loaded":finance is not None,
         "live_source_wave_manifest_loaded":waves is not None,
         "original_sec_numeric_scope_unverified":True,
+        "pit_specialist_forensics":{
+            "ten_existing_model_improvement_roles_assigned":10,
+            "legacy_SEC_proxies_premature_by_13_days":
+                pit["source_premature_SEC_proxies"],
+            "private_credit_quarters_premature_by_13_days":
+                pit["private_credit_premature_quarters"],
+            "market_month_end_quarantined_node_months":
+                pit["market_close_quarantined_node_months"],
+            "calendar_month_end_quarantined_node_months":
+                pit["calendar_close_quarantined_node_months"],
+            "certified_PIT_nodes_added":0,
+            "index_aics":None,
+            "first_provider_source_historical_delivery_attested":False,
+        },
         "full_aics":None,"aics_sp500_spread":None,
         "historical_provider_pit_certified":False,
         "trained_supervised_forecast":False,
