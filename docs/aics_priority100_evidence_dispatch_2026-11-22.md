@@ -86,3 +86,27 @@ On 22 November, individually opened each period's own first-party EDGAR original
 | 2026 Q3 | [original 10-Q](https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/pru-20260930.htm) | 610 | 58,685 | 1.04% |
 
 All nine manual original-statement ratios equal the research-ledger values at displayed precision. **Do not** mark independent historical source ingestion time, 24-month OOS, issuer representativeness, AI-linked loss attribution or a certified Insurers 0-100 stress node as passed. Machine-extraction status is reported independently by the new nine-document replay run.
+
+## Priority100 follow-up: 33/36 source-byte status and ARCC seven-quarter source parsing
+
+The complete [successful original Priority100 GitHub Actions run 45018937898](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/45018937898) executed **100/100** evidence-verification tasks. Its artifact recorded **33/36** exact primary-document+header SHA rehashes, **0 independently recalculated underlying accounting source metrics**, **0 certified PIT nodes**, and **no full index**. Those three exclusions were exclusively Prudential original SEC documents for **2026-Q1/Q2/Q3** with the **same (CIK, accession, filename)** but an `investor.prudential.com` mirror URL instead of the equivalent `www.sec.gov/Archives/edgar/data` URL. The SHA-verified raw bytes were already archived through the SEC original archive. The earlier full-URL string equality was an overly restrictive source-identity test, not evidence of three absent filings.
+
+A reviewed [canonical source identity function](../scripts/aics_pit100_original_scoring_accession_lineage.py) now accepts only a strict original SEC CIK/accession/filename path or Prudential's specifically allowed IR original URL with identical accession and filename. It does not accept arbitrary host aliases, wrong filenames, cross-issuer CIKs or changed accessions. The separate literal URL-equality field is preserved; canonical identity does **not** prove that a provider historically delivered the bytes.
+
+The [original PRU raw numeric CI run 45019183473](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/45019183473) passed with **6/9** fully SHA-rechecked, source-parsed numeric ratios and **3/9** blocked by the same outdated literal-URL policy before normalization. The next new CI run must be inspected before claiming 9/9 original byte replay.
+
+New automated [seven-quarter ARCC source replay](../scripts/aics_arcc_seven_original_nonaccrual_replay.py) and [negative tests](../tests/test_aics_arcc_seven_original_nonaccrual_replay.py) inspect the **original SEC primary filing**, extract unique current-period non-accrual percentages for **amortized cost and fair value separately**, and compare against the original ledger. Independently inspecting the previously archived original bytes gave these descriptive values (not certified PIT):
+
+| ARCC source quarter | Cost non-accrual % | Fair-value non-accrual % |
+|---|---:|---:|
+| 2024 Q3 | 1.3 | 0.6 |
+| 2024 Q4 | 1.7 | 1.0 |
+| 2025 Q1 | 1.5 | 0.9 |
+| 2025 Q2 | 2.0 | 1.2 |
+| 2025 Q3 | 1.8 | 1.0 |
+| 2025 Q4 | 1.8 | 1.2 |
+| 2026 Q1 | 2.1 | 1.2 |
+
+These observed numbers match the existing retrospective source ledger and were found in the relevant exact original 10-Q/10-K/earnings exhibits; acceptance/filer filing date, first publication, issuer loan performance and full market predictive skill remain different evidentiary layers. Automated 7/7 source SHA/numeric replay is **not yet claimed until its workflow concludes**. BXSL/OBDC other 14 reports and six neocloud reports require their own exact source numeric controls.
+
+**Strict readiness remains 22/66 and independently 0/11 nodes.** An additional test or verified issuer row is not an automatic audit milestone.
