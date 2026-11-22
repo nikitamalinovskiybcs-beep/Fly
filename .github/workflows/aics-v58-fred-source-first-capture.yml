@@ -1,0 +1,106 @@
+name: AICS V58 - automatic real FRED market-month source capture
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '45 23 * * 1-5'
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v58_first_capture_sp500.py
+      - tests/test_aics_v58_first_capture_sp500.py
+      - .github/workflows/aics-v58-fred-source-first-capture.yml
+
+concurrency:
+  group: aics-v58-real-source-capture
+  cancel-in-progress: false
+
+jobs:
+  first-observed-real-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout tracked future-only model ledger
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test actual source parsing and append-only counterfactual safeguards
+        run: |
+          python -m compileall -q scripts/aics_v58_first_capture_sp500.py tests/test_aics_v58_first_capture_sp500.py
+          python -m unittest discover -s tests -p 'test_aics_v58_first_capture_sp500.py' -v
+      - name: Fetch new external original FRED SP500 CSV and create exact-date SHA receipt
+        run: |
+          python -m scripts.aics_v58_first_capture_sp500 \
+            --apply-to-ledger \
+            --ledger aics_data/research/aics_v56_prospective_forecast_outcome_ledger.json \
+            --receipt aics_data/research/aics_v58_month_close_capture_receipt.json \
+            --raw "$RUNNER_TEMP/aics_sp500_licensed_source.csv"
+      - name: Fail closed if a collected market close is not strictly post-freeze
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          receipt=json.loads(Path('aics_data/research/aics_v58_month_close_capture_receipt.json').read_text())
+          ledger=json.loads(Path('aics_data/research/aics_v56_prospective_forecast_outcome_ledger.json').read_text())
+          assert receipt['source_url']=='https://fred.stlouisfed.org/graph/fredgraph.csv?id=SP500'
+          assert receipt['original_source_observed_valid_daily_rows']>=1
+          assert receipt['licensed_data_full_csv_must_not_be_committed'] is True
+          assert receipt['independently_verified_first_market_delivery'] is False
+          assert receipt['official_AICS'] is None
+          assert receipt['trades_created'] is False
+          assert ledger['original_11node_AICS'] is None and ledger['no_trades'] is True
+          if receipt['month_close_candidate_for_V56'] is None:
+              assert receipt['actual_new_month_close_appended_to_V56_ledger'] is False
+          else:
+              c=receipt['month_close_candidate_for_V56']
+              assert c['month']>='2026-11'
+              assert c['independently_verified_first_publication_PIT'] is False
+              assert any(x['month']==c['month'] for x in ledger['observed_sp500_month_closes'])
+          print('FRED valid original daily rows:',
+                receipt['original_source_observed_valid_daily_rows'])
+          print('Current last fully proved eligible research month:',
+                receipt['required_completed_month'])
+          print('New monthly receipt appended:',
+                receipt['actual_new_month_close_appended_to_V56_ledger'])
+          print('No forward AICS forecast is claimed:', receipt['official_AICS'])
+          PY
+      - name: Safely append only validated new month-close source receipt
+        run: |
+          if git diff --quiet -- aics_data/research/aics_v56_prospective_forecast_outcome_ledger.json; then
+            echo "No newly completed eligible month; prospective ledger unchanged"
+            exit 0
+          fi
+          git config user.name "aics-source-first-capture[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add aics_data/research/aics_v56_prospective_forecast_outcome_ledger.json
+          git commit -m "data(aics): append first seen FRED completed SP500 month receipt, no future signals"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+      - name: Write actual-source capture status
+        run: |
+          python - <<'PY'
+          import json,os
+          r=json.load(open('aics_data/research/aics_v58_month_close_capture_receipt.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V58 — original market capture, no fabricated monthly source',file=f)
+              print('FRED SP500 original source rows parsed: **'+str(r['original_source_observed_valid_daily_rows'])+'**.',file=f)
+              print('As-of UTC: **'+r['retrieved_at_utc']+'**. Raw-original SHA256: `'+r['original_csv_bytes_sha256']+'`.',file=f)
+              print('Eligible month: **'+r['required_completed_month']+'**; status: **'+r['status']+'**.',file=f)
+              print('New real month-close appended to forecast outcome ledger: **'+str(r['actual_new_month_close_appended_to_V56_ledger'])+'**.',file=f)
+              print('**No new forecast and no learner weights update until all actual source features and future matured outcomes exist.**',file=f)
+              print('FRED SP500 copyrighted source original CSV was kept only on ephemeral runner storage, **not redistributed** in artifact or git.',file=f)
+              print('Source first-delivery PIT remains unverified by independent provider audit.',file=f)
+          PY
+      - name: Archive only metadata and one permitted minimal observed monthly close
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v58-SP500-first-capture-source-metadata-only
+          path: aics_data/research/aics_v58_month_close_capture_receipt.json
+          if-no-files-found: error
+          retention-days: 30
