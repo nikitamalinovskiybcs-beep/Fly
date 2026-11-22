@@ -47,7 +47,7 @@ def canonical_primary_doc_url(url, *, cik, accession):
     undashed=accession.replace("-","")
     if p.hostname in ("www.sec.gov","sec.gov"):
         match=re.fullmatch(
-            r"/Archives/edgar/data/(\\d+)/(\\d{18})/([A-Za-z0-9][A-Za-z0-9_.-]*)",
+            r"/Archives/edgar/data/(\d+)/(\d{18})/([A-Za-z0-9][A-Za-z0-9_.-]*)",
             p.path,
         )
         if not match or str(int(match.group(1)))!=norm_cik or match.group(2)!=undashed:
@@ -55,7 +55,7 @@ def canonical_primary_doc_url(url, *, cik, accession):
         basename=match.group(3)
     elif p.hostname=="investor.prudential.com" and norm_cik=="1137774":
         match=re.fullmatch(
-            r"/financials/sec-filings/content/(\\d{10}-\\d{2}-\\d{6})/([A-Za-z0-9][A-Za-z0-9_.-]*)",
+            r"/financials/sec-filings/content/(\d{10}-\d{2}-\d{6})/([A-Za-z0-9][A-Za-z0-9_.-]*)",
             p.path,
         )
         if not match or match.group(1)!=accession:
