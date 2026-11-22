@@ -46,7 +46,7 @@ class FirstCaptureSP500Tests(unittest.TestCase):
         self.assertEqual(report["status"],"NOT_YET_ELIGIBLE_POST_FREEZE_MONTH")
         self.assertEqual(report["required_completed_month"],"2026-10")
         self.assertIsNone(report["month_close_candidate_for_V56"])
-        new,changed=update_ledger(self.empty,report)
+        new,changed=update_ledger(self.empty,report,data)
         self.assertFalse(changed)
         self.assertEqual(new,self.empty)
 
@@ -74,11 +74,11 @@ class FirstCaptureSP500Tests(unittest.TestCase):
 
     def test_append_only_and_same_market_month_idempotent_when_csv_new_rows_added(self):
         r=receipt(mocked_complete(),now=NOW_DEC)
-        a,changed=update_ledger(self.empty,r)
+        a,changed=update_ledger(self.empty,r,mocked_complete())
         self.assertTrue(changed)
         self.assertEqual(len(a["observed_sp500_month_closes"]),1)
         self.assertEqual(len(self.empty["observed_sp500_month_closes"]),0)
-        repeat,c=update_ledger(a,r)
+        repeat,c=update_ledger(a,r,mocked_complete())
         self.assertFalse(c)
         self.assertEqual(repeat,a)
         extra=csv_test(("2026-11-30","7000.50"),
@@ -86,17 +86,18 @@ class FirstCaptureSP500Tests(unittest.TestCase):
         new_capture=receipt(extra,now=dt.datetime(2026,12,3,17,0,tzinfo=UTC))
         self.assertNotEqual(r["original_csv_bytes_sha256"],
                             new_capture["original_csv_bytes_sha256"])
-        b,changed=update_ledger(a,new_capture)
+        b,changed=update_ledger(a,new_capture,extra)
         self.assertFalse(changed)
         self.assertEqual(b,a)
 
     def test_revised_original_month_close_does_not_rewrite_earlier_receipt(self):
         r=receipt(mocked_complete(),now=NOW_DEC)
-        ledger,_=update_ledger(self.empty,r)
-        revised=receipt(csv_test(("2026-11-30","7001.00"),
-                                 ("2026-12-01","7015.50")),now=NOW_DEC)
+        ledger,_=update_ledger(self.empty,r,mocked_complete())
+        revised_raw=csv_test(("2026-11-30","7001.00"),
+                             ("2026-12-01","7015.50"))
+        revised=receipt(revised_raw,now=NOW_DEC)
         with self.assertRaisesRegex(ValueError,"revision"):
-            update_ledger(ledger,revised)
+            update_ledger(ledger,revised,revised_raw)
 
     def test_truncated_non_utf8_and_future_dated_source_is_rejected(self):
         for content in (b"",b"\xff\xfe",b"Invalid source",
@@ -126,11 +127,11 @@ class FirstCaptureSP500Tests(unittest.TestCase):
         bad=copy.deepcopy(self.empty)
         bad["original_11node_AICS"]=500
         with self.assertRaises(ValueError):
-            update_ledger(bad,r)
+            update_ledger(bad,r,mocked_complete())
         altered=copy.deepcopy(r)
         altered["month_close_candidate_for_V56"]["source_sha256"]="0"*64
         with self.assertRaises(ValueError):
-            update_ledger(self.empty,altered)
+            update_ledger(self.empty,altered,mocked_complete())
         self.assertEqual(len(self.empty["observed_sp500_month_closes"]),0)
 
     def test_block_spurious_2024_source_backfill_and_wrong_date_receipt(self):
@@ -141,9 +142,8 @@ class FirstCaptureSP500Tests(unittest.TestCase):
         r=receipt(mocked_complete(),now=NOW_DEC)
         edited=copy.deepcopy(r)
         edited["month_close_candidate_for_V56"]["market_close_date"]="2026-11-22"
-        a,c=update_ledger(self.empty,edited)
-        self.assertTrue(c)  # Requires source-receipt hash validation; see next assertion.
-        self.assertEqual(a["observed_sp500_month_closes"][0]["market_close_date"],"2026-11-22")
+        with self.assertRaisesRegex(ValueError,"does not match original"):
+            update_ledger(self.empty,edited,mocked_complete())
 
 if __name__=="__main__":
     unittest.main()
