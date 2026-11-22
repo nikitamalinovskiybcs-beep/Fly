@@ -36,8 +36,8 @@ DATE_MIN="2024-10-01"
 MAX_DOC_BYTES=8_000_000
 MAX_ARCHIVED_GZIP_BYTES=85_000_000
 ACCESSION=re.compile(r"^\d{10}-\d{2}-\d{6}$")
-PRIMARY=re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,200}\\.(?:htm|html|txt|xml)$",re.I)
-ACCEPTANCE=re.compile(r"^20\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(?:\\.\d+)?(?:Z|[+-]\d\d:\d\d)?$")
+PRIMARY=re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,200}\.(?:htm|html|txt|xml)$",re.I)
+ACCEPTANCE=re.compile(r"^20\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)?$")
 FORMS={"10-K","10-Q","8-K","6-K","S-1","S-1/A","20-F","10-K/A","10-Q/A"}
 SEC_HEADER="https://www.sec.gov/Archives/edgar/data/"
 
