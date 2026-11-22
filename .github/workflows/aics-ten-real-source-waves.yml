@@ -259,14 +259,14 @@ jobs:
           five = json.loads((path/'aics_v35_v39_five_version_result.json').read_text())
           pit100 = json.loads((path/'aics_100_pit_audit_runs_public_release_policy.json').read_text())
           source_rebuilt = json.loads((path/'aics_pit100_rebuilt_24m_public_filing_date_panels.json').read_text())
-          assert source_rebuilt['schema']=='aics-pit100-24m-public-filing-day-source_rebuilt-research-v1'
+          assert source_rebuilt['schema']=='aics-pit100-24m-public-filing-day-rebuilt-research-v1'
           assert source_rebuilt['source_replay_count']==100
           assert source_rebuilt['historical_months']==24
-          assert len(source_rebuilt['market_monthly_source_rebuilt'])==24
-          assert len(source_rebuilt['calendar_monthly_source_rebuilt'])==24
+          assert len(source_rebuilt['market_monthly_rebuilt'])==24
+          assert len(source_rebuilt['calendar_monthly_rebuilt'])==24
           assert source_rebuilt['active_SEC_public_filing_date_no_14day_delay'] is True
           assert source_rebuilt['newly_certified_PIT_nodes']==0
-          assert source_rebuilt['fully_source_rebuilt_production_AICS'] is None
+          assert source_rebuilt['fully_rebuilt_production_AICS'] is None
           assert source_rebuilt['AICS_SP500_spread'] is None
           assert source_rebuilt['trades_created'] is False
           rebuilt = json.loads((path/'aics_24m_publication_date_rebuilt_research_panel.json').read_text())
