@@ -191,6 +191,18 @@ def build(*, waves, finance, v17, v18, spx, shadow):
         or interest["independent_24m_OOS_skill"] is not None
         or interest["model_risk_score"] is not None):
         raise ValueError("IR and market repo rates cannot certify a current AICS credit warning")
+    pit=improved["pit_specialist_forensics"]
+    if (pit["ten_existing_model_improvement_roles_assigned"]!=10
+        or pit["legacy_SEC_proxies_premature_by_13_days"]!=27
+        or pit["private_credit_quarters_premature_by_13_days"]!=7
+        or pit["market_month_end_quarantined_node_months"]!=4
+        or pit["calendar_month_end_quarantined_node_months"]!=5
+        or pit["certified_PIT_nodes_added"]!=0
+        or pit["index_aics"] is not None
+        or pit["first_provider_source_historical_delivery_attested"] is not False
+        or [x["research_result"]["pit_source_date_forensics_assignment"]["name"].split("_")[0]
+            for x in improved["agents"]]!=[f"V{i}" for i in range(40,50)]):
+        raise ValueError("Ten PIT agents are not original source aware or promote invalid dates")
     direct_pairs = imp[0]["research_result"]["direct_quarter_pairs"]
     if direct_pairs != finance["direct_original_3month_pair_candidates"]:
         raise ValueError("Agent cashflow evidence disagrees with original finance gate")
@@ -288,6 +300,16 @@ def build(*, waves, finance, v17, v18, spx, shadow):
             "current_numeric_snapshot_rows": finance["original_numeric_rows_inspected"],
             "direct_quarter_research_candidates": direct_pairs,
             "historical_first_document_receipt_verified": False,
+        },
+        "PIT_source_forensics": {
+            "ten_existing_improvement_agents_focused_on_PIT":10,
+            "retroactive_SEC_plus1_violations":27,
+            "private_credit_premature_quarters":7,
+            "market_close_node_months_quarantined":4,
+            "calendar_close_node_months_quarantined":5,
+            "newly_certified_historical_PIT_nodes":0,
+            "independently_validated_OOS_months":0,
+            "certified_complete_index":None,
         },
         "analysis": {
             "market_research_observability_pct": apr[2]["result"]["market"]["research_observability_pct"],
