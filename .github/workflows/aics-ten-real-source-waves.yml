@@ -362,8 +362,11 @@ jobs:
           assert rec['research_months_reconciled']==24
           assert rec['month_node_disagreements_remaining']==0
           assert rec['independent_replay_methods_compared']==2
-          assert rec['quarantined_original_G17_same_day_conflict']['published_date_claim']=='2025-12-23'
-          assert rec['quarantined_original_G17_same_day_conflict']['previous_unambiguous_retained_score']=='75.50'
+          assert rec['validated_joint_G17_original_release']['official_publication_date']=='2025-12-23'
+          assert rec['validated_joint_G17_original_release']['observation_months']==['2025-10','2025-11']
+          assert rec['validated_joint_G17_original_release']['values']==['74.70','74.40']
+          assert rec['validated_joint_G17_original_release']['latest_research_monthly_candidate']=='74.40'
+          assert rec['G17_research_source_period_conflicts_remaining']==0
           assert len(rec['monthly_aligned_research_panel'])==24
           assert rec['quality_by_panel']['market']['last_month_known_weight']==725
           assert rec['quality_by_panel']['calendar']['last_month_known_weight']==950
@@ -397,8 +400,8 @@ jobs:
           assert rebuilt['original_PIT100_roles_individually_verified_against_rebuild']==100
           assert len(rebuilt['audit_100_unique_original_source_cutoffs'])==100
           assert rebuilt['same_day_unverified_market_close_filing_is_eligible'] is False
-          assert len(rebuilt['same_day_ambiguous_release_conflicts_quarantined'])==1
-          assert rebuilt['same_day_ambiguous_release_conflicts_quarantined'][0]['node']=='Semiconductors Supply'
+          assert rebuilt['same_day_ambiguous_release_conflicts_quarantined']==[]
+          assert rebuilt['same_day_joint_different_observation_periods_validated']['separate_measurement_months_not_duplicate_release_data'] is True
           assert rebuilt['independently_historical_PIT_first_delivery_certified'] is False
           assert rebuilt['full_11node_AICS'] is None and rebuilt['aics_sp500_spread'] is None
           assert rebuilt['model_weights_changed'] is False and rebuilt['trades_created'] is False
@@ -406,7 +409,7 @@ jobs:
           markdown=(path/'aics_24m_publication_date_rebuild_quality_report.md').read_text()
           assert markdown.startswith('# AICS PIT100')
           assert '| 2026-10 |' in markdown
-          assert 'S&P 500' in markdown and 'G.17 source conflict' in markdown
+          assert 'S&P 500' in markdown and 'G.17 joint release' in markdown
           assert pit100['schema']=='aics-100-real-dated-PIT-audit-role-replays-v1'
           assert pit100['as_of']==cycle['cutoff_date']
           assert pit100['actual_distinct_aics_roles']==100
@@ -643,8 +646,8 @@ jobs:
               print(f"- PIT V40–V49 LEGACY +14 comparison only: **{pit['source_premature_SEC_proxies']}** original SEC +1-vs-+14 differences, **{pit['private_credit_premature_quarters']}** BDC date differences; NOT active PIT policy violations.",file=stream)
               print(f"- PIT100 PUBLIC FILING DATE POLICY: **{pit100['actual_distinct_aics_roles']}** distinct AICS roles including **{pit100['new_PIT_specialist_roles']}** new forensic specialists; **{pit100['PIT_runs_successfully_computed']}** genuinely executed, source-derived unique historical cutoff audits; zero artificial SEC +14 wait, exact intraday acceptance still unverified, approved index NULL.",file=stream)
               print(f"- PIT100 24-month recalculation: **{len(source_rebuilt['market_monthly_rebuilt'])} market** and **{len(source_rebuilt['calendar_monthly_rebuilt'])} calendar** original-event reconstructed research cutoffs, **{source_rebuilt['reclocked_original_events']}** source events; no fake full-index or OOS certification.",file=stream)
-              print(f"- PIT100 cross-checked S&P500 24-month panel: two independent original-event implementations, **{rec['month_node_disagreements_remaining']}** remaining monthly node disagreements; **{rec['quality_by_panel']['market']['research_coverage_pct']}%** observed research weight-month coverage (NOT model readiness), G17 Dec2025 conflict quarantined in both; AICS index NULL.",file=stream)
-              print(f"- 24-MONTH SOURCE REBUILD: 24 original calendar and market-close research panels recreated from **{rebuilt['source_events_recomputed_from_unchanged_original_ledgers']}** source events, verified at **100** individual original cutoff dates; market coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['market']['dateonly_research_coverage_pct']}%**, calendar coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['calendar']['dateonly_research_coverage_pct']}%**; 2025 Dec G17 same-day conflict quarantined. Historical PIT and full AICS still NOT certified.",file=stream)
+              print(f"- PIT100 cross-checked S&P500 24-month panel: two independent original-event implementations, **{rec['month_node_disagreements_remaining']}** remaining monthly node disagreements; **{rec['quality_by_panel']['market']['research_coverage_pct']}%** observed research weight-month coverage (NOT model readiness), G17 December 23 official October+November two-month release reconciled, not quarantined; AICS index NULL.",file=stream)
+              print(f"- 24-MONTH SOURCE REBUILD: 24 original calendar and market-close research panels recreated from **{rebuilt['source_events_recomputed_from_unchanged_original_ledgers']}** source events, verified at **100** individual original cutoff dates; market coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['market']['dateonly_research_coverage_pct']}%**, calendar coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['calendar']['dateonly_research_coverage_pct']}%**; 2025 Dec G17 joint October/November release uses latest November measurement, not an invalid conflict. Historical PIT and full AICS still NOT certified.",file=stream)
               print(f"- PIT100 ORIGINAL SEC REPORT FETCH: **{downloaded['genuine_original_sec_http_attempts']}** unique filing HTTP attempts by scoped acquisition workers, **{downloaded['source_document_bytes_archived_successfully']}** full original primary report payloads SHA-256 verified, **{downloaded['source_document_failures_recorded_without_fabrication']}** explicit failures. Historic first-receipt timestamp remains unverified.",file=stream)
               print(f"- Original SEC SGML ET clocks: **{sgml['original_SEC_header_SHA256_archives_successful']}/100** archived original index headers; after 16 ET **{sgml['original_SEC_header_at_or_after16_ET']}**, JSON timezone classes **{sgml['json_raw_timestamp_against_SGML_diagnostics']}**. Acceptance is NOT first public dissemination.",file=stream)
               print(f"- Historical ALFRED as-of: **{alfred['official_historical_vintage_original_responses_archived']}/48** DGS30/IORB original-as-of retrievals; first intraday delivery still unknown.",file=stream)
