@@ -1,0 +1,85 @@
+name: AICS V62 - trusted source-to-score admission and falsification
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v62_trusted_score_method_admission_gate.py
+      - tests/test_aics_v62_trusted_score_method_admission_gate.py
+      - aics_data/governance/aics_v62_official_score_method_registry_2026-11-22.json
+      - aics_data/progress/status.json
+      - scripts/aics_score_reproducibility_gate.py
+      - scripts/aics_v61_repo_ai_source_to_score_model_risk.py
+      - .github/workflows/aics-v62-trusted-method-admission.yml
+
+jobs:
+  reject-untrusted-score-methods:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout original 11 node score and fixed governance source
+        uses: actions/checkout@v4
+      - name: Configure Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit-test original score math AND forged all-eleven-node promotion attack
+        run: |
+          python -m compileall -q scripts/aics_v62_trusted_score_method_admission_gate.py tests/test_aics_v62_trusted_score_method_admission_gate.py
+          python -m unittest discover -s tests -p 'test_aics_score_reproducibility_gate.py' -v
+          python -m unittest discover -s tests -p 'test_aics_v62_trusted_score_method_admission_gate.py' -v
+      - name: Compute authoritative admission verdict on original V61 source material
+        run: |
+          python -m scripts.aics_v62_trusted_score_method_admission_gate \
+            --out aics_data/governance/aics_v62_trusted_score_method_admission_2026-11-22.json
+      - name: Fail if an input self-assertion promotes unofficial scores
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('aics_data/governance/aics_v62_trusted_score_method_admission_2026-11-22.json')
+          x=json.loads(p.read_text())
+          assert x['original_node_count']==11 and x['original_weights_total']==1050
+          assert x['project_readiness_milestones']==[22,66]
+          assert x['trusted_method_count']==0
+          assert x['independent_PIT_certified_node_count']==0
+          assert x['official_AICS'] is None
+          assert x['production_promotion']=='BLOCKED'
+          assert x['can_candidate_self_attest_into_official_index'] is False
+          assert x['historical_source_to_score_method_can_be_backdated'] is False
+          assert x['v61_original_Repo_source_months']==24
+          assert x['v61_original_UST_source_months']==24
+          assert x['v61_AI_retro_price_months']==3
+          assert len(x['v61_Oct_2026_three_conflicting_research_zones'])==3
+          assert len(x['eleven_individual_admission_blockers'])==11
+          assert x['trading_action'] is None and x['trades_created'] is False
+          print('AICS V62 11 nodes /1050 registry locked against silent method changes')
+          print('Approved risk-score conversion formulas:',x['trusted_method_count'])
+          print('PIT certified all-eleven-node evidence:',x['independent_PIT_certified_node_count'])
+          print('Original historical V61 conflicting October research zones:',x['v61_Oct_2026_three_conflicting_research_zones'])
+          print('OFFICIAL AICS:',x['official_AICS'])
+          print('TRADING:',x['trading_action'])
+          PY
+      - name: Publish admission report and required next evidence
+        run: |
+          python - <<'PY'
+          import json,os
+          x=json.load(open('aics_data/governance/aics_v62_trusted_score_method_admission_2026-11-22.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V62 — untrusted numerical candidate cannot become certified AICS',file=f)
+              print('The original reproducibility gate legitimately computes hypothetical arithmetic for test fixtures, but it cannot attest true publication PIT or approved source-to-score method. The independent v62 gate requires the SHA-pinned registry.',file=f)
+              print('**11/11 score methods UNAPPROVED, 0/11 PIT independently certified, AICS=NULL, 0 trades**, readiness 22/66.',file=f)
+              print('Repo and UST have 24 actual old source dates; AI one-session basket has 3 RETROSPECTIVE market dates. This does **not** authorize any official October scores.',file=f)
+              print('The original V61 six research score normalizations yield ENTRY/WATCH/CASH on the SAME original 2026-10 source; none is allowable without independent method approval.',file=f)
+              print('**Next gate:** economic normalization specification frozen before new evaluation, source first-delivery PIT, separate corporate-actions audit, external/independent method approval.',file=f)
+          PY
+      - name: Upload machine-readable freeze, blockers and negative verdict
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v62-all-11-unapproved-methods-forged-pit-promotion-blocked
+          path: aics_data/governance/aics_v62_trusted_score_method_admission_2026-11-22.json
+          if-no-files-found: error
