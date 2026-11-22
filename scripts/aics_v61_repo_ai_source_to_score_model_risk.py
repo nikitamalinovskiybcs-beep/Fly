@@ -167,19 +167,30 @@ def _scenario(row,repo_raw,ai_score,ust_score,repo_score,method):
         if n not in row["missing_nodes_not_imputed"]:
             raise ValueError("Cannot substitute a genuinely known node")
     missing_others=set(row["missing_nodes_not_imputed"])-{"UST 30Y","Repo","AI Equities"}
-    if missing_others:
-        raise ValueError("What-if three-node completion is valid only for selected 2026 dates")
+    # August and September still have a fourth ORIGINAL unknown node.
+    # Keep its score [0,100] as an unresolved interval instead of silently
+    # completing 11 nodes with a fabricated zero.
     h+=sum(x>D(60) for x in (ai_score,ust_score,repo_score))
     raw=base_raw+D(WEIGHTS["AI Equities"])*ai_score/D(100)+D(WEIGHTS["UST 30Y"])*ust_score/D(100)+D(WEIGHTS["Repo"])*repo_score/D(100)
-    index=raw*multiplier(h)
+    low=raw*multiplier(h)
+    remaining_weight=sum(WEIGHTS[n] for n in missing_others)
+    high=(raw+D(remaining_weight))*multiplier(h+len(missing_others))
+    if missing_others:
+        region="HYPOTHETICAL_UNRESOLVED_ORIGINAL_MISSING_NODE"
+    else:
+        region=_zone(low)
     return {
         "hypothetical_UST30_nonofficial_score":_round(ust_score),
         "hypothetical_Repo_nonofficial_score":_round(repo_score),
         "hypothetical_AI_Equities_retro_nonofficial_score":_round(ai_score),
         "candidate_Repo_rule":method,
         "hot_nodes_if_all_3_unapproved_model_scores_assumed":h,
-        "risk_if_ALL_nonapproved_shadows_assumed_NOT_REAL_AICS":_round(index),
-        "hypothetical_threshold_zone_NOT_ACTIONABLE":_zone(index),
+        "risk_if_ALL_nonapproved_shadows_assumed_NOT_REAL_AICS":(
+            None if missing_others else _round(low)),
+        "conditional_research_lower_if_unscored_extra_nodes_ZERO_BOUND":_round(low),
+        "conditional_research_upper_if_unscored_extra_nodes_100_BOUND":_round(high),
+        "still_missing_unscored_original_nodes":sorted(missing_others),
+        "hypothetical_threshold_zone_NOT_ACTIONABLE":region,
         "official_AICS":None,
         "trade_action":None,
     }
