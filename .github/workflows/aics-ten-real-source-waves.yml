@@ -20,6 +20,8 @@ on:
       - scripts/aics_v32_v34_autonomous_research_rotation.py
       - scripts/aics_v35_v39_five_version_batch.py
       - scripts/aics_v40_v49_ten_pit_forensics_agents.py
+      - scripts/aics_pit_100_real_cutoff_agents.py
+      - tests/test_aics_pit_100_real_cutoff_agents.py
       - tests/test_aics_v40_v49_ten_pit_forensics_agents.py
       - aics_data/research/aics_24m_multi_node_publication_overlay_2026-11-21.json
       - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
@@ -82,6 +84,10 @@ jobs:
         run: |
           python -m compileall -q scripts/aics_v40_v49_ten_pit_forensics_agents.py tests/test_aics_v40_v49_ten_pit_forensics_agents.py
           python -m unittest discover -s tests -p 'test_aics_v40_v49_ten_pit_forensics_agents.py' -v
+      - name: Verify 100 historical PIT roles and public-filing date-not-14 policy
+        run: |
+          python -m compileall -q scripts/aics_pit_100_real_cutoff_agents.py tests/test_aics_pit_100_real_cutoff_agents.py
+          python -m unittest discover -s tests -p 'test_aics_pit_100_real_cutoff_agents.py' -v
       - name: Verify ten model improvement agent evidence and forecasting gates
         run: |
           python -m compileall -q scripts/aics_ten_model_improvement_agents.py tests/test_aics_ten_model_improvement_agents.py
@@ -165,6 +171,11 @@ jobs:
         run: |
           python -m scripts.aics_v35_v39_five_version_batch --as-of "$AICS_ASOF_UTC" \
             --out aics_data/agent_runs/ten_real_collection_rounds/aics_v35_v39_five_version_result.json
+      - name: Execute 100 audited PIT roles across 100 actual historical source cutoffs
+        run: |
+          python -m scripts.aics_pit_100_real_cutoff_agents --as-of "$AICS_ASOF_UTC" \
+            --cycle aics_data/agent_runs/ten_real_collection_rounds/aics_thirty_agent_research_cycle.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_100_pit_audit_runs_public_release_policy.json
       - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
         run: |
           python - <<'PY'
@@ -208,6 +219,26 @@ jobs:
           assert cycle['agent_groups']['total_distinct_roles_executed']==30
           rotation = json.loads((path/'aics_autonomous_v32_v34_research_rotation.json').read_text())
           five = json.loads((path/'aics_v35_v39_five_version_result.json').read_text())
+          pit100 = json.loads((path/'aics_100_pit_audit_runs_public_release_policy.json').read_text())
+          assert pit100['schema']=='aics-100-real-dated-PIT-audit-role-replays-v1'
+          assert pit100['as_of']==cycle['cutoff_date']
+          assert pit100['actual_distinct_aics_roles']==100
+          assert pit100['new_PIT_specialist_roles']==70
+          assert pit100['original_base_aics_roles']==30
+          assert pit100['PIT_runs_successfully_computed']==100
+          assert pit100['unique_historical_replay_cutoffs']==100
+          assert pit100['SEC_14day_delay_is_active'] is False
+          assert pit100['same_day_market_close_protected_without_verified_acceptance_time'] is True
+          assert pit100['legacy_14day_date_difference_is_not_violation_under_active_policy'] is True
+          assert pit100['publisher_request_count_from_these_100_replays']==0
+          assert len(set(r['historical_cutoff'] for r in pit100['100_audit_results']))==100
+          assert len(set(r['AICS_role_id'] for r in pit100['100_audit_results']))==100
+          assert sum(r['existing_core_role'] for r in pit100['100_audit_results'])==30
+          assert sum(r['new_specialist_role'] for r in pit100['100_audit_results'])==70
+          assert pit100['newly_certified_historical_PIT_nodes']==0
+          assert pit100['certified_11_node_AICS'] is None
+          assert pit100['AICS_SP500_spread'] is None
+          assert pit100['trades_created'] is False
           assert five['schema']=='aics-v35-v39-source-validated-five-version-batch-v1'
           assert five['as_of']==cycle['cutoff_date']
           assert five['version_count']==5
@@ -422,7 +453,8 @@ jobs:
               print(f"- V32–V34 autonomous research rotation: **{rotation['autonomous_cycle_scope']}**; original loan repricing pairs **0**, actual Q2 funding bridges **{len(rotation['v33_issuer_funding_and_liquidity_audit']['source_eligible_2026Q2_issuer_bridges'])}**, source-derived next experiment **{rotation['automatic_next_research_priority']}**.",file=stream)
               print(f"- V35–V39 FIVE real-source research gates: **{five['versions'][0]['observed_complete_calendar_quarters']}** original four-hyperscaler quarters; Q2→Q3 total gap **{five['versions'][1]['total_observed_deterioration_usd_m']} USDm**; biggest deterioration issuer **{five['versions'][1]['largest_contributing_issuer']}** (**{five['versions'][1]['largest_contributor_share_of_net_deterioration_pct']}%**); two separate issuer funding models and 2008 contamination STOP.",file=stream)
               print(f"- UTC report cutoff: **{cycle['cutoff_date']}**. Trigger: **{os.environ.get('GITHUB_EVENT_NAME','unknown')}**. Research only; auto-production: OFF.",file=stream)
-              print(f"- PIT V40–V49: **10 existing model agents assigned**, **{pit['source_premature_SEC_proxies']}** original SEC event +1 proxies corrected in source-date shadow, **{pit['private_credit_premature_quarters']}** Private Credit quarters, **{pit['market_close_quarantined_node_months']}** market and **{pit['calendar_close_quarantined_node_months']}** calendar contaminated node-months quarantined; certified PIT nodes still **0/11**.",file=stream)
+              print(f"- PIT V40–V49 LEGACY +14 comparison only: **{pit['source_premature_SEC_proxies']}** original SEC +1-vs-+14 differences, **{pit['private_credit_premature_quarters']}** BDC date differences; NOT active PIT policy violations.",file=stream)
+              print(f"- PIT100 PUBLIC FILING DATE POLICY: **{pit100['actual_distinct_aics_roles']}** distinct AICS roles including **{pit100['new_PIT_specialist_roles']}** new forensic specialists; **{pit100['PIT_runs_successfully_computed']}** genuinely executed, source-derived unique historical cutoff audits; zero artificial SEC +14 wait, exact intraday acceptance still unverified, approved index NULL.",file=stream)
               for experiment in cycle['next_experiments']:
                   print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
           PY
