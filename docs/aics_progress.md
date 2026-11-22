@@ -164,3 +164,14 @@ IR-архивы GitHub Actions хранятся 30 дней, не являютс
 
 **Решение дирижёра:** строго блокировать публикацию официального score UST/Repo/AI по ненормированным исходным сериям. Нужны экономически обоснованные pre-registered source-to-score спецификации, независимое подтверждение timestamp/publication и историческая корзина AI с corporate actions. [Методика и источники V61](aics_v61_repo_ai_source_to_score_model_risk_2026-11-22.md); [код](../scripts/aics_v61_repo_ai_source_to_score_model_risk.py). **Официальный AICS null, 22/66 readiness, 0/11 independently PIT certified, 0 сделок**.
 
+
+## V62: 11 методов блокируются независимым admission gate, даже если пользователь сам заявил PIT
+
+**22.11.2026: [AICS V62 Actions #45029615011](https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/45029615011) — SUCCESS, 19/19 тестов** (исходные 10 + новые 9). Обнаружен и устранён риск ошибочной интерпретации результата: исходный [арифметический 11-узловой модуль](../scripts/aics_score_reproducibility_gate.py) способен вычислить исследовательский индекс, если входной JSON **сам** указывает `independently_verified_pit=true` и псевдо-source SHA. В test-only canary с 11 **искусственными** баллами 50 он вернул число **525**, которое **не является реальным AICS** и никогда не сопровождалось допуском к торговле.
+
+В V62 введён **отдельный [машинный реестр методик](../aics_data/governance/aics_v62_official_score_method_registry_2026-11-22.json) всех 11 узлов**, исходные веса суммой 1050, все `UNAPPROVED` и все ссылки на независимое approval/PIT/forward-evidence `null`. Реестр привязан в коде [`aics_v62_trusted_score_method_admission_gate.py`](../scripts/aics_v62_trusted_score_method_admission_gate.py) к Git blob SHA `240e5bcd1bbaf1cf808cc184485e9b51956eb8a3`. Новый gate на тех же поддельных PIT отметках всегда оставляет **`official_AICS=null`**, **`promotion=BLOCKED`**, **0 сделок**, а в старом модуле арифметический `index_aics` теперь явно маркируется `index_aics_is_ARITHMETIC_CANDIDATE_NOT_OFFICIAL=true`; добавлены `official_AICS=null` и `independent_method_registry_approval_verified=false` без изменения формулы.
+
+Настоящая блокирующая проблема V61 сохранена: хотя UST и Repo имеют **24/24** реально собранных исторических наблюдений, AI Equities — только 3 постфактум среза, **все 11 методик source→score не утверждены**, а разные нормировки на одних данных октября 2026 дают **вход/наблюдение/кэш**. Нельзя переписать прошлые баллы задним числом. Для допуска нужны отдельные reviewed версии методов, первичные датированные source receipts, независимые first-delivery PIT и новые непересмотренные OOS события. [Полный отчёт V62](aics_v62_trusted_method_admission_2026-11-22.md).
+
+**Строгая готовность всё ещё 22/66 (не точность модели), 0/11 PIT-узлов и методов, официальный индекс `NULL`.**
+
