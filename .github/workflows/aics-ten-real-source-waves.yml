@@ -23,6 +23,12 @@ on:
       - scripts/aics_pit_100_real_cutoff_agents.py
       - scripts/aics_pit100_rebuild_24m_research.py
       - scripts/aics_pit100_reconcile_24m_sp500.py
+      - scripts/aics_pit100_sec_sgml_clock_audit.py
+      - tests/test_aics_pit100_sec_sgml_clock_audit.py
+      - scripts/aics_pit100_alfred_24m_vintage_audit.py
+      - tests/test_aics_pit100_alfred_24m_vintage_audit.py
+      - scripts/aics_pit100_24m_expost_leadlag_diagnostic.py
+      - tests/test_aics_pit100_24m_expost_leadlag_diagnostic.py
       - tests/test_aics_pit100_reconcile_24m_sp500.py
       - tests/test_aics_pit100_rebuild_24m_research.py
       - scripts/aics_pit100_rebuild_24_month_public_filing_panel.py
@@ -105,6 +111,18 @@ jobs:
         run: |
           python -m compileall -q scripts/aics_pit100_reconcile_24m_sp500.py tests/test_aics_pit100_reconcile_24m_sp500.py
           python -m unittest discover -s tests -p 'test_aics_pit100_reconcile_24m_sp500.py' -v
+      - name: Validate primary SEC SGML acceptance clock original-archive and mixed JSON timezone tests
+        run: |
+          python -m compileall -q scripts/aics_pit100_sec_sgml_clock_audit.py tests/test_aics_pit100_sec_sgml_clock_audit.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_sec_sgml_clock_audit.py' -v
+      - name: Validate ALFRED historical day-asof original vintage tests
+        run: |
+          python -m compileall -q scripts/aics_pit100_alfred_24m_vintage_audit.py tests/test_aics_pit100_alfred_24m_vintage_audit.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_alfred_24m_vintage_audit.py' -v
+      - name: Validate fixed first-month source cohort exploratory lead-lag, no false OOS
+        run: |
+          python -m compileall -q scripts/aics_pit100_24m_expost_leadlag_diagnostic.py tests/test_aics_pit100_24m_expost_leadlag_diagnostic.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_24m_expost_leadlag_diagnostic.py' -v
       - name: Verify ten model improvement agent evidence and forecasting gates
         run: |
           python -m compileall -q scripts/aics_ten_model_improvement_agents.py tests/test_aics_ten_model_improvement_agents.py
@@ -206,6 +224,21 @@ jobs:
             --waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json \
             --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_original_sec_reports_manifest.json \
             --rawdir aics_data/agent_runs/ten_real_collection_rounds/pit100_original_sec_reports_raw
+      - name: Archive each original SEC SGML acceptance clock instead of trusting ambiguous JSON timezone
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
+        run: |
+          python -m scripts.aics_pit100_sec_sgml_clock_audit --as-of "$AICS_ASOF_UTC" \
+            --reports aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_original_sec_reports_manifest.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_sec_sgml_header_clock_audit.json \
+            --rawdir aics_data/agent_runs/ten_real_collection_rounds/pit100_sec_sgml_header_raw
+      - name: Fetch 48 ALFRED asof vintages for DGS30 and IORB across 24 months
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          python -m scripts.aics_pit100_alfred_24m_vintage_audit --as-of "$AICS_ASOF_UTC" \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_24m_alfred_two_source_vintages.json \
+            --rawdir aics_data/agent_runs/ten_real_collection_rounds/pit100_alfred_24m_vintage_source_raw
       - name: Rebuild 24 genuine research months from source events with PIT100 checks
         run: |
           python -m compileall -q scripts/aics_pit100_rebuild_24_month_public_filing_panel.py tests/test_aics_pit100_rebuild_24_month_public_filing_panel.py
@@ -226,6 +259,11 @@ jobs:
             --simple aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_rebuilt_24m_public_filing_date_panels.json \
             --rich aics_data/agent_runs/ten_real_collection_rounds/aics_24m_publication_date_rebuilt_research_panel.json \
             --sp500 aics_data/research/sp500_24_month_closes_2026-11-21.json
+      - name: Run exploratory fixed 2024 source cohort against subsequent S&P500 monthly returns
+        run: |
+          python -m scripts.aics_pit100_24m_expost_leadlag_diagnostic \
+            --reconciled aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_reconciled_24m_sp500_monthly.json \
+            --rich aics_data/agent_runs/ten_real_collection_rounds/aics_24m_publication_date_rebuilt_research_panel.json
       - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
         run: |
           python - <<'PY'
@@ -284,6 +322,42 @@ jobs:
           rebuilt = json.loads((path/'aics_24m_publication_date_rebuilt_research_panel.json').read_text())
           downloaded = json.loads((path/'aics_pit100_100_original_sec_reports_manifest.json').read_text())
           rec = json.loads((path/'aics_pit100_reconciled_24m_sp500_monthly.json').read_text())
+          sgml = json.loads((path/'aics_pit100_100_sec_sgml_header_clock_audit.json').read_text())
+          alfred = json.loads((path/'aics_pit100_24m_alfred_two_source_vintages.json').read_text())
+          lead = json.loads((path/'aics_pit100_24m_expost_leadlag_falsification.json').read_text())
+          assert sgml['schema']=='aics-PIT100-first-original-SEC-SGML-timezone-clocks-audit-v1'
+          assert sgml['distinct_original_SEC_report_tasks_referenced']==100
+          assert sgml['original_SEC_header_http_attempts']==100
+          assert sgml['original_SEC_header_SHA256_archives_successful']+sgml['original_SEC_header_failures']==100
+          assert sgml['JSON_mixed_timezone_formats_must_not_be_used_without_SGML'] is True
+          assert sgml['public_dissemination_PIT_certified'] is False
+          assert sgml['production_11node_AICS'] is None and sgml['trades_created'] is False
+          for row in sgml['source_headers']:
+              if row.get('original_sec_acceptance_clock_verified_from_sgml'):
+                  import gzip
+                  raw=gzip.decompress(Path(row['original_header_archive_gz_path']).read_bytes())
+                  assert hashlib.sha256(raw).hexdigest()==row['original_sec_header_raw_SHA256']
+                  assert row['independent_historical_first_feed_delivery_attested'] is False
+          assert alfred['schema']=='aics-PIT100-24m-DGS30-IORB-ALFRED-historical-asof-snapshots-v1'
+          assert alfred['official_historical_vintage_requests_attempted']==48
+          assert alfred['official_historical_vintage_original_responses_archived']+alfred['official_historical_vintage_failed_or_missing']==48
+          assert len(alfred['monthly_observations'])==48
+          assert alfred['realtime_start_equals_realtime_end_on_each_query'] is True
+          assert alfred['historical_pit_certified_index_nodes']==0
+          assert alfred['complete_11node_AICS'] is None
+          for row in alfred['monthly_observations']:
+              if row['retrieved_currently_from_official_FRED_history']:
+                  import gzip
+                  raw=gzip.decompress(Path(row['source_raw_archive_gz_path']).read_bytes())
+                  assert hashlib.sha256(raw).hexdigest()==row['source_original_sha256']
+                  assert row['asof_selection']['latest_before_market_cutoff_dateonly']['observed_date'] < row['market_cutoff_day']
+          assert lead['schema']=='aics-PIT100-24m-EXPOST-fixed-first-month-cohort-leadlag-v1'
+          assert lead['monthly_research_observations']==24
+          assert lead['potential_next_month_outcome_months']==23
+          assert lead['correlations_are_EXPOST_not_independent_forecast_skill'] is True
+          assert lead['independent_24m_out_of_sample_forecast_labels']==0
+          assert lead['full_11node_AICS'] is None
+          assert lead['production_trades_created'] is False
           assert rec['schema']=='aics-pit100-two-independent-24month-replays-reconciled-v1'
           assert rec['research_months_reconciled']==24
           assert rec['month_node_disagreements_remaining']==0
@@ -572,6 +646,9 @@ jobs:
               print(f"- PIT100 cross-checked S&P500 24-month panel: two independent original-event implementations, **{rec['month_node_disagreements_remaining']}** remaining monthly node disagreements; **{rec['quality_by_panel']['market']['research_coverage_pct']}%** observed research weight-month coverage (NOT model readiness), G17 Dec2025 conflict quarantined in both; AICS index NULL.",file=stream)
               print(f"- 24-MONTH SOURCE REBUILD: 24 original calendar and market-close research panels recreated from **{rebuilt['source_events_recomputed_from_unchanged_original_ledgers']}** source events, verified at **100** individual original cutoff dates; market coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['market']['dateonly_research_coverage_pct']}%**, calendar coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['calendar']['dateonly_research_coverage_pct']}%**; 2025 Dec G17 same-day conflict quarantined. Historical PIT and full AICS still NOT certified.",file=stream)
               print(f"- PIT100 ORIGINAL SEC REPORT FETCH: **{downloaded['genuine_original_sec_http_attempts']}** unique filing HTTP attempts by scoped acquisition workers, **{downloaded['source_document_bytes_archived_successfully']}** full original primary report payloads SHA-256 verified, **{downloaded['source_document_failures_recorded_without_fabrication']}** explicit failures. Historic first-receipt timestamp remains unverified.",file=stream)
+              print(f"- Original SEC SGML ET clocks: **{sgml['original_SEC_header_SHA256_archives_successful']}/100** archived original index headers; after 16 ET **{sgml['original_SEC_header_at_or_after16_ET']}**, JSON timezone classes **{sgml['json_raw_timestamp_against_SGML_diagnostics']}**. Acceptance is NOT first public dissemination.",file=stream)
+              print(f"- Historical ALFRED as-of: **{alfred['official_historical_vintage_original_responses_archived']}/48** DGS30/IORB original-as-of retrievals; first intraday delivery still unknown.",file=stream)
+              print(f"- Fixed first-month source cohort research-only lead/lag: **{lead['matched_complete_first_cohort_forward_returns']}** matched observed next-month S&P returns, EXPOST Pearson **{lead['descriptive_correlation_risk_vs_following_month_SP500_return_pearson']}**; OOS forecast skill NULL.",file=stream)
               for experiment in cycle['next_experiments']:
                   print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
           PY
