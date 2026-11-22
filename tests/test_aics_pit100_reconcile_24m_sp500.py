@@ -44,17 +44,21 @@ class IndependentPIT100MonthlyReconcilation(unittest.TestCase):
         self.assertIn("2025-12",markdown_report(x))
         self.assertIn("S&P 500",markdown_report(x))
 
-    def test_g17_ambiguous_same_day_releases_quarantined_both_methods(self):
+    def test_fed_g17_joint_two_original_measurements_preserved_both_methods(self):
         x=reconcile(self.simple,self.rich,self.sp500)
-        conflict=x["quarantined_original_G17_same_day_conflict"]
-        self.assertEqual(conflict["published_date_claim"],"2025-12-23")
-        self.assertEqual(set(conflict["two_recorded_values"]),{"74.70","74.40"})
-        self.assertEqual(conflict["previous_unambiguous_retained_score"],"75.50")
+        joint=x["validated_joint_G17_original_release"]
+        self.assertEqual(joint["official_publication_date"],"2025-12-23")
+        self.assertEqual(joint["observation_months"],["2025-10","2025-11"])
+        self.assertEqual(joint["values"],["74.70","74.40"])
+        self.assertEqual(joint["latest_research_monthly_candidate"],"74.40")
+        self.assertTrue(joint["separate_original_measurements_not_conflicting_publications"])
+        self.assertFalse(joint["historical_original_first_provider_feed_receipt_attested"])
+        self.assertEqual(x["G17_research_source_period_conflicts_remaining"],0)
         for mode in ("market","calendar"):
             s=next(v for v in self.simple[mode+"_monthly_rebuilt"] if v["month"]=="2025-12")
             b=next(v for v in self.rich["monthly_rebuilt_panels"][mode] if v["month"]=="2025-12")
-            self.assertEqual(s["node_scores_rebuilt_from_original_events"]["Semiconductors Supply"]["research_score_not_PIT_certified"],"75.50")
-            self.assertEqual(b["event_source_scores"]["Semiconductors Supply"]["score_0_100_research_only"],"75.50")
+            self.assertEqual(s["node_scores_rebuilt_from_original_events"]["Semiconductors Supply"]["research_score_not_PIT_certified"],"74.4")
+            self.assertEqual(b["event_source_scores"]["Semiconductors Supply"]["score_0_100_research_only"],"74.4")
 
     def test_retrospective_sp500_is_not_reused_as_aics_feature(self):
         x=reconcile(self.simple,self.rich,self.sp500)
