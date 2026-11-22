@@ -20,7 +20,6 @@ from pathlib import Path
 
 from scripts.aics_arcc_seven_original_nonaccrual_replay import VisibleText
 from scripts.aics_priority100_workbench import ROOT,REPORTS,TARGETED,verify_gzip_original
-from scripts.aics_pit100_original_scoring_accession_lineage import canonical_primary_doc_url
 
 LEDGER=Path("aics_data/research/neoclouds_2025_q1_q3_sec_cashflow_research_2026-11-21.json")
 QUEUE=ROOT/"aics_priority100_evidence_queue.json"
@@ -214,7 +213,6 @@ def build(ledger,queue,reports,targeted):
     # checks pass, including source period and cashflow comparability flags.
     all_ok=all(r["original_numeric_claims_reproduced"] for r in rows.values()) and len(rows)==6
     if all_ok:
-        c=ledger["sources"]
         a=lambda k,field:Decimal(rows[k]["original_numeric_extraction"][field+"_usd_m"])
         quarters={
             "2025-Q1":(a("crwv_q1","cfo_ytd"),a("crwv_q1","cash_purchases_ytd"),
