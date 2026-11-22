@@ -15,6 +15,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import re
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
@@ -27,9 +28,23 @@ from scripts.aics_pit_100_real_cutoff_agents import REGISTRY,REPO,EQUITIES,TERMS
 
 OUT=Path("aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_rebuilt_24m_public_filing_date_panels.json")
 HORIZON=90
+G17=Path("aics_data/research/fed_g17_naics3344_24_month_original_release_2026-11-21.json")
+G17_RELEASE="https://www.federalreserve.gov/releases/g17/20251223/table7.htm"
+G17_PERIOD=re.compile(r"^(20[0-9]{2}-(?:0[1-9]|1[0-2])) (?:first-published|initial) Fed G\\.17")
 
 
 def event_roster(overlay,credit):
+    original=read_bytes(G17)
+    joint={e["observation_month"]:e for e in original["observations"]
+           if e["observation_month"] in ("2025-10","2025-11")}
+    if (original["schema"]!="aics-g17-naics3344-first-release-monthly-24-v1"
+        or original["independent_historical_pit_certified"] is not False
+        or set(joint)!={"2025-10","2025-11"}
+        or any(v["official_release_date"]!="2025-12-23"
+               or v["source_url"].lower()!=G17_RELEASE.lower() for v in joint.values())
+        or {k:num(v["initially_observed_utilization_pct"]) for k,v in joint.items()}!=
+           {"2025-10":Decimal("74.7"),"2025-11":Decimal("74.4")}):
+        raise ValueError("Original same Fed release contains two distinct measured months")
     roster=[]
     for i,x in enumerate(overlay["source_events"]):
         if x["source_policy"]==SEC_LEGACY:
@@ -42,8 +57,15 @@ def event_roster(overlay,credit):
             source_kind="NONSEC_RELEASE_DATE_ONLY_UNVERIFIED"
         else:
             raise ValueError("Unsupported original source event policy")
+        match=G17_PERIOD.match(str(x.get("measurement",""))) if x["node"]=="Semiconductors Supply" else None
+        period=match.group(1) if match else None
+        if period in joint:
+            o=joint[period]
+            if filing!=o["official_release_date"] or num(x["score"])!=num(o["initially_observed_utilization_pct"]):
+                raise ValueError("Fed G17 date, measured month or numeric original inconsistent")
         roster.append({
             "id":f"V17-{i:03d}","node":x["node"],"score":str(num(x["score"])),
+            "observation_month":period,
             "filing_or_release_date":filing,"source_kind":source_kind,
             "original_ledger":x["source"],
             "original_legacy_14day_date":x["available_at"] if source_kind=="SEC_FILED_DATE_ONLY" else None,
@@ -74,12 +96,14 @@ def conflicting_same_publication_day_events(roster):
     """Never select an arbitrary later ID for conflicting same-day source values."""
     groups={}
     for event in roster:
-        groups.setdefault((event["node"],event["filing_or_release_date"]),[]).append(event)
+        groups.setdefault((event["node"],event["filing_or_release_date"],
+                           event.get("observation_month") or event["id"]),[]).append(event)
     quarantine=[]
-    for (node,day),events in sorted(groups.items()):
+    for (node,day,period),events in sorted(groups.items()):
         if len({num(e["score"]) for e in events})>1:
             quarantine.append({
                 "node":node,"source_public_day_proxy":day,
+                "observation_month":period,
                 "original_event_ids":[e["id"] for e in events],
                 "conflicting_source_scores":[e["score"] for e in events],
                 "decision":"QUARANTINE_ALL_CONFLICTING_SAME_DAY_VALUES",
@@ -110,7 +134,9 @@ def replay(overlay,credit,*,market):
                     continue
             previous=current.get(e["node"])
             if (previous is None or
-                (day,e["id"])>(date(previous["filing_or_release_date"]),previous["id"])):
+                (day,e.get("observation_month") or "",e["id"])>(
+                date(previous["filing_or_release_date"]),
+                previous.get("observation_month") or "",previous["id"])):
                 current[e["node"]]=e
         scores={}
         for node,e in sorted(current.items()):
@@ -156,7 +182,15 @@ def build(overlay,credit,registry,repo,equities,terms,finance,status,pit100):
         raise ValueError("100 source-derived PIT roles must run before rebuilding")
     market=replay(overlay,credit,market=True)
     calendar=replay(overlay,credit,market=False)
-    conflicts=conflicting_same_publication_day_events(event_roster(overlay,credit))
+    roster=event_roster(overlay,credit)
+    conflicts=conflicting_same_publication_day_events(roster)
+    if conflicts:
+        raise ValueError("Real duplicate same-measurement publication conflict")
+    joint=[e for e in roster if e["node"]=="Semiconductors Supply"
+           and e["filing_or_release_date"]=="2025-12-23"
+           and e.get("observation_month") in ("2025-10","2025-11")]
+    if len(joint)!=2:
+        raise ValueError("Joint October-November G17 publication not preserved")
     changes={}
     for name,series in (("market",market),("calendar",calendar)):
         legacy=credit["monthly_last_weekday_market_proxy" if name=="market"
@@ -191,6 +225,15 @@ def build(overlay,credit,registry,repo,equities,terms,finance,status,pit100):
         "comparison_to_legacy_plus14_or_plus1_research":changes,
         "reclocked_original_events":len(event_roster(overlay,credit)),
         "quarantined_same_day_research_conflicts":conflicts,
+        "same_day_joint_observation_months":{
+            "original_official_Fed_release_url":G17_RELEASE,
+            "publication_day":"2025-12-23",
+            "observation_period_values":[
+                {"observation_month":e["observation_month"],"value":e["score"]}
+                for e in sorted(joint,key=lambda x:x["observation_month"])],
+            "both_values_distinct_periods_no_source_quarantine":True,
+            "independent_historical_first_feed_receipt":False,
+        },
         "source_events_with_independent_historical_first_receipt":0,
         "newly_certified_PIT_nodes":0,
         "fully_rebuilt_production_AICS":None,
