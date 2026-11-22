@@ -16,6 +16,7 @@ import json
 import re
 from collections import Counter
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from scripts.aics_pit100_rebuild_24m_research import OVERLAY,CREDIT,read_bytes,date,num
 from scripts.aics_pit100_sec_sgml_clock_audit import REPORTS as REPORTS_DEFAULT,OUT as HEADERS_DEFAULT
@@ -26,6 +27,45 @@ NEO=Path("aics_data/research/neoclouds_2025_q1_q3_sec_cashflow_research_2026-11-
 OUT=ROOT/"aics_pit100_original_source_accession_to_node_lineage.json"
 SEC_URL=re.compile(r"^https://www.sec.gov/Archives/edgar/data/(\d+)/(\d{18})/[A-Za-z0-9_.-]+$")
 ACCESSION=re.compile(r"^\d{10}-\d{2}-\d{6}$")
+
+
+
+def canonical_primary_doc_url(url, *, cik, accession):
+    """Strict SEC original identity across EDGAR and Prudential's official mirror.
+
+    SEC archive CIK/accession/filename must match exactly. Only an explicit
+    Prudential accession-based investor-hosted mirror is recognized, never a
+    generic cross-host path or arbitrary URL basename.
+    """
+    if not ACCESSION.fullmatch(accession):
+        return None
+    p=urlsplit(url)
+    if (p.scheme!="https" or p.username is not None or p.password is not None
+        or p.port is not None or p.query or p.fragment):
+        return None
+    norm_cik=str(int(cik))
+    undashed=accession.replace("-","")
+    if p.hostname in ("www.sec.gov","sec.gov"):
+        match=re.fullmatch(
+            r"/Archives/edgar/data/(\\d+)/(\\d{18})/([A-Za-z0-9][A-Za-z0-9_.-]*)",
+            p.path,
+        )
+        if not match or str(int(match.group(1)))!=norm_cik or match.group(2)!=undashed:
+            return None
+        basename=match.group(3)
+    elif p.hostname=="investor.prudential.com" and norm_cik=="1137774":
+        match=re.fullmatch(
+            r"/financials/sec-filings/content/(\\d{10}-\\d{2}-\\d{6})/([A-Za-z0-9][A-Za-z0-9_.-]*)",
+            p.path,
+        )
+        if not match or match.group(1)!=accession:
+            return None
+        basename=match.group(2)
+    else:
+        return None
+    if ".." in basename:
+        return None
+    return f"https://www.sec.gov/Archives/edgar/data/{norm_cik}/{undashed}/{basename}".lower()
 
 
 def accession_from_sec_url(url):
@@ -162,8 +202,18 @@ def build(overlay,credit,pru,neo,reports,headers):
                  original.get("original_sec_acceptance_clock_verified_from_sgml") is True)
         e["same_exact_CIK_accession_in_100_download_sample"]=t is not None
         e["same_exact_CIK_accession_header_clock_verified"]=matched
-        e["same_exact_primary_document_url_matched_to_source"]=(bool(t) and
+        literal_url_equal=(bool(t) and
             row["source_original_doc_url"].lower()==t["source_url"].lower())
+        canonical_expected=canonical_primary_doc_url(
+            row["source_original_doc_url"],cik=row["CIK"],accession=row["accession"])
+        canonical_actual=(canonical_primary_doc_url(
+            t["source_url"],cik=row["CIK"],accession=row["accession"]) if t else None)
+        e["literal_reference_URL_equals_archived_primary_doc_URL"]=literal_url_equal
+        e["same_exact_primary_document_url_matched_to_source"]=(
+            canonical_expected is not None and canonical_expected==canonical_actual)
+        e["original_reference_canonical_SEC_URL"]=canonical_expected
+        e["source_url_mirror_normalized_for_same_CIK_accession_filename"]=(
+            e["same_exact_primary_document_url_matched_to_source"] and not literal_url_equal)
         e["verified_original_sec_acceptance_ET"]=original.get("acceptance_et_wall_clock") if matched else None
         e["original_sec_header_source_sha256"]=original.get("original_sec_header_raw_SHA256") if matched else None
         e["SGML_accepted_before_16_ET"]=original.get("accepted_before_16_et") if matched else None
@@ -192,7 +242,9 @@ def build(overlay,credit,pru,neo,reports,headers):
             "historical_pit_node_certified":False,
         })
     matched=sum(r["same_exact_CIK_accession_header_clock_verified"] for r in issuer_matches)
-    exact=sum(r["same_exact_primary_document_url_matched_to_source"] for r in issuer_matches)
+    exact=sum(r["literal_reference_URL_equals_archived_primary_doc_URL"] for r in issuer_matches)
+    canonical=sum(r["same_exact_primary_document_url_matched_to_source"] for r in issuer_matches)
+    mirrors=sum(r["source_url_mirror_normalized_for_same_CIK_accession_filename"] for r in issuer_matches)
     return {
         "schema":"aics-PIT100-original-scoring-accession-to-SEC-SGML-crosswalk-v1",
         "research_underlying_original_filing_references":36,
@@ -200,6 +252,8 @@ def build(overlay,credit,pru,neo,reports,headers):
         "original_document_family_counts":{"Insurers":9,"Private Credit":21,"Neoclouds":6},
         "exact_original_filing_accession_in_100_primary_archive_and_header":matched,
         "exact_original_reference_URL_equals_archived_primary_doc_URL":exact,
+        "exact_original_reference_canonical_SEC_doc_identity_matches":canonical,
+        "explicit_PRU_official_mirror_URL_normalizations":mirrors,
         "source_event_cohorts_with_all_header_accessions":
             sum(x["all_original_source_filing_headers_in_100_downloads"] for x in groups),
         "original_source_filing_claims_not_in_100_sample":36-matched,
