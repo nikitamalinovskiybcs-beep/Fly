@@ -34,6 +34,8 @@ on:
       - tests/test_aics_arcc_seven_original_nonaccrual_replay.py
       - scripts/aics_bxsl_obdc_fourteen_original_nonaccrual_replay.py
       - tests/test_aics_bxsl_obdc_fourteen_original_nonaccrual_replay.py
+      - scripts/aics_neocloud_six_original_cashflows_replay.py
+      - tests/test_aics_neocloud_six_original_cashflows_replay.py
       - tests/test_aics_pit100_target_exact_missing_sec_sources.py
       - tests/test_aics_pit100_original_scoring_accession_lineage.py
       - tests/test_aics_pit100_sec_sgml_clock_audit.py
@@ -319,6 +321,11 @@ jobs:
           python -m compileall -q scripts/aics_bxsl_obdc_fourteen_original_nonaccrual_replay.py tests/test_aics_bxsl_obdc_fourteen_original_nonaccrual_replay.py
           python -m unittest discover -s tests -p 'test_aics_bxsl_obdc_fourteen_original_nonaccrual_replay.py' -v
           python -m scripts.aics_bxsl_obdc_fourteen_original_nonaccrual_replay --out aics_data/agent_runs/ten_real_collection_rounds/aics_bxsl_obdc_fourteen_original_nonaccrual_numeric_replay.json
+      - name: Rehash six exact CoreWeave and Nebius SEC original reports and replay source cashflow cohort scores
+        run: |
+          python -m compileall -q scripts/aics_neocloud_six_original_cashflows_replay.py tests/test_aics_neocloud_six_original_cashflows_replay.py
+          python -m unittest discover -s tests -p 'test_aics_neocloud_six_original_cashflows_replay.py' -v
+          python -m scripts.aics_neocloud_six_original_cashflows_replay --out aics_data/agent_runs/ten_real_collection_rounds/aics_neocloud_six_original_issuer_cashflows_replay.json
       - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
         run: |
           python - <<'PY'
@@ -417,6 +424,13 @@ jobs:
           pru_replay = json.loads((path/'aics_pru_nine_original_source_numeric_replay.json').read_text())
           arcc_replay = json.loads((path/'aics_arcc_seven_original_nonaccrual_numeric_replay.json').read_text())
           bdc_replay = json.loads((path/'aics_bxsl_obdc_fourteen_original_nonaccrual_numeric_replay.json').read_text())
+          neo_replay = json.loads((path/'aics_neocloud_six_original_issuer_cashflows_replay.json').read_text())
+          assert neo_replay['schema']=='aics-six-original-neocloud-issuer-cashflow-source-replay-v1'
+          assert neo_replay['six_exact_original_source_tasks']==6
+          assert 0<=neo_replay['issuer_source_numeric_claims_reproduced']<=6
+          assert 0<=neo_replay['research_period_scores_reproduced_from_all_original_source_bytes']<=3
+          assert neo_replay['first_historical_public_data_delivery_verified'] is False
+          assert neo_replay['certified_11node_AICS'] is None and neo_replay['trades_created'] is False
           assert bdc_replay['schema']=='aics-BXSL-OBDC-fourteen-original-SEC-nonaccrual-replay-v1'
           assert bdc_replay['original_BXSL_OBDC_issuer_periods_attempted']==14
           assert bdc_replay['original_nonaccrual_cost_percentages_reproduced']+bdc_replay['blocked_original_cost_percentages']==14
@@ -772,6 +786,7 @@ jobs:
               print(f"- Exact SEC score-event identity audit: **{source_links['exact_original_filing_accession_in_100_primary_archive_and_header']}/36** original issuer accessions inside the 100-file current capture; **{source_links['source_event_cohorts_with_all_header_accessions']}/19** full original source-event cohorts, no metrics independently parsed and no historical first-delivery attested.",file=stream)
               print(f"- SEC targeted missing-score source gap fill: **{filled['targeted_original_primary_and_SGML_both_sha_archived']}/{filled['targeted_missing_exact_original_accession_attempts']}** exact original SEC scoring documents+headers archived, combined exact identities **{filled['combined_original_score_source_accessions_now_hashed_and_clock_matched']}/36**; **{filled['exact_sources_with_SECGML_acceptance_day_different_from_filed_day']}** original SEC acceptances precede official filed dates. Accounting disclosure verification and historical delivery still unconfirmed.",file=stream)
               print(f"- Historical ALFRED as-of: **{alfred['official_historical_vintage_original_responses_archived']}/48** DGS30/IORB original-as-of retrievals; first intraday delivery still unknown.",file=stream)
+              print(f"- Six exact Neocloud 2025 original SEC issuer cashflow filings: **{neo_replay['issuer_source_numeric_claims_reproduced']}/6** original issuer value rows matched; **{neo_replay['research_period_scores_reproduced_from_all_original_source_bytes']}/3** descriptive research-score events from originals; different Nebius 2025Q1 scope not silently merged.",file=stream)
               print(f"- BXSL/OBDC 14 issuer-quarter primary SEC non-accrual cost percentages independently source-matched: **{bdc_replay['original_nonaccrual_cost_percentages_reproduced']}/14**; **{bdc_replay['blocked_original_cost_percentages']}** unresolved, no historical first-feed receipt or full Private Credit sector certification.",file=stream)
               print(f"- ARCC 7-quarter direct SEC cost and fair-value non-accrual percentages: **{arcc_replay['original_source_cost_and_fair_pairs_reproduced']}/7** exact originals parsed and reconciled; **{arcc_replay['blocked_original_numeric_pairs']}** unmatched; no bank lending exposure or predictive AICS certification.",file=stream)
               print(f"- Original PRU SEC numerical replay: **{pru_replay['independently_reproduced_scoped_issuer_research_ratios']}/9** source disclosures independently reconciled, **{pru_replay['missing_or_ambiguous_research_ratios']}** blocked; still **0** historical first-feed attestations and **0** full Insurers node certifications.",file=stream)
