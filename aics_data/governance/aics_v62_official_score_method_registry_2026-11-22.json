@@ -1,0 +1,223 @@
+{
+  "schema": "aics-v62-trusted-score-method-governance-registry-v1",
+  "recorded_at_date": "2026-11-22",
+  "registration_context": "Created after V61 outcome-sensitive model choice research; blocks all original unapproved source-to-score mappings",
+  "official_11node_weight_total": 1050,
+  "official_hot_threshold_score_strictly_gt": 60,
+  "official_hot_multiplier_formula": "clip(1+0.20*clip(H-2,0,1)+0.05*max(0,H-3),1,1.35)",
+  "official_entry_if_below": 450,
+  "official_exit_if_above": 500,
+  "prohibit_backdating_historical_method_approval": true,
+  "pre_register_method_before_future_evaluation": true,
+  "approved_method_count": 0,
+  "independently_certified_method_count": 0,
+  "source_pit_independently_attested_node_count": 0,
+  "production_trades_allowed": false,
+  "source_hash_format": "sha256",
+  "required_external_controls": [
+    "frozen formula source code SHA256 with approved economic rationale and effective date",
+    "independently independently reviewed source-first-delivery PIT original bytes and event timestamps",
+    "reviewed corporate actions and historical basket membership where equities relevant",
+    "original SEC filed_at+14 calendar days and ALFRED as-of vintage discipline",
+    "untainted post-freeze forward-only outcome comparison against simple baseline",
+    "explicit separate independent committee authorization; no user-supplied approval booleans"
+  ],
+  "nodes": [
+    {
+      "name": "Private Credit",
+      "weight": 150,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": null,
+        "source_character": "original partial source archives in project; independently audited scoring absent",
+        "shadow_methods": []
+      }
+    },
+    {
+      "name": "Insurers",
+      "weight": 125,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": null,
+        "source_character": "original partial source archives in project; independently audited scoring absent",
+        "shadow_methods": []
+      }
+    },
+    {
+      "name": "UST 30Y",
+      "weight": 125,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": 24,
+        "source_character": "observed ALFRED DGS30 and Treasury 20-change volatility; historical publisher first delivery NOT attested",
+        "shadow_methods": [
+          "V60 Vol10",
+          "V60 VolPlusRise"
+        ]
+      }
+    },
+    {
+      "name": "Neoclouds",
+      "weight": 100,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": null,
+        "source_character": "original partial source archives in project; independently audited scoring absent",
+        "shadow_methods": []
+      }
+    },
+    {
+      "name": "AI Equities",
+      "weight": 100,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": 3,
+        "source_character": "retro 2026-08/09/10 one-day price breadth with 7 symbols selected later; historical membership/corporate-action PIT NOT attested",
+        "shadow_methods": [
+          "V61 seven-symbol one-session decliner breadth"
+        ]
+      }
+    },
+    {
+      "name": "Hyperscalers",
+      "weight": 100,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": null,
+        "source_character": "original partial source archives in project; independently audited scoring absent",
+        "shadow_methods": []
+      }
+    },
+    {
+      "name": "SPV",
+      "weight": 100,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": null,
+        "source_character": "original partial source archives in project; independently audited scoring absent",
+        "shadow_methods": []
+      }
+    },
+    {
+      "name": "Repo",
+      "weight": 100,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": 24,
+        "source_character": "observed SOFR/BGCR/TGCR and IORB monthly levels; source-to-node-score UNAPPROVED",
+        "shadow_methods": [
+          "V61 RepoZeroBoundary",
+          "V61 RepoPremium20bpPostHoc",
+          "V61 RepoPremium10bpPostHoc"
+        ]
+      }
+    },
+    {
+      "name": "Power/Data Centers",
+      "weight": 50,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": null,
+        "source_character": "original partial source archives in project; independently audited scoring absent",
+        "shadow_methods": []
+      }
+    },
+    {
+      "name": "Semiconductors Supply",
+      "weight": 50,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": null,
+        "source_character": "original partial source archives in project; independently audited scoring absent",
+        "shadow_methods": []
+      }
+    },
+    {
+      "name": "AI Demand",
+      "weight": 50,
+      "admission_status": "UNAPPROVED",
+      "approved_method_version": null,
+      "approved_code_sha256": null,
+      "approved_effective_from_utc": null,
+      "independent_source_pit_attestation_reference": null,
+      "committee_approval_reference": null,
+      "untouched_forward_validation_reference": null,
+      "old_2024_2026_pit_retroactive_approval": false,
+      "raw_source_provenance_state": {
+        "source_months": null,
+        "source_character": "original partial source archives in project; independently audited scoring absent",
+        "shadow_methods": []
+      }
+    }
+  ]
+}
