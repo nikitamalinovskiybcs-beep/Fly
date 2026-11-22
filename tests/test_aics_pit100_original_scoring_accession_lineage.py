@@ -79,7 +79,7 @@ class OriginalSECScoringAccessionCrosswalkTests(unittest.TestCase):
     def test_unrelated_100_filing_headers_do_not_certify_scoring_inputs(self):
         manifest,headers=fixtures(self.rows)
         for i in range(2):
-            manifest["tasks"][i]["accession"]=f"0000000001-26-{i+90:06d}"
+            manifest["tasks"][i]["accession"]=f"0000000001-26-{i+201:06d}"
             headers["source_headers"][i]["accession"]=manifest["tasks"][i]["accession"]
         r=build(*self.data,manifest,headers)
         self.assertEqual(r["exact_original_filing_accession_in_100_primary_archive_and_header"],0)
