@@ -29,7 +29,7 @@ import urllib.request
 from decimal import Decimal,InvalidOperation,ROUND_HALF_UP
 from pathlib import Path
 
-from scripts.aics_v62_trusted_score_method_admission_gate import registry_frozen
+from scripts.aics_v62_trusted_score_method_admission_gate import registry_frozen, PIN as V62_REGISTRY_PIN
 
 ROOT=Path("aics_data/research")
 METHOD=Path("aics_data/governance/aics_v63_frozen_future_ust_repo_shadow_methods_2026-11-22.json")
@@ -50,6 +50,8 @@ def _blob_sha(x):
     return hashlib.sha1(f"blob {len(x)}\0".encode()+x).hexdigest()
 
 def lock_methods():
+    # V62 freeze itself must remain intact before V63 is considered.
+    registry_frozen()
     raw=METHOD.read_bytes()
     if _blob_sha(raw)!=PIN:
         raise ValueError("Registered V63 formula bytes changed after public freeze")
@@ -64,8 +66,7 @@ def lock_methods():
         or j.get("single_default_official_replacement_selected") is not None
         or j.get("hypotheses_posthoc_invented_after_known_2024_2026_history") is not True
         or j.get("model_family_is_not_independently_untouched_oos_even_after_future_appraisal") is not True
-        or j.get("authoritative_v62_official_score_method_registry_sha1")!=registry_frozen()[0].get(
-            "unavailable_stub_sentinel","240e5bcd1bbaf1cf808cc184485e9b51956eb8a3")
+        or j.get("authoritative_v62_official_score_method_registry_sha1")!=V62_REGISTRY_PIN
         or [x.get("id") for x in j.get("shadow_scenarios_unapproved_and_not_probabilities",[])]!=[
             "UST_VOL10_POSTHOC_LOCKED","UST_VOL_PLUS_RISE_POSTHOC_LOCKED",
             "REPO_PREMIUM_20_POSTHOC_LOCKED","REPO_PREMIUM_10_POSTHOC_LOCKED"]):
@@ -209,7 +210,7 @@ def compute(raw,ledger,*,now=None):
         # but NOT a provider-attested publication timestamp.
         month_last=(day.replace(day=1)+dt.timedelta(days=32)).replace(day=1)-dt.timedelta(days=1)
         if ((month_last-day).days>7 or day>=now.date() or next_month_first>now.date()
-            or now.date()<=FREEZE_DATE):
+            or next_month_first>=now.date() or now.date()<=FREEZE_DATE):
             raise ValueError("The candidate month has no mature joint day")
         daily_vol=_sample_volatility_bp(rate_map["DGS30"],day)
         vol10=_clamp(daily_vol*Decimal(10))
@@ -290,7 +291,8 @@ def append_research_row(ledger,report,raw):
         # Later provider revisions must not silently amend already frozen
         # original observation, even when scores don't change after rounding.
         if (match["joint_source_rate_effective_date"]!=candidate["joint_source_rate_effective_date"]
-            or match["observed_rate_percent"]!=candidate["observed_rate_percent"]):
+            or match["observed_rate_percent"]!=candidate["observed_rate_percent"]
+            or match["research_shadows_not_official_0_100"]!=candidate["research_shadows_not_official_0_100"]):
             raise ValueError("Provider revised an already-frozen first-observed rate")
         return ledger,False
     if rows and rows[-1]["month"]>=candidate["month"]:
