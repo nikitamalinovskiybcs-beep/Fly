@@ -50,15 +50,24 @@ def reconcile(simple,rich,sp500):
         raise ValueError("Unverified or falsified PIT100 inputs")
     a_conflicts=simple.get("quarantined_same_day_research_conflicts",[])
     b_conflicts=rich.get("same_day_ambiguous_release_conflicts_quarantined",[])
-    if (len(a_conflicts)!=len(b_conflicts)!=1):
-        raise ValueError("Same-day original source conflict mismatch")
-    if (len(a_conflicts)!=1 or len(b_conflicts)!=1
-        or a_conflicts[0]["node"]!="Semiconductors Supply"
-        or a_conflicts[0]["source_public_day_proxy"]!=b_conflicts[0]["claimed_public_day"]
-        or a_conflicts[0]["source_public_day_proxy"]!="2025-12-23"
-        or {num(x) for x in a_conflicts[0]["conflicting_source_scores"]}!=
-           {num(x) for x in b_conflicts[0]["conflicting_recorded_scores"]}):
-        raise ValueError("G17 duplicate release source values not reconciled")
+    if a_conflicts or b_conflicts:
+        raise ValueError("Original joint G17 release is two periods, not conflicting dates")
+    a_joint=simple.get("same_day_joint_observation_months",{})
+    b_joint=rich.get("same_day_joint_different_observation_periods_validated",{})
+    expected={"2025-10":Decimal("74.7"),"2025-11":Decimal("74.4")}
+    if (a_joint.get("publication_day")!="2025-12-23"
+        or b_joint.get("original_release_date")!="2025-12-23"
+        or a_joint.get("original_official_Fed_release_url")!=
+           b_joint.get("original_official_federal_reserve_release_url")
+        or {e["observation_month"]:num(e["value"])
+            for e in a_joint.get("observation_period_values",[])}!=expected
+        or {e["observation_month"]:num(e["value"])
+            for e in b_joint.get("source_observation_values",[])}!=expected
+        or a_joint.get("both_values_distinct_periods_no_source_quarantine") is not True
+        or b_joint.get("separate_measurement_months_not_duplicate_release_data") is not True
+        or a_joint.get("independent_historical_first_feed_receipt") is not False
+        or b_joint.get("independent_original_first_delivery_timestamp_attested") is not False):
+        raise ValueError("Original 2025-12-23 G17 Oct/Nov joint release not reconciled")
     all_months=[]
     method_differences=[]
     for mode in ("market","calendar"):
@@ -161,21 +170,25 @@ def reconcile(simple,rich,sp500):
         }
     dec_row=next(x for x in all_months if x["month"]=="2025-12")
     if (num(bymode["market"]["2025-12"]["event_source_scores"]["Semiconductors Supply"]["score_0_100_research_only"])!=
-        Decimal("75.50")):
-        raise ValueError("Disputed Dec-2025 G17 source not quarantined")
+        Decimal("74.40")):
+        raise ValueError("Latest Nov-2025 measurement in joint G17 release must be visible at Dec month-end")
     return {
         "schema":"aics-pit100-two-independent-24month-replays-reconciled-v1",
         "as_of":rich["as_of"],
         "research_months_reconciled":24,
         "independent_replay_methods_compared":2,
         "month_node_disagreements_remaining":len(method_differences),
-        "quarantined_original_G17_same_day_conflict":{
-            "month":"2025-12",
-            "published_date_claim":"2025-12-23",
-            "two_recorded_values":["74.70","74.40"],
-            "previous_unambiguous_retained_score":"75.50",
-            "independent_historical_release_vintage_attested":False,
+        "validated_joint_G17_original_release":{
+            "market_month":"2025-12",
+            "official_publication_date":"2025-12-23",
+            "official_release_url":b_joint["original_official_federal_reserve_release_url"],
+            "observation_months":["2025-10","2025-11"],
+            "values":["74.70","74.40"],
+            "latest_research_monthly_candidate":"74.40",
+            "separate_original_measurements_not_conflicting_publications":True,
+            "historical_original_first_provider_feed_receipt_attested":False,
         },
+        "G17_research_source_period_conflicts_remaining":0,
         "quality_by_panel":summary,
         "market_vs_calendar_same_day_publication_research_difference_not_bug":True,
         "monthly_aligned_research_panel":all_months,
@@ -243,9 +256,9 @@ def markdown_report(data):
         )
     out+= [
         "",
-        "## Exactly one source-date conflict, now reconciled",
+        "## Official Fed G.17 joint release: two valid measurement months, not a conflict",
         "",
-        "On 2025-12-23 two stored Semiconductor Supply G.17 records claim the same release date with different scores **74.70** and **74.40**. Both are excluded from both reconstructed series until the original Federal Reserve vintage is independently attested. The previously unambiguous **75.50** is shown only as a retrospectively computed, dated source candidate, not a certified production indicator.",
+        "Official Federal Reserve archival G.17 released **both October 2025 (74.70)** and **November 2025 (74.40)** NAICS 3344 original capacity-utilization research values **together on 2025-12-23** after a government-shutdown delay. These have different measurement months and must not be treated as contradictory same-observation revisions. At December 2025 month-end the latest preliminary observation is November **74.40** (research only). Original first-feed availability remains unverified; the score is not a validated AI-only semiconductor-supply-stress metric.",
         "",
         "## Remaining blockers",
         "",
