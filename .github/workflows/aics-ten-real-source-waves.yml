@@ -258,17 +258,17 @@ jobs:
           rotation = json.loads((path/'aics_autonomous_v32_v34_research_rotation.json').read_text())
           five = json.loads((path/'aics_v35_v39_five_version_result.json').read_text())
           pit100 = json.loads((path/'aics_100_pit_audit_runs_public_release_policy.json').read_text())
-          rebuilt = json.loads((path/'aics_pit100_rebuilt_24m_public_filing_date_panels.json').read_text())
-          assert rebuilt['schema']=='aics-pit100-24m-public-filing-day-rebuilt-research-v1'
-          assert rebuilt['source_replay_count']==100
-          assert rebuilt['historical_months']==24
-          assert len(rebuilt['market_monthly_rebuilt'])==24
-          assert len(rebuilt['calendar_monthly_rebuilt'])==24
-          assert rebuilt['active_SEC_public_filing_date_no_14day_delay'] is True
-          assert rebuilt['newly_certified_PIT_nodes']==0
-          assert rebuilt['fully_rebuilt_production_AICS'] is None
-          assert rebuilt['AICS_SP500_spread'] is None
-          assert rebuilt['trades_created'] is False
+          source_rebuilt = json.loads((path/'aics_pit100_rebuilt_24m_public_filing_date_panels.json').read_text())
+          assert source_rebuilt['schema']=='aics-pit100-24m-public-filing-day-source_rebuilt-research-v1'
+          assert source_rebuilt['source_replay_count']==100
+          assert source_rebuilt['historical_months']==24
+          assert len(source_rebuilt['market_monthly_source_rebuilt'])==24
+          assert len(source_rebuilt['calendar_monthly_source_rebuilt'])==24
+          assert source_rebuilt['active_SEC_public_filing_date_no_14day_delay'] is True
+          assert source_rebuilt['newly_certified_PIT_nodes']==0
+          assert source_rebuilt['fully_source_rebuilt_production_AICS'] is None
+          assert source_rebuilt['AICS_SP500_spread'] is None
+          assert source_rebuilt['trades_created'] is False
           rebuilt = json.loads((path/'aics_24m_publication_date_rebuilt_research_panel.json').read_text())
           downloaded = json.loads((path/'aics_pit100_100_original_sec_reports_manifest.json').read_text())
           assert downloaded['schema']=='aics-PIT100-distinct-original-SEC-primary-report-downloads-v1'
@@ -540,7 +540,7 @@ jobs:
               print(f"- UTC report cutoff: **{cycle['cutoff_date']}**. Trigger: **{os.environ.get('GITHUB_EVENT_NAME','unknown')}**. Research only; auto-production: OFF.",file=stream)
               print(f"- PIT V40–V49 LEGACY +14 comparison only: **{pit['source_premature_SEC_proxies']}** original SEC +1-vs-+14 differences, **{pit['private_credit_premature_quarters']}** BDC date differences; NOT active PIT policy violations.",file=stream)
               print(f"- PIT100 PUBLIC FILING DATE POLICY: **{pit100['actual_distinct_aics_roles']}** distinct AICS roles including **{pit100['new_PIT_specialist_roles']}** new forensic specialists; **{pit100['PIT_runs_successfully_computed']}** genuinely executed, source-derived unique historical cutoff audits; zero artificial SEC +14 wait, exact intraday acceptance still unverified, approved index NULL.",file=stream)
-              print(f"- PIT100 24-month recalculation: **{len(rebuilt['market_monthly_rebuilt'])} market** and **{len(rebuilt['calendar_monthly_rebuilt'])} calendar** original-event reconstructed research cutoffs, **{rebuilt['reclocked_original_events']}** source events; no fake full-index or OOS certification.",file=stream)
+              print(f"- PIT100 24-month recalculation: **{len(source_rebuilt['market_monthly_rebuilt'])} market** and **{len(source_rebuilt['calendar_monthly_rebuilt'])} calendar** original-event reconstructed research cutoffs, **{source_rebuilt['reclocked_original_events']}** source events; no fake full-index or OOS certification.",file=stream)
               print(f"- 24-MONTH SOURCE REBUILD: 24 original calendar and market-close research panels recreated from **{rebuilt['source_events_recomputed_from_unchanged_original_ledgers']}** source events, verified at **100** individual original cutoff dates; market coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['market']['dateonly_research_coverage_pct']}%**, calendar coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['calendar']['dateonly_research_coverage_pct']}%**; 2025 Dec G17 same-day conflict quarantined. Historical PIT and full AICS still NOT certified.",file=stream)
               print(f"- PIT100 ORIGINAL SEC REPORT FETCH: **{downloaded['genuine_original_sec_http_attempts']}** unique filing HTTP attempts by scoped acquisition workers, **{downloaded['source_document_bytes_archived_successfully']}** full original primary report payloads SHA-256 verified, **{downloaded['source_document_failures_recorded_without_fabrication']}** explicit failures. Historic first-receipt timestamp remains unverified.",file=stream)
               for experiment in cycle['next_experiments']:
