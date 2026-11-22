@@ -1,0 +1,87 @@
+name: AICS V56 - autonomous prospective model feedback learner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 9 * * 1'
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v56_prospective_feedback_learner.py
+      - tests/test_aics_v56_prospective_feedback_learner.py
+      - aics_data/research/aics_v56_prospective_forecast_outcome_ledger.json
+      - scripts/aics_v55_forward_prospective_conductor.py
+      - scripts/aics_v53_hundred_model_top5_ensemble.py
+      - aics_data/research/aics_v53_frozen_top5_shadow_selection_2026-11-22.json
+      - .github/workflows/aics-v56-feedback-learner.yml
+
+jobs:
+  prospective-only-self-learning:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout immutable frozen experts and prospective observation ledger
+        uses: actions/checkout@v4
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify forecast/label chronology and test-only synthetic simulation
+        run: |
+          python -m compileall -q scripts/aics_v56_prospective_feedback_learner.py tests/test_aics_v56_prospective_feedback_learner.py
+          python -m unittest discover -s tests -p 'test_aics_v56_prospective_feedback_learner.py' -v
+      - name: Process only ACTUALLY present prospective original-source records
+        run: |
+          python -m scripts.aics_v56_prospective_feedback_learner --out aics_data/research/aics_v56_self_learning_status.json
+      - name: Fail closed if no real new label or if a false performance claim
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          ledger=json.loads(Path('aics_data/research/aics_v56_prospective_forecast_outcome_ledger.json').read_text())
+          r=json.loads(Path('aics_data/research/aics_v56_self_learning_status.json').read_text())
+          assert r['original_prospective_snapshot_count']==len(ledger['original_v55_forecast_snapshots'])
+          assert r['original_forward_SP500_monthly_closes_count']==len(ledger['observed_sp500_month_closes'])
+          assert r['original_11node_weights_1050_unchanged'] is True
+          assert r['base_five_expert_formulas_frozen_no_self_modification'] is True
+          assert r['v53_original_frozen_median_unchanged'] is True
+          assert r['new_untouched_out_of_sample_forecast_accuracy_proven'] is None
+          assert r['append_only_history_external_audit_confirmed'] is False
+          assert r['research_PIT_independent_provider_first_delivery_verified'] is False
+          assert r['official_AICS_index'] is None
+          assert r['trades_created'] is False
+          if not ledger['original_v55_forecast_snapshots']:
+              assert r['adaptive_weights_currently_activated'] is False
+              assert r['matured_individual_1month_5pct_labels']==0
+              assert r['latest_shadow_weight_state']['prospective_five_expert_weights']=={
+                   'EXPERT-078':0.2,'EXPERT-052':0.2,'EXPERT-041':0.2,
+                   'EXPERT-001':0.2,'EXPERT-021':0.2}
+          print('Actual prospective snapshots:',r['original_prospective_snapshot_count'])
+          print('Matured real 1m labels:',r['matured_individual_1month_5pct_labels'])
+          print('Prospective shadow learning activated:',
+                r['adaptive_weights_currently_activated'])
+          print('Research weights:',r['latest_shadow_weight_state']['prospective_five_expert_weights'])
+          print('Verified crisis forecast accuracy:',r['new_untouched_out_of_sample_forecast_accuracy_proven'])
+          PY
+      - name: Add autonomous-model status summary
+        run: |
+          python - <<'PY'
+          import json,os
+          r=json.load(open('aics_data/research/aics_v56_self_learning_status.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V56: scheduled prospective-only feedback learner',file=f)
+              print('Forecasts captured: **'+str(r['original_prospective_snapshot_count'])+'**; actual matured +1m labels: **'+str(r['matured_individual_1month_5pct_labels'])+'**.',file=f)
+              print('New shadow weights activated? **'+str(r['adaptive_weights_currently_activated'])+'**.',file=f)
+              print('Adaptive weighting requires 12 new matured labels and at least two distinct >5% decline episodes.',file=f)
+              print('The weekly job only replays submitted actual source receipts; it does NOT manufacture or automatically fetch future market prices.',file=f)
+              print('Frozen five base model formulas unchanged, official 11-node AICS NULL, no production trades or certified future accuracy.',file=f)
+          PY
+      - name: Store dated learning state as immutable run artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v56-current-prospective-learning-status
+          path: aics_data/research/aics_v56_self_learning_status.json
+          if-no-files-found: error
