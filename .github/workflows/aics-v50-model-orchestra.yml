@@ -1,0 +1,78 @@
+name: AICS V50 hundred model improvement orchestra
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v50_hundred_model_orchestra.py
+      - tests/test_aics_v50_hundred_model_orchestra.py
+      - scripts/aics_score_reproducibility_gate.py
+      - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
+      - aics_data/research/sp500_24_month_closes_2026-11-21.json
+      - .github/workflows/aics-v50-model-orchestra.yml
+
+jobs:
+  model-orchestra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout research model
+        uses: actions/checkout@v4
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify 100 distinct model improvement scenarios
+        run: |
+          python -m compileall -q scripts/aics_v50_hundred_model_orchestra.py tests/test_aics_v50_hundred_model_orchestra.py
+          python -m unittest discover -s tests -p 'test_aics_v50_hundred_model_orchestra.py' -v
+      - name: Execute conductor's model orchestra on existing actual 24-month research panel
+        run: |
+          python -m scripts.aics_v50_hundred_model_orchestra --out aics_data/research/aics_v50_hundred_model_orchestra_2026-11-22.json
+      - name: Confirm 100 model operations and no false forecast or production score
+        run: |
+          python - <<'PY'
+          import json
+          p='aics_data/research/aics_v50_hundred_model_orchestra_2026-11-22.json'
+          r=json.load(open(p))
+          assert r['actual_deterministic_model_experiments_executed']==100
+          assert len(r['100_model_experiments'])==100
+          assert len(r['model_experiment_squads'])==10
+          assert r['observed_months_evaluated']==24
+          assert r['original_11_node_weights_changed'] is False
+          assert r['original_discrete_hot_multiplier_changed'] is False
+          assert r['smoothing_proven_out_of_sample_forecast_improvement'] is None
+          assert r['full_11_node_AICS'] is None
+          assert r['trades_created'] is False
+          with open('aics_model_v50_summary.json','w') as f:
+              json.dump({k:v for k,v in r.items() if k not in
+                         ('100_model_experiments','monthly_original_model_robustness')},f,indent=2)
+          print('Model experiments:',r['actual_deterministic_model_experiments_executed'])
+          print('Baseline cliff:',r['legacy_hot_third_node_cliff_points_at_raw_500'])
+          print('Smoothed shadow cliff:',r['continuous_shadow_10wide_third_hot_cliff_points_at_0_1_epsilon'])
+          print('Unidentified signal months:',r['official_legacy_model_envelope_ambiguous_months'])
+          print('Last month mathematical envelope:',r['last_month_exact_legacy_mathematical_interval_NOT_AICS'])
+          PY
+      - name: Model-only result scoreboard
+        run: |
+          python - <<'PY'
+          import json, os
+          r=json.load(open('aics_model_v50_summary.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V50: 100 coordinated model research experiments',file=f)
+              print('**100/100** executed model-design scenarios, **10** workstreams, **24** real retrospective research months.',file=f)
+              print('Original legacy third-hot-node multiplier cliff at raw 500: **'+str(r['legacy_hot_third_node_cliff_points_at_raw_500'])+'** points.',file=f)
+              print('Continuous shadow threshold jump at +-0.1: **'+str(r['continuous_shadow_10wide_third_hot_cliff_points_at_0_1_epsilon'])+'** points.',file=f)
+              print('Incomplete months with unidentifiable official AICS decision: **'+str(r['official_legacy_model_envelope_ambiguous_months'])+'/24**.',file=f)
+              print('**No** backfilled missing node values, no historical PIT/OOS certification, no real trading.',file=f)
+          PY
+      - name: Archive generated model comparisons
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v50-hundred-model-experiments
+          path: |
+            aics_data/research/aics_v50_hundred_model_orchestra_2026-11-22.json
+            aics_model_v50_summary.json
+          if-no-files-found: error
