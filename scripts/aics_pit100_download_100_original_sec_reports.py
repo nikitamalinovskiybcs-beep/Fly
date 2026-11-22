@@ -33,7 +33,7 @@ OUT=RUN/"aics_pit100_100_original_sec_reports_manifest.json"
 RAW=RUN/"pit100_original_sec_reports_raw"
 N=100
 DATE_MIN="2024-10-01"
-MAX_DOC_BYTES=8_000_000
+MAX_DOC_BYTES=48_000_000
 MAX_ARCHIVED_GZIP_BYTES=85_000_000
 ACCESSION=re.compile(r"^\d{10}-\d{2}-\d{6}$")
 PRIMARY=re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,200}\.(?:htm|html|txt|xml)$",re.I)
@@ -209,7 +209,8 @@ def collect(*,waves,as_of,contact,out=OUT,rawdir=RAW,fetcher=None,sleeper=None):
         except (HTTPError,URLError,OSError,TimeoutError,ValueError,TypeError) as exc:
             rec.update({"status":"original_SEC_primary_doc_fetch_failed_not_promoted",
                         "failure_type":type(exc).__name__,
-                        "http_status":exc.code if isinstance(exc,HTTPError) else None})
+                        "http_status":exc.code if isinstance(exc,HTTPError) else None,
+                        "safe_failure_reason":str(exc)[:110] if isinstance(exc,ValueError) else None})
         attempts.append(rec)
         sleeper()
     if (len(attempts)!=100 or len({x["source_url"] for x in attempts})!=100
