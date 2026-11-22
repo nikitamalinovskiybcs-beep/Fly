@@ -87,6 +87,37 @@ class TargetedSourceAccessionTests(unittest.TestCase):
             self.assertEqual(r["still_missing_original_exact_source_accessions_after_targeted_fetch"],1)
             self.assertIsNone(r["full_11node_AICS"])
 
+    def test_after_close_sec_acceptance_precedes_official_next_day_filing(self):
+        claims=source_claims()
+        target=claims["source_claims"][9]
+        target["source_original_filed_day"]="2025-01-02"
+        def after_close(url,contact,max_bytes):
+            if ("/000000000125000010/" in url
+                and url.endswith("-index-headers.html")):
+                return (
+                    "<SEC-DOCUMENT>0000000001-25-000010-index.html : 20250102\\n"
+                    "<SEC-HEADER>0000000001-25-000010.hdr.sgml : 20250102\\n"
+                    "<ACCEPTANCE-DATETIME>20250101181848\\n"
+                    "ACCESSION NUMBER: 0000000001-25-000010\\n"
+                    "FILED AS OF DATE: 20250102\\n"
+                    "</SEC-HEADER>\\n").encode()
+            return fake_fetch(url,contact,max_bytes)
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            r=collect(claims,as_of="2026-11-22",
+                      contact="Auditor Team auditor@example.com",
+                      out=root/"report.json",rawdir=root/"raw",
+                      fetcher=after_close,sleeper=lambda:None)
+            self.assertEqual(r["targeted_original_primary_and_SGML_both_sha_archived"],27)
+            self.assertEqual(r["exact_sources_with_SECGML_acceptance_day_different_from_filed_day"],1)
+            row=next(x for x in r["targeted_source_results"]
+                     if x["accession"]=="0000000001-25-000010")
+            self.assertEqual(row["original_sgml_official_FILED_AS_OF_DATE"],"2025-01-02")
+            self.assertTrue(row["acceptance_ET_calendar_day_differs_from_official_FILED_AS_OF_DATE"])
+            self.assertEqual(row["official_filing_date_lag_after_acceptance_calendar_days"],1)
+            self.assertFalse(row["accepted_before_16_ET_not_public_delivery_evidence"])
+            self.assertFalse(row["historical_first_public_dissemination_attested"])
+
     def test_invalid_source_identity_and_forged_prior_match_count_fail(self):
         claim=source_claims()
         claim["source_claims"][10]["source_original_doc_url"]="https://evil.example/invalid.htm"
