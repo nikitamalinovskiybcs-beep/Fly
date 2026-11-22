@@ -1,0 +1,99 @@
+name: AICS V51 model quality - credit magnitude vs market benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v51_credit_magnitude_early_warning.py
+      - tests/test_aics_v51_credit_magnitude_early_warning.py
+      - aics_data/research/private_credit_2024q2_2026q1_first_sec_cost_breadth_2026-11-22.json
+      - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
+      - aics_data/research/sp500_24_month_closes_2026-11-21.json
+      - .github/workflows/aics-v51-credit-model-evaluation.yml
+
+jobs:
+  compare-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Model V51 tests on original 24m panel
+        run: |
+          python -m compileall -q scripts/aics_v51_credit_magnitude_early_warning.py tests/test_aics_v51_credit_magnitude_early_warning.py
+          python -m unittest discover -s tests -p 'test_aics_v51_credit_magnitude_early_warning.py' -v
+      - name: Execute V51 model redesign and forward outcome falsification
+        run: |
+          python -m scripts.aics_v51_credit_magnitude_early_warning --out aics_data/research/aics_v51_credit_magnitude_early_warning_shadow_2026-11-22.json
+      - name: Fail closed on claims of fictitious 10pct crash prediction
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('aics_data/research/aics_v51_credit_magnitude_early_warning_shadow_2026-11-22.json').read_text())
+          assert r['issuer_quarters_observed']==24
+          assert r['quarterly_breadth_replay_events']==7
+          assert r['historical_market_months_examined']==24
+          assert r['same_original_source_family_months_comparable']==21
+          assert r['unchanged_official_AICS_11node_weights'] is True
+          assert r['unchanged_official_private_credit_score'] is True
+          assert r['model_accuracy_improvement_proven'] is None
+          assert r['certified_AICS_nodes']==0
+          assert r['full_11node_AICS'] is None
+          assert r['trades_created'] is False
+          q={x['source_quarter']:x for x in r['quarterly_actual_original_3BDC_model_comparison']}
+          assert q['2024-Q4']['breadth_legacy_score_0_100']=='100.00'
+          assert q['2024-Q4']['hybrid_40_30_30_shadow_0_100']=='58.00'
+          assert q['2025-Q3']['hybrid_40_30_30_shadow_0_100']=='53.33'
+          primary=[x for x in r['observed_real_SP500_hindsight_event_discrimination']
+                   if x['forward_minimum_month_close_drop_threshold_pct']=='10']
+          assert all(x['observed_positive_event_months']==0 for x in primary)
+          assert all(x['hindsight_ROC_AUC_hybrid_shadow'] is None for x in primary)
+          summary={k:v for k,v in r.items() if k not in
+                   ('quarterly_actual_original_3BDC_model_comparison',
+                    '24_month_same_source_model_comparison',
+                    'observed_real_SP500_hindsight_event_discrimination')}
+          Path('aics_v51_model_quality_summary.json').write_text(
+              json.dumps(summary,indent=2,ensure_ascii=False)+'\n')
+          print('Model V51 source-aligned months:',r['same_original_source_family_months_comparable'])
+          print('Magnitude+tail 2024 Q4: 100 -> 58; 2025 Q3: 33.33 -> 53.33')
+          print('Positive >10pct S&P event months across 1,3,6 months:',
+                [x['observed_positive_event_months'] for x in primary])
+          for x in r['observed_real_SP500_hindsight_event_discrimination']:
+              if x['forward_minimum_month_close_drop_threshold_pct']=='5':
+                  print('EXPOST secondary 5pct',x['forward_horizon_months'],'months',
+                        'n=',x['same_eligible_month_sample_size'],
+                        'positives=',x['observed_positive_event_months'],
+                        'AUC legacy=',x['hindsight_ROC_AUC_original_breadth'],
+                        'AUC shadow=',x['hindsight_ROC_AUC_hybrid_shadow'],
+                        'AUC momentum=',x['hindsight_ROC_AUC_past_3month_SP500_loss_baseline'])
+          PY
+      - name: Summarize actual outcome benchmarking
+        run: |
+          python - <<'PY'
+          import json,os
+          r=json.load(open('aics_data/research/aics_v51_credit_magnitude_early_warning_shadow_2026-11-22.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V51: 3-BDC credit severity, not merely breadth',file=f)
+              print('**21** same original source-family months, **7** actual issuer-quarter model events.',file=f)
+              print('2024 Q4 breadth 100 -> hybrid 58, 2025 Q3 breadth 33.33 -> hybrid 53.33.',file=f)
+              print('No historical 10% S&P event in available 1-,3-,6-month labels; **no 10% crisis AUC**.',file=f)
+              for x in r['observed_real_SP500_hindsight_event_discrimination']:
+                  if x['forward_minimum_month_close_drop_threshold_pct']=='5':
+                      print('Secondary 5% within '+str(x['forward_horizon_months'])+'m, '+str(x['same_eligible_month_sample_size'])+' matched: '+str(x['observed_positive_event_months'])+' events, AUC old '+str(x['hindsight_ROC_AUC_original_breadth'])+', hybrid '+str(x['hindsight_ROC_AUC_hybrid_shadow'])+', momentum '+str(x['hindsight_ROC_AUC_past_3month_SP500_loss_baseline'])+' (all hindsight only).',file=f)
+              print('Original AICS score, 11 weights, hot multiplier, 450/500 unchanged. PIT/OOS unverified.',file=f)
+          PY
+      - name: Publish full model-diagnostic results
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v51-credit-model-vs-sp500-retrospective
+          path: |
+            aics_data/research/aics_v51_credit_magnitude_early_warning_shadow_2026-11-22.json
+            aics_v51_model_quality_summary.json
+          if-no-files-found: error
