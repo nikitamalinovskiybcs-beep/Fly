@@ -1,0 +1,48 @@
+# AICS Priority100 — evidence-first 100-task dispatch
+
+**Version:** 2026-11-22. **Branch:** `devin/1779618014-quant-risk-framework`.
+**Implementation:** [priority workbench](../scripts/aics_priority100_workbench.py), [fail-closed tests](../tests/test_aics_priority100_workbench.py), integrated [daily source workflow](../.github/workflows/aics-ten-real-source-waves.yml).
+
+## Why the allocation changed
+
+100 formerly executed historical as-of roles are useful for checking dates, but **repeated deterministic replays are not evidence of forecasting skill**. The strongest missing component is independently traced original financial accounting numbers, not another arbitrary version count. This is an **additional** evidence-first workbench; it does not overwrite the original 100 PIT cutoffs or invent 100 separate trained AI workers.
+
+| Priority | Unique executed verification units | Scope | Completion standard |
+|---|---:|---|---|
+| P0 | 36 | One original issuer source accession per task: exact referenced SEC document and original SGML index header; re-open gzip and SHA-256 independently | Document checksum + independently extracted exact original numeric facts, with unit, period and context |
+| P0 | 19 | One original accounting research scoring cohort per task: PRU 9, three BDC 7, CoreWeave/Nebius 3 | All required original accounting items independently replayed and aggregate formula checked |
+| P1 | 24 | One market month each, Nov 2024–Oct 2026, reconstructed panels and S&P500 retrospective context | Period-specific source availability, original vintage, no survivorship and preregistered scoring |
+| P1 | 11 | One of the frozen 11 weighted model nodes | Hist. PIT + verified formula + 24-month independently untouched OOS |
+| P2 | 10 | Negative checks: no missing accessions, correct month counts, no later S&P target in input, no auto-trades, no false 2000/2008 prediction claim | All controls remain fail-closed |
+| **Total** | **100** | Different, identified work units | Count does not imply 100 validated independent model forecasts |
+
+**Priority P0 depends on sources:** There are 36 distinct original filing accessions behind 19 event cohorts, not 36 independently audited accounting values. The earlier GitHub Actions run recovered 27 missing precise filing documents; 9 accessions appeared in a broader 100-filing archive. The *exact referenced document URL* is now an explicit separate gate: matching the SEC accession's header alone does not prove its sampled primary-document filename is the exact referenced report. An unknown or mismatched document remains blocked, not promoted.
+
+## Exact automated deliverables
+
+- The workflow produces `aics_data/agent_runs/ten_real_collection_rounds/aics_priority100_evidence_queue.json`, archived with raw source files and all other AICS receipts.
+- 36 original-document tasks re-open source files and their headers, stream-decompress under a 48MB cap and verify SHA-256 against the original independently archived metadata. Missing archives, tampered bytes or incorrect exact referenced primary documents are flagged without making up data.
+- 19 financial cohort tasks carry upstream issuer/accession dependencies; a cohort cannot pass merely because its dates or source URLs match.
+- 24 market-month tasks verify unchanged 1050 weight, source coverage/missing-node partition, true per-month cutoff alignment and explicitly **partial** scores.
+- 11 frozen-node tasks check unchanged original weights and no false certification.
+- 10 independent protection checks block fake forecast/OOS claims, wrong lead/lag framing, changing monthly reconstruction method and trading promotion.
+- Unit tests include tampered gzip payload, duplicate accession, fabricated independent OOS and corrupted monthly coverage weights.
+
+## Current truth and deliberate stops
+
+The **research-release technical acceptance** is 66/66 under an explicitly simplified sixth criterion. The **original independent project audit** remains 22/66, with **0/11 independently PIT-certified nodes**. A research AICS snapshot of 669.09 is not a certified signal.
+
+The prior 24-month candidate comparison has 23 **ex-post** next-month S&P500 pairs and Pearson correlation **−0.135**, a weak descriptive association. No independent predictive lead time for crises in 2000 or 2008 has been established. **No** profit score, investable AICS/S&P spread, crisis probability, automatic orders or live model promotion.
+
+SEC public filing-day is the active *PIT100 research proxy*, not an independently attested intraday first-public receipt. No synthetic historical fill or hidden +14 delay is introduced.
+
+## Evidence sequencing for the next execution
+
+1. Rehash the exact 36 original documents and headers. Identify base-sample accessions whose original referenced report **filename** differs from that sampled filing, and treat these as unresolved documents.
+2. Independently parse original accounting values for 9 PRU observations, 7 × 3 BDC issuer-quarter values and 3 × 2 Neocloud issuer-quarter values; keep quarters and disclosure units separate and do not double-count financing, lease, guarantee or facility ceilings.
+3. Only when original numeric and historical public-delivery proofs exist, reconcile source-to-score maps for all 11 nodes and reserve a truly untouched OOS window.
+4. Apply the resulting frozen signal *without backfilling*, separately against S&P next-month returns, QQQ drawdowns and historical 2000/2008 pre-onset evidence. Unresolved signals must remain null.
+
+**Automation:** the existing GitHub scheduled workflow is configured for 23:15 UTC; source collection may fail and GitHub schedules may be delayed. Check each live GitHub Actions conclusion. The full CI has an unrelated broad Ruff lint failure; do not report everything as green. A push-triggered pipeline must complete successfully before claiming this new 100-task report was generated.
+
+**No new count is added to 22/66** merely because the 100 tasks are scheduled, iterated or have correctly documented missing evidence.
