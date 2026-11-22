@@ -47,7 +47,7 @@ assert len(WEIGHTS)==11 and sum(WEIGHTS.values())==1050
 
 
 def month_after(value,steps=1):
-    if type(steps)!=int or steps<0 or steps>12:
+    if type(steps)!=int or steps<0 or steps>120:
         raise ValueError("Bad forward-only outcome horizon")
     d=month_last_date(value)
     n=(d.year*12+d.month-1)+steps
