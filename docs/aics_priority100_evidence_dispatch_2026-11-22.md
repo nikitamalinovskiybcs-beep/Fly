@@ -56,3 +56,15 @@ A second new, execution-scoped workbench [`aics_pru_original_9_numeric_replay.py
 The output `aics_pru_nine_original_source_numeric_replay.json` reports the observed number actually matched **out of nine**, and explicitly retains `certified_AICS_nodes=0`, first delivery unattested, and no investment trading. Unit tests use synthetic HTML **only to validate parser behavior**, not to populate live historical financial observations. Do not assume 9/9 real issuer sources pass until the final GitHub Actions run is verified. PRU covers one issuer's scoped research ratio; it is not a verified industry-wide Insurers stress proxy.
 
 The original [2026Q3 Prudential SEC 10-Q](https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/pru-20260930.htm) provides a manually independently checked **$610m** no-related-ACL nonaccrual narrative and **$58,685m** narrow net loans portfolio row, consistent with **1.04%** to two decimals. This standalone factual check does **not** prove the automated replay will pass every issuer quarter, or that the percentage has predictive power.
+
+## Manual SEC triage of three distinct PRU original periods
+
+Direct reading of each period's **own original SEC report**, not copied values from a later issuer filing:
+
+| Period | Original SEC HTML | Non-accrual without related ACL ($m) | Narrow total commercial mortgage and other loans, net ($m) | Original-only research ratio |
+|---|---|---:|---:|---:|
+| 2024 Q3 | [filed 2024-10-31](https://www.sec.gov/Archives/edgar/data/1137774/000113777424000247/pru-20240930.htm) | 138 | 53,500 | 0.26% |
+| 2024 Q4 | [filed 2025-02-13](https://www.sec.gov/Archives/edgar/data/1137774/000113777425000044/pru-20241231.htm) | 207 | 53,987 | 0.38% |
+| 2026 Q3 | [filed 2026-11-04](https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/pru-20260930.htm) | 610 | 58,685 | 1.04% |
+
+Figures are from the footnote narrative and narrow commercial mortgage/other loans portfolio table. The corresponding broader reported loan totals (e.g. consolidated carrying values) are **not** interchangeable denominators. Even when all three numbers are manually reconciled, they describe one insurance issuer's credit portfolio rather than AI-specific financing and do not upgrade the Insurers node to a certified market stress indicator. The nine-filing machine replay independently reopens original archive bytes before comparing against research-ledger numbers; its actual completed count depends on the result of the GitHub Actions execution.
