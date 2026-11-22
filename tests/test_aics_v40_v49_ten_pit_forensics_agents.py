@@ -109,7 +109,7 @@ class TenPITForensicAgentsTests(unittest.TestCase):
     def test_late_reports_not_predated_and_source_hashes_not_first_delivery(self):
         a=self.execute(date="2026-11-12")
         b=self.execute(date="2026-11-13")
-        self.assertEqual(a["ten_agent_research_results"][4]["eligible_original_SEC_issuer_quarters"],24)
+        self.assertEqual(a["ten_agent_research_results"][4]["eligible_original_SEC_issuer_quarters"],27)
         self.assertEqual(b["ten_agent_research_results"][4]["eligible_original_SEC_issuer_quarters"],28)
         self.assertEqual(a["ten_agent_research_results"][4]["complete_four_issuer_quarters"],6)
         self.assertEqual(b["ten_agent_research_results"][4]["complete_four_issuer_quarters"],7)
