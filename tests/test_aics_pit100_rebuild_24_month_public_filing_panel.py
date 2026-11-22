@@ -95,7 +95,7 @@ class PIT100OriginalSourceMonthlyRebuildTests(unittest.TestCase):
                 and r["first_public_research_day_proxy"]=="2025-12-23"]
         self.assertEqual(len(source),2)
         self.assertEqual({x["observation_month"]:x["score"] for x in source},
-                         {"2025-10":"74.7","2025-11":"74.40"})
+                         {"2025-10":"74.70","2025-11":"74.40"})
         self.assertTrue(all(x["original_joint_publication_url"] ==
                             "https://www.federalreserve.gov/releases/g17/20251223/table7.htm"
                             for x in source))
