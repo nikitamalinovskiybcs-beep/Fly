@@ -68,3 +68,21 @@ Direct reading of each period's **own original SEC report**, not copied values f
 | 2026 Q3 | [filed 2026-11-04](https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/pru-20260930.htm) | 610 | 58,685 | 1.04% |
 
 Figures are from the footnote narrative and narrow commercial mortgage/other loans portfolio table. The corresponding broader reported loan totals (e.g. consolidated carrying values) are **not** interchangeable denominators. Even when all three numbers are manually reconciled, they describe one insurance issuer's credit portfolio rather than AI-specific financing and do not upgrade the Insurers node to a certified market stress indicator. The nine-filing machine replay independently reopens original archive bytes before comparing against research-ledger numbers; its actual completed count depends on the result of the GitHub Actions execution.
+
+## Full original-Prudential nine-quarter manual SEC primary-document verification
+
+On 22 November, individually opened each period's own first-party EDGAR original, checked the **non-accrual-without-related-ACL** statement in issuer accounting note, verified the **narrow net portfolio investment-mix row** (not consolidated larger balance), and independently recomputed to half-up two decimals. These are manual source-to-numeric comparisons, not the still-pending automated raw-gzip SHA replay, and not historical data-feed PIT certification.
+
+| Original period | SEC direct source | Nonaccrual no-ACL ($m) | Narrow portfolio net ($m) | Manual recomputed ratio |
+|---|---|---:|---:|---:|
+| 2024 Q3 | [original 10-Q](https://www.sec.gov/Archives/edgar/data/1137774/000113777424000247/pru-20240930.htm) | 138 | 53,500 | 0.26% |
+| 2024 Q4 | [original 10-K](https://www.sec.gov/Archives/edgar/data/1137774/000113777425000044/pru-20241231.htm) | 207 | 53,987 | 0.38% |
+| 2025 Q1 | [original 10-Q](https://www.sec.gov/Archives/edgar/data/1137774/000113777425000060/pru-20250331.htm) | 274 | 54,169 | 0.51% |
+| 2025 Q2 | [original 10-Q](https://www.sec.gov/Archives/edgar/data/1137774/000113777425000108/pru-20250630.htm) | 423 | 54,612 | 0.77% |
+| 2025 Q3 | [original 10-Q](https://www.sec.gov/Archives/edgar/data/1137774/000113777425000178/pru-20250930.htm) | 415 | 55,829 | 0.74% |
+| 2025 Q4 | [original 10-K](https://www.sec.gov/Archives/edgar/data/1137774/000113777426000048/pru-20251231.htm) | 442 | 56,195 | 0.79% |
+| 2026 Q1 | [original 10-Q](https://www.sec.gov/Archives/edgar/data/1137774/000113777426000095/pru-20260331.htm) | 250 | 56,436 | 0.44% |
+| 2026 Q2 | [original 10-Q](https://www.sec.gov/Archives/edgar/data/1137774/000113777426000176/pru-20260630.htm) | 757 | 57,458 | 1.32% |
+| 2026 Q3 | [original 10-Q](https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/pru-20260930.htm) | 610 | 58,685 | 1.04% |
+
+All nine manual original-statement ratios equal the research-ledger values at displayed precision. **Do not** mark independent historical source ingestion time, 24-month OOS, issuer representativeness, AI-linked loss attribution or a certified Insurers 0-100 stress node as passed. Machine-extraction status is reported independently by the new nine-document replay run.
