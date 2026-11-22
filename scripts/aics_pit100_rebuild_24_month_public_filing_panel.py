@@ -116,11 +116,34 @@ def normalized_events(overlay,credit):
     return events
 
 
+def ambiguous_public_release_pairs(events):
+    """Quarantine distinct values for a node on the same date-only release."""
+    buckets={}
+    for e in events:
+        buckets.setdefault((e["node"],e["first_public_research_day_proxy"]),[]).append(e)
+    conflicts=[]
+    for (node,day),bucket in sorted(buckets.items()):
+        if len({dec(e["score"]) for e in bucket})>1:
+            conflicts.append({
+                "node":node,"claimed_public_day":day,
+                "source_event_keys":[e["event_key"] for e in bucket],
+                "original_measured_items":[e.get("measurement") for e in bucket],
+                "conflicting_recorded_scores":[e["score"] for e in bucket],
+                "decision":"quarantine conflicting same-date releases; retain previous unambiguous source only",
+                "original_release_vintage_needed":True,
+            })
+    return conflicts
+
+
 def replay_at(events,cutoff,*,market_close):
     """Use only observations that pass the declared cutoff, no score imputation."""
     if isinstance(cutoff,str):cutoff=date(cutoff)
+    conflicts=ambiguous_public_release_pairs(events)
+    quarantine={x for c in conflicts for x in c["source_event_keys"]}
     recent={}
     for event in events:
+        if event["event_key"] in quarantine:
+            continue
         e_date=date(event["first_public_research_day_proxy"])
         if not eligible(e_date.isoformat(),cutoff,market_close=market_close):
             continue
@@ -129,10 +152,6 @@ def replay_at(events,cutoff,*,market_close):
         existing=recent.get(event["node"])
         if existing is None or (e_date,event["event_key"])>(
                 date(existing["first_public_research_day_proxy"]),existing["event_key"]):
-            if (existing is not None and
-                e_date==date(existing["first_public_research_day_proxy"]) and
-                dec(event["score"])!=dec(existing["score"])):
-                raise ValueError("Conflicting same-day original node values; cannot choose arbitrarily")
             recent[event["node"]]=event
     scores={}
     for node,event in sorted(recent.items()):
@@ -155,6 +174,9 @@ def replay_at(events,cutoff,*,market_close):
     return {
         "date":cutoff.isoformat(),
         "source_count":len(events),
+        "quarantined_conflicting_source_records":len(quarantine),
+        "ambiguous_publication_source_dates":[
+            x["claimed_public_day"] for x in conflicts if date(x["claimed_public_day"])<=cutoff],
         "date_only_research_nodes":len(scores),
         "date_only_known_weight":sum(WEIGHTS[n] for n in scores),
         "date_only_partial_points_not_full_AICS":q2(weighted),
@@ -207,6 +229,9 @@ def build(overlay,credit,sp500,pit100,*,as_of):
         or pit100.get("trades_created") is not False):
         raise ValueError("Require genuine completed 100-role PIT public-date audit")
     events=normalized_events(overlay,credit)
+    conflicts=ambiguous_public_release_pairs(events)
+    if len(conflicts)!=1 or conflicts[0]["node"]!="Semiconductors Supply":
+        raise ValueError("Original same-date conflicting G.17 releases need independent review")
     # Guard using original PIT100 primary preflight as an independently
     # separate materialization of the dated SEC +1 legacy ledger.
     panels={}
@@ -325,6 +350,7 @@ def build(overlay,credit,sp500,pit100,*,as_of):
         "as_of":as_of.isoformat(),
         "active_policy":POLICY,
         "source_events_recomputed_from_unchanged_original_ledgers":64,
+        "same_day_ambiguous_release_conflicts_quarantined":conflicts,
         "original_PIT100_roles_individually_verified_against_rebuild":100,
         "original_PIT100_execution_count":pit100["PIT_runs_successfully_computed"],
         "SEC_14day_artificial_delay_active":False,
@@ -409,6 +435,10 @@ def markdown_report(report):
             f"{', '.join(m['missing_nodes']) or 'none'} |"
         )
     lines += [
+        "",
+        "## Original data conflicts discovered during reconstruction",
+        "",
+        "**G.17 source conflict:** two Semiconductor Supply observations claiming 2025-12-23 first-public dates have different original values (2025-10 and 2025-11 measured periods). Both are quarantined until independently verified against the actual dated original Federal Reserve release/vintage. The preceding unambiguous observation is kept separately with its source age; no interpolated value is used.",
         "",
         "## Quality gates, still open",
         "",
