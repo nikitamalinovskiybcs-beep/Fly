@@ -34,7 +34,7 @@ from pathlib import Path
 SOURCE_URL="https://fred.stlouisfed.org/graph/fredgraph.csv?id=SP500"
 LEDGER=Path("aics_data/research/aics_v56_prospective_forecast_outcome_ledger.json")
 RECEIPT=Path("aics_data/research/aics_v58_month_close_capture_receipt.json")
-RAW=Path("aics_data/research/aics_v58_sp500_received_source.csv")
+RAW=Path(tempfile.gettempdir())/"aics_sp500_fred_licensed_source.csv"
 FROZEN_MONTH="2026-11"
 FROZEN_DATE=dt.date(2026,11,22)
 MAX_BYTES=3_000_000
@@ -255,6 +255,8 @@ def main():
     args=p.parse_args()
     if args.apply_to_ledger and args.ledger.resolve()!=LEDGER.resolve():
         raise ValueError("Cannot automatically mutate an untracked ledger path")
+    if args.raw.resolve().is_relative_to(Path.cwd().resolve()):
+        raise ValueError("Copyrighted FRED raw source must not be stored inside the Git repo")
     raw=fetch_source()
     now=dt.datetime.now(dt.timezone.utc)
     report=receipt(raw,now=now)
