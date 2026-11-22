@@ -22,6 +22,8 @@ on:
       - scripts/aics_v40_v49_ten_pit_forensics_agents.py
       - scripts/aics_pit_100_real_cutoff_agents.py
       - scripts/aics_pit100_rebuild_24m_research.py
+      - scripts/aics_pit100_reconcile_24m_sp500.py
+      - tests/test_aics_pit100_reconcile_24m_sp500.py
       - tests/test_aics_pit100_rebuild_24m_research.py
       - scripts/aics_pit100_rebuild_24_month_public_filing_panel.py
       - scripts/aics_pit100_download_100_original_sec_reports.py
@@ -99,6 +101,10 @@ jobs:
         run: |
           python -m compileall -q scripts/aics_pit100_rebuild_24m_research.py tests/test_aics_pit100_rebuild_24m_research.py
           python -m unittest discover -s tests -p 'test_aics_pit100_rebuild_24m_research.py' -v
+      - name: Cross-check 24 months in BOTH independent PIT100 rebuilds versus S&P 500
+        run: |
+          python -m compileall -q scripts/aics_pit100_reconcile_24m_sp500.py tests/test_aics_pit100_reconcile_24m_sp500.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_reconcile_24m_sp500.py' -v
       - name: Verify ten model improvement agent evidence and forecasting gates
         run: |
           python -m compileall -q scripts/aics_ten_model_improvement_agents.py tests/test_aics_ten_model_improvement_agents.py
@@ -214,6 +220,12 @@ jobs:
           python -m scripts.aics_pit100_rebuild_24m_research \
             --pit100 aics_data/agent_runs/ten_real_collection_rounds/aics_100_pit_audit_runs_public_release_policy.json \
             --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_rebuilt_24m_public_filing_date_panels.json
+      - name: Independently reconcile all 24 monthly original-event score panels and SP500
+        run: |
+          python -m scripts.aics_pit100_reconcile_24m_sp500 \
+            --simple aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_rebuilt_24m_public_filing_date_panels.json \
+            --rich aics_data/agent_runs/ten_real_collection_rounds/aics_24m_publication_date_rebuilt_research_panel.json \
+            --sp500 aics_data/research/sp500_24_month_closes_2026-11-21.json
       - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
         run: |
           python - <<'PY'
@@ -271,6 +283,22 @@ jobs:
           assert source_rebuilt['trades_created'] is False
           rebuilt = json.loads((path/'aics_24m_publication_date_rebuilt_research_panel.json').read_text())
           downloaded = json.loads((path/'aics_pit100_100_original_sec_reports_manifest.json').read_text())
+          rec = json.loads((path/'aics_pit100_reconciled_24m_sp500_monthly.json').read_text())
+          assert rec['schema']=='aics-pit100-two-independent-24month-replays-reconciled-v1'
+          assert rec['research_months_reconciled']==24
+          assert rec['month_node_disagreements_remaining']==0
+          assert rec['independent_replay_methods_compared']==2
+          assert rec['quarantined_original_G17_same_day_conflict']['published_date_claim']=='2025-12-23'
+          assert rec['quarantined_original_G17_same_day_conflict']['previous_unambiguous_retained_score']=='75.50'
+          assert len(rec['monthly_aligned_research_panel'])==24
+          assert rec['quality_by_panel']['market']['last_month_known_weight']==725
+          assert rec['quality_by_panel']['calendar']['last_month_known_weight']==950
+          assert all(x['full_11node_AICS'] is None and x['AICS_SP500_spread'] is None for x in rec['monthly_aligned_research_panel'])
+          assert rec['independently_certified_historical_PIT_nodes']==0
+          assert rec['forecast_accuracy_or_2000_2008_similarity_pct'] is None
+          assert rec['trades_created'] is False
+          assert (path/'aics_pit100_reconciled_24m_sp500_monthly.csv').exists()
+          assert (path/'aics_pit100_reconciled_24m_sp500_monthly.md').exists()
           assert downloaded['schema']=='aics-PIT100-distinct-original-SEC-primary-report-downloads-v1'
           assert downloaded['genuine_original_sec_http_attempts']==100
           assert len(downloaded['tasks'])==100
@@ -541,6 +569,7 @@ jobs:
               print(f"- PIT V40–V49 LEGACY +14 comparison only: **{pit['source_premature_SEC_proxies']}** original SEC +1-vs-+14 differences, **{pit['private_credit_premature_quarters']}** BDC date differences; NOT active PIT policy violations.",file=stream)
               print(f"- PIT100 PUBLIC FILING DATE POLICY: **{pit100['actual_distinct_aics_roles']}** distinct AICS roles including **{pit100['new_PIT_specialist_roles']}** new forensic specialists; **{pit100['PIT_runs_successfully_computed']}** genuinely executed, source-derived unique historical cutoff audits; zero artificial SEC +14 wait, exact intraday acceptance still unverified, approved index NULL.",file=stream)
               print(f"- PIT100 24-month recalculation: **{len(source_rebuilt['market_monthly_rebuilt'])} market** and **{len(source_rebuilt['calendar_monthly_rebuilt'])} calendar** original-event reconstructed research cutoffs, **{source_rebuilt['reclocked_original_events']}** source events; no fake full-index or OOS certification.",file=stream)
+              print(f"- PIT100 cross-checked S&P500 24-month panel: two independent original-event implementations, **{rec['month_node_disagreements_remaining']}** remaining monthly node disagreements; **{rec['quality_by_panel']['market']['research_coverage_pct']}%** observed research weight-month coverage (NOT model readiness), G17 Dec2025 conflict quarantined in both; AICS index NULL.",file=stream)
               print(f"- 24-MONTH SOURCE REBUILD: 24 original calendar and market-close research panels recreated from **{rebuilt['source_events_recomputed_from_unchanged_original_ledgers']}** source events, verified at **100** individual original cutoff dates; market coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['market']['dateonly_research_coverage_pct']}%**, calendar coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['calendar']['dateonly_research_coverage_pct']}%**; 2025 Dec G17 same-day conflict quarantined. Historical PIT and full AICS still NOT certified.",file=stream)
               print(f"- PIT100 ORIGINAL SEC REPORT FETCH: **{downloaded['genuine_original_sec_http_attempts']}** unique filing HTTP attempts by scoped acquisition workers, **{downloaded['source_document_bytes_archived_successfully']}** full original primary report payloads SHA-256 verified, **{downloaded['source_document_failures_recorded_without_fabrication']}** explicit failures. Historic first-receipt timestamp remains unverified.",file=stream)
               for experiment in cycle['next_experiments']:
