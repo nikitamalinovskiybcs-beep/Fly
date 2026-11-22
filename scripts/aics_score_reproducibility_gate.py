@@ -87,12 +87,15 @@ def evaluate(data):
     else:
         hot=multiplier=raw=index=None
     return {"as_of":as_of,"node_coverage":len(validated),"required_nodes":11,
+            "node_coverage_is_SELF_ASSERTED_not_independent_PIT":True,
             "validated_weight":sum(v["weight"] for v in validated.values()),
             "required_weight":1050,"errors":errors,
             "hot_nodes":hot,"multiplier":multiplier,"raw_score":raw,
-            "index_aics":index,"model_score":None,
+            "index_aics":index,"index_aics_is_ARITHMETIC_CANDIDATE_NOT_OFFICIAL":True,
+            "official_AICS":None,"independent_method_registry_approval_verified":False,
+            "strict_trade_action":None,"model_score":None,
             "promotion":"BLOCKED","trades_created":False,
-            "note":"Index value is a reproducibility candidate only; OOS and committee approval are separate gates."}
+            "note":"The untrusted input self-asserts independently_verified_pit; even a non-null arithmetic index is NOT official AICS. Approved method lineage, independent source-first-delivery PIT, prospective validation and committee decision require the V62 trusted-method admission gate."}
 
 def main():
     p=argparse.ArgumentParser()
