@@ -95,14 +95,14 @@ class PIT100OriginalSourceMonthlyRebuildTests(unittest.TestCase):
                 and r["first_public_research_day_proxy"]=="2025-12-23"]
         self.assertEqual(len(source),2)
         self.assertEqual({x["observation_month"]:x["score"] for x in source},
-                         {"2025-10":"74.7","2025-11":"74.4"})
+                         {"2025-10":"74.7","2025-11":"74.40"})
         self.assertTrue(all(x["original_joint_publication_url"] ==
                             "https://www.federalreserve.gov/releases/g17/20251223/table7.htm"
                             for x in source))
         m=replay_at(e,"2025-12-31",market_close=False)
         self.assertEqual(
             m["event_source_scores"]["Semiconductors Supply"]["score_0_100_research_only"],
-            "74.4")
+            "74.40")
         self.assertEqual(m["quarantined_conflicting_source_records"],0)
         self.assertEqual(m["ambiguous_publication_source_dates"],[])
         jan=replay_at(e,"2026-01-30",market_close=True)
