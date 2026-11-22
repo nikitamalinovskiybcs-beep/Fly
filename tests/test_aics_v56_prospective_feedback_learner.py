@@ -149,7 +149,7 @@ class V56ProspectiveLearningTests(unittest.TestCase):
         x=synthetic_ledger()
         old=evaluate(x,now=FAKE_NOW)
         next_price=x["observed_sp500_month_closes"][-1]
-        next_price["sp500_close"]=41.0
+        next_price["sp500_close"]=120.0
         modified=evaluate(x,now=FAKE_NOW)
         self.assertEqual(
             [r["only_previous_matured_label_weights"] for r in old["forward_score_series"]],
