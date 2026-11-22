@@ -85,7 +85,7 @@ def build(source,scenario,progress,ledger):
         raise ValueError("Central hot-multiplier state changed")
     central_raw=raw+D(125)*ust_center/D(100)+D(100)*repo_center/D(100)+D(100)*ai_retro/D(100)
     central=central_raw*multiplier(hot)
-    if two(central)!=D("470.66") or two(median)!=D("470.66"):
+    if two(central)!=470.66 or two(median)!=470.66:
         raise ValueError("Central source-to-score hypothesis grid changed")
     all_nodes=[]
     for name,weight in WEIGHTS.items():
