@@ -108,7 +108,7 @@ class PIT100OriginalSourceMonthlyRebuildTests(unittest.TestCase):
         jan=replay_at(e,"2026-01-30",market_close=True)
         self.assertEqual(
             jan["event_source_scores"]["Semiconductors Supply"]["score_0_100_research_only"],
-            "73.6")
+            "73.60")
 
     def test_new_public_filing_cutoff_no_same_day_market_leakage(self):
         e=normalized_events(self.overlay,self.credit)
