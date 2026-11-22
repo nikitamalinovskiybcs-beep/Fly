@@ -21,6 +21,9 @@ on:
       - scripts/aics_v35_v39_five_version_batch.py
       - scripts/aics_v40_v49_ten_pit_forensics_agents.py
       - scripts/aics_pit_100_real_cutoff_agents.py
+      - scripts/aics_pit100_rebuild_24_month_public_filing_panel.py
+      - tests/test_aics_pit100_rebuild_24_month_public_filing_panel.py
+      - aics_data/research/sp500_24_month_closes_2026-11-21.json
       - tests/test_aics_pit_100_real_cutoff_agents.py
       - tests/test_aics_v40_v49_ten_pit_forensics_agents.py
       - aics_data/research/aics_24m_multi_node_publication_overlay_2026-11-21.json
@@ -176,6 +179,15 @@ jobs:
           python -m scripts.aics_pit_100_real_cutoff_agents --as-of "$AICS_ASOF_UTC" \
             --cycle aics_data/agent_runs/ten_real_collection_rounds/aics_thirty_agent_research_cycle.json \
             --out aics_data/agent_runs/ten_real_collection_rounds/aics_100_pit_audit_runs_public_release_policy.json
+      - name: Rebuild 24 genuine research months from source events with PIT100 checks
+        run: |
+          python -m compileall -q scripts/aics_pit100_rebuild_24_month_public_filing_panel.py tests/test_aics_pit100_rebuild_24_month_public_filing_panel.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_rebuild_24_month_public_filing_panel.py' -v
+          python -m scripts.aics_pit100_rebuild_24_month_public_filing_panel \
+            --as-of "$AICS_ASOF_UTC" \
+            --pit100 aics_data/agent_runs/ten_real_collection_rounds/aics_100_pit_audit_runs_public_release_policy.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_24m_publication_date_rebuilt_research_panel.json \
+            --report aics_data/agent_runs/ten_real_collection_rounds/aics_24m_publication_date_rebuild_quality_report.md
       - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
         run: |
           python - <<'PY'
@@ -220,6 +232,26 @@ jobs:
           rotation = json.loads((path/'aics_autonomous_v32_v34_research_rotation.json').read_text())
           five = json.loads((path/'aics_v35_v39_five_version_result.json').read_text())
           pit100 = json.loads((path/'aics_100_pit_audit_runs_public_release_policy.json').read_text())
+          rebuilt = json.loads((path/'aics_24m_publication_date_rebuilt_research_panel.json').read_text())
+          assert rebuilt['schema']=='aics-24month-public-filing-date-PIT100-rebuilt-candidate-panel-v1'
+          assert rebuilt['as_of']==cycle['cutoff_date']
+          assert rebuilt['active_policy']==pit100['active_historical_research_source_policy']
+          assert rebuilt['source_events_recomputed_from_unchanged_original_ledgers']==64
+          assert len(rebuilt['monthly_rebuilt_panels']['market'])==24
+          assert len(rebuilt['monthly_rebuilt_panels']['calendar'])==24
+          assert rebuilt['original_PIT100_roles_individually_verified_against_rebuild']==100
+          assert len(rebuilt['audit_100_unique_original_source_cutoffs'])==100
+          assert rebuilt['same_day_unverified_market_close_filing_is_eligible'] is False
+          assert len(rebuilt['same_day_ambiguous_release_conflicts_quarantined'])==1
+          assert rebuilt['same_day_ambiguous_release_conflicts_quarantined'][0]['node']=='Semiconductors Supply'
+          assert rebuilt['independently_historical_PIT_first_delivery_certified'] is False
+          assert rebuilt['full_11node_AICS'] is None and rebuilt['aics_sp500_spread'] is None
+          assert rebuilt['model_weights_changed'] is False and rebuilt['trades_created'] is False
+          assert rebuilt['frozen_original_weights_total']==1050
+          markdown=(path/'aics_24m_publication_date_rebuild_quality_report.md').read_text()
+          assert markdown.startswith('# AICS PIT100')
+          assert '| 2026-10 |' in markdown
+          assert 'S&P 500' in markdown and 'G.17 source conflict' in markdown
           assert pit100['schema']=='aics-100-real-dated-PIT-audit-role-replays-v1'
           assert pit100['as_of']==cycle['cutoff_date']
           assert pit100['actual_distinct_aics_roles']==100
@@ -455,6 +487,7 @@ jobs:
               print(f"- UTC report cutoff: **{cycle['cutoff_date']}**. Trigger: **{os.environ.get('GITHUB_EVENT_NAME','unknown')}**. Research only; auto-production: OFF.",file=stream)
               print(f"- PIT V40–V49 LEGACY +14 comparison only: **{pit['source_premature_SEC_proxies']}** original SEC +1-vs-+14 differences, **{pit['private_credit_premature_quarters']}** BDC date differences; NOT active PIT policy violations.",file=stream)
               print(f"- PIT100 PUBLIC FILING DATE POLICY: **{pit100['actual_distinct_aics_roles']}** distinct AICS roles including **{pit100['new_PIT_specialist_roles']}** new forensic specialists; **{pit100['PIT_runs_successfully_computed']}** genuinely executed, source-derived unique historical cutoff audits; zero artificial SEC +14 wait, exact intraday acceptance still unverified, approved index NULL.",file=stream)
+              print(f"- 24-MONTH SOURCE REBUILD: 24 original calendar and market-close research panels recreated from **{rebuilt['source_events_recomputed_from_unchanged_original_ledgers']}** source events, verified at **100** individual original cutoff dates; market coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['market']['dateonly_research_coverage_pct']}%**, calendar coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['calendar']['dateonly_research_coverage_pct']}%**; 2025 Dec G17 same-day conflict quarantined. Historical PIT and full AICS still NOT certified.",file=stream)
               for experiment in cycle['next_experiments']:
                   print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
           PY
