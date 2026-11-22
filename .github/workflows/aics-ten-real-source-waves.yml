@@ -19,6 +19,11 @@ on:
       - scripts/aics_v31_interest_repo_dual_clock.py
       - scripts/aics_v32_v34_autonomous_research_rotation.py
       - scripts/aics_v35_v39_five_version_batch.py
+      - scripts/aics_v40_v49_ten_pit_forensics_agents.py
+      - tests/test_aics_v40_v49_ten_pit_forensics_agents.py
+      - aics_data/research/aics_24m_multi_node_publication_overlay_2026-11-21.json
+      - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
+      - aics_data/progress/status.json
       - tests/test_aics_v35_v39_five_version_batch.py
       - tests/test_aics_v32_v34_autonomous_research_rotation.py
       - tests/test_aics_v31_interest_repo_dual_clock.py
@@ -73,6 +78,10 @@ jobs:
         run: |
           python -m compileall -q scripts/aics_sec_quarter_cashflow_gate.py tests/test_aics_sec_quarter_cashflow_gate.py
           python -m unittest discover -s tests -p 'test_aics_sec_quarter_cashflow_gate.py' -v
+      - name: PIT-first original source chronology audits V40-V49
+        run: |
+          python -m compileall -q scripts/aics_v40_v49_ten_pit_forensics_agents.py tests/test_aics_v40_v49_ten_pit_forensics_agents.py
+          python -m unittest discover -s tests -p 'test_aics_v40_v49_ten_pit_forensics_agents.py' -v
       - name: Verify ten model improvement agent evidence and forecasting gates
         run: |
           python -m compileall -q scripts/aics_ten_model_improvement_agents.py tests/test_aics_ten_model_improvement_agents.py
@@ -141,6 +150,12 @@ jobs:
             --waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json \
             --finance aics_data/agent_runs/ten_real_collection_rounds/sec_direct_quarter_cashflow_gate.json \
             --out aics_data/agent_runs/ten_real_collection_rounds/aics_thirty_agent_research_cycle.json
+      - name: Execute ten existing model agents as source-date PIT forensics V40-V49
+        run: |
+          python -m scripts.aics_v40_v49_ten_pit_forensics_agents --as-of "$AICS_ASOF_UTC" \
+            --waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json \
+            --finance aics_data/agent_runs/ten_real_collection_rounds/sec_direct_quarter_cashflow_gate.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_v40_v49_ten_pit_forensics_agents.json
       - name: Automatically rotate V32-V34 research priorities from the actual 30-agent run
         run: |
           python -m scripts.aics_v32_v34_autonomous_research_rotation --as-of "$AICS_ASOF_UTC" \
@@ -168,6 +183,28 @@ jobs:
           finance = json.loads((path/'sec_direct_quarter_cashflow_gate.json').read_text())
           improvements = json.loads((path/'aics_model_improvement_agents.json').read_text())
           cycle = json.loads((path/'aics_thirty_agent_research_cycle.json').read_text())
+          pit = json.loads((path/'aics_v40_v49_ten_pit_forensics_agents.json').read_text())
+          assert pit['schema']=='aics-v40-v49-ten-specialist-pit-replay-agents-v1'
+          assert pit['as_of']==cycle['cutoff_date']
+          assert len(pit['ten_agent_research_results'])==10
+          assert pit['source_premature_SEC_proxies']==27
+          assert pit['private_credit_premature_quarters']==7
+          assert pit['market_close_quarantined_node_months']==4
+          assert pit['calendar_close_quarantined_node_months']==5
+          assert pit['ten_agent_research_results'][4]['eligible_original_SEC_issuer_quarters']==28
+          assert pit['ten_agent_research_results'][5]['independently_source_hashed_original_SEC_archives']==10
+          assert pit['ten_agent_research_results'][5]['historically_PIT_attested_original_provider_receipts']==0
+          assert pit['ten_agent_research_results'][6]['ALFRED_release_vintages_independently_attested']==0
+          assert pit['approved_pit_certified_nodes']==0
+          assert pit['newly_completed_certification_gates']==0
+          assert pit['current_project_milestone_completion']==22
+          assert pit['approved_11node_aics'] is None and pit['trades_created'] is False
+          assert cycle['PIT_source_forensics']['ten_existing_improvement_agents_focused_on_PIT']==10
+          assert cycle['PIT_source_forensics']['retroactive_SEC_plus1_violations']==27
+          assert cycle['PIT_source_forensics']['private_credit_premature_quarters']==7
+          assert improvements['pit_specialist_forensics']['market_month_end_quarantined_node_months']==4
+          assert [r['research_result']['pit_source_date_forensics_assignment']['name'].split('_')[0]
+                  for r in improvements['agents']]==[f'V{i}' for i in range(40,50)]
           assert cycle['agent_groups']['total_distinct_roles_executed']==30
           rotation = json.loads((path/'aics_autonomous_v32_v34_research_rotation.json').read_text())
           five = json.loads((path/'aics_v35_v39_five_version_result.json').read_text())
@@ -385,6 +422,7 @@ jobs:
               print(f"- V32–V34 autonomous research rotation: **{rotation['autonomous_cycle_scope']}**; original loan repricing pairs **0**, actual Q2 funding bridges **{len(rotation['v33_issuer_funding_and_liquidity_audit']['source_eligible_2026Q2_issuer_bridges'])}**, source-derived next experiment **{rotation['automatic_next_research_priority']}**.",file=stream)
               print(f"- V35–V39 FIVE real-source research gates: **{five['versions'][0]['observed_complete_calendar_quarters']}** original four-hyperscaler quarters; Q2→Q3 total gap **{five['versions'][1]['total_observed_deterioration_usd_m']} USDm**; biggest deterioration issuer **{five['versions'][1]['largest_contributing_issuer']}** (**{five['versions'][1]['largest_contributor_share_of_net_deterioration_pct']}%**); two separate issuer funding models and 2008 contamination STOP.",file=stream)
               print(f"- UTC report cutoff: **{cycle['cutoff_date']}**. Trigger: **{os.environ.get('GITHUB_EVENT_NAME','unknown')}**. Research only; auto-production: OFF.",file=stream)
+              print(f"- PIT V40–V49: **10 existing model agents assigned**, **{pit['source_premature_SEC_proxies']}** original SEC event +1 proxies corrected in source-date shadow, **{pit['private_credit_premature_quarters']}** Private Credit quarters, **{pit['market_close_quarantined_node_months']}** market and **{pit['calendar_close_quarantined_node_months']}** calendar contaminated node-months quarantined; certified PIT nodes still **0/11**.",file=stream)
               for experiment in cycle['next_experiments']:
                   print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
           PY
