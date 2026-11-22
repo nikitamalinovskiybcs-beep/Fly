@@ -34,6 +34,11 @@ class GateTests(unittest.TestCase):
         self.assertEqual(r["hot_nodes"],0)
         self.assertEqual(r["multiplier"],1)
         self.assertEqual(r["promotion"],"BLOCKED")
+        self.assertTrue(r["index_aics_is_ARITHMETIC_CANDIDATE_NOT_OFFICIAL"])
+        self.assertTrue(r["node_coverage_is_SELF_ASSERTED_not_independent_PIT"])
+        self.assertFalse(r["independent_method_registry_approval_verified"])
+        self.assertIsNone(r["official_AICS"])
+        self.assertIsNone(r["strict_trade_action"])
     def test_missing_node_fails(self):
         x=fixture()
         x["nodes"].pop("Repo")
