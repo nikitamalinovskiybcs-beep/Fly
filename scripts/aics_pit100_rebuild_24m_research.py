@@ -70,14 +70,36 @@ def event_roster(overlay,credit):
     return roster
 
 
+def conflicting_same_publication_day_events(roster):
+    """Never select an arbitrary later ID for conflicting same-day source values."""
+    groups={}
+    for event in roster:
+        groups.setdefault((event["node"],event["filing_or_release_date"]),[]).append(event)
+    quarantine=[]
+    for (node,day),events in sorted(groups.items()):
+        if len({num(e["score"]) for e in events})>1:
+            quarantine.append({
+                "node":node,"source_public_day_proxy":day,
+                "original_event_ids":[e["id"] for e in events],
+                "conflicting_source_scores":[e["score"] for e in events],
+                "decision":"QUARANTINE_ALL_CONFLICTING_SAME_DAY_VALUES",
+                "original_release_vintage_independently_verified":False,
+            })
+    return quarantine
+
+
 def replay(overlay,credit,*,market):
     key="monthly_last_weekday_market_proxy" if market else "monthly_calendar_end_research"
     rows=[]
     roster=event_roster(overlay,credit)
+    conflict=conflicting_same_publication_day_events(roster)
+    excluded={event_id for entry in conflict for event_id in entry["original_event_ids"]}
     for x in overlay[key]:
         cutoff=date(x["cutoff_date"])
         current={}
         for e in roster:
+            if e["id"] in excluded:
+                continue
             day=date(e["filing_or_release_date"])
             # Without source intraday timestamp, even non-SEC same-day
             # release cannot be assumed pre-close. No +14 delay.
@@ -134,6 +156,7 @@ def build(overlay,credit,registry,repo,equities,terms,finance,status,pit100):
         raise ValueError("100 source-derived PIT roles must run before rebuilding")
     market=replay(overlay,credit,market=True)
     calendar=replay(overlay,credit,market=False)
+    conflicts=conflicting_same_publication_day_events(event_roster(overlay,credit))
     changes={}
     for name,series in (("market",market),("calendar",calendar)):
         legacy=credit["monthly_last_weekday_market_proxy" if name=="market"
@@ -167,6 +190,7 @@ def build(overlay,credit,registry,repo,equities,terms,finance,status,pit100):
         "calendar_monthly_rebuilt":calendar,
         "comparison_to_legacy_plus14_or_plus1_research":changes,
         "reclocked_original_events":len(event_roster(overlay,credit)),
+        "quarantined_same_day_research_conflicts":conflicts,
         "source_events_with_independent_historical_first_receipt":0,
         "newly_certified_PIT_nodes":0,
         "fully_rebuilt_production_AICS":None,
