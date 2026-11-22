@@ -130,9 +130,21 @@ def collect(crosswalk,*,as_of,contact,out=OUT,rawdir=RAW,
                 or b"access denied" in document[:4096].lower()):
                 raise ValueError("Original SEC scoring document and header both required")
             accepted=parse_sgml(header,expected_accession=original["accession"])
+            # SEC acceptance ET is NOT necessarily the EDGAR official filed
+            # date. Submissions accepted after the filing cutoff (including
+            # CoreWeave 2025Q1 and 2025Q2) legitimately receive NEXT-DAY
+            # filing dates. Check the original SGML filed-as-of field.
+            filed_match=re.search(rb"FILED AS OF DATE:\s*(\d{8})",header,re.I)
+            if filed_match is None:
+                raise ValueError("Original SEC SGML official filed-as-of date absent")
+            header_filed=dt.datetime.strptime(
+                filed_match.group(1).decode("ascii"),"%Y%m%d").date()
             if (original.get("source_original_filed_day") is not None
-                and accepted.date().isoformat()!=original["source_original_filed_day"]):
-                raise ValueError("Exact original source filing date versus SEC SGML header mismatch")
+                and header_filed.isoformat()!=original["source_original_filed_day"]):
+                raise ValueError("Original SEC official filing day contradicts signed source ledger")
+            acceptance_to_filing_days=(header_filed-accepted.date()).days
+            if not 0<=acceptance_to_filing_days<=4:
+                raise ValueError("SEC acceptance to official file-day interval implausible")
             digest_doc=hashlib.sha256(document).hexdigest()
             digest_hdr=hashlib.sha256(header).hexdigest()
             packed_doc=gzip.compress(document,compresslevel=6,mtime=0)
@@ -156,6 +168,11 @@ def collect(crosswalk,*,as_of,contact,out=OUT,rawdir=RAW,
                 "original_doc_gzip_archived_path":str(p1),
                 "original_header_gzip_archived_path":str(p2),
                 "original_sgml_acceptance_ET":accepted.isoformat(),
+                "original_sgml_official_FILED_AS_OF_DATE":header_filed.isoformat(),
+                "acceptance_ET_calendar_day_differs_from_official_FILED_AS_OF_DATE":
+                    acceptance_to_filing_days!=0,
+                "official_filing_date_lag_after_acceptance_calendar_days":
+                    acceptance_to_filing_days,
                 "accepted_before_16_ET_not_public_delivery_evidence":
                     accepted.time()<dt.time(16,0),
                 "exact_original_document_raw_hash_verified_current_capture":True,
@@ -164,6 +181,7 @@ def collect(crosswalk,*,as_of,contact,out=OUT,rawdir=RAW,
             r.update({
                 "failure_type":type(exc).__name__,
                 "http_status":exc.code if isinstance(exc,HTTPError) else None,
+                "safe_failure_reason":str(exc)[:130] if isinstance(exc,ValueError) else None,
             })
         entries.append(r)
         sleeper()
@@ -178,6 +196,9 @@ def collect(crosswalk,*,as_of,contact,out=OUT,rawdir=RAW,
         "targeted_missing_exact_original_accession_attempts":len(entries),
         "targeted_original_primary_and_SGML_both_sha_archived":successes,
         "targeted_original_source_download_failures":len(entries)-successes,
+        "exact_sources_with_SECGML_acceptance_day_different_from_filed_day":
+            sum(x.get("acceptance_ET_calendar_day_differs_from_official_FILED_AS_OF_DATE",False)
+                for x in entries),
         "combined_original_score_source_accessions_now_hashed_and_clock_matched":
             matched+successes,
         "still_missing_original_exact_source_accessions_after_targeted_fetch":
