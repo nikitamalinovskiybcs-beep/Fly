@@ -22,6 +22,8 @@ on:
       - scripts/aics_v40_v49_ten_pit_forensics_agents.py
       - scripts/aics_pit_100_real_cutoff_agents.py
       - scripts/aics_pit100_rebuild_24_month_public_filing_panel.py
+      - scripts/aics_pit100_download_100_original_sec_reports.py
+      - tests/test_aics_pit100_download_100_original_sec_reports.py
       - tests/test_aics_pit100_rebuild_24_month_public_filing_panel.py
       - aics_data/research/sp500_24_month_closes_2026-11-21.json
       - tests/test_aics_pit_100_real_cutoff_agents.py
@@ -179,6 +181,19 @@ jobs:
           python -m scripts.aics_pit_100_real_cutoff_agents --as-of "$AICS_ASOF_UTC" \
             --cycle aics_data/agent_runs/ten_real_collection_rounds/aics_thirty_agent_research_cycle.json \
             --out aics_data/agent_runs/ten_real_collection_rounds/aics_100_pit_audit_runs_public_release_policy.json
+      - name: Verify 100 real SEC original primary document acquisition workers
+        run: |
+          python -m compileall -q scripts/aics_pit100_download_100_original_sec_reports.py tests/test_aics_pit100_download_100_original_sec_reports.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_download_100_original_sec_reports.py' -v
+      - name: Download 100 distinct genuine original SEC reports with independent SHA256
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
+        run: |
+          python -m scripts.aics_pit100_download_100_original_sec_reports \
+            --as-of "$AICS_ASOF_UTC" \
+            --waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_original_sec_reports_manifest.json \
+            --rawdir aics_data/agent_runs/ten_real_collection_rounds/pit100_original_sec_reports_raw
       - name: Rebuild 24 genuine research months from source events with PIT100 checks
         run: |
           python -m compileall -q scripts/aics_pit100_rebuild_24_month_public_filing_panel.py tests/test_aics_pit100_rebuild_24_month_public_filing_panel.py
@@ -233,6 +248,22 @@ jobs:
           five = json.loads((path/'aics_v35_v39_five_version_result.json').read_text())
           pit100 = json.loads((path/'aics_100_pit_audit_runs_public_release_policy.json').read_text())
           rebuilt = json.loads((path/'aics_24m_publication_date_rebuilt_research_panel.json').read_text())
+          downloaded = json.loads((path/'aics_pit100_100_original_sec_reports_manifest.json').read_text())
+          assert downloaded['schema']=='aics-PIT100-distinct-original-SEC-primary-report-downloads-v1'
+          assert downloaded['genuine_original_sec_http_attempts']==100
+          assert len(downloaded['tasks'])==100
+          assert len(set(z['source_url'] for z in downloaded['tasks']))==100
+          assert len(set(z['download_worker_id'] for z in downloaded['tasks']))==100
+          assert downloaded['source_document_bytes_archived_successfully']+downloaded['source_document_failures_recorded_without_fabrication']==100
+          assert downloaded['original_public_historical_feed_receipt_attested'] is False
+          assert downloaded['SEC_14day_wait_policy_active'] is False
+          assert downloaded['approved_AICS_index'] is None
+          for z in downloaded['tasks']:
+              if z['success']:
+                  import gzip
+                  original=gzip.decompress(Path(z['compressed_archive_path']).read_bytes())
+                  assert len(original)==z['raw_bytes']
+                  assert hashlib.sha256(original).hexdigest()==z['raw_SHA256']
           assert rebuilt['schema']=='aics-24month-public-filing-date-PIT100-rebuilt-candidate-panel-v1'
           assert rebuilt['as_of']==cycle['cutoff_date']
           assert rebuilt['active_policy']==pit100['active_historical_research_source_policy']
@@ -488,6 +519,7 @@ jobs:
               print(f"- PIT V40–V49 LEGACY +14 comparison only: **{pit['source_premature_SEC_proxies']}** original SEC +1-vs-+14 differences, **{pit['private_credit_premature_quarters']}** BDC date differences; NOT active PIT policy violations.",file=stream)
               print(f"- PIT100 PUBLIC FILING DATE POLICY: **{pit100['actual_distinct_aics_roles']}** distinct AICS roles including **{pit100['new_PIT_specialist_roles']}** new forensic specialists; **{pit100['PIT_runs_successfully_computed']}** genuinely executed, source-derived unique historical cutoff audits; zero artificial SEC +14 wait, exact intraday acceptance still unverified, approved index NULL.",file=stream)
               print(f"- 24-MONTH SOURCE REBUILD: 24 original calendar and market-close research panels recreated from **{rebuilt['source_events_recomputed_from_unchanged_original_ledgers']}** source events, verified at **100** individual original cutoff dates; market coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['market']['dateonly_research_coverage_pct']}%**, calendar coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['calendar']['dateonly_research_coverage_pct']}%**; 2025 Dec G17 same-day conflict quarantined. Historical PIT and full AICS still NOT certified.",file=stream)
+              print(f"- PIT100 ORIGINAL SEC REPORT FETCH: **{downloaded['genuine_original_sec_http_attempts']}** unique filing HTTP attempts by scoped acquisition workers, **{downloaded['source_document_bytes_archived_successfully']}** full original primary report payloads SHA-256 verified, **{downloaded['source_document_failures_recorded_without_fabrication']}** explicit failures. Historic first-receipt timestamp remains unverified.",file=stream)
               for experiment in cycle['next_experiments']:
                   print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
           PY
