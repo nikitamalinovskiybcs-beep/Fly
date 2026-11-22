@@ -114,10 +114,7 @@ def receipt(raw,*,now=None):
     if current.tzinfo is None or current.utcoffset() is None:
         raise ValueError("Actual source capture clock cannot be naive")
     current=current.astimezone(dt.timezone.utc)
-    if current.date()<=FROZEN_DATE:
-        previous=_prev_month(current)
-    else:
-        previous=_prev_month(current)
+    previous=_prev_month(current)
     rows,missing=_parse_source(raw,current)
     lookup={}
     for day,value in rows:
@@ -169,7 +166,7 @@ def receipt(raw,*,now=None):
     }
 
 
-def update_ledger(ledger,report):
+def update_ledger(ledger,report,raw):
     """Append only; don't ever silently revise or backfill first-capture close."""
     if (ledger.get("schema")!=LEDGER_SCHEMA
         or ledger.get("frozen_registry_date")!="2026-11-22"
@@ -181,6 +178,16 @@ def update_ledger(ledger,report):
         or not isinstance(ledger.get("original_v55_forecast_snapshots"),list)
         or not isinstance(ledger.get("observed_sp500_month_closes"),list)):
         raise ValueError("Prospective market ledger freeze contract has changed")
+    # Rebuild the receipt from the same immutable bytes; a JSON claim alone
+    # cannot authorize adding a new market observation.
+    received_claim=dt.datetime.fromisoformat(report["retrieved_at_utc"])
+    if received_claim.tzinfo is None or received_claim.utcoffset() is None:
+        raise ValueError("Source receipt timestamp must have a timezone")
+    recalculated=receipt(raw,now=received_claim)
+    for field in ("original_csv_bytes_sha256","original_csv_bytes_length",
+                  "required_completed_month","month_close_candidate_for_V56","status"):
+        if recalculated[field]!=report.get(field):
+            raise ValueError("Candidate report does not match original FRED source bytes")
     month=report.get("required_completed_month")
     candidate=report.get("month_close_candidate_for_V56")
     received=dt.datetime.fromisoformat(report["retrieved_at_utc"])
@@ -252,10 +259,10 @@ def main():
     now=dt.datetime.now(dt.timezone.utc)
     report=receipt(raw,now=now)
     ledger=json.loads(args.ledger.read_text(encoding="utf-8"))
-    amended,new=update_ledger(ledger,report)
+    amended,new=update_ledger(ledger,report,raw)
     report["actual_new_month_close_appended_to_V56_ledger"]=new if args.apply_to_ledger else False
     report["actual_new_month_close_available_not_yet_written"]=new and not args.apply_to_ledger
-    # Source raw bytes saved only in private job artifact, NEVER source-controlled.
+    # Source raw bytes stay in ephemeral job storage; NEVER source-controlled or uploaded.
     _write_atomic(args.raw,raw)
     _write_atomic(args.receipt,(json.dumps(report,ensure_ascii=False,indent=2)+"\n").encode())
     if new and args.apply_to_ledger:
