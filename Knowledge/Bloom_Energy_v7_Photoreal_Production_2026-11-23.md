@@ -45,3 +45,14 @@ Date: 2026-11-23
 - Final public edition should replace concept plates with cleared corporate footage, NASA imagery and genuinely verified product CAD if used.
 - Verify exactly 47.000s, single H.264 stream at 24fps, no audio stream, readable titles and that closing line is exact.
 - AICS source/data/model unaffected.
+
+
+## Verified completed v7 render (same day)
+- Finished **MP4**, container artifact `/mnt/data/Bloom_Energy_REALISM_v7_47s_SILENT.mp4`
+- **47.000 seconds**, 1280×720, 24 fps, H.264, **exactly one video stream and zero audio streams**, 11,037,655 bytes (ffprobe).
+- SHA-256: `a9ea77cd131ef7e2e62dfc1a6b41180b422c9d8f1cc78a9d9685f7fc7fcdd51c`
+- Contact sheet `/mnt/data/Bloom_Energy_REALISM_v7_18_SHOTS.jpg` captures 18 editorial holds.
+- Editable source archive `/mnt/data/Bloom_Energy_REALISM_v7_EDITABLE_SOURCES.zip` (render source Python + authored reference stills + preview), 17,415,381 bytes, **not uploaded to GitHub**.
+- Verified process exit completed, no audio, H.264 playable output. Editor notes: no arbitrary wireframe cabinets, no synthetic glowing worm trails, strong centered titles, brisk photo-motivated movements.
+- **Not a documentary master:** all three industrial equipment stills are generated concept illustrations and have not been certified as exact Bloom product CAD or cleared actual Oracle footage. Do not redistribute claiming them to be real images.
+- Final broadcast-grade v8 should replace concept plates with rights-cleared first-party photo/video from Bloom press kit and NASA sources before public use. A high-realism edit alone does not make generated visuals genuine documentary evidence.
