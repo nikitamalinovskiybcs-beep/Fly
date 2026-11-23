@@ -1,0 +1,85 @@
+name: AICS V57 - 10000 bounded gradient steps on actual history
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v57_ten_thousand_real_gradient_steps.py
+      - tests/test_aics_v57_ten_thousand_real_gradient_steps.py
+      - scripts/aics_v53_hundred_model_top5_ensemble.py
+      - scripts/aics_v54_chronological_top5_debias.py
+      - aics_data/research/aics_v53_frozen_top5_shadow_selection_2026-11-22.json
+      - .github/workflows/aics-v57-ten-thousand-research-learning-steps.yml
+
+jobs:
+  self-learning-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout original SEC and S&P source panel
+        uses: actions/checkout@v4
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run eight tests for chronological learner and freeze safety
+        run: |
+          python -m compileall -q scripts/aics_v57_ten_thousand_real_gradient_steps.py tests/test_aics_v57_ten_thousand_real_gradient_steps.py
+          python -m unittest discover -s tests -p 'test_aics_v57_ten_thousand_real_gradient_steps.py' -v
+      - name: Execute exactly 10000 real gradient steps on only eight observed training-label pairs
+        run: |
+          python -m scripts.aics_v57_ten_thousand_real_gradient_steps --out aics_data/research/aics_v57_ten_thousand_real_gradient_steps_2026-11-22.json
+      - name: Compare original weights, trained weights and later nine observed months
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('aics_data/research/aics_v57_ten_thousand_real_gradient_steps_2026-11-22.json').read_text())
+          assert r['actual_gradient_optimization_steps_executed']==10000
+          assert r['additional_leave_one_month_out_research_fit_steps']==8000
+          assert r['training_month_count']==8 and r['later_month_count']==9
+          assert r['number_of_new_market_observations_generated']==0
+          assert r['number_of_new_real_prospective_forecasts']==0
+          assert r['this_does_NOT_establish_untouched_OOS_skill'] is True
+          assert r['model_and_2025_10_split_chosen_AFTER_history_observed'] is True
+          assert len(r['optimizer_trace_every_1000_steps'])==10
+          assert r['the_new_weights_supersede_live_V56_equal_weights'] is False
+          assert r['production_AICS_weights_changed'] is False
+          assert r['trades_created'] is False
+          print('Original 8 train / 9 later observed-label comparisons')
+          print('Weights:',r['model_weights_trained_on_historical_eight_real_train_labels'])
+          print('Train:',r['train_5pct_model_comparison'])
+          print('Later:',r['later_5pct_model_comparison'])
+          print('One-month training-month holdout max weight instability:',
+                r['maximum_l1_weight_instability_omitting_one_training_month'])
+          print('Model improvement proven:',not r['optimization_research_only_not_deployable_regardless_in_sample_or_later_result'])
+          summary={k:v for k,v in r.items() if k not in (
+              'optimizer_trace_every_1000_steps','leave_one_real_training_month_out_weight_sensitivity')}
+          Path('aics_v57_model_conductor_scoreboard.json').write_text(json.dumps(summary,indent=2,ensure_ascii=False)+'\n')
+          PY
+      - name: Report actual improvement or regression to conductor
+        run: |
+          python - <<'PY'
+          import json,os
+          r=json.load(open('aics_v57_model_conductor_scoreboard.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V57 — 10,000 genuine gradient steps, NO fictitious observations',file=f)
+              print('Only **8 historical research training labels** and **9 later retrospective labels**. Model-design and time split chosen after observing history, so not untouched OOS.',file=f)
+              print('Weights: '+str(r['model_weights_trained_on_historical_eight_real_train_labels']),file=f)
+              print('Training surrogate: '+str(r['train_5pct_model_comparison']['learner_bounded_ordinal_squared_surrogate'])+' vs equal baseline '+str(r['train_5pct_model_comparison']['original_equal_bounded_ordinal_squared_surrogate']),file=f)
+              print('Later surrogate: '+str(r['later_5pct_model_comparison']['learner_bounded_ordinal_squared_surrogate'])+' vs equal baseline '+str(r['later_5pct_model_comparison']['original_equal_bounded_ordinal_squared_surrogate']),file=f)
+              print('Later AUC trained/equal/frozen-median: '+str([r['later_5pct_model_comparison'][k] for k in ('learner_auc_EXPOST','original_equal_auc_EXPOST','original_robust_median_auc_EXPOST')]),file=f)
+              print('**No deployment or accuracy claim**; future-only V56 remains equal 0.2 votes until genuine new matured labels.',file=f)
+          PY
+      - name: Store optimizer trace and real-data later comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v57-10000-gradient-steps-on-only-8-actual-observed-labels
+          path: |
+            aics_data/research/aics_v57_ten_thousand_real_gradient_steps_2026-11-22.json
+            aics_v57_model_conductor_scoreboard.json
+          if-no-files-found: error

@@ -1,0 +1,805 @@
+name: AICS ten genuine live data acquisition waves
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_ten_source_collection_rounds.py
+      - tests/test_aics_ten_source_collection_rounds.py
+      - scripts/aics_sec_quarter_cashflow_gate.py
+      - tests/test_aics_sec_quarter_cashflow_gate.py
+      - scripts/aics_ten_model_improvement_agents.py
+      - scripts/aics_early_imbalance_cashflow_shadow.py
+      - scripts/aics_spv_funding_transmission_bridge.py
+      - scripts/aics_v28_credit_relationship_topology.py
+      - scripts/aics_v29_refinancing_maturity_overlay.py
+      - scripts/aics_v30_cashflow_financing_bridge.py
+      - scripts/aics_v31_interest_repo_dual_clock.py
+      - scripts/aics_v32_v34_autonomous_research_rotation.py
+      - scripts/aics_v35_v39_five_version_batch.py
+      - scripts/aics_v40_v49_ten_pit_forensics_agents.py
+      - scripts/aics_pit_100_real_cutoff_agents.py
+      - scripts/aics_pit100_rebuild_24m_research.py
+      - scripts/aics_pit100_reconcile_24m_sp500.py
+      - scripts/aics_pit100_sec_sgml_clock_audit.py
+      - scripts/aics_pit100_original_scoring_accession_lineage.py
+      - scripts/aics_pit100_target_exact_missing_sec_sources.py
+      - scripts/aics_priority100_workbench.py
+      - tests/test_aics_priority100_workbench.py
+      - scripts/aics_pru_original_9_numeric_replay.py
+      - tests/test_aics_pru_original_9_numeric_replay.py
+      - scripts/aics_arcc_seven_original_nonaccrual_replay.py
+      - tests/test_aics_arcc_seven_original_nonaccrual_replay.py
+      - scripts/aics_bxsl_obdc_fourteen_original_nonaccrual_replay.py
+      - tests/test_aics_bxsl_obdc_fourteen_original_nonaccrual_replay.py
+      - scripts/aics_neocloud_six_original_cashflows_replay.py
+      - tests/test_aics_neocloud_six_original_cashflows_replay.py
+      - tests/test_aics_pit100_target_exact_missing_sec_sources.py
+      - tests/test_aics_pit100_original_scoring_accession_lineage.py
+      - tests/test_aics_pit100_sec_sgml_clock_audit.py
+      - scripts/aics_pit100_alfred_24m_vintage_audit.py
+      - tests/test_aics_pit100_alfred_24m_vintage_audit.py
+      - scripts/aics_pit100_24m_expost_leadlag_diagnostic.py
+      - tests/test_aics_pit100_24m_expost_leadlag_diagnostic.py
+      - tests/test_aics_pit100_reconcile_24m_sp500.py
+      - tests/test_aics_pit100_rebuild_24m_research.py
+      - scripts/aics_pit100_rebuild_24_month_public_filing_panel.py
+      - scripts/aics_pit100_download_100_original_sec_reports.py
+      - tests/test_aics_pit100_download_100_original_sec_reports.py
+      - tests/test_aics_pit100_rebuild_24_month_public_filing_panel.py
+      - aics_data/research/sp500_24_month_closes_2026-11-21.json
+      - tests/test_aics_pit_100_real_cutoff_agents.py
+      - tests/test_aics_v40_v49_ten_pit_forensics_agents.py
+      - aics_data/research/aics_24m_multi_node_publication_overlay_2026-11-21.json
+      - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
+      - aics_data/progress/status.json
+      - tests/test_aics_v35_v39_five_version_batch.py
+      - tests/test_aics_v32_v34_autonomous_research_rotation.py
+      - tests/test_aics_v31_interest_repo_dual_clock.py
+      - aics_data/research/coreweave_q3_ir_interest_burden_2026-11-18.json
+      - aics_data/research/repo_24_month_observed_research_2026-11-18.json
+      - tests/test_aics_v30_cashflow_financing_bridge.py
+      - aics_data/research/neocloud_q2_funding_2026.json
+      - aics_data/research/neocloud_cash_coverage_2026_h1.json
+      - aics_data/source_registry/neocloud_cash_h1_sec.json
+      - tests/test_aics_v29_refinancing_maturity_overlay.py
+      - aics_data/research/aics_v29_contractual_refinancing_terms_primary_sec_2026-11-22.json
+      - tests/test_aics_v28_credit_relationship_topology.py
+      - tests/test_aics_spv_funding_transmission_bridge.py
+      - tests/test_aics_early_imbalance_2026_q1.py
+      - aics_data/research/hyperscalers_2026_q1_original_sec_cashflow_2026-11-22.json
+      - scripts/aics_thirty_agent_cycle.py
+      - tests/test_aics_thirty_agent_cycle.py
+      - tests/test_aics_ten_model_improvement_agents.py
+      - scripts/aics_historical_crisis_analog.py
+      - tests/test_aics_historical_crisis_analog.py
+      - aics_data/research/ai_equities_aug_oct_2026_retrospective_shadow_2026-11-21.json
+      - .github/workflows/aics-ten-real-source-waves.yml
+  schedule:
+    - cron: '15 23 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aics-real-collection-ten-waves-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  actual-source-acquisition:
+    name: Ten sequential live collection passes with XBRL numeric evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Set UTC research as-of for unattended daily runs
+        run: |
+          echo "AICS_ASOF_UTC=$(date -u +%F)" >> "$GITHUB_ENV"
+          echo "AICS_RUN_TIMESTAMP_UTC=$(date -u +%FT%TZ)" >> "$GITHUB_ENV"
+      - name: Compile ten real data acquisition waves and safety tests
+        run: python -m compileall -q scripts/aics_ten_source_collection_rounds.py tests/test_aics_ten_source_collection_rounds.py
+      - name: Run isolated collector numeric and provenance tests
+        run: python -m unittest discover -s tests -p 'test_aics_ten_source_collection_rounds.py' -v
+      - name: Verify direct SEC quarter cashflow original matching tests
+        run: |
+          python -m compileall -q scripts/aics_sec_quarter_cashflow_gate.py tests/test_aics_sec_quarter_cashflow_gate.py
+          python -m unittest discover -s tests -p 'test_aics_sec_quarter_cashflow_gate.py' -v
+      - name: PIT-first original source chronology audits V40-V49
+        run: |
+          python -m compileall -q scripts/aics_v40_v49_ten_pit_forensics_agents.py tests/test_aics_v40_v49_ten_pit_forensics_agents.py
+          python -m unittest discover -s tests -p 'test_aics_v40_v49_ten_pit_forensics_agents.py' -v
+      - name: Verify 100 historical PIT roles and public-filing date-not-14 policy
+        run: |
+          python -m compileall -q scripts/aics_pit_100_real_cutoff_agents.py tests/test_aics_pit_100_real_cutoff_agents.py
+          python -m unittest discover -s tests -p 'test_aics_pit_100_real_cutoff_agents.py' -v
+      - name: Validate rebuilt 24 monthly PIT100 source-reclocked research panels
+        run: |
+          python -m compileall -q scripts/aics_pit100_rebuild_24m_research.py tests/test_aics_pit100_rebuild_24m_research.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_rebuild_24m_research.py' -v
+      - name: Cross-check 24 months in BOTH independent PIT100 rebuilds versus S&P 500
+        run: |
+          python -m compileall -q scripts/aics_pit100_reconcile_24m_sp500.py tests/test_aics_pit100_reconcile_24m_sp500.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_reconcile_24m_sp500.py' -v
+      - name: Validate primary SEC SGML acceptance clock original-archive and mixed JSON timezone tests
+        run: |
+          python -m compileall -q scripts/aics_pit100_sec_sgml_clock_audit.py tests/test_aics_pit100_sec_sgml_clock_audit.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_sec_sgml_clock_audit.py' -v
+      - name: Validate ALFRED historical day-asof original vintage tests
+        run: |
+          python -m compileall -q scripts/aics_pit100_alfred_24m_vintage_audit.py tests/test_aics_pit100_alfred_24m_vintage_audit.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_alfred_24m_vintage_audit.py' -v
+      - name: Validate fixed first-month source cohort exploratory lead-lag, no false OOS
+        run: |
+          python -m compileall -q scripts/aics_pit100_24m_expost_leadlag_diagnostic.py tests/test_aics_pit100_24m_expost_leadlag_diagnostic.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_24m_expost_leadlag_diagnostic.py' -v
+      - name: Verify exact 36 SEC source filings behind 19 node event cohorts against SGML clock
+        run: |
+          python -m compileall -q scripts/aics_pit100_original_scoring_accession_lineage.py tests/test_aics_pit100_original_scoring_accession_lineage.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_original_scoring_accession_lineage.py' -v
+      - name: Verify original SEC scoring-source targeted gap fill and fail-closed provenance
+        run: |
+          python -m compileall -q scripts/aics_pit100_target_exact_missing_sec_sources.py tests/test_aics_pit100_target_exact_missing_sec_sources.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_target_exact_missing_sec_sources.py' -v
+      - name: Verify ten model improvement agent evidence and forecasting gates
+        run: |
+          python -m compileall -q scripts/aics_ten_model_improvement_agents.py tests/test_aics_ten_model_improvement_agents.py
+          python -m unittest discover -s tests -p 'test_aics_ten_model_improvement_agents.py' -v
+      - name: Validate original 2000 versus 2008 analog and false lead-time claims
+        run: |
+          python -m compileall -q scripts/aics_historical_crisis_analog.py tests/test_aics_historical_crisis_analog.py
+          python -m unittest discover -s tests -p 'test_aics_historical_crisis_analog.py' -v
+      - name: Validate first-filed 2026 Q1 SEC+14 cashflow and seven-quarter progression
+        run: |
+          python -m compileall -q scripts/aics_early_imbalance_cashflow_shadow.py tests/test_aics_early_imbalance_2026_q1.py
+          python -m unittest discover -s tests -p 'test_aics_early_imbalance_2026_q1.py' -v
+          python -m scripts.aics_early_imbalance_cashflow_shadow --as-of "$AICS_ASOF_UTC" --out aics_data/research/aics_precrisis_imbalance_4hyperscalers_2025_2026_research_2026-11-22.json
+      - name: Verify SPV borrower recourse and no misleading 2008 credit exposure
+        run: |
+          python -m compileall -q scripts/aics_spv_funding_transmission_bridge.py tests/test_aics_spv_funding_transmission_bridge.py
+          python -m unittest discover -s tests -p 'test_aics_spv_funding_transmission_bridge.py' -v
+          python -m scripts.aics_spv_funding_transmission_bridge --as-of "$AICS_ASOF_UTC" --out aics_data/agent_runs/ten_real_collection_rounds/aics_v27_spv_funding_transmission_research_2026-11-22.json
+      - name: Verify source-dated lenders borrowers guarantors without invented exposures
+        run: |
+          python -m compileall -q scripts/aics_v28_credit_relationship_topology.py tests/test_aics_v28_credit_relationship_topology.py
+          python -m unittest discover -s tests -p 'test_aics_v28_credit_relationship_topology.py' -v
+          python -m scripts.aics_v28_credit_relationship_topology --as-of "$AICS_ASOF_UTC" --out aics_data/agent_runs/ten_real_collection_rounds/aics_v28_credit_relationship_topology.json
+      - name: Verify original SEC contractual maturity, SOFR margin and covenant as-of gates
+        run: |
+          python -m compileall -q scripts/aics_v29_refinancing_maturity_overlay.py tests/test_aics_v29_refinancing_maturity_overlay.py
+          python -m unittest discover -s tests -p 'test_aics_v29_refinancing_maturity_overlay.py' -v
+          python -m scripts.aics_v29_refinancing_maturity_overlay --as-of "$AICS_ASOF_UTC" --out aics_data/agent_runs/ten_real_collection_rounds/aics_v29_refinancing_maturity_research.json
+      - name: Reconcile original 2026 Q2 debt versus equity financing with SEC+14
+        run: |
+          python -m compileall -q scripts/aics_v30_cashflow_financing_bridge.py tests/test_aics_v30_cashflow_financing_bridge.py
+          python -m unittest discover -s tests -p 'test_aics_v30_cashflow_financing_bridge.py' -v
+          python -m scripts.aics_v30_cashflow_financing_bridge --as-of "$AICS_ASOF_UTC" --out aics_data/agent_runs/ten_real_collection_rounds/aics_v30_cashflow_financing_bridge.json
+      - name: Verify IR versus SEC interest embargo and repo versus loan spread research
+        run: |
+          python -m compileall -q scripts/aics_v31_interest_repo_dual_clock.py tests/test_aics_v31_interest_repo_dual_clock.py
+          python -m unittest discover -s tests -p 'test_aics_v31_interest_repo_dual_clock.py' -v
+          python -m scripts.aics_v31_interest_repo_dual_clock --as-of "$AICS_ASOF_UTC" --out aics_data/agent_runs/ten_real_collection_rounds/aics_v31_interest_repo_dual_clock_research.json
+      - name: Verify autonomous V32 V33 V34 source-backed credit research gates
+        run: |
+          python -m compileall -q scripts/aics_v32_v34_autonomous_research_rotation.py tests/test_aics_v32_v34_autonomous_research_rotation.py
+          python -m unittest discover -s tests -p 'test_aics_v32_v34_autonomous_research_rotation.py' -v
+      - name: Validate five real-data research gates V35 through V39 in one batch
+        run: |
+          python -m compileall -q scripts/aics_v35_v39_five_version_batch.py tests/test_aics_v35_v39_five_version_batch.py
+          python -m unittest discover -s tests -p 'test_aics_v35_v39_five_version_batch.py' -v
+      - name: Verify integrated 30-agent cycle research and fail-closed gates
+        run: |
+          python -m compileall -q scripts/aics_thirty_agent_cycle.py tests/test_aics_thirty_agent_cycle.py
+          python -m unittest discover -s tests -p 'test_aics_thirty_agent_cycle.py' -v
+      - name: Execute ten actual per-node source collection rounds
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: python -m scripts.aics_ten_source_collection_rounds --out aics_data/agent_runs/ten_real_collection_rounds
+      - name: Reconcile genuine direct-quarter operating cashflow and cash CapEx without YTD mixing
+        run: python -m scripts.aics_sec_quarter_cashflow_gate --input aics_data/agent_runs/ten_real_collection_rounds/actual_sec_xbrl_facts_unverified.json --out aics_data/agent_runs/ten_real_collection_rounds/sec_direct_quarter_cashflow_gate.json
+      - name: Recompute original AICS mission - 2000 telecom vs 2008 shadow-bank crisis
+        run: python -m scripts.aics_historical_crisis_analog --out aics_data/agent_runs/ten_real_collection_rounds/aics_2000_2008_2026_analog_research.json
+      - name: Execute ten AICS model improvement agents on actual financial inputs
+        run: python -m scripts.aics_ten_model_improvement_agents --sec-finance-audit aics_data/agent_runs/ten_real_collection_rounds/sec_direct_quarter_cashflow_gate.json --source-waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json --out aics_data/agent_runs/ten_real_collection_rounds/aics_model_improvement_agents.json
+      - name: Close 30-role evidence-to-improvement loop without extra publisher requests
+        run: |
+          python -m scripts.aics_thirty_agent_cycle \
+            --waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json \
+            --finance aics_data/agent_runs/ten_real_collection_rounds/sec_direct_quarter_cashflow_gate.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_thirty_agent_research_cycle.json
+      - name: Execute ten existing model agents as source-date PIT forensics V40-V49
+        run: |
+          python -m scripts.aics_v40_v49_ten_pit_forensics_agents --as-of "$AICS_ASOF_UTC" \
+            --waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json \
+            --finance aics_data/agent_runs/ten_real_collection_rounds/sec_direct_quarter_cashflow_gate.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_v40_v49_ten_pit_forensics_agents.json
+      - name: Automatically rotate V32-V34 research priorities from the actual 30-agent run
+        run: |
+          python -m scripts.aics_v32_v34_autonomous_research_rotation --as-of "$AICS_ASOF_UTC" \
+            --cycle aics_data/agent_runs/ten_real_collection_rounds/aics_thirty_agent_research_cycle.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_autonomous_v32_v34_research_rotation.json
+      - name: Execute AICS V35-V39 source-driven research batch on 30-role live cycle
+        run: |
+          python -m scripts.aics_v35_v39_five_version_batch --as-of "$AICS_ASOF_UTC" \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_v35_v39_five_version_result.json
+      - name: Execute 100 audited PIT roles across 100 actual historical source cutoffs
+        run: |
+          python -m scripts.aics_pit_100_real_cutoff_agents --as-of "$AICS_ASOF_UTC" \
+            --cycle aics_data/agent_runs/ten_real_collection_rounds/aics_thirty_agent_research_cycle.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_100_pit_audit_runs_public_release_policy.json
+      - name: Verify 100 real SEC original primary document acquisition workers
+        run: |
+          python -m compileall -q scripts/aics_pit100_download_100_original_sec_reports.py tests/test_aics_pit100_download_100_original_sec_reports.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_download_100_original_sec_reports.py' -v
+      - name: Download 100 distinct genuine original SEC reports with independent SHA256
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
+        run: |
+          python -m scripts.aics_pit100_download_100_original_sec_reports \
+            --as-of "$AICS_ASOF_UTC" \
+            --waves aics_data/agent_runs/ten_real_collection_rounds/ten_rounds_manifest.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_original_sec_reports_manifest.json \
+            --rawdir aics_data/agent_runs/ten_real_collection_rounds/pit100_original_sec_reports_raw
+      - name: Archive each original SEC SGML acceptance clock instead of trusting ambiguous JSON timezone
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
+        run: |
+          python -m scripts.aics_pit100_sec_sgml_clock_audit --as-of "$AICS_ASOF_UTC" \
+            --reports aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_original_sec_reports_manifest.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_sec_sgml_header_clock_audit.json \
+            --rawdir aics_data/agent_runs/ten_real_collection_rounds/pit100_sec_sgml_header_raw
+      - name: Match exact original scoring SEC accession references, not unrelated sample filings
+        run: |
+          python -m scripts.aics_pit100_original_scoring_accession_lineage \
+            --reports aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_original_sec_reports_manifest.json \
+            --headers aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_100_sec_sgml_header_clock_audit.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_original_source_accession_to_node_lineage.json
+      - name: Download missing exact original issuer score-source SEC documents and headers
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
+        run: |
+          python -m scripts.aics_pit100_target_exact_missing_sec_sources \
+            --crosswalk aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_original_source_accession_to_node_lineage.json \
+            --as-of "$AICS_ASOF_UTC" \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_targeted_missing_sec_original_score_docs.json \
+            --rawdir aics_data/agent_runs/ten_real_collection_rounds/pit100_targeted_missing_original_scoring_docs_raw
+      - name: Fetch 48 ALFRED asof vintages for DGS30 and IORB across 24 months
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          python -m scripts.aics_pit100_alfred_24m_vintage_audit --as-of "$AICS_ASOF_UTC" \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_24m_alfred_two_source_vintages.json \
+            --rawdir aics_data/agent_runs/ten_real_collection_rounds/pit100_alfred_24m_vintage_source_raw
+      - name: Rebuild 24 genuine research months from source events with PIT100 checks
+        run: |
+          python -m compileall -q scripts/aics_pit100_rebuild_24_month_public_filing_panel.py tests/test_aics_pit100_rebuild_24_month_public_filing_panel.py
+          python -m unittest discover -s tests -p 'test_aics_pit100_rebuild_24_month_public_filing_panel.py' -v
+          python -m scripts.aics_pit100_rebuild_24_month_public_filing_panel \
+            --as-of "$AICS_ASOF_UTC" \
+            --pit100 aics_data/agent_runs/ten_real_collection_rounds/aics_100_pit_audit_runs_public_release_policy.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_24m_publication_date_rebuilt_research_panel.json \
+            --report aics_data/agent_runs/ten_real_collection_rounds/aics_24m_publication_date_rebuild_quality_report.md
+      - name: Rebuild both 24-month historical panels from original SEC filing dates
+        run: |
+          python -m scripts.aics_pit100_rebuild_24m_research \
+            --pit100 aics_data/agent_runs/ten_real_collection_rounds/aics_100_pit_audit_runs_public_release_policy.json \
+            --out aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_rebuilt_24m_public_filing_date_panels.json
+      - name: Independently reconcile all 24 monthly original-event score panels and SP500
+        run: |
+          python -m scripts.aics_pit100_reconcile_24m_sp500 \
+            --simple aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_rebuilt_24m_public_filing_date_panels.json \
+            --rich aics_data/agent_runs/ten_real_collection_rounds/aics_24m_publication_date_rebuilt_research_panel.json \
+            --sp500 aics_data/research/sp500_24_month_closes_2026-11-21.json
+      - name: Run exploratory fixed 2024 source cohort against subsequent S&P500 monthly returns
+        run: |
+          python -m scripts.aics_pit100_24m_expost_leadlag_diagnostic \
+            --reconciled aics_data/agent_runs/ten_real_collection_rounds/aics_pit100_reconciled_24m_sp500_monthly.json \
+            --rich aics_data/agent_runs/ten_real_collection_rounds/aics_24m_publication_date_rebuilt_research_panel.json
+      - name: Run 100 priority evidence work units - 36 originals, 19 cohorts, 24 months, 11 nodes, 10 safety
+        run: |
+          python -m compileall -q scripts/aics_priority100_workbench.py tests/test_aics_priority100_workbench.py
+          python -m unittest discover -s tests -p 'test_aics_priority100_workbench.py' -v
+          python -m scripts.aics_priority100_workbench --out aics_data/agent_runs/ten_real_collection_rounds/aics_priority100_evidence_queue.json
+      - name: Replay nine PRU original SEC disclosure ratios independently and keep source mismatches blocked
+        run: |
+          python -m compileall -q scripts/aics_pru_original_9_numeric_replay.py tests/test_aics_pru_original_9_numeric_replay.py
+          python -m unittest discover -s tests -p 'test_aics_pru_original_9_numeric_replay.py' -v
+          python -m scripts.aics_pru_original_9_numeric_replay --out aics_data/agent_runs/ten_real_collection_rounds/aics_pru_nine_original_source_numeric_replay.json
+      - name: Recheck seven ARCC original SEC nonaccrual percentages against exact raw disclosures
+        run: |
+          python -m compileall -q scripts/aics_arcc_seven_original_nonaccrual_replay.py tests/test_aics_arcc_seven_original_nonaccrual_replay.py
+          python -m unittest discover -s tests -p 'test_aics_arcc_seven_original_nonaccrual_replay.py' -v
+          python -m scripts.aics_arcc_seven_original_nonaccrual_replay --out aics_data/agent_runs/ten_real_collection_rounds/aics_arcc_seven_original_nonaccrual_numeric_replay.json
+      - name: Recheck fourteen BXSL and OBDC original SEC nonaccrual cost percentages and amounts
+        run: |
+          python -m compileall -q scripts/aics_bxsl_obdc_fourteen_original_nonaccrual_replay.py tests/test_aics_bxsl_obdc_fourteen_original_nonaccrual_replay.py
+          python -m unittest discover -s tests -p 'test_aics_bxsl_obdc_fourteen_original_nonaccrual_replay.py' -v
+          python -m scripts.aics_bxsl_obdc_fourteen_original_nonaccrual_replay --out aics_data/agent_runs/ten_real_collection_rounds/aics_bxsl_obdc_fourteen_original_nonaccrual_numeric_replay.json
+      - name: Rehash six exact CoreWeave and Nebius SEC original reports and replay source cashflow cohort scores
+        run: |
+          python -m compileall -q scripts/aics_neocloud_six_original_cashflows_replay.py tests/test_aics_neocloud_six_original_cashflows_replay.py
+          python -m unittest discover -s tests -p 'test_aics_neocloud_six_original_cashflows_replay.py' -v
+          python -m scripts.aics_neocloud_six_original_cashflows_replay --out aics_data/agent_runs/ten_real_collection_rounds/aics_neocloud_six_original_issuer_cashflows_replay.json
+      - name: Verify 10 rounds, original bytes, actual XBRL values and absent fabricated AICS
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          path = Path('aics_data/agent_runs/ten_real_collection_rounds')
+          report = json.loads((path/'ten_rounds_manifest.json').read_text())
+          values = json.loads((path/'actual_sec_xbrl_facts_unverified.json').read_text())
+          analog = json.loads((path/'aics_2000_2008_2026_analog_research.json').read_text())
+          assert analog['feature_axis_count']==8
+          assert analog['quantitative_similarity_percent_2000'] is None
+          assert analog['quantitative_similarity_percent_2008'] is None
+          assert analog['comparison_eras']['telecom2000']['timing_audit']['early_warning_of_crisis_onset_status']=='OLD_CROSSING_AFTER_OBSERVED_CRISIS_ONSET'
+          assert analog['comparison_eras']['subprime2008']['timing_audit']['early_warning_of_crisis_onset_status']=='OLD_CROSSING_AFTER_OBSERVED_CRISIS_ONSET'
+          assert analog['2026_partial_known_weighted_points_not_full_index']=='268.39'
+          finance = json.loads((path/'sec_direct_quarter_cashflow_gate.json').read_text())
+          improvements = json.loads((path/'aics_model_improvement_agents.json').read_text())
+          cycle = json.loads((path/'aics_thirty_agent_research_cycle.json').read_text())
+          pit = json.loads((path/'aics_v40_v49_ten_pit_forensics_agents.json').read_text())
+          assert pit['schema']=='aics-v40-v49-ten-specialist-pit-replay-agents-v1'
+          assert pit['as_of']==cycle['cutoff_date']
+          assert len(pit['ten_agent_research_results'])==10
+          assert pit['source_premature_SEC_proxies']==27
+          assert pit['private_credit_premature_quarters']==7
+          assert pit['market_close_quarantined_node_months']==4
+          assert pit['calendar_close_quarantined_node_months']==5
+          assert pit['ten_agent_research_results'][4]['eligible_original_SEC_issuer_quarters']==28
+          assert pit['ten_agent_research_results'][5]['independently_source_hashed_original_SEC_archives']==10
+          assert pit['ten_agent_research_results'][5]['historically_PIT_attested_original_provider_receipts']==0
+          assert pit['ten_agent_research_results'][6]['ALFRED_release_vintages_independently_attested']==0
+          assert pit['approved_pit_certified_nodes']==0
+          assert pit['newly_completed_certification_gates']==0
+          assert pit['current_project_milestone_completion']==22
+          assert pit['approved_11node_aics'] is None and pit['trades_created'] is False
+          assert cycle['PIT_source_forensics']['ten_existing_improvement_agents_focused_on_PIT']==10
+          assert cycle['PIT_source_forensics']['retroactive_SEC_plus1_violations']==27
+          assert cycle['PIT_source_forensics']['private_credit_premature_quarters']==7
+          assert improvements['pit_specialist_forensics']['market_month_end_quarantined_node_months']==4
+          assert [r['research_result']['pit_source_date_forensics_assignment']['name'].split('_')[0]
+                  for r in improvements['agents']]==[f'V{i}' for i in range(40,50)]
+          assert cycle['agent_groups']['total_distinct_roles_executed']==30
+          rotation = json.loads((path/'aics_autonomous_v32_v34_research_rotation.json').read_text())
+          five = json.loads((path/'aics_v35_v39_five_version_result.json').read_text())
+          pit100 = json.loads((path/'aics_100_pit_audit_runs_public_release_policy.json').read_text())
+          source_rebuilt = json.loads((path/'aics_pit100_rebuilt_24m_public_filing_date_panels.json').read_text())
+          assert source_rebuilt['schema']=='aics-pit100-24m-public-filing-day-rebuilt-research-v1'
+          assert source_rebuilt['source_replay_count']==100
+          assert source_rebuilt['historical_months']==24
+          assert len(source_rebuilt['market_monthly_rebuilt'])==24
+          assert len(source_rebuilt['calendar_monthly_rebuilt'])==24
+          assert source_rebuilt['active_SEC_public_filing_date_no_14day_delay'] is True
+          assert source_rebuilt['newly_certified_PIT_nodes']==0
+          assert source_rebuilt['fully_rebuilt_production_AICS'] is None
+          assert source_rebuilt['AICS_SP500_spread'] is None
+          assert source_rebuilt['trades_created'] is False
+          rebuilt = json.loads((path/'aics_24m_publication_date_rebuilt_research_panel.json').read_text())
+          downloaded = json.loads((path/'aics_pit100_100_original_sec_reports_manifest.json').read_text())
+          rec = json.loads((path/'aics_pit100_reconciled_24m_sp500_monthly.json').read_text())
+          sgml = json.loads((path/'aics_pit100_100_sec_sgml_header_clock_audit.json').read_text())
+          source_links = json.loads((path/'aics_pit100_original_source_accession_to_node_lineage.json').read_text())
+          filled = json.loads((path/'aics_pit100_targeted_missing_sec_original_score_docs.json').read_text())
+          assert filled['schema']=='aics-PIT100-targeted-original-scoring-accession-SGML-fill-v1'
+          assert filled['original_research_filing_claims']==36
+          assert filled['original_claims_already_matched_via_unrelated_100_sample']==source_links['exact_original_filing_accession_in_100_primary_archive_and_header']
+          assert filled['targeted_missing_exact_original_accession_attempts']+filled['original_claims_already_matched_via_unrelated_100_sample']==36
+          assert filled['targeted_original_primary_and_SGML_both_sha_archived']+filled['targeted_original_source_download_failures']==filled['targeted_missing_exact_original_accession_attempts']
+          assert filled['combined_original_score_source_accessions_now_hashed_and_clock_matched']==filled['original_claims_already_matched_via_unrelated_100_sample']+filled['targeted_original_primary_and_SGML_both_sha_archived']
+          assert filled['still_missing_original_exact_source_accessions_after_targeted_fetch']==filled['targeted_original_source_download_failures']
+          assert 0<=filled['exact_sources_with_SECGML_acceptance_day_different_from_filed_day']<=filled['targeted_original_primary_and_SGML_both_sha_archived']
+          assert filled['original_accounting_values_automatically_verified_from_source_bytes']==0
+          assert filled['historically_PIT_certified_11node_scores']==0
+          assert filled['full_11node_AICS'] is None and filled['trades_created'] is False
+          for row in filled['targeted_source_results']:
+              if row['success_exact_original_scoring_document_and_sgml']:
+                  import gzip
+                  orig=gzip.decompress(Path(row['original_doc_gzip_archived_path']).read_bytes())
+                  hdr=gzip.decompress(Path(row['original_header_gzip_archived_path']).read_bytes())
+                  assert hashlib.sha256(orig).hexdigest()==row['original_doc_raw_sha256']
+                  assert hashlib.sha256(hdr).hexdigest()==row['original_header_raw_sha256']
+                  assert row['historical_first_data_feed_receipt_attested'] is False
+          assert source_links['schema']=='aics-PIT100-original-scoring-accession-to-SEC-SGML-crosswalk-v1'
+          assert source_links['research_underlying_original_filing_references']==36
+          assert source_links['research_source_cohorts']==19
+          assert len(source_links['source_claims'])==36
+          assert len(source_links['source_cohorts'])==19
+          assert source_links['original_document_family_counts']=={'Insurers':9,'Private Credit':21,'Neoclouds':6}
+          assert 0<=source_links['exact_original_filing_accession_in_100_primary_archive_and_header']<=36
+          assert 0<=source_links['source_event_cohorts_with_all_header_accessions']<=19
+          assert source_links['underlying_accounting_metric_independently_parsed_from_exact_bytes']==0
+          assert source_links['source_bytes_today_not_historical_first_delivery'] is True
+          assert source_links['historically_pit_certified_node_count']==0
+          assert source_links['complete_11node_AICS'] is None and source_links['trades_created'] is False
+          alfred = json.loads((path/'aics_pit100_24m_alfred_two_source_vintages.json').read_text())
+          lead = json.loads((path/'aics_pit100_24m_expost_leadlag_falsification.json').read_text())
+          priorities = json.loads((path/'aics_priority100_evidence_queue.json').read_text())
+          pru_replay = json.loads((path/'aics_pru_nine_original_source_numeric_replay.json').read_text())
+          arcc_replay = json.loads((path/'aics_arcc_seven_original_nonaccrual_numeric_replay.json').read_text())
+          bdc_replay = json.loads((path/'aics_bxsl_obdc_fourteen_original_nonaccrual_numeric_replay.json').read_text())
+          neo_replay = json.loads((path/'aics_neocloud_six_original_issuer_cashflows_replay.json').read_text())
+          assert neo_replay['schema']=='aics-six-original-neocloud-issuer-cashflow-source-replay-v1'
+          assert neo_replay['six_exact_original_source_tasks']==6
+          assert 0<=neo_replay['issuer_source_numeric_claims_reproduced']<=6
+          assert 0<=neo_replay['research_period_scores_reproduced_from_all_original_source_bytes']<=3
+          assert neo_replay['first_historical_public_data_delivery_verified'] is False
+          assert neo_replay['certified_11node_AICS'] is None and neo_replay['trades_created'] is False
+          assert bdc_replay['schema']=='aics-BXSL-OBDC-fourteen-original-SEC-nonaccrual-replay-v1'
+          assert bdc_replay['original_BXSL_OBDC_issuer_periods_attempted']==14
+          assert bdc_replay['original_nonaccrual_cost_percentages_reproduced']+bdc_replay['blocked_original_cost_percentages']==14
+          assert bdc_replay['certified_AICS_nodes']==0
+          assert bdc_replay['full_11node_AICS'] is None and bdc_replay['trades_created'] is False
+          assert arcc_replay['schema']=='aics-arcc-seven-original-SEC-cost-fair-nonaccrual-replay-v1'
+          assert arcc_replay['original_ARCC_quarter_tasks_executed']==7
+          assert arcc_replay['exact_original_hashes_reverified']+sum(not x['original_source_bytes_rehashed'] for x in arcc_replay['events'])==7
+          assert arcc_replay['original_source_cost_and_fair_pairs_reproduced']+arcc_replay['blocked_original_numeric_pairs']==7
+          assert arcc_replay['certified_AICS_nodes']==0
+          assert arcc_replay['production_AICS'] is None and arcc_replay['trades_created'] is False
+          assert pru_replay['schema']=='aics-pru-9-SEC-original-disclosure-numeric-replay-v1'
+          assert pru_replay['original_prudential_filing_count']==9
+          assert pru_replay['independently_reproduced_scoped_issuer_research_ratios']+pru_replay['missing_or_ambiguous_research_ratios']==9
+          assert pru_replay['certified_AICS_nodes']==0
+          assert pru_replay['production_AICS'] is None and pru_replay['trades_created'] is False
+          assert priorities['schema']=='aics-priority100-evidence-workbench-v1'
+          assert priorities['deterministic_specialized_audit_tasks_executed']==100
+          assert len({x['task_id'] for x in priorities['priority_queue']})==100
+          assert priorities['priority_0_original_document_tasks']==36
+          assert priorities['priority_0_original_event_cohort_tasks']==19
+          assert priorities['priority_1_monthly_source_tasks']==24
+          assert priorities['priority_1_node_score_tasks']==11
+          assert priorities['priority_2_safety_control_tasks']==10
+          assert priorities['original_accounting_values_independently_recomputed']==0
+          assert priorities['independently_certified_nodes']==0
+          assert priorities['full_11node_AICS'] is None and priorities['trades_created'] is False
+          assert sgml['schema']=='aics-PIT100-first-original-SEC-SGML-timezone-clocks-audit-v1'
+          assert sgml['distinct_original_SEC_report_tasks_referenced']==100
+          assert sgml['original_SEC_header_http_attempts']==100
+          assert sgml['original_SEC_header_SHA256_archives_successful']+sgml['original_SEC_header_failures']==100
+          assert sgml['JSON_mixed_timezone_formats_must_not_be_used_without_SGML'] is True
+          assert sgml['public_dissemination_PIT_certified'] is False
+          assert sgml['production_11node_AICS'] is None and sgml['trades_created'] is False
+          for row in sgml['source_headers']:
+              if row.get('original_sec_acceptance_clock_verified_from_sgml'):
+                  import gzip
+                  raw=gzip.decompress(Path(row['original_header_archive_gz_path']).read_bytes())
+                  assert hashlib.sha256(raw).hexdigest()==row['original_sec_header_raw_SHA256']
+                  assert row['independent_historical_first_feed_delivery_attested'] is False
+          assert alfred['schema']=='aics-PIT100-24m-DGS30-IORB-ALFRED-historical-asof-snapshots-v1'
+          assert alfred['official_historical_vintage_requests_attempted']==48
+          assert alfred['official_historical_vintage_original_responses_archived']+alfred['official_historical_vintage_failed_or_missing']==48
+          assert len(alfred['monthly_observations'])==48
+          assert alfred['realtime_start_equals_realtime_end_on_each_query'] is True
+          assert alfred['historical_pit_certified_index_nodes']==0
+          assert alfred['complete_11node_AICS'] is None
+          for row in alfred['monthly_observations']:
+              if row['retrieved_currently_from_official_FRED_history']:
+                  import gzip
+                  raw=gzip.decompress(Path(row['source_raw_archive_gz_path']).read_bytes())
+                  assert hashlib.sha256(raw).hexdigest()==row['source_original_sha256']
+                  assert row['asof_selection']['latest_before_market_cutoff_dateonly']['observed_date'] < row['market_cutoff_day']
+          assert lead['schema']=='aics-PIT100-24m-EXPOST-fixed-first-month-cohort-leadlag-v1'
+          assert lead['monthly_research_observations']==24
+          assert lead['potential_next_month_outcome_months']==23
+          assert lead['correlations_are_EXPOST_not_independent_forecast_skill'] is True
+          assert lead['independent_24m_out_of_sample_forecast_labels']==0
+          assert lead['full_11node_AICS'] is None
+          assert lead['production_trades_created'] is False
+          assert rec['schema']=='aics-pit100-two-independent-24month-replays-reconciled-v1'
+          assert rec['research_months_reconciled']==24
+          assert rec['month_node_disagreements_remaining']==0
+          assert rec['independent_replay_methods_compared']==2
+          assert rec['validated_joint_G17_original_release']['official_publication_date']=='2025-12-23'
+          assert rec['validated_joint_G17_original_release']['observation_months']==['2025-10','2025-11']
+          assert rec['validated_joint_G17_original_release']['values']==['74.70','74.40']
+          assert rec['validated_joint_G17_original_release']['latest_research_monthly_candidate']=='74.40'
+          assert rec['G17_research_source_period_conflicts_remaining']==0
+          assert len(rec['monthly_aligned_research_panel'])==24
+          assert rec['quality_by_panel']['market']['last_month_known_weight']==725
+          assert rec['quality_by_panel']['calendar']['last_month_known_weight']==950
+          assert all(x['full_11node_AICS'] is None and x['AICS_SP500_spread'] is None for x in rec['monthly_aligned_research_panel'])
+          assert rec['independently_certified_historical_PIT_nodes']==0
+          assert rec['forecast_accuracy_or_2000_2008_similarity_pct'] is None
+          assert rec['trades_created'] is False
+          assert (path/'aics_pit100_reconciled_24m_sp500_monthly.csv').exists()
+          assert (path/'aics_pit100_reconciled_24m_sp500_monthly.md').exists()
+          assert downloaded['schema']=='aics-PIT100-distinct-original-SEC-primary-report-downloads-v1'
+          assert downloaded['genuine_original_sec_http_attempts']==100
+          assert len(downloaded['tasks'])==100
+          assert len(set(z['source_url'] for z in downloaded['tasks']))==100
+          assert len(set(z['download_worker_id'] for z in downloaded['tasks']))==100
+          assert downloaded['source_document_bytes_archived_successfully']+downloaded['source_document_failures_recorded_without_fabrication']==100
+          assert downloaded['original_public_historical_feed_receipt_attested'] is False
+          assert downloaded['SEC_14day_wait_policy_active'] is False
+          assert downloaded['approved_AICS_index'] is None
+          for z in downloaded['tasks']:
+              if z['success']:
+                  import gzip
+                  original=gzip.decompress(Path(z['compressed_archive_path']).read_bytes())
+                  assert len(original)==z['raw_bytes']
+                  assert hashlib.sha256(original).hexdigest()==z['raw_SHA256']
+          assert rebuilt['schema']=='aics-24month-public-filing-date-PIT100-rebuilt-candidate-panel-v1'
+          assert rebuilt['as_of']==cycle['cutoff_date']
+          assert rebuilt['active_policy']==pit100['active_historical_research_source_policy']
+          assert rebuilt['source_events_recomputed_from_unchanged_original_ledgers']==64
+          assert len(rebuilt['monthly_rebuilt_panels']['market'])==24
+          assert len(rebuilt['monthly_rebuilt_panels']['calendar'])==24
+          assert rebuilt['original_PIT100_roles_individually_verified_against_rebuild']==100
+          assert len(rebuilt['audit_100_unique_original_source_cutoffs'])==100
+          assert rebuilt['same_day_unverified_market_close_filing_is_eligible'] is False
+          assert rebuilt['same_day_ambiguous_release_conflicts_quarantined']==[]
+          assert rebuilt['same_day_joint_different_observation_periods_validated']['separate_measurement_months_not_duplicate_release_data'] is True
+          assert rebuilt['independently_historical_PIT_first_delivery_certified'] is False
+          assert rebuilt['full_11node_AICS'] is None and rebuilt['aics_sp500_spread'] is None
+          assert rebuilt['model_weights_changed'] is False and rebuilt['trades_created'] is False
+          assert rebuilt['frozen_original_weights_total']==1050
+          markdown=(path/'aics_24m_publication_date_rebuild_quality_report.md').read_text()
+          assert markdown.startswith('# AICS PIT100')
+          assert '| 2026-10 |' in markdown
+          assert 'S&P 500' in markdown and 'G.17 joint release' in markdown
+          assert pit100['schema']=='aics-100-real-dated-PIT-audit-role-replays-v1'
+          assert pit100['as_of']==cycle['cutoff_date']
+          assert pit100['actual_distinct_aics_roles']==100
+          assert pit100['new_PIT_specialist_roles']==70
+          assert pit100['original_base_aics_roles']==30
+          assert pit100['PIT_runs_successfully_computed']==100
+          assert pit100['unique_historical_replay_cutoffs']==100
+          assert pit100['SEC_14day_delay_is_active'] is False
+          assert pit100['same_day_market_close_protected_without_verified_acceptance_time'] is True
+          assert pit100['legacy_14day_date_difference_is_not_violation_under_active_policy'] is True
+          assert pit100['publisher_request_count_from_these_100_replays']==0
+          assert len(set(r['historical_cutoff'] for r in pit100['100_audit_results']))==100
+          assert len(set(r['AICS_role_id'] for r in pit100['100_audit_results']))==100
+          assert sum(r['existing_core_role'] for r in pit100['100_audit_results'])==30
+          assert sum(r['new_specialist_role'] for r in pit100['100_audit_results'])==70
+          assert pit100['newly_certified_historical_PIT_nodes']==0
+          assert pit100['certified_11_node_AICS'] is None
+          assert pit100['AICS_SP500_spread'] is None
+          assert pit100['trades_created'] is False
+          assert five['schema']=='aics-v35-v39-source-validated-five-version-batch-v1'
+          assert five['as_of']==cycle['cutoff_date']
+          assert five['version_count']==5
+          assert [r['name'].split('_')[0] for r in five['versions']]==['V35','V36','V37','V38','V39']
+          assert five['versions'][0]['observed_complete_calendar_quarters']==7
+          assert five['versions'][0]['first_four_issuer_negative_gap_quarter']=='2026-Q3'
+          assert five['versions'][0]['first_eligible_source_date']=='2026-11-13'
+          assert five['versions'][1]['total_observed_deterioration_usd_m']=='-33134'
+          assert five['versions'][1]['largest_contributing_issuer']=='Amazon'
+          assert five['versions'][1]['largest_contributor_share_of_net_deterioration_pct']=='78.52'
+          assert five['versions'][2]['source_eligible_q2_issuers']==2
+          assert five['versions'][3]['earliest_known_contract_maturity']=='2027-10-16'
+          assert five['versions'][3]['matched_instrument_new_spread_change_bps'] is None
+          assert five['versions'][4]['approved_full_AICS'] is None
+          assert five['versions'][4]['2008_historical_first_crisis_warning_reproduced'] is False
+          assert five['synthetic_rows_added']==0
+          assert five['production_weights_changed'] is False
+          assert five['trades_created'] is False
+          assert rotation['agents_exec_group_count']==30
+          assert rotation['utc_as_of']==cycle['cutoff_date']
+          assert rotation['v32_matched_loan_pricing_audit']['same_facility_two_eligible_amendments_verified']==0
+          assert rotation['v32_matched_loan_pricing_audit']['net_spread_repricing_basis_points'] is None
+          assert rotation['v33_issuer_funding_and_liquidity_audit']['q2_actual_sources_completely_reconciled'] is True
+          assert rotation['v34_evidence_governance']['fixed_weights_total']==1050
+          assert rotation['v34_evidence_governance']['certified_11node_aics'] is None
+          assert rotation['autonomous_cycle_scope']=='SCHEDULED_EVIDENCE_COLLECTION_RESEARCH_ANALYSIS_AND_PRIORITIZATION'
+          assert rotation['self_modifying_production_model_enabled'] is False
+          assert rotation['production_trading_enabled'] is False
+          assert cycle['source_collection']['http_attempts']==report['total_http_attempts']
+          assert cycle['source_collection']['current_numeric_snapshot_rows']==len(values)
+          assert cycle['source_collection']['direct_quarter_research_candidates']==finance['direct_original_3month_pair_candidates']
+          assert cycle['analysis']['historical_full_aics_months']==0
+          assert cycle['model_improvement']['untouched_oos_months']==0
+          assert cycle['model_improvement']['2026_q1_4issuer_cashflow_complete'] is True
+          assert cycle['model_improvement']['same_date_named_spv_borrower_facility_balance_edges']==2
+          assert cycle['model_improvement']['coreweave_same_date_reported_debt_usd_m']==3938
+          assert cycle['model_improvement']['credit_exposure_edges_verified']==0
+          assert cycle['model_improvement']['v28_source_dated_credit_legal_edges']==9
+          assert cycle['model_improvement']['v29_contractual_maturity_records']==3
+          assert cycle['model_improvement']['v30_real_q2_issuer_funding_mechanisms_reconciled']==2
+          assert cycle['model_improvement']['v31_q3_coreweave_ir_interest_to_revenue_pct_research_only']=='23.1'
+          assert cycle['model_improvement']['v31_q3_sec_date_eligible_at']=='2026-11-26'
+          assert cycle['model_improvement']['v31_sec_10q_date_gate_passed'] is (__import__('datetime').date.fromisoformat(cycle['cutoff_date']) >= __import__('datetime').date(2026,11,26))
+          assert cycle['model_improvement']['v31_repo_oct2026_sofr_minus_iorb_bps_retrospective']==4
+          assert cycle['model_improvement']['v31_matched_same_loan_repricing_observations']==0
+          assert cycle['model_improvement']['v31_independently_confirmed_early_warning_skill'] is None
+          interest = json.loads((path/'aics_v31_interest_repo_dual_clock_research.json').read_text())
+          assert interest['original_2026_Q3_SEC_eligible_at']=='2026-11-26'
+          assert interest['issuer_IR_Q3_research']['net_interest_expense_divided_by_revenue_pct']=='23.1'
+          assert interest['matched_same_loan_spread_repricing_events_verified']==0
+          assert interest['matched_same_loan_repricing_bps'] is None
+          assert interest['repo_series_is_issuer_specific_funding_spread'] is False
+          assert interest['crisis_probability'] is None and interest['full_11node_aics'] is None
+          assert cycle['model_improvement']['v30_coreweave_net_q2_financing_usd_m']=='10071'
+          assert cycle['model_improvement']['v30_nebius_net_q2_financing_usd_m']=='2864.9'
+          assert cycle['model_improvement']['v30_mixed_equity_vs_debt_mechanisms_not_same_loan_repricing'] is True
+          assert cycle['model_improvement']['v30_crisis_causal_skill'] is None
+          funding = json.loads((path/'aics_v30_cashflow_financing_bridge.json').read_text())
+          assert funding['q2_same_date_comparable_two_issuer_count']==2
+          assert len(funding['issuer_quarter_observations'])==4
+          assert funding['q2_independent_funding_source_reconciliation_complete'] is True
+          assert funding['historically_comparable_matched_borrower_pricing_event_count']==0
+          assert funding['credit_spread_repricing_on_matched_instrument_bps'] is None
+          assert funding['q2_cashflow_is_not_net_lender_debt_outstanding'] is True
+          assert funding['crisis_probability'] is None and funding['full_aics'] is None
+          assert funding['weights_changed'] is False and funding['trades_created'] is False
+          assert cycle['model_improvement']['v29_2027_10_16_nebius_maturity_within_365_days'] is True
+          assert cycle['model_improvement']['v29_2027_maturity_actual_refinancing_need_usd_m'] is None
+          assert cycle['model_improvement']['v29_coreweave_named_admin_agents']==2
+          assert cycle['model_improvement']['v29_nebius_citi_named_lender_funded_usd_m'] is None
+          maturity = json.loads((path/'aics_v29_refinancing_maturity_research.json').read_text())
+          assert maturity['eligible_contract_count']==3
+          assert maturity['loan_maturities_within_365_calendar_days']==1
+          assert maturity['first_known_contractual_maturity']=='2027-10-16'
+          assert maturity['nebius_citi_mandated_arranger_and_lender_named'] is True
+          assert maturity['current_named_lender_borrower_dollar_exposure_edges']==0
+          assert maturity['actual_credit_refinancing_need_usd_m'] is None
+          assert maturity['actual_coupon_including_base_rate'] is None
+          assert maturity['crisis_probability'] is None
+          assert maturity['full_aics'] is None and maturity['trades_created'] is False
+          assert cycle['model_improvement']['v28_named_historical_provider_relationships']==2
+          assert cycle['model_improvement']['v28_named_affiliate_guarantor_links']==2
+          assert cycle['model_improvement']['v28_current_named_lender_dollar_exposure_edges']==0
+          topology = json.loads((path/'aics_v28_credit_relationship_topology.json').read_text())
+          assert len(topology['relationships'])==9
+          assert topology['named_financing_provider_relationship_count']==2
+          assert topology['named_guarantor_legal_links']==2
+          assert topology['current_named_lender_to_borrower_dollar_exposure_edges']==0
+          assert topology['current_lender_borrower_dollar_exposure_matrix'] is None
+          assert topology['crisis_forecast_probability'] is None
+          assert topology['index_aics'] is None
+          assert topology['trades_created'] is False
+          assert cycle['model_improvement']['nscale_ward_nc_gpu_drawn_balance_usd_m'] is None
+          assert cycle['model_improvement']['spv_parent_enforceable_guarantee_total_usd_m'] is None
+          assert cycle['model_improvement']['cross_issuer_causal_funding_transmission_established'] is False
+          spv = json.loads((path/'aics_v27_spv_funding_transmission_research_2026-11-22.json').read_text())
+          assert spv['proven_same_date_coreweave_facility_balance_edges']==2
+          assert spv['coreweave']['separate_facility_reported_debt_sum_usd_m']==3938
+          assert spv['nscale']['ward_drawn_balance_usd_m'] is None
+          assert spv['nscale']['outstanding_lease_liability_usd_m'] is None
+          assert spv['named_lender_to_borrower_current_exposure_edges']==0
+          assert spv['verified_2008_funding_contagion_matrix'] is None
+          assert spv['full_11node_aics'] is None and spv['trades_created'] is False
+          assert '2026_Q1_4_ISSUER_CASHFLOW_GAP' not in {x['experiment'] for x in cycle['next_experiments']}
+          assert cycle['cycle_decision']=='RESEARCH_ONLY_NOT_AUTONOMOUS_PRODUCTION'
+          assert cycle['complete_11_node_aics'] is None
+          assert cycle['crisis_probability'] is None
+          assert cycle['eligible_for_production_promotion'] is False
+          assert cycle['weights_total_unchanged']==1050
+          assert cycle['weights_changed'] is False and cycle['trades_created'] is False
+          assert cycle['verdict_mutated'] is False
+          assert len(cycle['next_experiments']) >= 4
+          assert improvements['actual_model_improvement_agents_executed']==10
+          assert improvements['agents'][8]['research_result']['historical_crisis_analog']['feature_axis_count']==8
+          assert improvements['agents'][8]['research_result']['historical_crisis_analog']['full_AICS'] is None
+          assert improvements['total_distinct_workflow_agent_roles']==30
+          finance_challenger=improvements['agents'][8]['research_result']['same_issuer_real_cashflow_financing_research']
+          assert finance_challenger['issuer_quarters_original_SEC_eligible']==4
+          assert finance_challenger['coreweave_q2_net_financing_cash_usd_m']=='10071'
+          assert finance_challenger['nebius_q2_net_financing_cash_usd_m']=='2864.9'
+          assert finance_challenger['matched_instrument_spread_repricing_bps'] is None
+          assert finance_challenger['financial_contagion_causality_established'] is False
+          refinance=improvements['agents'][8]['research_result']['contractual_refinancing_maturity_research']
+          assert refinance['eligible_contractual_terms']==3
+          assert refinance['known_maturity_within_365d_count']==1
+          assert refinance['earliest_contractual_maturity']=='2027-10-16'
+          assert refinance['current_named_lender_dollar_exposure_edges']==0
+          assert refinance['actual_refinancing_need_usd_m'] is None
+          improved_topology=improvements['agents'][8]['research_result']['typed_lender_borrower_guarantor_network_research']
+          assert improved_topology['source_gated_legal_relationship_edges']==9
+          assert improved_topology['named_historical_financing_provider_relationships']==2
+          assert improved_topology['named_affiliate_guarantor_links']==2
+          assert improved_topology['current_named_lender_borrower_exposure_edges']==0
+          assert improved_topology['verified_current_lender_contagion_matrix'] is None
+          credit=improvements['agents'][2]['research_result']
+          assert credit['verified_instrument_balance_edges_not_named_lender_exposure']==2
+          assert credit['named_lender_current_exposure_edges']==0
+          borrower=improvements['agents'][8]['research_result']['spv_recourse_and_buildout_research']
+          assert borrower['coreweave_reported_spv_debt_usd_m']==3938
+          assert borrower['coreweave_separate_facility_ceiling_usd_m']==11600
+          assert borrower['nscale_combined_ward_nc_gpu_contractual_ceiling_usd_m']==3050
+          assert borrower['nscale_lease_initial_rent_usd_m_not_drawn_debt']==2540
+          assert borrower['2008_funding_contagion_probability'] is None
+          q1periods = {p['period']:p for p in improvements['agents'][8]['research_result']['early_cash_imbalance_research']['source_periods']}
+          assert q1periods['2026-Q1']['issuer_count']==4
+          assert q1periods['2026-Q1']['cash_gap_usd_m']=='20977'
+          assert q1periods['2026-Q1']['source_eligible_at']=='2026-05-13'
+          assert improvements['original_quarter_finance_audit_loaded'] is True
+          assert improvements['live_source_wave_manifest_loaded'] is True
+          assert len(improvements['agents'])==10
+          assert all(a['execution']=='completed' and
+                     a['new_aics_score_approved'] is False for a in improvements['agents'])
+          assert improvements['full_aics'] is None
+          assert improvements['aics_sp500_spread'] is None
+          assert improvements['untouched_oos_forecast_accuracy'] is None
+          assert improvements['trained_supervised_forecast'] is False
+          assert improvements['trades_created'] is False
+          assert finance['original_numeric_rows_inspected']==len(values)
+          assert finance['node_scores_promoted']==0
+          assert finance['full_11_node_aics'] is None
+          assert improvements['agents'][0]['research_result']['direct_quarter_pairs']==finance['direct_original_3month_pair_candidates']
+          assert report['rounds']==10 and report['source_agents']==10
+          assert len(report['rounds_report'])==10
+          assert [r['round'] for r in report['rounds_report']]==list(range(1,11))
+          assert report['fixed_weights_total']==1050
+          assert report['actual_numeric_facts_extracted_current_sec_snapshots']==len(values)
+          assert report['complete_index'] is None and report['independent_sp500_skill'] is None
+          assert report['production_weights_changed'] is False
+          assert report['trades_created'] is False
+          for wave in report['rounds_report']:
+              for item in wave['operations']:
+                  if item['status'] in (
+                      'original_archived_no_pit',
+                      'numeric_source_archived_no_historical_pit'):
+                      raw=Path(item['raw_path']).read_bytes()
+                      assert hashlib.sha256(raw).hexdigest()==item['raw_sha256']
+                      assert item['node_score_eligible'] is False
+          if report['total_http_attempts'] == 0:
+              raise ValueError('No original publisher was actually contacted')
+          summary={
+              'rounds':report['rounds'],
+              'official_primary_http_attempts':report['total_http_attempts'],
+              'official_primary_responses_archived':report['successful_http_archives'],
+              'sec_original_numeric_snapshot_count':report['sec_companyfacts_original_snapshots_archived'],
+              'actual_original_numeric_facts_extracted':len(values),
+              'direct_original_quarter_cashflow_pairs':finance['direct_original_3month_pair_candidates'],
+              'long_ytd_cashflow_records_excluded':finance['reasons'].get('long_ytd_or_nonquarter_duration',0),
+              'additional_model_improvement_agents_executed':len(improvements['agents']),
+              'integrated_agent_roles_executed':cycle['agent_groups']['total_distinct_roles_executed'],
+              'next_source_grounded_research_experiments':len(cycle['next_experiments']),
+              'original_2000_2008_analogy_axes':analog['feature_axis_count'],
+              '2000_and_2008_early_crisis_warning_claim':'NOT_REPRODUCED',
+              'supervised_forecasting_accuracy_reported':None,
+              'unavailable_sources':report['unavailable_source_keys'],
+              'historical_pit_certified':False,
+              'trading_disabled':True,
+          }
+          print(summary)
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as stream:
+              print('## AICS 10 genuinely executed primary-source acquisition waves',file=stream)
+              for key,val in summary.items():
+                  print(f'- {key}: **{val}**',file=stream)
+              print('Latest SEC Company Facts represent a current API snapshot; numeric records are **not historical first-delivery PIT attested**.',file=stream)
+              print('Model-improvement agents are research diagnostics; unvalidated market forecasting and autonomous weights remain OFF.',file=stream)
+              print('30-role integration uses original source waves and separate retrospective analytics; no new issuer-score ingestion is falsely claimed.',file=stream)
+              print('- V26: 2026 Q1 now original-SEC-sourced, four-company gap +$20.977bn and SEC+14 as-of May 13; Q4-to-Q3 cash gap trend is seven consecutive calendar quarters.',file=stream)
+              print('- V27: two CoreWeave June 30 reported SPV balances total $3.938bn, two contractual ceilings $11.600bn; distinct Nscale $3.050bn GPU limits and $2.540bn DFS rental schedules not additive; current named lender exposures still unknown.',file=stream)
+              print('- V28: 9 heterogeneous source-dated legal relationships, including 2 named funding-provider relationships and 2 named affiliate guarantee links; zero current named lender-dollar exposure edges. No aggregate lender contagion probability.',file=stream)
+              print('- V29: SEC-dated 2027-10-16 Nebius bridge contractual maturity, 2031-11-15 CoreWeave DDTL 5 and 2032-03-31 DDTL 4; named Citi lender/arranger, MUFG and Morgan Stanley administrative agents without current lender dollar attribution.',file=stream)
+              print('- V30: Q2 source-reconciled financing cash CoreWeave +$10.071bn (debt issuance and repayments) vs Nebius +$2.8649bn (mostly equity), alongside distinct cash PP&E deficits. Different loan spread is not matched-loan repricing; no bank contagion skill.',file=stream)
+              print('- V31: CoreWeave Q3 IR net interest/revenue 23.1% is descriptive only, AICS SEC+14 not until 2026-11-26; October repo SOFR-minus-IORB +4bps market proxy is NOT a matched-borrower loan repricing.',file=stream)
+              print(f"- V32–V34 autonomous research rotation: **{rotation['autonomous_cycle_scope']}**; original loan repricing pairs **0**, actual Q2 funding bridges **{len(rotation['v33_issuer_funding_and_liquidity_audit']['source_eligible_2026Q2_issuer_bridges'])}**, source-derived next experiment **{rotation['automatic_next_research_priority']}**.",file=stream)
+              print(f"- V35–V39 FIVE real-source research gates: **{five['versions'][0]['observed_complete_calendar_quarters']}** original four-hyperscaler quarters; Q2→Q3 total gap **{five['versions'][1]['total_observed_deterioration_usd_m']} USDm**; biggest deterioration issuer **{five['versions'][1]['largest_contributing_issuer']}** (**{five['versions'][1]['largest_contributor_share_of_net_deterioration_pct']}%**); two separate issuer funding models and 2008 contamination STOP.",file=stream)
+              print(f"- UTC report cutoff: **{cycle['cutoff_date']}**. Trigger: **{os.environ.get('GITHUB_EVENT_NAME','unknown')}**. Research only; auto-production: OFF.",file=stream)
+              print(f"- PIT V40–V49 LEGACY +14 comparison only: **{pit['source_premature_SEC_proxies']}** original SEC +1-vs-+14 differences, **{pit['private_credit_premature_quarters']}** BDC date differences; NOT active PIT policy violations.",file=stream)
+              print(f"- PIT100 PUBLIC FILING DATE POLICY: **{pit100['actual_distinct_aics_roles']}** distinct AICS roles including **{pit100['new_PIT_specialist_roles']}** new forensic specialists; **{pit100['PIT_runs_successfully_computed']}** genuinely executed, source-derived unique historical cutoff audits; zero artificial SEC +14 wait, exact intraday acceptance still unverified, approved index NULL.",file=stream)
+              print(f"- PIT100 24-month recalculation: **{len(source_rebuilt['market_monthly_rebuilt'])} market** and **{len(source_rebuilt['calendar_monthly_rebuilt'])} calendar** original-event reconstructed research cutoffs, **{source_rebuilt['reclocked_original_events']}** source events; no fake full-index or OOS certification.",file=stream)
+              print(f"- PIT100 cross-checked S&P500 24-month panel: two independent original-event implementations, **{rec['month_node_disagreements_remaining']}** remaining monthly node disagreements; **{rec['quality_by_panel']['market']['research_coverage_pct']}%** observed research weight-month coverage (NOT model readiness), G17 December 23 official October+November two-month release reconciled, not quarantined; AICS index NULL.",file=stream)
+              print(f"- 24-MONTH SOURCE REBUILD: 24 original calendar and market-close research panels recreated from **{rebuilt['source_events_recomputed_from_unchanged_original_ledgers']}** source events, verified at **100** individual original cutoff dates; market coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['market']['dateonly_research_coverage_pct']}%**, calendar coverage **{rebuilt['baseline_vs_rebuilt_quality_metrics']['calendar']['dateonly_research_coverage_pct']}%**; 2025 Dec G17 joint October/November release uses latest November measurement, not an invalid conflict. Historical PIT and full AICS still NOT certified.",file=stream)
+              print(f"- PIT100 ORIGINAL SEC REPORT FETCH: **{downloaded['genuine_original_sec_http_attempts']}** unique filing HTTP attempts by scoped acquisition workers, **{downloaded['source_document_bytes_archived_successfully']}** full original primary report payloads SHA-256 verified, **{downloaded['source_document_failures_recorded_without_fabrication']}** explicit failures. Historic first-receipt timestamp remains unverified.",file=stream)
+              print(f"- Original SEC SGML ET clocks: **{sgml['original_SEC_header_SHA256_archives_successful']}/100** archived original index headers; after 16 ET **{sgml['original_SEC_header_at_or_after16_ET']}**, JSON timezone classes **{sgml['json_raw_timestamp_against_SGML_diagnostics']}**. Acceptance is NOT first public dissemination.",file=stream)
+              print(f"- Exact SEC score-event identity audit: **{source_links['exact_original_filing_accession_in_100_primary_archive_and_header']}/36** original issuer accessions inside the 100-file current capture; **{source_links['source_event_cohorts_with_all_header_accessions']}/19** full original source-event cohorts, no metrics independently parsed and no historical first-delivery attested.",file=stream)
+              print(f"- SEC targeted missing-score source gap fill: **{filled['targeted_original_primary_and_SGML_both_sha_archived']}/{filled['targeted_missing_exact_original_accession_attempts']}** exact original SEC scoring documents+headers archived, combined exact identities **{filled['combined_original_score_source_accessions_now_hashed_and_clock_matched']}/36**; **{filled['exact_sources_with_SECGML_acceptance_day_different_from_filed_day']}** original SEC acceptances precede official filed dates. Accounting disclosure verification and historical delivery still unconfirmed.",file=stream)
+              print(f"- Historical ALFRED as-of: **{alfred['official_historical_vintage_original_responses_archived']}/48** DGS30/IORB original-as-of retrievals; first intraday delivery still unknown.",file=stream)
+              print(f"- Six exact Neocloud 2025 original SEC issuer cashflow filings: **{neo_replay['issuer_source_numeric_claims_reproduced']}/6** original issuer value rows matched; **{neo_replay['research_period_scores_reproduced_from_all_original_source_bytes']}/3** descriptive research-score events from originals; different Nebius 2025Q1 scope not silently merged.",file=stream)
+              print(f"- BXSL/OBDC 14 issuer-quarter primary SEC non-accrual cost percentages independently source-matched: **{bdc_replay['original_nonaccrual_cost_percentages_reproduced']}/14**; **{bdc_replay['blocked_original_cost_percentages']}** unresolved, no historical first-feed receipt or full Private Credit sector certification.",file=stream)
+              print(f"- ARCC 7-quarter direct SEC cost and fair-value non-accrual percentages: **{arcc_replay['original_source_cost_and_fair_pairs_reproduced']}/7** exact originals parsed and reconciled; **{arcc_replay['blocked_original_numeric_pairs']}** unmatched; no bank lending exposure or predictive AICS certification.",file=stream)
+              print(f"- Original PRU SEC numerical replay: **{pru_replay['independently_reproduced_scoped_issuer_research_ratios']}/9** source disclosures independently reconciled, **{pru_replay['missing_or_ambiguous_research_ratios']}** blocked; still **0** historical first-feed attestations and **0** full Insurers node certifications.",file=stream)
+              print(f"- PRIORITY100: **{priorities['deterministic_specialized_audit_tasks_executed']}** separately assigned evidence tasks: 36 original SEC documents, 19 source-derived accounting cohorts, 24 market months, 11 model nodes, 10 fail-closed forecast controls. Exact current-source hashes checked **{priorities['exact_referenced_SEC_source_and_SGML_bytes_currently_verified']}/36**. Accounting values independently verified **0**, source-to-score certified **0**, production index NULL.",file=stream)
+              print(f"- Fixed first-month source cohort research-only lead/lag: **{lead['matched_complete_first_cohort_forward_returns']}** matched observed next-month S&P returns, EXPOST Pearson **{lead['descriptive_correlation_risk_vs_following_month_SP500_return_pearson']}**; OOS forecast skill NULL.",file=stream)
+              for experiment in cycle['next_experiments']:
+                  print(f"- Improvement experiment {experiment['priority']}: **{experiment['experiment']}** — {experiment['decision']}",file=stream)
+          PY
+      - name: Archive exact public primary-source bytes and 10 collection receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-ten-actual-collection-waves-numeric-originals
+          path: aics_data/agent_runs/ten_real_collection_rounds/
+          if-no-files-found: warn
+          retention-days: 90

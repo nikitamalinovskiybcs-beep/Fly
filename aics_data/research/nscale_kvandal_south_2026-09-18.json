@@ -1,0 +1,32 @@
+{
+  "project": "Kvandal South DC",
+  "original_borrower": "Nscale Norway DC DA",
+  "agreement_date": "2026-07-07",
+  "filed_at": "2026-09-18",
+  "available_at": "2026-10-02",
+  "source": "https://www.sec.gov/Archives/edgar/data/2110365/000119312526395475/ck0002110365-20260918.htm",
+  "sections": [
+    "Description of Certain Indebtedness — Kvandal South DC Facility",
+    "Subsequent events — Kvandal South DC Facility"
+  ],
+  "unit": "USD million",
+  "draw_period": "2026-08",
+  "facilities": [
+    {
+      "type": "senior term",
+      "base_limit": 725,
+      "draws_in_period": 88.1
+    },
+    {
+      "type": "revolving VAT",
+      "base_limit": 65,
+      "draws_in_period": 19.1
+    }
+  ],
+  "base_limits_total": 790,
+  "draws_in_period_total": 107.2,
+  "closing_balance": null,
+  "parent_guarantee_reported": true,
+  "guarantor_legal_name_verified": null,
+  "node_score": null
+}

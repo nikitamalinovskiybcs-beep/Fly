@@ -1,0 +1,125 @@
+{
+  "provider": "openrouter",
+  "status": 200,
+  "response": {
+    "id": "gen-1785799383-uzYA3YsvncxoVjvrSQwu",
+    "object": "chat.completion",
+    "created": 1785799383,
+    "model": "perplexity/sonar",
+    "provider": "Perplexity",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "stop",
+        "message": {
+          "role": "assistant",
+          "content": "The list is **plausibly Leonteq-related**, but only a subset is directly evidenced by the rendered product page or by a Leonteq document; the rest should remain **unverified** until you capture each product\u2019s rendered page, KID, or termsheet. The safest dataset treatment is to deduplicate by **ISIN exactly as written**, mark the already-captured items as **page-confirmed**, and keep all product attributes except the ISIN itself as **pending verification**.[6][5]\n\n### Deduplication advice\n- **No exact duplicates** appear in the candidate list you provided.\n- Deduplicate on the **ISIN string** only, preserving the original casing and spacing as received.\n- If your pipeline later encounters the same ISIN from multiple sources, keep one record and store source provenance separately.\n- Do **not** merge by issuer name, product type, underlying, or tenor before page/KID/termsheet capture, because those fields can differ across Leonteq products even when the naming pattern looks similar.[6][5]\n\n### Evidence classes to use\n- **Class A \u2014 Rendered page confirmed:** the ISIN appears on a Leonteq rendered product page with associated metadata.\n- **Class B \u2014 Document confirmed:** the ISIN appears in a Leonteq prospectus supplement, KID, or termsheet, even if no live product page is captured.\n- **Class C \u2014 Search-discovered candidate:** the ISIN was found in search/indexed results but not yet confirmed on a rendered page or document.\n- **Class D \u2014 External-only validation:** the ISIN is structurally plausible or exists in a third-party ISIN database, but Leonteq product identity is not confirmed.[4][5][7]\n\n### What is directly evidenced now\n- **CH1571727168** is directly confirmed on a rendered Leonteq product page with product metadata, including product type and issuer.[6]\n- **Several other ISINs in your list may be Leonteq-issued candidates**, but the supplied results do not directly show their rendered product pages or documents, so they should remain **Class C** unless you separately capture their pages or KIDs.[1][2][5]\n\n### Fields that must remain unverified until page/KID/termsheet capture\nKeep these as **unverified** for every candidate unless explicitly present on the captured page or document:\n- **Product name**\n- **Product type**\n- **Issuer / guarantor / branch**\n- **Currency**\n- **Underlying asset(s)**\n- **Issue date**\n- **Valuation date**\n- **Strike / initial reference level**\n- **Barrier / knock-in / knock-out levels**\n- **Coupon / participation / leverage**\n- **Redemption / settlement terms**\n- **Final observation date / expiry**\n- **Listing venue**\n- **ISIN-valor linkage beyond the ISIN itself**\n- **Any auto-call / express features**\n- **Any early redemption conditions**\n- **Any tax or risk descriptors**[6][5]\n\n### Recommended dataset rule\n- Store **ISIN** as the only hard identifier at ingest.\n- Add a **verification_status** field with values like `candidate`, `page_confirmed`, `document_confirmed`, `external_only`.\n- Add a **source_type** field for provenance.\n- Add a **field_level_verified** map so each product attribute is independently tracked rather than assumed from naming patterns.\n\nIf you want, I can turn your 21 ISINs into a **ready-to-import review table** with columns for `dedup_key`, `evidence_class`, and `verification_hold_fields`.",
+          "refusal": null,
+          "reasoning": null,
+          "annotations": [
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://certificati.leonteq.com/search/?language_id=1",
+                "title": "Search products | Leonteq Structured products",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://certificati.leonteq.com/?language_id=1",
+                "title": "Leonteq: Structured products & theme-based investments",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://structuredproducts-cz.leonteq.com/?language_id=1",
+                "title": "Search products",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://www.isin.org/isin-database/",
+                "title": "ISIN Database | ISIN Organization: international securities ...",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://structuredproducts-ch.leonteq.com/contentAsset/raw-data/909b5929-31b7-4f06-bcbc-330e34bd3b45/fileAsset/byInode/1?force_download=true",
+                "title": "LEONTEQ SECURITIES AG",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://certificati.leonteq.com/isin/CH1571727168?language_id=1",
+                "title": "EURO STOXX Banks Index, iShares MSCI South Korea Index",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://www.isindb.com/",
+                "title": "ISIN Database",
+                "start_index": 0,
+                "end_index": 0
+              }
+            },
+            {
+              "type": "url_citation",
+              "url_citation": {
+                "url": "https://lei.report/LEI/549300SCKU4B0LXWV721",
+                "title": "Leonteq Securities AG (Guernsey Branch)",
+                "start_index": 0,
+                "end_index": 0
+              }
+            }
+          ],
+          "model": "perplexity/sonar"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 180,
+      "completion_tokens": 761,
+      "total_tokens": 941,
+      "cost": 0.00594,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00594,
+        "upstream_inference_prompt_cost": 0.00018,
+        "upstream_inference_completions_cost": 0.00576
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  }
+}

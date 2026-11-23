@@ -1,0 +1,100 @@
+{
+  "as_of": "2026-11-19",
+  "scope": "Issuer observations, contractual terms, archive comparisons and coverage checks. No composite or node scoring.",
+  "records": [
+    {
+      "node": "Private Credit",
+      "weight": 150,
+      "source": "aics_data/research/sec_cross_node_observations_2026-11-19.json",
+      "measure": "ARCC fair value discount to amortized cost, 2026-09-30 (%)",
+      "value": -0.9,
+      "availability": "2026-11-10"
+    },
+    {
+      "node": "Insurers",
+      "weight": 125,
+      "source": "aics_data/research/sec_primary_archive_independent_rehash_2026_11_18.json",
+      "measure": "MET June / PRU September AFS debt securities divided by assets (%)",
+      "value": [
+        42.43,
+        41.8
+      ],
+      "availability": [
+        "2026-08-20",
+        "2026-11-18"
+      ]
+    },
+    {
+      "node": "UST 30Y",
+      "weight": 125,
+      "source": "docs/aics_research_credit_monitor_2026-11-18.md",
+      "measure": "DGS30 October minus September 2026 archive snapshots (bp)",
+      "value": -27,
+      "availability": "Archive only; vintage attestation pending"
+    },
+    {
+      "node": "Neoclouds",
+      "weight": 100,
+      "source": "aics_data/research/nebius_sec_6k_credit_facility_2026_10_22.json",
+      "measure": "Nebius contractual maximum minus initial margin (bp); actual margin and drawn balance unverified",
+      "value": 75,
+      "availability": "2026-11-05"
+    },
+    {
+      "node": "AI Equities",
+      "weight": 100,
+      "source": "docs/aics_ai_equities_prospective_listing_source_2026-11-19.md",
+      "measure": "Distinct research symbols present in current directories",
+      "value": 7,
+      "availability": "2026-11-19 capture only"
+    },
+    {
+      "node": "Hyperscalers",
+      "weight": 100,
+      "source": "aics_data/research/sec_cross_node_observations_2026-11-19.json",
+      "measure": "Microsoft consolidated cash additions to PP&E, September quarter YoY (%)",
+      "value": 102.99,
+      "availability": "2026-11-11"
+    },
+    {
+      "node": "SPV",
+      "weight": 100,
+      "source": "aics_data/research/nscale_kvandal_south_2026-09-18.json",
+      "measure": "Kvandal South August draw flow divided by combined base limits (%); closing balance unknown",
+      "value": 13.57,
+      "availability": "2026-10-02"
+    },
+    {
+      "node": "Repo",
+      "weight": 100,
+      "source": "docs/aics_research_credit_monitor_2026-11-18.md",
+      "measure": "SOFR October minus September 2026 archive snapshots (bp)",
+      "value": 6,
+      "availability": "Archive only; vintage attestation pending"
+    },
+    {
+      "node": "Power/Data Centers",
+      "weight": 50,
+      "source": "https://www.sec.gov/Archives/edgar/data/1101239/000110123926000180/eqix-20260930.htm",
+      "measure": "Equinix nine months ended September 30, YoY utilities expense increase (USD million), Americas 43 + EMEA 15 + Asia-Pacific 16",
+      "value": 74,
+      "availability": "2026-11-11"
+    },
+    {
+      "node": "Semiconductors Supply",
+      "weight": 50,
+      "source": "aics_data/research/sec_cross_node_observations_2026-11-19.json",
+      "measure": "NVIDIA January 25 to July 26 change in finished goods (%)",
+      "value": -21.85,
+      "availability": "2026-09-09"
+    },
+    {
+      "node": "AI Demand",
+      "weight": 50,
+      "source": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436133/msft-20260930.htm",
+      "measure": "Azure September quarter YoY revenue growth (%), all workloads; AI-only growth unavailable",
+      "value": 48,
+      "availability": "2026-11-11"
+    }
+  ]
+}

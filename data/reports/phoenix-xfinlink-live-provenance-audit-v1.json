@@ -1,0 +1,26 @@
+{
+  "audit_id": "phoenix-xfinlink-live-provenance-audit-v1",
+  "generated_at": "2026-08-03T22:24:14.781452+00:00",
+  "xfinlink_available": true,
+  "yfinance_available": true,
+  "api_key_present": true,
+  "status": "ready_for_bounded_fetch",
+  "checks": [
+    "provider availability",
+    "source field labeling",
+    "as_of field labeling",
+    "fallback separation"
+  ],
+  "decision": "keep_xfinlink_optional_and_label_fallback; do_not_claim_xfinlink_observation_without_successful_provider_response",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "bounded_fetch_sources": {
+    "SPY": "yfinance",
+    "QQQ": "yfinance",
+    "IWM": "yfinance"
+  },
+  "observed_fallback": "xfinlink configured but bounded fetch returned yfinance for all 3 symbols"
+}

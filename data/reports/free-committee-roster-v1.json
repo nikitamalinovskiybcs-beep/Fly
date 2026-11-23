@@ -1,0 +1,88 @@
+{
+  "schema_version": "free-committee-roster-v1",
+  "members": [
+    {
+      "id": "groq",
+      "type": "cloud_free_or_configured",
+      "status": "working",
+      "evidence": "completed committee reviews"
+    },
+    {
+      "id": "openrouter",
+      "type": "cloud_free_or_configured",
+      "status": "working",
+      "evidence": "completed committee reviews"
+    },
+    {
+      "id": "qwen2.5:1.5b",
+      "type": "ollama_local",
+      "status": "installed_smoke_tested",
+      "latency_seconds": 0.85
+    },
+    {
+      "id": "deepseek-r1:1.5b",
+      "type": "ollama_local",
+      "status": "installed_smoke_tested",
+      "latency_seconds": 3.88
+    },
+    {
+      "id": "llama3.2:1b",
+      "type": "ollama_local",
+      "status": "installed_smoke_tested",
+      "latency_seconds": 3.85
+    },
+    {
+      "id": "gemma3:1b",
+      "type": "ollama_local",
+      "status": "installed_smoke_tested",
+      "latency_seconds": 8.07
+    },
+    {
+      "id": "phi3:mini",
+      "type": "ollama_local",
+      "status": "installed_smoke_tested_slow",
+      "latency_seconds": 40.35
+    },
+    {
+      "id": "smollm2:1.7b",
+      "type": "ollama_local",
+      "status": "installed_smoke_tested",
+      "latency_seconds": 12.12
+    },
+    {
+      "id": "tinyllama:1.1b",
+      "type": "ollama_local",
+      "status": "installed_smoke_tested_low_quality",
+      "latency_seconds": 48.71
+    },
+    {
+      "id": "granite3.1-moe:1b",
+      "type": "ollama_local",
+      "status": "installed_smoke_tested_low_quality",
+      "latency_seconds": 14.42
+    }
+  ],
+  "active_policy": {
+    "fast_default": [
+      "qwen2.5:1.5b",
+      "deepseek-r1:1.5b",
+      "llama3.2:1b",
+      "gemma3:1b"
+    ],
+    "optional_slow": [
+      "phi3:mini",
+      "smollm2:1.7b",
+      "tinyllama:1.1b",
+      "granite3.1-moe:1b"
+    ],
+    "cloud": [
+      "groq",
+      "openrouter"
+    ],
+    "no_paid_services_required": true
+  },
+  "safety": "availability and smoke tests do not establish reasoning quality; evidence-backed committee majority remains required",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

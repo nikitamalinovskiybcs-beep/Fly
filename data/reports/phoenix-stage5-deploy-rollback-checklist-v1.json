@@ -1,0 +1,24 @@
+{
+  "proposal_id": "phoenix-stage5-deploy-rollback-v1",
+  "decision": "BLOCKED",
+  "required_checks": [
+    "persistent hosting target selected",
+    "secrets supplied through managed secret store",
+    "health endpoint and startup probe",
+    "immutable release identifier",
+    "automated rollback to previous release",
+    "paper-mode smoke test after deploy",
+    "audit log export and retention",
+    "human approval before enabling any live decision path"
+  ],
+  "current_state": {
+    "persistent_deploy": false,
+    "temporary_tunnel": true,
+    "rollback_proof": false
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

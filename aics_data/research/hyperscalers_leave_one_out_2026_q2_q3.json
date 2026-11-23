@@ -1,0 +1,31 @@
+{
+  "sources": [
+    "aics_data/research/hyperscalers_cash_coverage_june_to_september_2026.json",
+    "aics_data/research/hyperscalers_operating_cash_flow_coverage_2026_q3.json"
+  ],
+  "unit": "USD million",
+  "metric": "Operating cash flow minus gross cash purchases of PP&E, summed over the three remaining companies",
+  "available_at": "2026-11-13",
+  "rows": [
+    {
+      "excluded": "Microsoft",
+      "june": -12930,
+      "september": -45058
+    },
+    {
+      "excluded": "Amazon",
+      "june": 15530,
+      "september": 8412
+    },
+    {
+      "excluded": "Alphabet",
+      "june": 12564,
+      "september": -17360
+    },
+    {
+      "excluded": "Meta",
+      "june": 4963,
+      "september": -25269
+    }
+  ]
+}

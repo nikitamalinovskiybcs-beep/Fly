@@ -1,0 +1,122 @@
+{
+  "schema": "aics-research-release-v2",
+  "review_date": "2026-11-20",
+  "purpose": "One-run technical acceptance of the first complete dated research release. Five former delivery steps retain their scope. Step six checks the published contribution and total against the dated operands. The original rubric requires independent verification on a 24-month holdout.",
+  "first_publication": {
+    "commit": "48b82182c280baaa1b5a3ac8166b09bc74da3608",
+    "session": "2026-11-19",
+    "scores": {
+      "UST 30Y": 78.26,
+      "Neoclouds": 75.78,
+      "Hyperscalers": 13.09,
+      "SPV": 33.95,
+      "Private Credit": 33.33,
+      "Repo": 86.96,
+      "AI Demand": 0,
+      "Insurers": 0.91,
+      "Semiconductors Supply": 74.4,
+      "Power/Data Centers": 37.5,
+      "AI Equities": 100.0
+    },
+    "raw": 514.6875,
+    "hot_nodes": 5,
+    "multiplier": 1.3,
+    "research_aics": 669.09
+  },
+  "inputs_by_node": {
+    "Private Credit": [
+      "aics_data/research/private_credit_3bdc_3quarter_22values_2026-11-19.json"
+    ],
+    "Insurers": [
+      "aics_data/research/insurers_pru_met_mixed_original_sec_external_rehash_2026-11-19.json",
+      "aics_data/research/observed_source_review_2026-11-19.json",
+      "aics_data/source_registry/observed_review_2026-11-19.json"
+    ],
+    "UST 30Y": [
+      "aics_data/research/ust_month_end_release_dates_2026-11-19.json",
+      "aics_data/research/ust30_yield_change_volatility_2024_2026.json"
+    ],
+    "Neoclouds": [
+      "aics_data/research/neocloud_cash_coverage_2026_h1.json",
+      "aics_data/research/neocloud_q2_funding_2026.json",
+      "aics_data/source_registry/neocloud_cash_h1_sec.json"
+    ],
+    "AI Equities": [
+      "aics_data/research/ai_equities_2026_11_19_nasdaq_current_directory_rehash.json",
+      "aics_data/research/ai_equities_2026_11_19_session.json",
+      "aics_data/research/ai_equities_2026_11_19_nasdaq_session_review.json"
+    ],
+    "Hyperscalers": [
+      "aics_data/research/hyperscalers_operating_cash_flow_coverage_2026_q3.json",
+      "aics_data/research/hyperscalers_leave_one_out_2026_q2_q3.json"
+    ],
+    "SPV": [
+      "aics_data/research/neocloud_cash_coverage_2026_h1.json",
+      "aics_data/research/coreweave_two_spv_debt_original_independent_rehash_2026-11-19.json",
+      "aics_data/source_registry/neocloud_cash_h1_sec.json"
+    ],
+    "Repo": [
+      "aics_data/research/repo_24_month_observed_research_2026-11-18.json"
+    ],
+    "Power/Data Centers": [
+      "aics_data/research/observed_source_review_2026-11-19.json",
+      "aics_data/research/applied_digital_polaris_capacity_2026-10-02.json",
+      "aics_data/source_registry/observed_review_2026-11-19.json"
+    ],
+    "Semiconductors Supply": [
+      "aics_data/research/observed_source_review_2026-11-19.json",
+      "aics_data/source_registry/observed_review_2026-11-19.json"
+    ],
+    "AI Demand": [
+      "aics_data/research/broadcom_ai_semiconductor_revenue_2026_q2_q3.json"
+    ]
+  },
+  "input_sha256": {
+    "aics_data/research/ai_equities_2026_11_19_nasdaq_current_directory_rehash.json": "d8592304eec706e0f5646b710356a4d5ec9c3c5b174f91d830727e88ddb8e48b",
+    "aics_data/research/ai_equities_2026_11_19_nasdaq_session_review.json": "1e9b42bfec12650292f36f8006a854204140064d7cb6269bbc2ad51f240417ad",
+    "aics_data/research/ai_equities_2026_11_19_session.json": "283c849f92f2cec2b2590663c034deafc94f056b3d4064865e816e246fe62e52",
+    "aics_data/research/applied_digital_polaris_capacity_2026-10-02.json": "a80f9dda76c6ee21b9643da27e8c2de4aa9a4d50afdd0b9858a37022e775cbc3",
+    "aics_data/research/broadcom_ai_semiconductor_revenue_2026_q2_q3.json": "78240f0e40d67efdc62be7bb5ce7705513ea4ffabdfc44a03b7ec99cd69890cf",
+    "aics_data/research/coreweave_two_spv_debt_original_independent_rehash_2026-11-19.json": "46a222757fed3d370acaa5a6919f36b172f2264a5b924aff36e2733f6e4c13cf",
+    "aics_data/research/hyperscalers_leave_one_out_2026_q2_q3.json": "4765e8599b5f4e77b8c7b7e7d3afbca2f1c9617b8952e8f53f0581a208a4de25",
+    "aics_data/research/hyperscalers_operating_cash_flow_coverage_2026_q3.json": "d8e7d18c60571a8d6da2ef90089537c41b3cb91ffe02b8f4d46657080ee343ae",
+    "aics_data/research/insurers_pru_met_mixed_original_sec_external_rehash_2026-11-19.json": "7e6b059fd2c464545fb76ddfc75e3a9f89f073c168440c6864470e278ed068ca",
+    "aics_data/research/neocloud_cash_coverage_2026_h1.json": "0e0e56f7163dcb2a8ebb2cd6f7ea560199c3e37ae91970e7f4aadc43b5a30426",
+    "aics_data/research/neocloud_q2_funding_2026.json": "c5fcf918f4f86c42808045ac91dca3e4d16f3a5f13680cf46f90302d248238f9",
+    "aics_data/research/observed_source_review_2026-11-19.json": "e153904ff361041276ed892cdf104cad954412c8fb81282b0230025a38842aa0",
+    "aics_data/research/private_credit_3bdc_3quarter_22values_2026-11-19.json": "489e753b46d415001fcac0a47ad568d6d1797e173efe87b43300a5d9fe1479cd",
+    "aics_data/research/repo_24_month_observed_research_2026-11-18.json": "c2a4142e50453ec859d84bced6bfdf7df62410da37d4595c9284766ad72253f5",
+    "aics_data/research/ust30_yield_change_volatility_2024_2026.json": "7c6a095d1f4154fe50f9d04d0665c4b40c85f3e4859cf0c54b5867e686e34590",
+    "aics_data/research/ust_month_end_release_dates_2026-11-19.json": "cff0af27678f36951143b0b54eaa8edff59ac598d403cd132e807316878f2439",
+    "aics_data/source_registry/neocloud_cash_h1_sec.json": "ce51a09744d806017abc21c45612a601fec2032ca9d907e01fb8fdfa13d14fbe",
+    "aics_data/source_registry/observed_review_2026-11-19.json": "bd0c38f7767a3acf32a4d601a2b0841168f0590d16413fec9bcc68be7f9eea24"
+  },
+  "committee": {
+    "proposal_id": "AICS-20261120-one-pass-release",
+    "status": "unavailable",
+    "reviewers_completed": [],
+    "skipped_providers_by_reason": {
+      "API key not configured": [
+        "google_gemini",
+        "anthropic",
+        "cerebras",
+        "nvidia",
+        "openai",
+        "mistral",
+        "groq",
+        "openrouter"
+      ],
+      "Ollama is not running": [
+        "ollama:qwen2.5:1.5b",
+        "ollama:deepseek-r1:1.5b",
+        "ollama:llama3.2:1b",
+        "ollama:gemma3:1b"
+      ]
+    },
+    "decision": "RESEARCH",
+    "acceptance": "Each source matches its pinned fingerprint. Both calculation paths must agree on every score. All eleven contributions reconcile individually and sum to the earlier published index."
+  },
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

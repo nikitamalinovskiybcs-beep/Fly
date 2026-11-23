@@ -1,0 +1,51 @@
+name: AICS evidence collection
+# Evidence-only manual or PR diagnostic. Scheduled live acquisition now belongs to AICS Master.
+on:
+  pull_request:
+    paths:
+      - 'scripts/aics_collect_evidence.py'
+      - '.github/workflows/aics-evidence.yml'
+      - 'scripts/aics_validate_evidence.py'
+      - 'scripts/aics_audit_node_coverage.py'
+      - 'scripts/aics_research_readiness.py'
+  workflow_dispatch:
+concurrency:
+  group: aics-fred-evidence
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile evidence and validation scripts
+        run: python -m py_compile scripts/aics_collect_evidence.py scripts/aics_validate_evidence.py scripts/aics_audit_node_coverage.py scripts/aics_research_readiness.py
+      - name: Download raw ALFRED and SEC evidence
+        if: github.event_name != 'pull_request'
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY }}
+        run: python scripts/aics_collect_evidence.py
+      - name: Validate provenance, embargo and coverage
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_validate_evidence.py
+      - name: Audit fixed-weight 11-node coverage
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_audit_node_coverage.py
+      - name: Generate research readiness blockers
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_research_readiness.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aics-raw-evidence
+          path: |
+            aics_data/live/
+            aics_data/research/node_coverage.json
+            aics_data/research/readiness_report.json
+          retention-days: 30

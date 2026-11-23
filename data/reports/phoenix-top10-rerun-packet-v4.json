@@ -1,0 +1,209 @@
+{
+  "proposal_id": "phoenix-top10-rerun-v4",
+  "review_type": "committee_recheck_top10",
+  "objective": "Re-evaluate the ten previously shortlisted local improvements and choose a safe implementation batch that improves evidence quality, stability, readability, or speed without changing production behavior.",
+  "current_blockers": [
+    "fixed-24m OOS evidence is not sufficient for promotion",
+    "realized-note sample and dealer quote provenance remain incomplete",
+    "human compliance/model-risk review is required",
+    "persistent MetaAgent state can make one test state-dependent"
+  ],
+  "proposals": [
+    {
+      "id": "phoenix-201",
+      "category": "data_contracts",
+      "title": "Add source reliability scores per field",
+      "change": "Add source reliability scores per field",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      },
+      "rank": 1,
+      "selection_reason": "high information gain, local implementation, low safety risk, measurable gate"
+    },
+    {
+      "id": "phoenix-202",
+      "category": "data_contracts",
+      "title": "Validate timezone normalization at ingestion",
+      "change": "Validate timezone normalization at ingestion",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      },
+      "rank": 2,
+      "selection_reason": "high information gain, local implementation, low safety risk, measurable gate"
+    },
+    {
+      "id": "phoenix-203",
+      "category": "data_contracts",
+      "title": "Detect duplicate observations across providers",
+      "change": "Detect duplicate observations across providers",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      },
+      "rank": 3,
+      "selection_reason": "high information gain, local implementation, low safety risk, measurable gate"
+    },
+    {
+      "id": "phoenix-204",
+      "category": "data_contracts",
+      "title": "Store corporate-action adjustment provenance",
+      "change": "Store corporate-action adjustment provenance",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      },
+      "rank": 4,
+      "selection_reason": "high information gain, local implementation, low safety risk, measurable gate"
+    },
+    {
+      "id": "phoenix-213",
+      "category": "payoff_autocall",
+      "title": "Add coupon memory state transition tests",
+      "change": "Add coupon memory state transition tests",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      },
+      "rank": 5,
+      "selection_reason": "high information gain, local implementation, low safety risk, measurable gate"
+    },
+    {
+      "id": "phoenix-231",
+      "category": "calibration_oos",
+      "title": "Add nested walk-forward calibration",
+      "change": "Add nested walk-forward calibration",
+      "value": 8,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      },
+      "rank": 6,
+      "selection_reason": "high information gain, local implementation, low safety risk, measurable gate"
+    },
+    {
+      "id": "phoenix-251",
+      "category": "agents_learning",
+      "title": "Add per-agent ablation registry",
+      "change": "Add per-agent ablation registry",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      },
+      "rank": 7,
+      "selection_reason": "high information gain, local implementation, low safety risk, measurable gate"
+    },
+    {
+      "id": "phoenix-261",
+      "category": "committee_governance",
+      "title": "Add proposal schema validation before panel calls",
+      "change": "Add proposal schema validation before panel calls",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      },
+      "rank": 8,
+      "selection_reason": "high information gain, local implementation, low safety risk, measurable gate"
+    },
+    {
+      "id": "phoenix-271",
+      "category": "storage_production",
+      "title": "Add Supabase schema migration checksum",
+      "change": "Add Supabase schema migration checksum",
+      "value": 7,
+      "risk": 3,
+      "cost": 4,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      },
+      "rank": 9,
+      "selection_reason": "high information gain, local implementation, low safety risk, measurable gate"
+    },
+    {
+      "id": "phoenix-281",
+      "category": "ui_decision_support",
+      "title": "Show evidence versus assumption badges per input",
+      "change": "Show evidence versus assumption badges per input",
+      "value": 7,
+      "risk": 2,
+      "cost": 2,
+      "status": "research_only",
+      "metric_gate": "No production promotion unless fixed-24m OOS Brier and log-loss beat the empirical baseline at 6/12/18/24 anchors.",
+      "safety": {
+        "production_weights_changed": false,
+        "verdict_mutated": false,
+        "trades_created": false
+      },
+      "rank": 10,
+      "selection_reason": "high information gain, local implementation, low safety risk, measurable gate"
+    }
+  ],
+  "constraints": [
+    "AI recommendations are research input, not market evidence",
+    "no fabricated quotes, outcomes, votes, consensus, or performance",
+    "do not change production weights, live verdicts, or trades",
+    "fixed-24m remains the promotion gate",
+    "prefer local deterministic changes and preserve fallbacks"
+  ],
+  "questions": [
+    "Rank all ten by value, risk, cost, and evidence impact.",
+    "Select a bounded batch that is safe to implement now.",
+    "Identify proposals that should remain research-only.",
+    "Provide acceptance tests, rollback conditions, and objections."
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

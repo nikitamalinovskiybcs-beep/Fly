@@ -1,0 +1,44 @@
+{
+  "proposal_id": "phoenix-agent-memory-v1",
+  "decision": "NOW",
+  "implementation_files": [
+    "src/agent_memory.py",
+    "src/agent_coordinator.py",
+    "tests/test_agent_memory.py"
+  ],
+  "committee": [
+    {
+      "provider": "mistral",
+      "status": "completed",
+      "recommendation": "bounded implementation with append-only records, hash validation, replay tests, and explicit safety flags"
+    },
+    {
+      "provider": "openrouter-free",
+      "status": "completed",
+      "recommendation": "use versioned schema, deterministic replay filters, manifest integrity checks, and retain unavailable/dissent states"
+    },
+    {
+      "provider": "groq",
+      "status": "http_error",
+      "reason": "HTTP 403",
+      "counts_as_approval": false
+    }
+  ],
+  "baseline": "Event bus had hash-linked snapshots/signals but no typed persistent memory or 50-item manifest.",
+  "target": "Versioned manifest, append-only memory records, tamper detection, replay filters, and coordinator cycle persistence.",
+  "observed_metric": {
+    "focused_tests": "7 passed",
+    "ruff": "passed",
+    "compileall": "passed"
+  },
+  "blockers": [
+    "Durable remote backup and encryption are not included in this bounded local slice",
+    "Production promotion remains blocked by fixed-24m OOS and human review"
+  ],
+  "next_experiment": "Add verified backup/restore and outcome-linked memory after storage policy review.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

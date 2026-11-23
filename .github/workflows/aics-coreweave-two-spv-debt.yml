@@ -1,0 +1,78 @@
+name: AICS CoreWeave two SPV original debt and guarantees
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_coreweave_two_spv_debt.py'
+      - 'tests/test_aics_coreweave_two_spv_debt.py'
+      - 'scripts/aics_neocloud_cash_coverage.py'
+      - 'aics_data/source_registry/neocloud_cash_h1_sec.json'
+      - 'aics_data/research/neocloud_cash_coverage_2026_h1.json'
+      - '.github/workflows/aics-coreweave-two-spv-debt.yml'
+permissions:
+  contents: read
+jobs:
+  original-credit-debt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test actual original debt vs ceiling and legal parent recourse
+        run: |
+          python -m py_compile scripts/aics_coreweave_two_spv_debt.py
+          python -m unittest discover -s tests -p test_aics_coreweave_two_spv_debt.py -v
+      - name: Fetch full CoreWeave SEC 10-Q original with exact CIK and hash
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_coreweave_two_spv_debt \
+            --originals aics_data/source_evidence/crwv_q2_original \
+            --fetch \
+            --out aics_data/source_evidence/crwv_q2_original/two_spv_debt.json
+      - name: Replay from saved raw SEC original without network
+        run: |
+          python -m scripts.aics_coreweave_two_spv_debt \
+            --originals aics_data/source_evidence/crwv_q2_original \
+            --out aics_data/source_evidence/crwv_q2_original/two_spv_debt_replayed.json
+          cmp aics_data/source_evidence/crwv_q2_original/two_spv_debt.json \
+              aics_data/source_evidence/crwv_q2_original/two_spv_debt_replayed.json
+      - name: Verify original reported balances and non-additive economic recourse
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          from pathlib import Path
+          import json,hashlib
+          root=Path("aics_data/source_evidence/crwv_q2_original")
+          x=json.loads((root/"two_spv_debt.json").read_text())
+          p=root/"crwv_26_h1.txt"
+          assert p.is_file() and len(p.read_bytes())==x["sec_original_bytes"]
+          assert hashlib.sha256(p.read_bytes()).hexdigest()==x["sec_original_sha256"]
+          assert x["two_distinct_contract_reported_debt_usd_m"]==3938
+          assert x["two_distinct_contract_ceiling_usd_m"]==11600
+          assert x["nonrecourse_with_limited_exceptions_reported_debt_usd_m"]==2837
+          assert x["unconditional_parent_guaranteed_facility_reported_debt_usd_m"]==1101
+          assert x["sec_available_at"]=="2026-08-26"
+          assert x["economic_balance_as_of"]=="2026-06-30"
+          assert x["effective_economic_parent_recourse_usd_m"] is None
+          assert x["cash_drawn_2026_11_usd_m"] is None
+          assert not x["independent_historical_pit_attested"]
+          assert x["spv_node_score"] is None and x["index_aics"] is None
+          assert x["promotion"]=="BLOCKED"
+          print("## CoreWeave SEC Q2 2026: two separately identified SPV facility balances")
+          print(f"Full SEC original SHA256: {x['sec_original_sha256']}")
+          print("DDTL 4.0: $2,837m reported debt, $8,500m limit, non-recourse except customary carve-outs.")
+          print("DDTL 5.0: $1,101m reported debt, $3,100m limit, unconditional parent guarantee.")
+          print("Total separate reported balances $3,938m; parent guarantee dollar amount and AICS remain unverified.")
+          PY
+      - name: Preserve original SEC 10-Q bytes and recourse research receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-coreweave-two-spv-debt-original-10q-not-pit
+          path: aics_data/source_evidence/crwv_q2_original/
+          retention-days: 30
+          if-no-files-found: warn

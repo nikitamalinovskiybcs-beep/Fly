@@ -1,0 +1,19 @@
+{
+  "proposal_id": "phoenix-compliance-hardening-v1",
+  "decision": "NOW",
+  "implementation": [
+    "Add a structured claim policy and conditions-precedent list to commercial_readiness.",
+    "Render human-review and non-approval status in the existing UI readiness block.",
+    "Do not add automatic compliance approval or change any decision output."
+  ],
+  "non_goals": [
+    "No legal or regulatory determination.",
+    "No model-weight changes.",
+    "No verdict mutation.",
+    "No trade creation.",
+    "No replacement of independent compliance review."
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

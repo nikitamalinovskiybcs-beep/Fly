@@ -1,0 +1,99 @@
+{
+  "schema_version": "aics-ai-equities-official-current-listing-independent-rehash-v1",
+  "research_as_of": "2026-11-19",
+  "node": "AI Equities",
+  "source": "Nasdaq Trader official live directories",
+  "captured_at_utc": "2026-11-19T09:29:24.907670+00:00",
+  "original_file_creation_wallclock_unverified_timezone": "2026-11-19T03:02:00",
+  "github_workflow_run_id": 44496860842,
+  "github_artifact_id": 14516045430,
+  "github_artifact_name": "aics-ai-equities-live-nasdaq-directories-not-historical-pit",
+  "downloaded_zip_bytes": 225913,
+  "downloaded_zip_sha256": "4df22b44e845a036801ad36702e86b90f0e6e7233533c4f80a5732850dae5a55",
+  "zip_crc_check_passed": true,
+  "original_source_bytes_rehashed_independently_outside_actions": 2,
+  "original_directories": [
+    {
+      "filename": "nasdaqlisted.txt",
+      "url": "https://www.nasdaqtrader.com/dynamic/symdir/nasdaqlisted.txt",
+      "sha256": "5cda84ca84660408ecfcda5af7e8f8e8c5a519e754f33ad5a96d17f86e708b83",
+      "bytes": 348385,
+      "source_directory_rows": 5608
+    },
+    {
+      "filename": "otherlisted.txt",
+      "url": "https://www.nasdaqtrader.com/dynamic/symdir/otherlisted.txt",
+      "sha256": "3cc52144bcd516be7dad8b668d91b84ff6b56751d5fdf78d74c6e08284d69234",
+      "bytes": 544575,
+      "source_directory_rows": 7692
+    }
+  ],
+  "capture_manifest_sha256": "46457b0570deb84a6570eb2f0c717dbfad6ce237350632455b2739aa2094a489",
+  "capture_manifest_bytes": 4604,
+  "independent_script_rehash_receipt_sha256": "1fba741d1861fd6de1ba3227103afb069b245de4a961819bb49eda06da6d5509",
+  "current_research_securities": [
+    {
+      "symbol": "NVDA",
+      "directory": "nasdaqlisted.txt",
+      "market_code": "NASDAQ",
+      "security_name": "NVIDIA Corporation - Common Stock"
+    },
+    {
+      "symbol": "MSFT",
+      "directory": "nasdaqlisted.txt",
+      "market_code": "NASDAQ",
+      "security_name": "Microsoft Corporation - Common Stock"
+    },
+    {
+      "symbol": "GOOGL",
+      "directory": "nasdaqlisted.txt",
+      "market_code": "NASDAQ",
+      "security_name": "Alphabet Inc. - Class A Common Stock"
+    },
+    {
+      "symbol": "AMZN",
+      "directory": "nasdaqlisted.txt",
+      "market_code": "NASDAQ",
+      "security_name": "Amazon.com, Inc. - Common Stock"
+    },
+    {
+      "symbol": "META",
+      "directory": "nasdaqlisted.txt",
+      "market_code": "NASDAQ",
+      "security_name": "Meta Platforms, Inc. - Class A Common Stock"
+    },
+    {
+      "symbol": "ORCL",
+      "directory": "otherlisted.txt",
+      "market_code": "N",
+      "security_name": "Oracle Corporation Common Stock"
+    },
+    {
+      "symbol": "MU",
+      "directory": "nasdaqlisted.txt",
+      "market_code": "NASDAQ",
+      "security_name": "Micron Technology, Inc. - Common Stock"
+    }
+  ],
+  "seven_current_security_identity_candidates_found": 7,
+  "historical_security_identity_attested": false,
+  "historical_basket_constituency_attested": false,
+  "historical_symbol_change_and_delisting_records_attested": false,
+  "original_file_generation_time_is_verified_utc": false,
+  "split_dividend_action_history_attested": false,
+  "provider_license_approved": false,
+  "new_independent_historical_pit_facets_certified": 0,
+  "new_project_milestones_credited": 0,
+  "aics_total_technical_milestones_completed": 22,
+  "index_aics": null,
+  "node_stress_score": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "limitations": [
+    "The two source files are an official current Nasdaq Trader listing snapshot captured on November 19 2026, not an archived source vintage for any prior valuation date.",
+    "The exchange's embedded file-generation wall clock has no independently verified timezone, so it is not used as an authenticated UTC publication timestamp.",
+    "Six research names appeared in nasdaqlisted and Oracle appeared in otherlisted; a current named security is not proof of 2024-2026 historical membership.",
+    "The raw exchange files are temporary 30-day GitHub Actions artifacts. Only byte-level hashes and selected candidate identity metadata persist in this research receipt pending licensing review.",
+    "No adjusted price return, historical rebalance, split event absence assertion, numeric AICS score or trading signal is certified."
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "schema_version": "aics-arcc-sec-originals-durable-research-v1",
+  "as_of": "2026-11-18",
+  "security": "ARCC",
+  "node": "Private Credit",
+  "node_weight": 150,
+  "origin_repo": "nikitamalinovskiybcs-beep/Fly",
+  "origin_branch": "devin/1779618014-quant-risk-framework",
+  "reverified_actions_run_id": 44408808749,
+  "reverified_artifact_id": 14474854165,
+  "verification_artifact_zip_sha256": "25c488f1b09addf74e4e986a61164c2590493a44d3dfbaa4d796f60aabc7af3b",
+  "original_verified_report_sha256": "373f08e85d6e01c3f3d3036048c2a2b05293363b6f420d84bac0f98167e070f2",
+  "generated_timeline_sha256": "362d69c248a15a215752f868f9269d55d1d4b6fd0ba9f02fd4137cef967d00a4",
+  "original_sec_html_archive_sha256": "805c1b5d692625b1d2d7c0c9ebb56986187d92eb6f10015e1bb3e79ce103d7d6",
+  "metric_units": "percent of investments, separately amortized cost and fair value",
+  "observations": [
+    {
+      "period_end": "2025-12-31",
+      "nonaccrual_cost_pct": "1.8",
+      "nonaccrual_fair_value_pct": "1.2",
+      "source_current_quarter": false,
+      "first_verified_sec_filed_at": "2026-04-28",
+      "conservative_available_at": "2026-05-12",
+      "source_sec_exhibit_url": "https://www.sec.gov/Archives/edgar/data/1287750/000162828026027685/arccq1-2026exhibit991.htm",
+      "original_html_sha256": "82667870a0d2223383e915627a18c733bb8da5821a572ffb32570d09ca1b1d4a"
+    },
+    {
+      "period_end": "2026-03-31",
+      "nonaccrual_cost_pct": "2.1",
+      "nonaccrual_fair_value_pct": "1.2",
+      "source_current_quarter": true,
+      "first_verified_sec_filed_at": "2026-04-28",
+      "conservative_available_at": "2026-05-12",
+      "source_sec_exhibit_url": "https://www.sec.gov/Archives/edgar/data/1287750/000162828026027685/arccq1-2026exhibit991.htm",
+      "original_html_sha256": "82667870a0d2223383e915627a18c733bb8da5821a572ffb32570d09ca1b1d4a"
+    },
+    {
+      "period_end": "2026-06-30",
+      "nonaccrual_cost_pct": "2.4",
+      "nonaccrual_fair_value_pct": "1.4",
+      "source_current_quarter": true,
+      "first_verified_sec_filed_at": "2026-07-29",
+      "conservative_available_at": "2026-08-12",
+      "source_sec_exhibit_url": "https://www.sec.gov/Archives/edgar/data/1287750/000162828026050303/arccq2-2026exhibit991.htm",
+      "original_html_sha256": "b74f8c6bb8f0f07f5ac5ff774d60f18aab9298e79fbac9940c47d3febd4869a1"
+    },
+    {
+      "period_end": "2026-09-30",
+      "nonaccrual_cost_pct": "2.4",
+      "nonaccrual_fair_value_pct": "1.4",
+      "source_current_quarter": true,
+      "first_verified_sec_filed_at": "2026-10-27",
+      "conservative_available_at": "2026-11-10",
+      "source_sec_exhibit_url": "https://www.sec.gov/Archives/edgar/data/1287750/000162828026067382/arccq3-2026exhibit991.htm",
+      "original_html_sha256": "0123a741c18e21a4eb19898bb2d5668e23ba35a144f5ac551f149f0bf9d48323"
+    }
+  ],
+  "as_of_cumulative_visibility": [
+    {
+      "as_of": "2026-02-18",
+      "verified_candidate_values_visible": 0
+    },
+    {
+      "as_of": "2026-05-11",
+      "verified_candidate_values_visible": 0
+    },
+    {
+      "as_of": "2026-05-12",
+      "verified_candidate_values_visible": 4
+    },
+    {
+      "as_of": "2026-08-11",
+      "verified_candidate_values_visible": 4
+    },
+    {
+      "as_of": "2026-08-12",
+      "verified_candidate_values_visible": 6
+    },
+    {
+      "as_of": "2026-11-09",
+      "verified_candidate_values_visible": 6
+    },
+    {
+      "as_of": "2026-11-10",
+      "verified_candidate_values_visible": 8
+    },
+    {
+      "as_of": "2026-11-18",
+      "verified_candidate_values_visible": 8
+    }
+  ],
+  "original_sec_value_confirmations": 8,
+  "original_sec_exhibits": 3,
+  "baseline_earlier_issuer_release_original_confirmed": false,
+  "cost_change_dec2025_to_sep2026_percentage_points": "0.6",
+  "fair_change_dec2025_to_sep2026_percentage_points": "0.2",
+  "source_to_model_pit_independently_attested": false,
+  "historical_24_month_pit_complete": false,
+  "independent_24_month_oos": false,
+  "private_credit_market_representative": false,
+  "node_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "original_sec_research_scope": "Dec 2025 is a *comparative prior-period* observation first verified in the Apr 28 2026 Q1 original SEC exhibit, not as-of Feb 2026.",
+  "limitations": [
+    "SEC available_at = filed_at +14 calendar days; earliest proven source only.",
+    "Four ARCC quarters do not certify the Private Credit index node.",
+    "Issuer February 2026 press-release page was an HTML shell without verifiable data.",
+    "No synthetic rows, no historical backfill, no lookahead, no certified signal."
+  ]
+}

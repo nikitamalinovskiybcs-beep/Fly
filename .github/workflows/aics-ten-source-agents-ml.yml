@@ -1,0 +1,112 @@
+name: AICS twenty source and analysis agents
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '45 11 * * *'
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_ten_node_agents.py
+      - scripts/aics_source_anomaly_ml.py
+      - scripts/aics_ten_analysis_agents.py
+      - tests/test_aics_ten_node_agents_and_ml.py
+      - tests/test_aics_ten_analysis_agents.py
+      - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
+      - aics_data/research/aics_24m_multi_node_publication_overlay_2026-11-21.json
+      - aics_data/research/sp500_24_month_closes_2026-11-21.json
+      - .github/workflows/aics-ten-source-agents-ml.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aics-ten-agents-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-capture-and-learning:
+    name: Twenty AICS agents - primary source capture + audited research analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile independent AICS code
+        run: |
+          python -m compileall -q scripts/aics_ten_node_agents.py scripts/aics_source_anomaly_ml.py tests/test_aics_ten_node_agents_and_ml.py
+          python -m compileall -q scripts/aics_ten_analysis_agents.py tests/test_aics_ten_analysis_agents.py
+      - name: Run 10-agent, archived SHA and causal online-learning gates
+        run: python -m unittest discover -s tests -p 'test_aics_ten_node_agents_and_ml.py' -v
+      - name: Run ten AICS-specific source chronology, scoring, bounds and market agent tests
+        run: python -m unittest discover -s tests -p 'test_aics_ten_analysis_agents.py' -v
+      - name: Capture current official original sources
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.EDGAR_IDENTITY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: python -m scripts.aics_ten_node_agents --live --out aics_data/agent_runs
+      - name: Run research-only online anomaly learner on preexisting primary-source scores
+        run: python -m scripts.aics_source_anomaly_ml --out aics_data/agent_runs/online_anomaly_research.json
+      - name: Run ten AICS analysis agents against real source-collection manifest and 24-month ledgers
+        run: python -m scripts.aics_ten_analysis_agents --source-manifest aics_data/agent_runs/manifest.json --out aics_data/agent_runs/aics_ten_analysis_agents_report.json
+      - name: Check original receipt immutability and no model-promotion claim
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          root=Path('aics_data/agent_runs')
+          m=json.loads((root/'manifest.json').read_text())
+          assert m['agent_count']==10 and m['unique_publisher_sources']==20
+          assert m['independently_verified_node_scores']==0
+          assert m['index_aics'] is None and m['trades_created'] is False
+          for s in m['sources']:
+              if s['status']=='archived_current_original_not_pit':
+                  raw=Path(s['raw_path']).read_bytes()
+                  assert hashlib.sha256(raw).hexdigest()==s['raw_sha256']
+          a=json.loads((root/'online_anomaly_research.json').read_text())
+          assert a['complete_11_node_index'] is None
+          assert a['aics_weights_changed'] is False
+          assert a['predictive_accuracy'] is None
+          analytics=json.loads((root/'aics_ten_analysis_agents_report.json').read_text())
+          assert analytics['agents_count']==10
+          assert len(analytics['results'])==10
+          assert all(x['status']=='research_pass' for x in analytics['results'])
+          assert analytics['source_agents_count']==10
+          assert analytics['actual_source_bytes_in_this_run']==m['original_sources_archived']
+          assert analytics['complete_aics_index'] is None and analytics['aics_sp500_spread'] is None
+          assert analytics['production_model_updated'] is False and analytics['trades_created'] is False
+          for source in m['sources']:
+              print('SOURCE', source['source_id'], source['status'], source.get('error_code', source.get('error_class','')))
+          status = 'ALL_20_CAPTURED' if m['original_sources_archived']==20 else 'PARTIAL_CAPTURE'
+          print({'source_agents':m['agent_count'],
+                 'sources_archived':m['original_sources_archived'],
+                 'capture_status':status,
+                 'analysis_agents_passed':len(analytics['results']),
+                 'calendar_source_coverage_pct':analytics['results'][2]['result']['calendar']['research_observability_pct'],
+                 'last_weekday_market_source_coverage_pct':analytics['results'][2]['result']['market']['research_observability_pct'],
+                 'model_events':a['research_events_evaluated'],
+                 'research_attention_flags':a['research_attention_events'],
+                 'production_aics':'BLOCKED'})
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'],'a') as stream:
+              print('## AICS ten-source-agent run (research only)',file=stream)
+              print(f"- Original source capture: **{m['original_sources_archived']}/{m['unique_publisher_sources']}** ({status})",file=stream)
+              print(f"- Analytics agents passed: **{len(analytics['results'])}/10**; total source+analysis **20 agents**",file=stream)
+              print(f"- V18 research observability calendar/market: **{analytics['results'][2]['result']['calendar']['research_observability_pct']}% / {analytics['results'][2]['result']['market']['research_observability_pct']}%**",file=stream)
+              print(f"- 90-day freshness-adjusted research observability: **{analytics['results'][3]['result']['calendar']['90']['research_fresh_coverage_pct']}%**",file=stream)
+              print(f"- Model: {a['research_events_evaluated']} retrospective events; {a['research_attention_events']} research attention flags",file=stream)
+              for source in m['sources']:
+                  if source['status']!='archived_current_original_not_pit':
+                      print(f"- Missing: **{source['source_id']}** — {source['status']} ({source.get('error_code','no-key-or-not-attempted')})",file=stream)
+              print('- Historical PIT certification: **NO**. Complete index: **N/A**. Trading: **OFF**.',file=stream)
+          PY
+      - name: Archive current source receipts and research anomalies (not verified historical PIT)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-twenty-agents-source-analytics-ml
+          path: aics_data/agent_runs/
+          if-no-files-found: warn
+          retention-days: 90

@@ -4,21 +4,17 @@ All heavy computation happens here ONCE, result is a flat dict for rendering.
 Streamlit app only does st.markdown() calls — zero compute in render loop.
 """
 
-import numpy as np
 import math
+import importlib.util
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
-try:
-    import yfinance as yf
-    YF_AVAILABLE = True
-except ImportError:
-    YF_AVAILABLE = False
+import numpy as np
 
 from src.clickhouse_data import fetch_quantum_risk_stats
 from src.real_data import compute_toxicity
-from src.colab_engine import get_colab_status, local_sobol_mc
+from src.colab_engine import get_colab_status
 from src.data_module import (fetch_ticker_data, get_data_source_status, XFL_AVAILABLE,
                              fetch_iv_percentile, compute_rolling_correlations, check_earnings_risk,
                              fetch_implied_vol_surface, compute_dcc_correlations, fetch_macro_factors,
@@ -26,6 +22,8 @@ from src.data_module import (fetch_ticker_data, get_data_source_status, XFL_AVAI
 from src.gdrive_store import get_status as gdrive_status
 from src.nvidia_ai import get_status as nvidia_status, analyze_basket_risk
 from src.buyside import compute_buyside_analytics
+
+YF_AVAILABLE = importlib.util.find_spec("yfinance") is not None
 
 
 # ── Self-learning scoring weights ──
@@ -252,7 +250,7 @@ def calibrate_scoring_on_settled() -> Dict:
     Train on 70% of settled notes, validate on 30%.
     Ensemble: 3 models with different LR → median weights → robust scoring.
     Features: momentum (0.9), L2, feature selection, best-checkpoint."""
-    from src.real_data import SETTLED_NOTES, compute_p_loss
+    from src.real_data import SETTLED_NOTES
 
     w = _load_scoring_weights()
 
@@ -716,8 +714,7 @@ def compute_smart_alternatives(basket: List[str], yf_data: Dict,
 # IMPROVEMENT 1: Best Phoenix Ranker — score ALL possible baskets
 # ═══════════════════════════════════════════════════════════════
 
-def rank_best_phoenix(basket: List[str], yf_data: Dict, tox_info: Dict,
-                      ch_data: Dict) -> Dict:
+def rank_best_phoenix(basket: List[str], yf_data: Dict, tox_info: Dict) -> Dict:
     """Find the best Phoenix product configuration for this basket.
     Tests different barriers, tenors, and swap options."""
     from src.real_data import compute_p_loss, COUPON_BY_TERM, COUPON_COEFS
@@ -781,7 +778,7 @@ def rank_best_phoenix(basket: List[str], yf_data: Dict, tox_info: Dict,
 def empirical_p_ki(basket: List[str], term_months: int = 24) -> Dict:
     """P(KI) calibrated on real settled notes outcomes.
     Uses logistic-style model: high tox + long term → high P(KI)."""
-    from src.real_data import SETTLED_NOTES, TOX_EXPERIENCE
+    from src.real_data import SETTLED_NOTES
     tox = compute_toxicity(basket)
     avg_tox = tox["avg_tox"]
 
@@ -835,8 +832,8 @@ def _note_avg_tox(basket_str: str) -> float:
     scores = []
     for t in tickers:
         if t in TOX_EXPERIENCE:
-            l, w = TOX_EXPERIENCE[t]
-            scores.append(l / (l + w + 1))
+            losses, wins = TOX_EXPERIENCE[t]
+            scores.append(losses / (losses + wins + 1))
     return float(np.mean(scores)) if scores else 0.5
 
 
@@ -883,8 +880,7 @@ def calibrated_coupon(basket: List[str], term_months: int = 24,
 # IMPROVEMENT 5: Stress test — historical drawdown scenarios
 # ═══════════════════════════════════════════════════════════════
 
-def compute_stress_scenarios_v2(yf_data: Dict, basket: List[str],
-                                 beta_avg: float) -> List[Dict]:
+def compute_stress_scenarios_v2(beta_avg: float) -> List[Dict]:
     """Enhanced stress test with real historical drawdown scenarios."""
     scenarios = [
         {"name": "COVID Mar 2020", "spx_drop": -34, "vol_spike": 82,
@@ -953,8 +949,7 @@ def compute_dispersion_signal(yf_data: Dict, basket: List[str]) -> Dict:
 # IMPROVEMENT 7: Optimal barrier selection
 # ═══════════════════════════════════════════════════════════════
 
-def find_optimal_barrier(basket: List[str], avg_vol: float,
-                         avg_tox: float) -> Dict:
+def find_optimal_barrier(avg_vol: float, avg_tox: float) -> Dict:
     """Find optimal KI barrier level (55-75%) for best risk/return."""
     results = []
     for bar_pct in range(55, 76, 5):
@@ -1058,7 +1053,7 @@ def compute_sector_concentration(basket: List[str]) -> Dict:
         "sectors": sectors,
         "penalty": penalty,
         "label": "CONCENTRATED" if hhi > 0.5 else "DIVERSIFIED",
-        "recommendation": f"Добавьте тикер из другого сектора" if hhi > 0.5 else f"{n_sectors} секторов — хорошая диверсификация",
+        "recommendation": "Добавьте тикер из другого сектора" if hhi > 0.5 else f"{n_sectors} секторов — хорошая диверсификация",
     }
 
 
@@ -1082,8 +1077,6 @@ def generate_top_baskets(n_tickers: int = 4, n_results: int = 3) -> List[Dict]:
     safe_tickers = [s[0] for s in scored[:20]]
 
     # Build baskets with sector diversity
-    baskets = []
-
     # Basket 1: Safest — lowest tox from different sectors
     b1 = []
     b1_sectors = set()
@@ -1120,7 +1113,7 @@ def generate_top_baskets(n_tickers: int = 4, n_results: int = 3) -> List[Dict]:
             })
 
     result.sort(key=lambda x: x["est_score"], reverse=True)
-    return result
+    return result[:max(1, n_results)]
 
 
 def _safe_vols(td: Dict, tickers: List[str]) -> List[float]:
@@ -1292,7 +1285,7 @@ def _compute_correlation_matrix(yf_data: Dict, tickers: List[str]) -> Dict:
     }
 
 
-def _compute_stress_scenarios(yf_data: Dict, tickers: List[str], beta_avg: float) -> List[Dict]:
+def _compute_stress_scenarios(beta_avg: float) -> List[Dict]:
     """Historical stress scenarios replicated via beta."""
     scenarios = [
         {"name": "COVID_2020", "spy_drop": -32.0, "days": 22},
@@ -1303,7 +1296,6 @@ def _compute_stress_scenarios(yf_data: Dict, tickers: List[str], beta_avg: float
         {"name": "TradeWar_2025", "spy_drop": -27.1, "days": 90},
     ]
     results = []
-    ki_level = 0.60
     for sc in scenarios:
         basket_total = sc["spy_drop"] * beta_avg
         max_dd = basket_total * 1.15 if sc["spy_drop"] < 0 else basket_total * 0.35
@@ -1477,13 +1469,12 @@ def _compute_aladdin_metrics(yf_data: Dict, tickers: List[str], rf: float = 0.05
 def _compute_earnings_calendar(yf_data: Dict, tickers: List[str]) -> Dict:
     """Build earnings calendar for 2Y horizon (8 quarters)."""
     # Use approximate quarterly dates based on typical reporting
-    from datetime import datetime, timedelta
+    from datetime import datetime
     now = datetime.now()
     events = []
     per_ticker = {}
 
     # Standard quarterly offsets (approximate)
-    q_offsets = [0, 90, 180, 270, 365, 455, 545, 635]
     for t in tickers:
         if t not in yf_data:
             continue
@@ -1617,7 +1608,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     result["aladdin"] = _compute_aladdin_metrics(yf_data, basket_tickers)
 
     # 8. Stress scenarios
-    result["stress"] = _compute_stress_scenarios(yf_data, basket_tickers, beta_avg)
+    result["stress"] = _compute_stress_scenarios(beta_avg)
 
     # 9. Tail risk
     result["tail"] = _compute_tail_risk(yf_data, basket_tickers)
@@ -1692,7 +1683,6 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     dcc = result.get("dcc_corr", {})
     stress_corr = dcc.get("stress_corr", 0.75)
     corr_multiplier = dcc.get("corr_multiplier", 1.0)
-    dcc_regime = dcc.get("regime", "normal")
 
     # [IMP-3] IV surface → use implied vol (more accurate than historical)
     iv_surf = result.get("iv_surface", {})
@@ -1757,7 +1747,6 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # [IMP-2] Bayesian confidence: how certain is the score?
     # Confidence based on: data quality, ensemble spread, macro stability
     data_quality = 1.0 if result["evidence_gate"]["passed"] else 0.6
-    ensemble_conf = 1.0  # will be updated from self_learning later
     macro_conf = 0.7 if macro_regime == "stress" else 1.0
     confidence = round(data_quality * macro_conf * 100, 0)
 
@@ -1963,8 +1952,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     result["e_payout"] = e_payout
 
     # Model comparison vs industry benchmarks
-    result["model_comparison"] = _compare_vs_industry(
-        p_ki, avg_vol, avg_corr, len(basket_tickers), T, barrier)
+    result["model_comparison"] = _compare_vs_industry(avg_vol, len(basket_tickers))
 
     # 16. Risk score — unified with main score (50-100 scale)
     # Uses same learned weights, same direction: higher = safer
@@ -2015,10 +2003,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
         "note": "Our product targets 26% p.a. vs market ~10% → 2.7x risk premium justified by higher P(KI) acceptance",
     }
 
-    # 20. Smart alternatives (replace worst ticker with better options)
-    result["smart_alts"] = compute_smart_alternatives(basket_tickers, yf_data, tox_info)
-
-    # 21. Self-learning: calibrate scoring + P(loss) model metrics
+    # 20. Self-learning: calibrate scoring + P(loss) model metrics
     try:
         from src.real_data import get_p_loss_model_metrics
         p_loss_metrics = get_p_loss_model_metrics()
@@ -2063,7 +2048,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # ── 10 IMPROVEMENTS ──
 
     # IMP-1: Best Phoenix ranker
-    result["phoenix_ranker"] = rank_best_phoenix(basket_tickers, yf_data, tox_info, ch_data)
+    result["phoenix_ranker"] = rank_best_phoenix(basket_tickers, yf_data, tox_info)
 
     # IMP-2: Real correlations from yfinance (already in result["corr"])
     # Enhanced: add pairwise detail
@@ -2087,13 +2072,13 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     result["calibrated_coupon"] = calibrated_coupon(basket_tickers, term_months=24, barrier=0.65)
 
     # IMP-5: Enhanced stress scenarios
-    result["stress_v2"] = compute_stress_scenarios_v2(yf_data, basket_tickers, beta_avg)
+    result["stress_v2"] = compute_stress_scenarios_v2(beta_avg)
 
     # IMP-6: Dispersion signal
     result["dispersion_signal"] = compute_dispersion_signal(yf_data, basket_tickers)
 
     # IMP-7: Optimal barrier
-    result["optimal_barrier"] = find_optimal_barrier(basket_tickers, avg_vol, avg_tox)
+    result["optimal_barrier"] = find_optimal_barrier(avg_vol, avg_tox)
 
     # IMP-8: Earnings risk
     result["earnings_risk"] = compute_earnings_risk(yf_data, basket_tickers)
@@ -2107,7 +2092,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     # ── ACCURACY IMPROVEMENTS (new) ──
 
     # [IMP-A7] A/B testing: compare current model vs baseline
-    result["ab_test"] = _ab_test_weights(result.get("self_learning", {}))
+    result["ab_test"] = _ab_test_weights()
 
     # [IMP-A8] Scheduled retraining status
     result["retraining_status"] = _get_retraining_status(result.get("self_learning", {}))
@@ -2221,7 +2206,6 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
             score=result["score"],
             weights=w,
             features=score_features,
-            corr_matrix=corr_mat,
         )
         result["buyside"] = buyside
 
@@ -2274,7 +2258,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     try:
         from src.accuracy_boost import (
             apply_all_improvements, k_fold_cross_validation,
-            generate_synthetic_baskets, adversarial_validation,
+            adversarial_validation,
             backtest_model, platt_scaling, calibrate_score_to_probability,
         )
         from src.real_data import SETTLED_NOTES
@@ -2327,7 +2311,7 @@ def precompute_all(basket_tickers: List[str]) -> Dict[str, Any]:
     return result
 
 
-def _ab_test_weights(self_learning: Dict) -> Dict:
+def _ab_test_weights() -> Dict:
     """A/B test: compare current learned weights vs default baseline.
     Returns which model performs better on last 10 settled notes."""
     from src.real_data import SETTLED_NOTES
@@ -2413,8 +2397,7 @@ def _get_improvement_history() -> List[Dict]:
     return []
 
 
-def _compare_vs_industry(p_ki: float, avg_vol: float, avg_corr: float,
-                         n_assets: int, T: float, barrier: float) -> Dict:
+def _compare_vs_industry(avg_vol: float, n_assets: int) -> Dict:
     """Compare our model vs industry-standard pricing tools.
     Returns gap analysis with specific metrics."""
 

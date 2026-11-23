@@ -1,0 +1,37 @@
+{
+  "schema_version": "user-reported-autocall-case-v1",
+  "status": "user_reported_unverified",
+  "role": "empirical_example_for_autocall_selection",
+  "not_a_canonical_template": true,
+  "source": "user_message",
+  "product_type": "Phoenix structured note",
+  "reported_terms": {
+    "entry_amount_usd": 300000,
+    "nominal_usd": 375000,
+    "bonus_coupon_pct": 15.0,
+    "coupon_frequency_months": 12,
+    "autocall_level_pct": 95.0,
+    "reported_current_or_early_exit_value_usd": 459000
+  },
+  "unresolved_fields": [
+    "exact launch and valuation dates",
+    "basket and strike levels",
+    "whether 459000 is gross value, redemption, or cash plus market value",
+    "whether 15% is annualized or one-off bonus coupon",
+    "autocall observation dates and exact trigger formula",
+    "dividend/cashflow breakdown and fees",
+    "issuer/dealer and settlement evidence"
+  ],
+  "model_use": {
+    "use_as_autocall_positive_example": true,
+    "use_as_realized_outcome_before_document_verification": false,
+    "use_to_mutate_production_weights": false,
+    "use_to_define_all_future_terms": false,
+    "target_selection_metric": "probability_of_early_autocall"
+  },
+  "safety": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

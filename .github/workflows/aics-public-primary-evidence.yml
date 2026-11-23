@@ -1,0 +1,36 @@
+name: AICS public primary evidence collection
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_public_primary_evidence.py'
+      - '.github/workflows/aics-public-primary-evidence.yml'
+  schedule:
+    - cron: '20 12 * * 2'
+permissions:
+  contents: read
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile public source collector
+        run: python -m py_compile scripts/aics_collect_public_primary_evidence.py
+      - name: Collect raw primary evidence (never calculate AICS)
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT }}
+        run: python scripts/aics_collect_public_primary_evidence.py
+      - name: Upload raw evidence and manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-public-primary-evidence
+          path: aics_data/source_evidence/
+          retention-days: 30
+          if-no-files-found: warn

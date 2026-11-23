@@ -1,0 +1,35 @@
+{
+  "comparison_id": "phoenix-adapter-comparison-v1",
+  "generated_at": "2026-08-03T22:22:26.287820+00:00",
+  "status": "research_only",
+  "fixture_reference": {
+    "adapter": "phoenix_adapters.evaluate_worst_of_path",
+    "result": {
+      "principal": 0.55,
+      "coupon_cashflows": [
+        0.065,
+        0.065,
+        0.0
+      ],
+      "total_payoff": 0.68,
+      "worst_final": 0.55,
+      "autocalled_at": null,
+      "knock_in": true
+    }
+  },
+  "public_challenger": {
+    "source": "public_autocallable_pricer",
+    "pv": 1.1950146204072005,
+    "standard_error": 0.005438956417726321,
+    "n_paths": 2000,
+    "seed": 42
+  },
+  "comparison_note": "Path-level reference and discounted MC PV are different measures; no direct accuracy claim is made. The public implementation is invoked through an adapter and not copied into Phoenix.",
+  "production_decision": "do_not_promote",
+  "next_step": "Add validated term-sheet fixtures and a common payoff/PV normalization before comparing models.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

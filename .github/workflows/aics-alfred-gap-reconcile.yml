@@ -1,0 +1,69 @@
+name: AICS ALFRED original-vintage gap reconciliation
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_reconcile_alfred_iorb_power_artifacts.py'
+      - 'tests/test_aics_reconcile_alfred_iorb_power_artifacts.py'
+      - '.github/workflows/aics-alfred-gap-reconcile.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  reconcile-original-48:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test strict lossless merge and no artificial historical rows
+        run: |
+          python -m py_compile scripts/aics_reconcile_alfred_iorb_power_artifacts.py
+          python -m unittest discover -s tests -p 'test_aics_reconcile_alfred_iorb_power_artifacts.py' -v
+      - name: Download original provider archives from two earlier GitHub Actions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh run download 44396812187 -n aics-alfred-iorb-power-24-asof-vintages -D "$RUNNER_TEMP/alfred-run-one"
+          gh run download 44397399928 -n aics-alfred-iorb-power-24-asof-vintages -D "$RUNNER_TEMP/alfred-run-two"
+      - name: Require all 48 genuine original ALFRED JSON and source hashes
+        run: |
+          python -m scripts.aics_reconcile_alfred_iorb_power_artifacts \
+            --first "$RUNNER_TEMP/alfred-run-one" \
+            --second "$RUNNER_TEMP/alfred-run-two"
+      - name: Independently verify merged SHA-256 and exclusion from AICS scores
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          base = Path('aics_data/pit/free_gaps_2026_11_18_reconciled')
+          report = json.loads((base / 'manifest.json').read_text())
+          assert report['unique_genuine_asof_snapshots'] == 48
+          assert report['identical_overlap_files'] == 42
+          assert report['replaced_or_synthetically_interpolated_snapshots'] == 0
+          assert report['node_stress_scores'] == {'Repo': None, 'Power/Data Centers': None}
+          assert report['index_aics'] is None
+          assert report['promotion'] == 'BLOCKED'
+          assert not report['independent_provider_publication_timestamp_pit']
+          assert len(report['original_files']) == 48
+          for row in report['original_files']:
+              raw = (base / row['source_file']).read_bytes()
+              assert hashlib.sha256(raw).hexdigest() == row['raw_sha256']
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              print('## ALFRED: lossless merge of two authentic archival runs', file=output)
+              print('48/48 independent original raw snapshots: 24 IORB + 24 WPU0543.', file=output)
+              print('42 identical overlaps; 0 interpolated or synthetic observations.', file=output)
+              print('Research-only: publication PIT and 24-month OOS remain unverified.', file=output)
+          PY
+      - name: Retain 48 original raw vintages and per-file provenance receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-alfred-iorb-power-48-losslessly-reconciled
+          path: aics_data/pit/free_gaps_2026_11_18_reconciled/
+          retention-days: 14
+          if-no-files-found: error

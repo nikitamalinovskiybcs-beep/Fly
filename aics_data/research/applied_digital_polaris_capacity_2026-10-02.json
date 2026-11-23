@@ -1,0 +1,14 @@
+{
+  "issuer": "Applied Digital",
+  "site": "Polaris Forge 1, Ellendale, North Dakota",
+  "source_type": "issuer_press_release",
+  "released_on": "2026-10-02",
+  "source_url": "https://ir.applieddigital.com/_assets/_24468ca358d41940c79de4638f404931/appliedblockchaininc/news/2026-10-02_Applied_Digital_Brings_an_Additional_75_MW_of_AI_161.pdf",
+  "retrieved_utc": "2026-11-20T05:07:50.510966+00:00",
+  "bytes": 43106,
+  "sha256": "68173b97d94b3adb67dcf19ac55de54fc356f4e97eb69b05c8c38a3278cd8558",
+  "pdf_page": 1,
+  "unit": "MW of critical IT load",
+  "operating_mw": 250,
+  "contracted_full_buildout_mw": 400
+}

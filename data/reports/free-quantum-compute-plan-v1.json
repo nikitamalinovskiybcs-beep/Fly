@@ -1,0 +1,80 @@
+{
+  "schema_version": "free-quantum-compute-plan-v1",
+  "goal": "Improve Phoenix quantitative rigor at zero software/service cost without claiming unsupported quantum advantage.",
+  "current_stack": {
+    "classical": "numpy scipy pandas lightgbm",
+    "simulation": "Monte Carlo, Sobol/QMC, permutation tests, walk-forward/OOS",
+    "quantum": "qiskit and qiskit-aer installed; current production path remains classical fallback",
+    "free_data": "yfinance, FRED/public sources, optional xfinlink when configured",
+    "free_compute": "local CPU, GitHub Actions, optional Colab; no paid API required"
+  },
+  "stages": [
+    {
+      "id": "Q0",
+      "name": "measurement baseline",
+      "work": [
+        "freeze fixed-24m targets",
+        "compare current MC/Sobol/classical optimizer against empirical baseline",
+        "record runtime/memory/reproducibility"
+      ],
+      "gate": "no quantum candidate proceeds unless it beats or matches baseline OOS without resource regression"
+    },
+    {
+      "id": "Q1",
+      "name": "quantum-inspired basket search",
+      "work": [
+        "encode basket selection as QUBO-like constrained objective",
+        "solve with deterministic classical local search and simulated annealing",
+        "compare against HRP/mean-variance/current scorer"
+      ],
+      "gate": "incremental fixed-24m OOS lift with no leakage"
+    },
+    {
+      "id": "Q2",
+      "name": "local quantum simulation research",
+      "work": [
+        "run small QAOA/VQE experiments in Qiskit Aer only",
+        "limit problem size to fit 8GB RAM",
+        "use fixed seeds and publish circuit depth/noise/runtime"
+      ],
+      "gate": "research artifact only; must beat classical baseline on identical instances"
+    },
+    {
+      "id": "Q3",
+      "name": "risk and payoff verification",
+      "work": [
+        "property tests for barrier/autocall/coupon monotonicity",
+        "stress and sensitivity analysis",
+        "recalculate from explicit real/assumption inputs"
+      ],
+      "gate": "all safety and recalculation contracts pass"
+    },
+    {
+      "id": "Q4",
+      "name": "promotion review",
+      "work": [
+        "committee fact-check",
+        "fixed-24m OOS at 6/12/18/24 anchors",
+        "verified dealer quote-fit and realized outcomes"
+      ],
+      "gate": "human review required; no automatic production mutation"
+    }
+  ],
+  "zero_cost_policy": [
+    "no paid API or cloud dependency",
+    "local Ollama optional and never evidence",
+    "GitHub Actions artifacts are temporary research outputs",
+    "public/free data must retain provenance and licensing status"
+  ],
+  "non_claims": [
+    "quantum hardware is not available locally",
+    "Qiskit simulation is not quantum advantage",
+    "historical replay is not a settled note",
+    "free data does not equal dealer-quality evidence"
+  ],
+  "safety": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

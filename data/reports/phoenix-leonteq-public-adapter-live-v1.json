@@ -1,0 +1,125 @@
+{
+  "run_id": "phoenix-leonteq-public-adapter-live-v1",
+  "status": "partial_html_only",
+  "records": [
+    {
+      "isin": "CH1571714935",
+      "title": "Express Certificate on AMD, Intel | CH1571714935",
+      "product_type": null,
+      "issuer": "Leonteq Securities AG, Guernsey Branch, St. Peter Port, Guernsey",
+      "underlyings": [
+        "AMD",
+        "Intel"
+      ],
+      "barrier_pct": null,
+      "memory_effect": null,
+      "initial_fixing": null,
+      "issue_date": "2026-06-24",
+      "expiry": null,
+      "bid": null,
+      "ask": null,
+      "source_url": "https://certificati.leonteq.com/isin/CH1571714935",
+      "retrieved_at": "2026-08-03T23:20:21.429910+00:00",
+      "evidence_class": "public_product_page",
+      "outcome_status": "missing_verified_outcome"
+    },
+    {
+      "isin": "CH1571715296",
+      "title": "Express Certificate on AMD, Intel, Oracle | CH1571715296",
+      "product_type": null,
+      "issuer": "Leonteq Securities AG, Guernsey Branch, St. Peter Port, Guernsey",
+      "underlyings": [
+        "AMD",
+        "Intel",
+        "Oracle"
+      ],
+      "barrier_pct": null,
+      "memory_effect": null,
+      "initial_fixing": null,
+      "issue_date": "2026-06-22",
+      "expiry": null,
+      "bid": null,
+      "ask": null,
+      "source_url": "https://certificati.leonteq.com/isin/CH1571715296",
+      "retrieved_at": "2026-08-03T23:20:21.682023+00:00",
+      "evidence_class": "public_product_page",
+      "outcome_status": "missing_verified_outcome"
+    },
+    {
+      "isin": "CH1571715981",
+      "title": "Express Certificate on Citigroup, Goldman Sachs, Mastercard, VISA | CH1571715981",
+      "product_type": null,
+      "issuer": "Leonteq Securities AG, Guernsey Branch, St. Peter Port, Guernsey",
+      "underlyings": [
+        "Citigroup",
+        "Goldman Sachs",
+        "Mastercard",
+        "VISA"
+      ],
+      "barrier_pct": null,
+      "memory_effect": null,
+      "initial_fixing": null,
+      "issue_date": "2026-06-23",
+      "expiry": null,
+      "bid": null,
+      "ask": null,
+      "source_url": "https://certificati.leonteq.com/isin/CH1571715981",
+      "retrieved_at": "2026-08-03T23:20:21.924503+00:00",
+      "evidence_class": "public_product_page",
+      "outcome_status": "missing_verified_outcome"
+    },
+    {
+      "isin": "CH1484591107",
+      "title": "Express Certificate on AMD, Microsoft, Nvidia, Palantir Technologies | CH1484591107",
+      "product_type": null,
+      "issuer": "Leonteq Securities AG, Guernsey Branch, St. Peter Port, Guernsey",
+      "underlyings": [
+        "AMD",
+        "Microsoft",
+        "Nvidia",
+        "Palantir Technologies"
+      ],
+      "barrier_pct": null,
+      "memory_effect": null,
+      "initial_fixing": null,
+      "issue_date": "2026-02-26",
+      "expiry": null,
+      "bid": null,
+      "ask": null,
+      "source_url": "https://certificati.leonteq.com/isin/CH1484591107",
+      "retrieved_at": "2026-08-03T23:20:22.179601+00:00",
+      "evidence_class": "public_product_page",
+      "outcome_status": "missing_verified_outcome"
+    },
+    {
+      "isin": "CH1491781253",
+      "title": "Express Certificate on Alphabet, Amazon, Nvidia | CH1491781253",
+      "product_type": null,
+      "issuer": "Leonteq Securities AG, Guernsey Branch, St. Peter Port, Guernsey",
+      "underlyings": [
+        "Alphabet",
+        "Amazon",
+        "Nvidia"
+      ],
+      "barrier_pct": null,
+      "memory_effect": null,
+      "initial_fixing": null,
+      "issue_date": "2025-11-10",
+      "expiry": null,
+      "bid": null,
+      "ask": null,
+      "source_url": "https://certificati.leonteq.com/isin/CH1491781253?language_id=1",
+      "retrieved_at": "2026-08-03T23:20:22.450381+00:00",
+      "evidence_class": "public_product_page",
+      "outcome_status": "missing_verified_outcome"
+    }
+  ],
+  "limitations": [
+    "server HTML does not contain JS-rendered barrier/coupon/quote sections; use browser-rendered capture or authorized API for those fields"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

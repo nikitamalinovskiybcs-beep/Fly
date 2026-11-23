@@ -1,0 +1,27 @@
+{
+  "audit_id": "phoenix-optional-library-availability-v1",
+  "generated_at": "2026-08-03T22:24:44.163507+00:00",
+  "status": {
+    "QuantLib": false,
+    "finmath": false,
+    "financepy": false,
+    "vollib": false,
+    "py_vollib": false
+  },
+  "installed_and_used": [
+    "src/phoenix_adapters.py pure Python payoff reference",
+    "public autocallable-pricer via explicit adapter"
+  ],
+  "not_installed": [
+    "QuantLib",
+    "finmath-lib",
+    "FinancePy",
+    "vollib/py_vollib"
+  ],
+  "decision": "do_not_add_dependencies_until_adapter fixture and license review are complete",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

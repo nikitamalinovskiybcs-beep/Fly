@@ -8,8 +8,9 @@ Modules:
 3. Self-learning model (auto-calibration → AGI direction)
 """
 
+import os
+
 import numpy as np
-import math
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional, Tuple
 
@@ -419,9 +420,6 @@ class PhoenixAGI:
 
         trainable = [k for k in self.PARAM_BOUNDS if k != "learning_rate"]
         lr = self.params["learning_rate"]
-
-        best_train_loss = self._total_loss(train_notes, train_quotes, tox_func)
-        initial_test_loss = self._total_loss(test_notes, test_quotes, tox_func)
 
         for epoch in range(n_epochs):
             improved_any = False
@@ -862,7 +860,7 @@ def precompute_backtest(
 
     # Train on real settled notes + dealer quotes
     if SETTLED_NOTES:
-        learn_result = agi.learn_from_real_data(
+        agi.learn_from_real_data(
             settled_notes=SETTLED_NOTES,
             dealer_quotes=dealer_quotes,
             tox_func=compute_toxicity,

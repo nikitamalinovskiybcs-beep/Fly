@@ -1,0 +1,64 @@
+name: AICS Insurers SEC MET PRU primary evidence
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_insurers_sec.py'
+      - 'tests/test_aics_collect_insurers_sec.py'
+      - '.github/workflows/aics-insurers-sec-evidence.yml'
+  schedule:
+    - cron: '35 13 * * 3'
+permissions:
+  contents: read
+jobs:
+  insurers-source-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile MET PRU source collector
+        run: python -m py_compile scripts/aics_collect_insurers_sec.py scripts/aics_verify_insurers_sec_evidence.py
+      - name: Run offline PIT, accession and score-gate regression tests
+        run: python -m unittest discover -s tests -p test_aics_collect_insurers_sec.py -v
+      - name: Download SEC submissions and companyfacts
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: python scripts/aics_collect_insurers_sec.py --as-of 2026-11-18 --first-period 2018-01-01
+      - name: Independently recalculate SEC artifact SHA256 and research PIT eligibility
+        run: python -m scripts.aics_verify_insurers_sec_evidence
+      - name: Validate evidence manifest cannot claim node readiness
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("aics_data/source_evidence/insurers_sec/manifest.json")
+          print("## Insurers (MetLife, Prudential) SEC evidence")
+          if not p.exists():
+              print("No real-source manifest; the SEC collector did not complete.")
+              raise SystemExit(0)
+          x=json.loads(p.read_text(encoding="utf-8"))
+          assert x["index_aics"] is None
+          assert x["insurers_node_score"] is None
+          assert x["independently_verified_pit"] is False
+          assert x["promotion"] == "BLOCKED"
+          print(f"Real SEC issuer downloads: {x['successful_issuers']}/2")
+          print(f"Eligible candidate XBRL observations: {x['candidate_observations']}")
+          print(f"SEC historical filings.files pages: {x.get('historical_index_pages_downloaded', 0)}")
+          for v in x["issuers"]:
+              print(f"- {v['issuer']}: {v['status']}")
+          print("Current SEC companyfacts do not establish historical PIT vintages or calibrated risk.")
+          PY
+      - name: Preserve raw SEC JSON SHA256 provenance and candidate research rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-insurers-met-pru-research-evidence
+          path: aics_data/source_evidence/insurers_sec/
+          if-no-files-found: warn
+          retention-days: 30

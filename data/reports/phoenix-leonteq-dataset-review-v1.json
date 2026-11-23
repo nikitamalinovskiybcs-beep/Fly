@@ -1,0 +1,147 @@
+{
+  "proposal_id": "phoenix-leonteq-dataset-review-v1",
+  "status": "research_only",
+  "provider": "Devin web research",
+  "sources": [
+    {
+      "name": "Leonteq Structured Products Switzerland",
+      "url": "https://structuredproducts-ch.leonteq.com/",
+      "classification": "public_product_catalog",
+      "observed_capabilities": [
+        "all investment products search",
+        "products in subscription",
+        "secondary market search",
+        "underlying search",
+        "individual ISIN pages",
+        "prospectus library"
+      ],
+      "observed_fields": [
+        "product type",
+        "issuer",
+        "underlyings",
+        "coupon p.a.",
+        "barrier or distance to barrier",
+        "currency",
+        "tenor/expiry",
+        "bid/ask on some product pages",
+        "listing venue"
+      ],
+      "limitations": [
+        "A public web catalog is not automatically a downloadable historical dataset.",
+        "Coverage, update frequency, API access and redistribution rights are not verified.",
+        "Website states information is intended for Switzerland residents or entities."
+      ]
+    },
+    {
+      "name": "Leonteq Phoenix sample",
+      "url": "https://certificati.leonteq.com/isin/CH1571714935",
+      "classification": "public_product_page",
+      "observed_capabilities": [
+        "Phoenix Autocallable classification",
+        "multi-underlying basket",
+        "conditional coupon",
+        "distance to barrier",
+        "ISIN and expiry"
+      ],
+      "limitations": [
+        "Single product page; not evidence of complete universe coverage.",
+        "No realized maturity outcome was identified from the page."
+      ]
+    },
+    {
+      "name": "Leonteq termsheet sample",
+      "url": "https://structuredproducts-ch.leonteq.com/isin/CH1467592536/termsheet/en",
+      "classification": "public_termsheet",
+      "observed_fields": [
+        "worst-performing underlying redemption logic",
+        "conditional coupon",
+        "coupon trigger levels",
+        "observation dates",
+        "issue and maturity dates",
+        "SSPA product type",
+        "listing and currency"
+      ],
+      "limitations": [
+        "This sample is a conditional coupon reverse convertible rather than a complete Phoenix dataset.",
+        "Termsheets need document hashing and version tracking."
+      ]
+    },
+    {
+      "name": "Leonteq prospectus library",
+      "url": "https://structuredproducts-ch.leonteq.com/services/prospectuses?language_id=1",
+      "classification": "public_legal_documents",
+      "observed_capabilities": [
+        "base prospectuses",
+        "programme documents",
+        "historical prospectus versions"
+      ],
+      "limitations": [
+        "Base prospectuses define legal/product frameworks, not individual realized outcomes."
+      ]
+    },
+    {
+      "name": "Leonteq LYNQS platform",
+      "url": "https://www.leonteq.com/our-solutions/products/for-issuers",
+      "classification": "commercial_or_client_access",
+      "observed_capabilities": [
+        "market and product data access for clients",
+        "lifecycle monitoring",
+        "barrier/autocall/coupon alerts",
+        "delta and vega",
+        "model probabilities",
+        "backward and forward testing simulations",
+        "automated product documentation"
+      ],
+      "limitations": [
+        "No public API or export entitlement was established.",
+        "Client access, licensing and redistribution must be confirmed with Leonteq."
+      ]
+    },
+    {
+      "name": "Leonteq KID/prospectus distribution",
+      "url": "https://www.leonteq.com/our-solutions/products/for-issuers",
+      "classification": "public_document_discovery",
+      "observed_capabilities": [
+        "KID availability through Leonteq PRIIPs KID Portal and LYNQS",
+        "ISIN-based document retrieval"
+      ],
+      "limitations": [
+        "KIDs are disclosure documents, not payoff outcome or dealer quote datasets."
+      ]
+    }
+  ],
+  "phoenix_relevance": {
+    "high_value_fields": [
+      "worst_of_or_minimum_performance_rule",
+      "coupon_barrier",
+      "autocall_barrier",
+      "observation_schedule",
+      "memory_coupon",
+      "initial_fixing",
+      "maturity",
+      "issuer_credit",
+      "currency",
+      "listing_and_liquidity"
+    ],
+    "not_observed_as_public_bulk_data": [
+      "complete historical product universe export",
+      "historical dealer quote snapshots",
+      "verified realized maturity outcomes",
+      "full historical bid/ask time series",
+      "public machine-readable API contract"
+    ]
+  },
+  "recommended_next_steps": [
+    "Use Leonteq public pages as term-sheet discovery and schema examples.",
+    "Collect only permitted documents and retain URL, retrieval timestamp and SHA-256 hash.",
+    "Ask Leonteq for authorized API/export access to LYNQS or product data.",
+    "Do not scrape at scale or bypass access controls.",
+    "Keep Leonteq terms, live quotes and realized outcomes in separate evidence classes.",
+    "Join underlier histories only with as-of timestamps and no-lookahead controls."
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

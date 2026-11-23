@@ -1,0 +1,366 @@
+{
+  "proposal_id": "phoenix-engine-variable-replay-10-cycles-v1",
+  "status": "research_only",
+  "method": "Deterministic research fixture with documented tenor and ticker substitutions; not market evidence.",
+  "cycles": [
+    {
+      "cycle": 1,
+      "scenario": "base_24m",
+      "basket": [
+        "DAL",
+        "META",
+        "CRWD",
+        "BA",
+        "RCL",
+        "SBUX"
+      ],
+      "term_months": 24,
+      "p_loss_pct": 18.3,
+      "confidence": "LOW",
+      "data_quality": "incomplete",
+      "unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "insufficient_observation_tickers": [
+        "SBUX"
+      ],
+      "warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 2,
+      "scenario": "short_12m",
+      "basket": [
+        "DAL",
+        "META",
+        "CRWD",
+        "BA",
+        "RCL",
+        "SBUX"
+      ],
+      "term_months": 12,
+      "p_loss_pct": 8.5,
+      "confidence": "LOW",
+      "data_quality": "incomplete",
+      "unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "insufficient_observation_tickers": [
+        "SBUX"
+      ],
+      "warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 3,
+      "scenario": "short_18m",
+      "basket": [
+        "DAL",
+        "META",
+        "CRWD",
+        "BA",
+        "RCL",
+        "SBUX"
+      ],
+      "term_months": 18,
+      "p_loss_pct": 12.6,
+      "confidence": "LOW",
+      "data_quality": "incomplete",
+      "unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "insufficient_observation_tickers": [
+        "SBUX"
+      ],
+      "warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 4,
+      "scenario": "long_30m",
+      "basket": [
+        "DAL",
+        "META",
+        "CRWD",
+        "BA",
+        "RCL",
+        "SBUX"
+      ],
+      "term_months": 30,
+      "p_loss_pct": 25.8,
+      "confidence": "LOW",
+      "data_quality": "incomplete",
+      "unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "insufficient_observation_tickers": [
+        "SBUX"
+      ],
+      "warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 5,
+      "scenario": "long_36m",
+      "basket": [
+        "DAL",
+        "META",
+        "CRWD",
+        "BA",
+        "RCL",
+        "SBUX"
+      ],
+      "term_months": 36,
+      "p_loss_pct": 35.1,
+      "confidence": "LOW",
+      "data_quality": "incomplete",
+      "unknown_tickers": [
+        "CRWD",
+        "BA",
+        "RCL"
+      ],
+      "insufficient_observation_tickers": [
+        "SBUX"
+      ],
+      "warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 6,
+      "scenario": "replace_crwd",
+      "basket": [
+        "DAL",
+        "META",
+        "AAPL",
+        "BA",
+        "RCL",
+        "SBUX"
+      ],
+      "term_months": 24,
+      "p_loss_pct": 18.8,
+      "confidence": "LOW",
+      "data_quality": "incomplete",
+      "unknown_tickers": [
+        "BA",
+        "RCL"
+      ],
+      "insufficient_observation_tickers": [
+        "SBUX"
+      ],
+      "warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 7,
+      "scenario": "replace_ba",
+      "basket": [
+        "DAL",
+        "META",
+        "CRWD",
+        "MSFT",
+        "RCL",
+        "SBUX"
+      ],
+      "term_months": 24,
+      "p_loss_pct": 17.2,
+      "confidence": "LOW",
+      "data_quality": "incomplete",
+      "unknown_tickers": [
+        "CRWD",
+        "RCL"
+      ],
+      "insufficient_observation_tickers": [
+        "SBUX"
+      ],
+      "warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 8,
+      "scenario": "replace_rcl",
+      "basket": [
+        "DAL",
+        "META",
+        "CRWD",
+        "BA",
+        "GOOG",
+        "SBUX"
+      ],
+      "term_months": 24,
+      "p_loss_pct": 17.4,
+      "confidence": "LOW",
+      "data_quality": "incomplete",
+      "unknown_tickers": [
+        "CRWD",
+        "BA"
+      ],
+      "insufficient_observation_tickers": [
+        "SBUX"
+      ],
+      "warnings": [
+        "unknown ticker toxicity is a research proxy",
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 9,
+      "scenario": "known_basket",
+      "basket": [
+        "DAL",
+        "META",
+        "AAPL",
+        "MSFT",
+        "GOOG",
+        "SBUX"
+      ],
+      "term_months": 24,
+      "p_loss_pct": 14.5,
+      "confidence": "LOW",
+      "data_quality": "complete",
+      "unknown_tickers": [],
+      "insufficient_observation_tickers": [
+        "SBUX"
+      ],
+      "warnings": [
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    {
+      "cycle": 10,
+      "scenario": "known_basket_36m",
+      "basket": [
+        "DAL",
+        "META",
+        "AAPL",
+        "MSFT",
+        "GOOG",
+        "SBUX"
+      ],
+      "term_months": 36,
+      "p_loss_pct": 28.9,
+      "confidence": "LOW",
+      "data_quality": "complete",
+      "unknown_tickers": [],
+      "insufficient_observation_tickers": [
+        "SBUX"
+      ],
+      "warnings": [
+        "ticker history is too small for stable standalone calibration"
+      ],
+      "agent_score": 70.0,
+      "agent_disagreement": 0.895,
+      "director_status": "blocked_by_guardian",
+      "agents_ok": 7,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    }
+  ],
+  "impact": {
+    "p_loss_min_pct": 8.5,
+    "p_loss_max_pct": 35.1,
+    "p_loss_range_pct": 26.6,
+    "agent_score_min": 70.0,
+    "agent_score_max": 70.0,
+    "agent_score_range": 0.0,
+    "engine_weights_changed": false,
+    "canonical_verdict_changed": false,
+    "trades_created": false
+  },
+  "limitations": [
+    "No real market path simulation",
+    "No fixed-24m OOS labels",
+    "Ticker substitutions are research perturbations",
+    "Agent fixture inputs are not evidence"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

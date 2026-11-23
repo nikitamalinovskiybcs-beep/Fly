@@ -1,0 +1,16 @@
+{
+  "proposal_id": "supabase-storage-recovery-v1",
+  "component": "storage",
+  "title": "Make Supabase endpoint failures explicit and preserve local fallback",
+  "change": "Add deterministic endpoint validation, sanitized diagnostics, and tests around CloudSync initialization without changing production state.",
+  "decision": "RESEARCH",
+  "implementation_files": [
+    "src/storage/cloud_sync.py",
+    "src/storage/__init__.py",
+    "tests/test_storage.py"
+  ],
+  "metric_gate": "CloudSync disabled on invalid endpoint; local storage remains operational",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

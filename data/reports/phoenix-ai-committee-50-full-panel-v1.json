@@ -1,0 +1,191 @@
+{
+  "proposal_id": "phoenix-ai-committee-50-full-panel-v1",
+  "generated_at": "2026-08-03T21:34:04.677876+00:00",
+  "scope": "Review of 50 extracted SEC term sheets for training/OOS readiness.",
+  "implementation_files": [
+    "data/reports/phoenix-sec-term-sheet-extraction-50-v1.json",
+    "data/reports/phoenix-ai-committee-50-full-panel-v1.json"
+  ],
+  "baseline": "0/50 verified lifecycle outcomes and incomplete extraction provenance",
+  "target": "Validated contractual terms plus independently verified outcomes before training/OOS",
+  "observed_metric": "3/3 completed providers reject readiness; 3 providers unavailable",
+  "packet_summary": {
+    "records": 50,
+    "title_extracted": "50/50",
+    "issuer_extracted": "50/50",
+    "final_date_parsed": "42/50",
+    "underlyings_parsed": "17/50",
+    "derived_active": 22,
+    "derived_maturity_pending": 20,
+    "derived_unknown": 8,
+    "verified_outcomes": "0/50",
+    "market_joins": "pending"
+  },
+  "votes": [
+    {
+      "provider": "mistral",
+      "model": "mistral-small-latest",
+      "status": "completed",
+      "decision": "not_ready",
+      "response": {
+        "decision": "not_ready",
+        "strengths": [
+          "High extraction accuracy for title (100%) and issuer (100%) fields.",
+          "Preliminary expected dates exist for market joins, indicating some progress."
+        ],
+        "blockers": [
+          "Critical fields like final valuation date (84% accuracy) and underlyings (34% accuracy) have low extraction rates.",
+          "No verified outcomes (0/50), raising concerns about data reliability.",
+          "Derived lifecycle states (e.g., active, maturity_pending) are not treated as realized outcomes, complicating training."
+        ],
+        "field_errors": {
+          "final_valuation_date": "6/50 missing or incorrect",
+          "underlyings": "33/50 missing or incorrect"
+        },
+        "required_human_checks": [
+          "Manual review of all 50 term-sheets to validate final valuation date and underlyings.",
+          "Verification of preliminary expected dates against actual market joins.",
+          "Cross-check derived lifecycle states with source documents."
+        ],
+        "acceptance_tests": [
+          "Achieve \u226595% accuracy for final valuation date and underlyings.",
+          "Confirm at least 40/50 term-sheets have verified outcomes.",
+          "Validate derived lifecycle states align with source documents."
+        ],
+        "dissent": "Some stakeholders may argue to proceed with training using preliminary data, citing high accuracy for title/issuer and expected dates.",
+        "safety_flags": [
+          "No verified outcomes pose a risk of training on incorrect or incomplete data.",
+          "Low underlyings extraction rate may lead to incomplete risk assessments in OOS models."
+        ]
+      }
+    },
+    {
+      "provider": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "status": "completed",
+      "decision": "not_ready",
+      "response": {
+        "decision": "not_ready",
+        "strengths": [
+          "title extraction successful for all 50 documents",
+          "issuer extraction successful for all 50 documents",
+          "preliminary expected dates exist"
+        ],
+        "blockers": [
+          "low underlyings extraction rate (17/50)",
+          "no verified outcomes",
+          "market joins pending"
+        ],
+        "field_errors": [
+          "final valuation date missing for 8 documents",
+          "derived status unknown for 8 documents"
+        ],
+        "required_human_checks": [
+          "underlyings extraction",
+          "final valuation date verification",
+          "derived status verification"
+        ],
+        "acceptance_tests": [
+          "title extraction accuracy",
+          "issuer extraction accuracy",
+          "underlyings extraction accuracy"
+        ],
+        "dissent": "low extraction rates and lack of verified outcomes raise concerns about model performance",
+        "safety_flags": [
+          "potential for incorrect derived status",
+          "incomplete market data"
+        ]
+      }
+    },
+    {
+      "provider": "openrouter",
+      "model": "openai/gpt-4o-mini",
+      "status": "completed",
+      "decision": "Not Ready for Training/OOS",
+      "response": {
+        "decision": "Not Ready for Training/OOS",
+        "strengths": {
+          "title": "50/50",
+          "issuer": "50/50",
+          "final_date": "42/50"
+        },
+        "blockers": {
+          "underlyings": "17/50",
+          "derived_active": "22",
+          "maturity_pending": "20",
+          "unknown": "8",
+          "verified_outcomes": "0/50"
+        },
+        "field_errors": [],
+        "required_human_checks": [
+          "Review underlyings data",
+          "Verify derived active status",
+          "Clarify maturity pending cases",
+          "Investigate unknown entries"
+        ],
+        "acceptance_tests": [
+          "Ensure at least 80% of fields are complete",
+          "Verify that all outcomes are realized before training"
+        ],
+        "dissent": [],
+        "safety_flags": [
+          "Market joins pending",
+          "Preliminary expected dates not confirmed"
+        ]
+      }
+    },
+    {
+      "provider": "gemini",
+      "model": "gemini-2.0-flash",
+      "status": "unavailable",
+      "decision": null,
+      "error": "quota exceeded / RESOURCE_EXHAUSTED"
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-3-5-haiku-latest",
+      "status": "unavailable",
+      "decision": null,
+      "error": "credit balance too low"
+    },
+    {
+      "provider": "alama",
+      "model": "unknown",
+      "status": "unavailable",
+      "decision": null,
+      "error": "provider endpoint/model not configured"
+    }
+  ],
+  "consensus": {
+    "completed_votes": 3,
+    "not_ready_votes": 3,
+    "decision": "REJECTED_FOR_TRAINING",
+    "reason": "All completed external reviewers reject training/OOS readiness until underlyings, dates, lifecycle semantics and verified outcomes are fixed. Unavailable providers are not counted as approval."
+  },
+  "dissent": [
+    "No completed provider supported training/OOS readiness.",
+    "Gemini and Anthropic were unavailable; Alama was not configured.",
+    "AI recommendations are research input, not evidence."
+  ],
+  "required_next_steps": [
+    "Fix underlying/date extraction and human-validate all 50 records.",
+    "Exclude preliminary expected dates or replace with final terms.",
+    "Join as-of market data without lookahead.",
+    "Obtain independently verified autocall/coupon/maturity outcomes.",
+    "Re-run chronological OOS and baseline comparison."
+  ],
+  "blockers": [
+    "Underlyings extracted for only 17/50 records.",
+    "Final valuation date parsed for only 42/50 records.",
+    "All 50 outcomes are not_verified.",
+    "Market joins and human validation are pending.",
+    "Gemini quota, Anthropic billing and Alama endpoint are unavailable."
+  ],
+  "next_experiment": "Human-validate and correct all 50 records, then rerun the panel on the corrected extraction.",
+  "final_devin_validation": "Three completed external votes agree on not-ready; unavailable providers were preserved and not counted as approval.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

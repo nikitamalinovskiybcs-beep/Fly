@@ -1,0 +1,339 @@
+name: AICS Master Pipeline & PIT Audit
+on:
+  workflow_dispatch:
+    inputs:
+      as_of_date:
+        description: 'Frozen source PIT cutoff (currently only 2026-11-18)'
+        required: false
+        default: '2026-11-18'
+  schedule:
+    - cron: '0 6 * * 1-5'
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - '.github/workflows/aics-master-run.yml'
+      - 'scripts/aics_master_pipeline.py'
+      - 'scripts/aics_observed_source_review.py'
+      - 'tests/test_aics_observed_source_review.py'
+      - 'aics_data/source_registry/observed_review_2026-11-19.json'
+      - 'aics_data/research/observed_source_review_2026-11-19.json'
+      - 'scripts/aics_pit_research_slice.py'
+      - 'scripts/aics_fill_11_nodes_pit.py'
+      - 'tests/test_aics_master_pipeline.py'
+      - 'tests/test_aics_pit_integrity.py'
+      - 'tests/test_aics_pit_integrity_v1_2_0.py'
+      - 'scripts/aics_collect_evidence.py'
+      - 'scripts/aics_fred_cutoff.py'
+      - 'tests/test_aics_fred_cutoff.py'
+      - 'scripts/aics_validate_evidence.py'
+      - 'scripts/aics_collect_xbrl.py'
+      - 'scripts/aics_validate_xbrl.py'
+      - 'scripts/aics_audit_node_coverage.py'
+      - 'scripts/aics_research_readiness.py'
+      - 'scripts/aics_ten_stage_receipt.py'
+      - 'scripts/aics_collect_ai_equities_prices.py'
+      - 'scripts/aics_validate_ai_equities_capture.py'
+      - 'scripts/aics_audit_ai_equities_action_pit.py'
+      - 'scripts/aics_collect_ai_equities_symbol_directory.py'
+      - 'tests/test_aics_ai_equities_symbol_directory.py'
+      - 'aics_data/source_registry/ai_equities_action_pit_registry_2026-11-19.json'
+      - 'tests/test_aics_ai_equities_action_pit.py'
+      - 'tests/test_aics_ai_equities_capture.py'
+      - 'tests/test_aics_research_safety.py'
+      - 'tests/test_aics_reconcile_company_universe.py'
+      - 'scripts/aics_reconcile_company_universe.py'
+      - 'scripts/aics_collect_public_chain_sec_filings.py'
+      - 'tests/test_aics_collect_public_chain_sec_filings.py'
+      - 'aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json'
+      - 'aics_data/research/spydell_telegram_nvidia_circular_financing_claims_2026-11-18.json'
+      - '.github/workflows/aics-evidence.yml'
+      - '.github/workflows/aics-ten-stage-auto.yml'
+      - 'aics_data/progress/status.json'
+      - 'aics_data/source_registry/sec_spv_neoclouds_filings_2026-11-18.json'
+      - 'aics_data/research/nyfed_repo_original_archive_independent_rehash_2026_11_18.json'
+      - 'aics_data/research/alfred_iorb_power_vintage_revision_independent_receipt_2026_11_18.json'
+permissions:
+  contents: read
+concurrency:
+  group: aics-master-safe-audit-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  aics-pit-verify-and-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run actual arithmetic invariant and fail-closed score gate tests
+        run: |
+          python -m unittest discover -s tests -p 'test_aics_score_reproducibility_gate.py' -v
+          python -m unittest discover -s tests -p 'test_aics_minimal_model.py' -v
+      - name: Run AICS frozen evidence and existing 11-node PIT integrity tests
+        run: python -m unittest discover -s tests -p 'test_aics_pit_integrity.py' -v
+      - name: Run adapted user v1.2.0 SEC+14 ALFRED vintage and multiplier tests
+        run: python -m unittest discover -s tests -p 'test_aics_pit_integrity_v1_2_0.py' -v
+      - name: Test master runner never promotes unverified raw sources
+        run: python -m unittest discover -s tests -p 'test_aics_master_pipeline.py' -v
+      - name: Unified AICS offline source, PIT-safety and provenance regression
+        run: |
+          python -m unittest discover -s tests -p 'test_aics_research_safety.py' -v
+          python -m unittest discover -s tests -p 'test_aics_fred_cutoff.py' -v
+          python -m unittest discover -s tests -p 'test_aics_progress_dashboard.py' -v
+          python -m unittest discover -s tests -p 'test_aics_ai_equities_prices.py' -v
+          python -m unittest discover -s tests -p 'test_aics_ai_equities_capture.py' -v
+          python -m unittest discover -s tests -p 'test_aics_ai_equities_action_pit.py' -v
+          python -m unittest discover -s tests -p 'test_aics_ai_equities_symbol_directory.py' -v
+          python -m unittest discover -s tests -p 'test_aics_extended_company_universe.py' -v
+          python -m unittest discover -s tests -p 'test_aics_reconcile_company_universe.py' -v
+          python -m unittest discover -s tests -p 'test_aics_collect_public_chain_sec_filings.py' -v
+      - name: Audit complete 37-company OMI/Telegram research-chain scope
+        run: |
+          python -m scripts.aics_reconcile_company_universe --out aics_data/research/aics_full_37_company_scope.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from scripts.aics_collect_ai_equities_prices import RESEARCH_SYMBOLS
+          reg=json.loads(Path('aics_data/research/aics_extended_company_universe_omi_telegram_2026-11-18.json').read_text())
+          graph=json.loads(Path('aics_data/research/aics_full_37_company_scope.json').read_text())
+          assert graph['counts']=={'all_candidates':37,'omi_pdf_named':26,'telegram_only':11,'separate_project_groups':3}
+          assert len(graph['nodes'])==11
+          assert len(RESEARCH_SYMBOLS)==7
+          assert sum('AI Equities' in c['candidate_nodes'] for c in reg['companies'])==8
+          assert len(reg['companies'])==37 and len(reg['reported_relationships'])==3
+          assert graph['milestones_added']==0 and graph['independently_certified_nodes']==0
+          assert graph['aggregated_exposure_usd'] is None and graph['index_aics'] is None
+          assert graph['node_stress_scores'] is None and graph['promotion']=='BLOCKED'
+          print('Separate 7 price tickers, 8 secondary PDF equity candidates and 37 company risk-chain candidates.')
+          PY
+      - name: Audit corporate actions and historical constituents without market backfill
+        run: python -m scripts.aics_audit_ai_equities_action_pit
+      - name: Reconfirm fixed node weights and evidence progress without promoting scores
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          status=json.loads(Path('aics_data/progress/status.json').read_text(encoding='utf-8'))
+          assert status['total_nodes'] == 11 and status['total_weight'] == 1050
+          assert status['milestones_total'] == 66
+          assert sum(n['completed_milestones'] for n in status['node_progress']) == status['milestones_completed']
+          assert len(status['node_progress']) == 11
+          assert all(sum(bool(g) for g in n['gates'].values()) == n['completed_milestones'] for n in status['node_progress'])
+          if status['independently_certified_nodes'] < 11:
+              assert status['index_aics'] is None and status['promotion'] == 'BLOCKED'
+          assert status['trades_created'] is False
+          print('AICS workboard integrity OK; technical progress is not independent PIT or certification.')
+          PY
+      - name: Reconcile 11 node evidence at frozen historical cutoff
+        env:
+          AICS_AS_OF_DATE: ${{ inputs.as_of_date || '2026-11-18' }}
+        run: python -m scripts.aics_master_pipeline --as-of "$AICS_AS_OF_DATE"
+      - name: Prove output remains non-certified and cannot renormalize 1050
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          p = Path('docs/audit/aics_master_ci_report_2026-11-18.json')
+          evidence = Path('docs/audit/aics_11_node_free_source_pit_2026-11-18.json')
+          assert p.is_file() and evidence.is_file()
+          report = json.loads(p.read_text(encoding='utf-8'))
+          data = json.loads(evidence.read_text(encoding='utf-8'))
+          assert report['as_of'] == data['as_of'] == '2026-11-18'
+          assert report['collection_performed_by_master'] is False
+          assert report['total_nodes'] == 11
+          assert report['weights_fixed'] == 1050
+          assert report['independently_certified_nodes'] == 0
+          assert report['index_aics'] is None
+          assert report['alfred_power_ppi_revision_events'] == 69
+          assert report['alfred_power_ppi_unique_economic_dates_revised'] == 25
+          assert report['alfred_iorb_revision_events'] == 0
+          assert report['alfred_original_asof_source_files_rehashed'] == 48
+          assert not report['alfred_revision_historical_release_pit_attested']
+          assert report['promotion'] == 'BLOCKED'
+          assert data['reweight_after_ipo_permitted'] is False
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as output:
+              print('## AICS master frozen-source PIT audit', file=output)
+              print('11 nodes, fixed weights 1050, no backfilled historical observations.', file=output)
+              print('SEC +14 days and ALFRED vintage isolation: unit tests executed.', file=output)
+              print('This job audits existing source receipts; dedicated collectors are separate.', file=output)
+              print('**Independent PIT 0/11, certified AICS N/A, no trading.**', file=output)
+          PY
+      - name: Upload honest frozen source PIT report for Investment Committee
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-master-frozen-pit-audit-${{ github.run_id }}
+          path: |
+            docs/audit/aics_*_2026-11-18.json
+            aics_data/research/ai_equities_action_pit_gap_report.json
+            aics_data/research/aics_full_37_company_scope.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  aics-live-source-collection:
+    name: Live SEC/FRED research source receipts (never certified PIT)
+    # A single scheduled/manual AICS run collects once; ordinary code pushes stay offline.
+    needs: aics-pit-verify-and-audit
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[aics-live]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Reproduce frozen issuer and G.17 observations from dated originals
+        if: github.event_name != 'schedule'
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_observed_source_review --fetch \
+            --originals aics_data/source_evidence/observed_review/originals \
+            --out aics_data/source_evidence/observed_review/report.json
+          cmp aics_data/source_evidence/observed_review/report.json aics_data/research/observed_source_review_2026-11-19.json
+      - name: Compile evidence acquisition and audit scripts
+        run: >-
+          python -m py_compile
+          scripts/aics_collect_evidence.py
+          scripts/aics_fred_cutoff.py
+          scripts/aics_validate_evidence.py
+          scripts/aics_collect_xbrl.py
+          scripts/aics_validate_xbrl.py
+          scripts/aics_audit_node_coverage.py
+          scripts/aics_research_readiness.py
+          scripts/aics_ten_stage_receipt.py
+          scripts/aics_audit_ai_equities_action_pit.py
+          scripts/aics_collect_ai_equities_symbol_directory.py
+          scripts/aics_collect_public_chain_sec_filings.py
+      - name: Collect SEC submissions and FRED candidate rows
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY || secrets.AICS_SEC_USER_AGENT || secrets.SEC_USER_AGENT }}
+        run: python scripts/aics_collect_evidence.py
+      - name: Validate raw source lineage and SEC plus 14 days
+        if: always()
+        run: python scripts/aics_validate_evidence.py
+      - name: Collect original SEC companyfacts candidates
+        if: always()
+        env:
+          EDGAR_IDENTITY: ${{ secrets.EDGAR_IDENTITY || secrets.AICS_SEC_USER_AGENT || secrets.SEC_USER_AGENT }}
+        run: python scripts/aics_collect_xbrl.py
+      - name: Verify XBRL source lineage and SEC embargo
+        if: always()
+        run: python scripts/aics_validate_xbrl.py
+      - name: Audit all 11 research nodes without synthetic scores
+        if: always()
+        run: python scripts/aics_audit_node_coverage.py
+      - name: Rebuild fail-closed readiness
+        if: always()
+        run: python scripts/aics_research_readiness.py
+      - name: Preserve 10-gate diagnostics as a receipt, not separate CI runs
+        if: always()
+        run: python scripts/aics_ten_stage_receipt.py
+      - name: Collect current Nasdaq research price originals, never a historical vintage
+        if: always()
+        run: python scripts/aics_collect_ai_equities_prices.py --out aics_data/source_evidence/ai_equities_live
+      - name: Rehash seven original Nasdaq responses with no look-ahead promotion
+        if: always()
+        run: python -m scripts.aics_validate_ai_equities_capture --out aics_data/source_evidence/ai_equities_live
+      - name: Repeat corporate action and membership evidence gap audit
+        if: always()
+        run: python -m scripts.aics_audit_ai_equities_action_pit --out aics_data/source_evidence/ai_equities_live/action_pit_gap_report.json
+      - name: Capture official Nasdaq Trader current symbol directories (2 files)
+        if: always()
+        run: python -m scripts.aics_collect_ai_equities_symbol_directory --mode collect --out aics_data/source_evidence/ai_equities_directory_live
+      - name: Independently rehash original exchange files and seven current symbols
+        if: always()
+        run: python -m scripts.aics_collect_ai_equities_symbol_directory --mode audit --out aics_data/source_evidence/ai_equities_directory_live
+      - name: Capture SEC submissions originals for nine public AI-chain issuers
+        if: always()
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: python -m scripts.aics_collect_public_chain_sec_filings --mode collect --out aics_data/source_evidence/public_chain_sec_live
+      - name: Independently rehash nine SEC originals and enforce eligible filed plus 14 days
+        if: always()
+        run: python -m scripts.aics_collect_public_chain_sec_filings --mode audit --out aics_data/source_evidence/public_chain_sec_live
+      - name: Require complete and explicitly unverified source acquisition
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('aics_data')
+          def load(path):
+              p=root/path
+              return json.loads(p.read_text(encoding='utf-8')) if p.is_file() else {}
+          live=load('live/manifest.json')
+          xbrl=load('xbrl/manifest.json')
+          lq=load('live/quality_report.json')
+          xq=load('xbrl/quality_report.json')
+          coverage=load('research/node_coverage.json')
+          readiness=load('research/readiness_report.json')
+          receipt=load('research/ten_stage_receipt.json')
+          equities=load('source_evidence/ai_equities_live/prospective_rehash_receipt.json')
+          actions=load('source_evidence/ai_equities_live/action_pit_gap_report.json')
+          directory=load('source_evidence/ai_equities_directory_live/rehash_receipt.json')
+          issuersec=load('source_evidence/public_chain_sec_live/rehash_receipt.json')
+          assert len(live.get('results', [])) == 10, 'Missing SEC/FRED source manifest'
+          assert all(s.get('status') == 'downloaded_unverified' for s in live['results']), 'Source download failed'
+          assert lq.get('total', 0) > 0 and lq.get('passed') == lq['total'], 'Source quality gate blocked'
+          assert len(xbrl.get('results', [])) == 6, 'Missing SEC XBRL manifest'
+          assert all(s.get('status') == 'downloaded_unverified' for s in xbrl['results']), 'XBRL download failed'
+          assert xq.get('passed') is True, 'XBRL quality gate blocked'
+          assert coverage.get('fixed_weight_sum') == 1050 and len(coverage.get('nodes', [])) == 11
+          assert coverage.get('validated_nodes') == 0 and coverage.get('index_aics') is None
+          assert readiness.get('ready_for_production') is False and readiness.get('index_aics') is None
+          assert receipt.get('total') == 10 and receipt.get('ready_for_production') is False
+          assert receipt.get('index_aics') is None and receipt.get('promotion') == 'BLOCKED'
+          assert equities.get('local_original_rehashes') == 7, 'Seven original Nasdaq responses not locally rehashed'
+          assert equities.get('historical_price_pit_attested') is False
+          assert equities.get('point_in_time_membership_attested') is False
+          assert equities.get('corporate_action_adjustment_pit_attested') is False
+          assert equities.get('index_aics') is None and equities.get('promotion') == 'BLOCKED'
+          assert actions.get('requested_original_facets') == 21
+          assert actions.get('historical_pit_verified') is False
+          assert actions.get('absence_of_event_proven') is False
+          assert actions.get('node_stress_score') is None and actions.get('index_aics') is None
+          assert actions.get('promotion') == 'BLOCKED'
+          assert directory.get('files_original_bytes_rehashed') == 2
+          assert directory.get('research_securities_observed') == 7
+          assert directory.get('historical_pit_attested') is False
+          assert directory.get('historical_constituency_attested') is False
+          assert directory.get('corporate_actions_pit_attested') is False
+          assert directory.get('index_aics') is None and directory.get('promotion') == 'BLOCKED'
+          assert issuersec.get('original_sec_issuers_rehashed') == 9
+          assert issuersec.get('historical_pit_attested') is False
+          assert issuersec.get('node_stress_scores') is None and issuersec.get('index_aics') is None
+          assert issuersec.get('promotion') == 'BLOCKED'
+          assert all(s.get('status') in ('PASS', 'BLOCKED') for s in receipt['stages'])
+          with open(Path('/dev/stdout'),'w') as output:
+              print('PASS: 10 SEC/FRED and 6 XBRL source candidates acquired and validated.',file=output)
+              print('PIT attestation, score, independent OOS and AICS certification remain BLOCKED.',file=output)
+          PY
+      - name: Retain raw evidence and audit even when acquisition is blocked
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-master-live-original-evidence-${{ github.run_id }}
+          path: |
+            aics_data/live/
+            aics_data/xbrl/
+            aics_data/source_evidence/ai_equities_live/
+            aics_data/source_evidence/ai_equities_directory_live/
+            aics_data/source_evidence/public_chain_sec_live/
+            aics_data/source_evidence/observed_review/
+            aics_data/research/node_coverage.json
+            aics_data/research/readiness_report.json
+            aics_data/research/ten_stage_receipt.json
+          if-no-files-found: warn
+          retention-days: 30

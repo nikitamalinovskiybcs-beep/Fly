@@ -1,0 +1,69 @@
+{
+  "proposal_id": "phoenix-external-compliance-overview-v1",
+  "decision": "RESEARCH",
+  "committee_verdict": "BLOCKED_FOR_LIVE_USE",
+  "document": "docs/external-compliance-project-overview-v1.md",
+  "provider_reviews": [
+    {
+      "provider": "ollama",
+      "model": "qwen2.5:1.5b",
+      "status": "completed",
+      "verdict": "approved",
+      "interpretation": "Advisory wording review only; not compliance approval."
+    },
+    {
+      "provider": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "status": "completed",
+      "verdict": "revise",
+      "key_findings": [
+        "State limitations and potential biases more explicitly.",
+        "Clarify data validation and evidence classes.",
+        "Clarify AI proposals versus human approvals."
+      ]
+    },
+    {
+      "provider": "openrouter",
+      "model": "openai/gpt-4o-mini",
+      "status": "completed",
+      "verdict": "BLOCKED — EVIDENCE OR CONTROL GAPS",
+      "key_findings": [
+        "Independent fixed-24m OOS/paper evidence is not confirmed.",
+        "Realized-note sample and outcome quality are insufficient.",
+        "Timestamped dealer quote provenance and quote-fit are not validated.",
+        "Independent model validation and human model-risk sign-off are required."
+      ]
+    },
+    {
+      "provider": "mistral",
+      "model": "mistral-small-latest",
+      "status": "deferred",
+      "reason": "HTTP 429 rate limit"
+    }
+  ],
+  "selected_action": "Publish a compliance-safe external overview with explicit limitations, prohibited claims, conditions precedent, and reviewer checklist.",
+  "implementation_files": [
+    "docs/external-compliance-project-overview-v1.md"
+  ],
+  "acceptance_tests": [
+    "No claim of guaranteed returns, proven live win rate, compliance approval, or suitability.",
+    "Research, replay, paper, simulated, estimated, and realized evidence are separated.",
+    "Fixed-24m/OOS, quote provenance, realized sample, independent validation, and human approval are listed as blockers.",
+    "AI committee is described as advisory and non-authoritative.",
+    "External reviewer receives a due-diligence checklist and explicit conclusion states."
+  ],
+  "baseline": {
+    "commercial_classification": "diagnostic software only while evidence gate is blocked"
+  },
+  "target": {
+    "commercial_classification": "compliance-ready review material, not live-product approval"
+  },
+  "observed_metric": {
+    "unsupported_promotional_claims_added": 0,
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "human_review_required": true,
+  "legal_or_regulatory_approval": false
+}

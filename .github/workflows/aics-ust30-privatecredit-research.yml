@@ -1,0 +1,104 @@
+name: AICS UST30 and Private Credit original ALFRED source research
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_derive_ust30_privatecredit_research.py'
+      - 'tests/test_aics_derive_ust30_privatecredit_research.py'
+      - 'aics_data/research/ust30_24_month_public_observed_panel_2026-11-18.json'
+      - 'aics_data/research/alfred_macro_archive_rehash_2026_11_18.json'
+      - '.github/workflows/aics-ust30-privatecredit-research.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original-source-panel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test primary source integrity and zero-forecast integrity
+        run: |
+          python -m py_compile scripts/aics_derive_ust30_privatecredit_research.py
+          python -m unittest discover -s tests -p 'test_aics_derive_ust30_privatecredit_research.py' -v
+      - name: Fetch exactly archived four-series ALFRED macro original ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          curl --fail --silent --show-error --location --retry 2 --max-time 90 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GH_REPO/actions/artifacts/14432003774/zip" \
+            -o "$RUNNER_TEMP/aics_macro_archive.zip"
+      - name: Independently check 165913 vintage rows and calculate 24 real DGS30 observations
+        run: |
+          python -m scripts.aics_derive_ust30_privatecredit_research \
+            --archive "$RUNNER_TEMP/aics_macro_archive.zip"
+      - name: Ensure real-source observations and prevent licensing or PIT promotions
+        run: |
+          python - <<'PY'
+          import json, os
+          from decimal import Decimal
+          from pathlib import Path
+          p = Path('docs/audit/aics_ust30_private_credit_24_month_source_panel_2026-11-18.json')
+          d = json.loads(p.read_text())
+          rows = d['monthly_public_observations']
+          assert len(rows) == 24
+          assert d['observed_public_months'] == 24
+          assert len(d['source_series']) == 4
+          assert sum(x['source_rows'] for x in d['source_series'].values()) == 165913
+          assert all(x['historical_asof_queries'] == 24 for x in d['source_series'].values())
+          assert d['dgs30_last_observed_rate_percent'] == '5.32'
+          assert Decimal(d['dgs30_last_month_change_bps']) == -27
+          assert d['synthetic_market_observations_created'] == 0
+          assert d['ice_numeric_values_in_output'] is False
+          assert d['private_credit_direct_exposure_measured'] is False
+          assert d['source_provider_historical_pit_certified'] is False
+          assert d['original_2024_2026_release_timestamps_independently_attested'] is False
+          assert d['aics_index'] is None and d['promotion'] == 'BLOCKED'
+          assert d['node_scores'] == {'UST 30Y': None,'Private Credit': None,'Repo': None}
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              print('## Authentic 24-month UST30 ALFRED research panel',file=out)
+              print('DGS30 last 5.32%; month-on-month -27 basis points.',file=out)
+              print('24 archived historical as-of months; source SHA and 165913 raw rows checked.',file=out)
+              print('Private Credit ICE licensed proxies: counts/hashes only, values quarantined.',file=out)
+              print('PIT publication dates/OOS not independently attested; AICS N/A.',file=out)
+          PY
+      - name: Cross-check 24 durable real public observations against independent source derivation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from decimal import Decimal
+          generated = json.loads(Path('docs/audit/aics_ust30_private_credit_24_month_source_panel_2026-11-18.json').read_text())
+          pinned = json.loads(Path('aics_data/research/ust30_24_month_public_observed_panel_2026-11-18.json').read_text())
+          assert generated['observed_public_months'] == len(pinned['public_series_observations']) == 24
+          assert pinned['original_csv_zip_sha256'] == generated['original_provider_zip_sha256']
+          assert pinned['source_archive_rows'] == sum(x['source_rows'] for x in generated['source_series'].values())
+          for left, right in zip(generated['monthly_public_observations'],pinned['public_series_observations']):
+              for k in ('as_of_month_end','dgs30_observation_date','sofr_observation_date'):
+                  assert left[k] == right[k]
+              for k in ('dgs30_pct','sofr_pct','dgs30_minus_sofr_bps'):
+                  assert Decimal(left[k]) == Decimal(right[k])
+          for item in pinned['licensed_credit_proxy_series']:
+              assert item['source_rows'] == generated['source_series'][item['series_id']]['source_rows']
+              assert item['raw_sha256'] == generated['source_series'][item['series_id']]['csv_sha256']
+          assert not pinned['copyright_licensed_ice_numeric_values_stored']
+          assert not pinned['independent_provider_historical_release_proven']
+          assert not pinned['untouched_24_month_oos_proven']
+          assert pinned['index_aics'] is None and pinned['promotion'] == 'BLOCKED'
+          print('Verified all 24 durable public UST30/Repo source rows and 2 licensed series receipt hashes.')
+          PY
+      - name: Preserve real UST30 observations and licensed credit coverage evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-ust30-credit-24-real-al-fred-panel
+          path: docs/audit/aics_ust30_private_credit_24_month_source_panel_2026-11-18.json
+          if-no-files-found: error
+          retention-days: 30

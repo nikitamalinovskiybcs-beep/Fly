@@ -1,0 +1,50 @@
+{
+  "proposal_id": "phoenix-consolidated-v1",
+  "decision": "RESEARCH",
+  "committee_verdict": "REVISE_BEFORE_PRODUCTION",
+  "provider_reviews": [
+    {
+      "provider": "mistral",
+      "model": "mistral-small-latest",
+      "status": "completed",
+      "verdict": "revise"
+    },
+    {
+      "provider": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "status": "completed",
+      "verdict": "revise"
+    },
+    {
+      "provider": "openrouter",
+      "model": "openai/gpt-4o-mini",
+      "status": "completed",
+      "verdict": "reject"
+    },
+    {
+      "provider": "ollama",
+      "model": "qwen2.5:1.5b",
+      "status": "error",
+      "verdict": null,
+      "reason": "review missing a verdict",
+      "counts_as_approval": false
+    }
+  ],
+  "implementation_files": [
+    "src/consolidated_readiness.py",
+    "tests/test_consolidated_readiness.py"
+  ],
+  "observed_metric": {
+    "focused_contract_tests": "pending",
+    "production_approval": false,
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "blockers": [
+    "Fixed-24m OOS and baseline evidence are not proven by this contract.",
+    "Provenance completeness and committee quorum must be supplied by callers.",
+    "Human model-risk and compliance review remain mandatory."
+  ],
+  "next_experiment": "Run the contract against a real evidence snapshot without promoting any model."
+}

@@ -1,0 +1,53 @@
+{
+  "session": "2026-11-19",
+  "universe_receipt": "ai_equities_2026_11_19_nasdaq_current_directory_rehash.json",
+  "status": "candidate_opening_inputs",
+  "weight_rule": "Equal opening notional across the seven previously identified research securities. Research convention selected retrospectively.",
+  "currency": "USD",
+  "session_return_rule": "Arithmetic mean of regular-session close/open minus one for each security. Require all seven final regular-session closes on the same raw-share basis as their opens. Verify any within-session corporate action before use. Excludes overnight returns and dividends.",
+  "rows": [
+    {
+      "symbol": "NVDA",
+      "reported_open": 152.92,
+      "source": "https://www.stockquote.io/stocks/NVDA/history",
+      "verified_close": null
+    },
+    {
+      "symbol": "MSFT",
+      "reported_open": 519.5,
+      "source": "https://www.stockquote.io/stocks/MSFT/history",
+      "verified_close": null
+    },
+    {
+      "symbol": "GOOGL",
+      "reported_open": 294.12,
+      "source": "https://www.stockquote.io/stocks/GOOGL/history",
+      "verified_close": null
+    },
+    {
+      "symbol": "AMZN",
+      "reported_open": 272.58,
+      "source": "https://finance.yahoo.com/quote/AMZN/history/?p=AMZN",
+      "verified_close": null
+    },
+    {
+      "symbol": "META",
+      "reported_open": 625,
+      "source": "https://www.stockquote.io/stocks/META/history",
+      "verified_close": null
+    },
+    {
+      "symbol": "ORCL",
+      "reported_open": 116.67,
+      "source": "https://www.stockquote.io/stocks/ORCL/history",
+      "verified_close": null
+    },
+    {
+      "symbol": "MU",
+      "reported_open": 740.43,
+      "source": "https://www.stockquote.io/stocks/MU/history",
+      "verified_close": null
+    }
+  ],
+  "note": "Secondary-vendor opens, pending primary venue reconciliation. Intraday last trades appearing in historical close columns excluded. No realized basket return or stress score."
+}

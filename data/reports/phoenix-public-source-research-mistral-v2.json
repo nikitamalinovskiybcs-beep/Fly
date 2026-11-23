@@ -1,0 +1,30 @@
+{
+  "provider": "mistral",
+  "status": 200,
+  "response": {
+    "id": "186eee7405084e0c8fde9a6579ff7c42",
+    "created": 1785798988,
+    "model": "mistral-small-latest",
+    "usage": {
+      "prompt_tokens": 125,
+      "total_tokens": 1025,
+      "completion_tokens": 900,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "service_tier": "standard"
+    },
+    "object": "chat.completion",
+    "choices": [
+      {
+        "index": 0,
+        "finish_reason": "length",
+        "message": {
+          "role": "assistant",
+          "tool_calls": null,
+          "content": "Here\u2019s a structured approach to expanding your Phoenix structured-note research dataset using the **public, lawful sources** you\u2019ve identified, while ensuring compliance with terms of use and maximizing data quality for note-level terms, realized lifecycle outcomes, and evidence classes.\n\n---\n\n### **1. Best Sources for Note-Level Terms & Payoffs**\n**Primary Sources (High Confidence, Structured Data):**\n- **Leonteq Public Product Pages**\n  - **Why?** Leonteq provides detailed product pages for many structured notes (e.g., autocallables, reverse convertibles) with payoff diagrams, term sheets, and issuer details.\n  - **How to Extract:**\n    - Scrape structured product pages (e.g., [Leonteq\u2019s product finder](https://www.leonteq.com/en/products/structured-products)) for:\n      - Underlying assets (indices, stocks, baskets)\n      - Payoff formulas (e.g., \"100% + 100% * max(0, underlying return)\")\n      - Barrier levels (knock-in/knock-out)\n      - Maturity dates\n      - Issuer (Leonteq SE)\n    - **Legal Check:** Leonteq\u2019s terms typically allow data extraction for research purposes (verify via robots.txt and terms of use).\n  - **Evidence Class:** *Structured Product Term Sheet (Tier 1)*\n\n- **payoff.ch Public Termsheet PDFs**\n  - **Why?** payoff.ch aggregates term sheets from multiple Swiss/EU issuers (e.g., Vontobel, UBS, Credit Suisse) in PDF format.\n  - **How to Extract:**\n    - Use OCR (e.g., Tesseract, AWS Textract) to parse PDFs for:\n      - Payoff conditions (e.g., \"Autocall if underlying \u2265 100% at observation date\")\n      - Coupon structures (fixed, variable, memory)\n      - Early redemption triggers\n    - **Legal Check:** payoff.ch\u2019s terms prohibit automated scraping for commercial use, but **research extraction is likely permitted** (consult their [terms](https://www.payoff.ch/terms)).\n  - **Evidence Class:** *Term Sheet PDF (Tier 1)*\n\n- **EUSIPA Aggregate Reports / Product Map**\n  - **Why?** EUSIPA (European Structured Investment Products Association) publishes annual reports with aggregated data (e.g., issuance volumes, product types) and a **product map** categorizing notes by structure.\n  - **How to Extract:**\n    - From the [EUSIPA Product Map](https://www.eusipa.org/product-map/), extract:\n      - Product categories (e.g., \"Autocallable,\" \"Airbag\")\n      - Typical payoff mechanics (e.g., \"Participation rate = 100%\")\n    - **Limitation:** No note-level data, but useful for **evidence classes** (e.g., \"Autocallable with memory feature\").\n  - **Evidence Class:** *Industry Classification (Tier 2)*\n\n---\n\n### **2. Best Sources for Realized Lifecycle Outcomes**\n**Primary Sources (Outcome Data):**\n- **SEC EDGAR (10-K/10-Q Filings of Issuers)**\n  - **Why?** US-listed structured notes (e.g., from Citigroup, Goldman Sachs) may disclose payoffs in issuer filings if the notes are debt securities.\n  - **How to Extract:**\n    - Search EDGAR for **structured note issuers** (e.g., \"Citigroup Structured Notes\") in:\n      - **10-K/10-Q** (Item 1A: Risk Factors, Item 8: Financial Statements)\n      - **8-K** (for material events like early redemption)\n    - Look for:\n      - Payoff outcomes (e.g., \"Note paid 100% principal + 5% coupon\")\n      - Default/credit events\n    - **Legal Check:** EDGAR data is **public domain**; no scraping restrictions.\n  - **Evidence Class:** *Issuer Disclosure (Tier 1)*\n\n- **Nasdaq Public Security Pages**\n  - **Why?** Nasdaq lists structured notes (e.g"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "aics-secondary-pdf-independent-sha-recheck-v1",
+  "verified_as_of": "2026-11-18",
+  "source_title": "Brace for Impact: Protecting People and the Economy When the AI Bubble Bursts",
+  "source_class": "SECONDARY_POLICY_RESEARCH_NOT_PRIMARY_MARKET_DATA",
+  "selected_edition": "user_supplied_openmarkets_original",
+  "source_urls": {
+    "original_user_url": "https://www.openmarketsinstitute.org/s/Brace-for-Impact-Scherer-Jenkins-OMI-October2026-WEB-1.pdf",
+    "secondary_publisher_mirror": "https://ourfinancialsecurity.org/wp-content/uploads/2026/10/Brace-for-Impact-Scherer-Jenkins-OMI-October2026-WEB.pdf"
+  },
+  "archived_from_github_actions": {
+    "run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44377021236",
+    "artifact_id": 14462275994,
+    "artifact_name": "aics-omi-policy-paper-source-pdf-research-only",
+    "artifact_zip_sha256": "65d3886a9e7902f0d68c5b8892ecb8adbe1ea082bfecf206fbf81390bacd9ac6"
+  },
+  "independent_sha_recalculation": {
+    "method": "Download Actions raw archive ZIP, recompute SHA-256 of both PDF members and compare to source receipt",
+    "pdfs_checked": 2,
+    "pdf_hashes_matching_manifest": 2,
+    "original_openmarkets_pdf_sha256": "466b8a875752c85e23a41d5e33ad985c44f437ddc5cf801e132310c4e28bff60",
+    "original_size_bytes": 923981,
+    "mirror_afref_pdf_sha256": "87f59ab669c766886ab5ade69039d14c04db1dd17e119ae8eb150d0acd4e5693",
+    "mirror_size_bytes": 927736,
+    "page_count_original": 88,
+    "page_count_mirror": 88,
+    "pdf_bytes_identical": false,
+    "pages_with_any_extracted_text_difference": 34,
+    "likely_variation": "copyediting, citation numbering and some textual differences; not a proven identical version"
+  },
+  "claims_from_pdf_primary_source_verified": false,
+  "metrics_from_financial_primary_sources_verified": false,
+  "sec_pit_audited": false,
+  "validated_aics_score": null,
+  "index_aics": null,
+  "predictive_skill_score": null,
+  "promotion": "BLOCKED",
+  "notes": [
+    "Publisher PDFs are verifiable raw research documents; they remain SECONDARY summaries, not original financial observation sources.",
+    "Always cite/quote selected Open Markets URL when traceable; do not silently substitute mirror for page-specific footnote verification.",
+    "Even exact PDF SHA-256 cannot prove numeric claims, date of underlying market observations or original source disclosure delay.",
+    "File artifact GitHub retention is 30 days; persisted source hashes are not a substitute for long-term original byte storage."
+  ]
+}

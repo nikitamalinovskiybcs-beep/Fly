@@ -1,0 +1,46 @@
+{
+  "verdict": "reject",
+  "summary": "Phoenix proposal batch fails promotion gate due to insufficient fixed-24m OOS evidence and unresolved data provenance issues. All proposals remain research-only pending committee recheck.",
+  "top_technical_reasons": [
+    "Fixed-24m OOS Brier and log-loss metrics do not beat empirical baseline at required anchors (6/12/18/24 months) for any proposal.",
+    "Realized-note sample and dealer quote provenance remain incomplete, violating data contract integrity.",
+    "Persistent MetaAgent state introduces test state-dependence, risking non-deterministic outcomes.",
+    "Human compliance/model-risk review is required before any implementation.",
+    "No proposal demonstrates measurable improvement in production behavior or stability."
+  ],
+  "candidate_safety": {
+    "production_weights_changed": false,
+    "trades_created": false,
+    "verdict_mutated": false
+  },
+  "next_experiments": [
+    {
+      "hypothesis": "Adding source reliability scores per field (phoenix-201) will improve fixed-24m OOS calibration without altering production behavior.",
+      "change": "Implement source reliability scoring with fallback to empirical baseline if metrics degrade.",
+      "metric_gate": "Fixed-24m OOS Brier and log-loss must beat empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "Validates whether reliability scoring enhances evidence quality without destabilizing production."
+    },
+    {
+      "hypothesis": "Validating timezone normalization at ingestion (phoenix-202) will reduce duplicate observations and improve data consistency.",
+      "change": "Add timezone normalization validation with rollback to raw timestamps if anomalies exceed threshold.",
+      "metric_gate": "Fixed-24m OOS Brier and log-loss must beat empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "Tests whether normalization reduces noise in time-series data without introducing bias."
+    },
+    {
+      "hypothesis": "Detecting duplicate observations across providers (phoenix-203) will improve data integrity without altering model inputs.",
+      "change": "Implement deduplication logic with manual review fallback for ambiguous cases.",
+      "metric_gate": "Fixed-24m OOS Brier and log-loss must beat empirical baseline at 6/12/18/24 anchors.",
+      "why_it_is_informative": "Assesses whether deduplication reduces overfitting or spurious correlations."
+    }
+  ],
+  "data_or_label_risks": [
+    "Incomplete provenance for realized notes and dealer quotes may introduce undetected biases.",
+    "Corporate-action adjustment provenance (phoenix-204) is unvalidated, risking incorrect backtesting.",
+    "MetaAgent state persistence could lead to non-reproducible test results.",
+    "No proposal addresses the root cause of insufficient fixed-24m OOS evidence."
+  ],
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

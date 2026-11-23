@@ -1,0 +1,72 @@
+{
+  "schema_version": "classical-baseline-activation-v1",
+  "baseline": "empirical_constant_rate",
+  "source": "data/reports/multi_horizon_benchmark_v2.json",
+  "anchors": [
+    6,
+    12,
+    18,
+    24
+  ],
+  "candidate_gates": {
+    "raw": {
+      "passed": false,
+      "anchors_checked": 4,
+      "passed_anchors": 0,
+      "max_ece": 0.05,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    "calibrated": {
+      "passed": false,
+      "anchors_checked": 4,
+      "passed_anchors": 0,
+      "max_ece": 0.05,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    "quant": {
+      "passed": false,
+      "anchors_checked": 4,
+      "passed_anchors": 0,
+      "max_ece": 0.05,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    "duration_transfer": {
+      "passed": false,
+      "anchors_checked": 4,
+      "passed_anchors": 0,
+      "max_ece": 0.05,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    "path_quant": {
+      "passed": false,
+      "anchors_checked": 4,
+      "passed_anchors": 0,
+      "max_ece": 0.05,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    },
+    "regime_quant": {
+      "passed": false,
+      "anchors_checked": 4,
+      "passed_anchors": 0,
+      "max_ece": 0.05,
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    }
+  },
+  "promotion_status": "blocked",
+  "reason": "no candidate passed every fixed-24m anchor",
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

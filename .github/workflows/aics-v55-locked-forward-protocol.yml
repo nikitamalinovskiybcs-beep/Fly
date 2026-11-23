@@ -1,0 +1,73 @@
+name: AICS V55 - locked prospective model conductor protocol
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v55_forward_prospective_conductor.py
+      - tests/test_aics_v55_forward_prospective_conductor.py
+      - scripts/aics_v53_hundred_model_top5_ensemble.py
+      - aics_data/research/aics_v53_frozen_top5_shadow_selection_2026-11-22.json
+      - .github/workflows/aics-v55-locked-forward-protocol.yml
+
+jobs:
+  honest-prospective-model-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout frozen V53 model
+        uses: actions/checkout@v4
+      - name: Configure Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify frozen model-code sha and future-only no-lookahead contract
+        run: |
+          python -m compileall -q scripts/aics_v55_forward_prospective_conductor.py tests/test_aics_v55_forward_prospective_conductor.py
+          python -m unittest discover -s tests -p 'test_aics_v55_forward_prospective_conductor.py' -v
+      - name: Run V55 conductor without inventing any future market observations
+        run: |
+          python -m scripts.aics_v55_forward_prospective_conductor --out aics_data/research/aics_v55_forward_model_initial_status_2026-11-22.json
+      - name: Verify all forward scores are NULL until genuine new source appears
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('aics_data/research/aics_v55_forward_model_initial_status_2026-11-22.json').read_text())
+          assert r['model_registry_hash_locked']['five_exact_frozen_expert_ids']==[
+               'EXPERT-078','EXPERT-052','EXPERT-041','EXPERT-001','EXPERT-021']
+          assert r['model_registry_hash_locked']['default_fusion']=='median'
+          assert r['next_possible_first_prospective_month']=='2026-11'
+          assert r['first_new_prospective_month_has_real_market_and_feature_snapshot'] is False
+          assert r['prospective_missing_event_outcomes_must_remain_null'] is True
+          assert r['prospective_research_score'] is None
+          assert r['old_crossing_precedes_actual_2000_or_2007_onset'] is False
+          assert r['full_11_node_AICS'] is None
+          assert r['independent_11node_PIT_certified']==0
+          assert r['original_11node_weights_unchanged']==1050
+          assert r['production_trades'] is False
+          print('V55 frozen expert contracts SHA locked; 0 fake future predictions')
+          print('Prospective score:',r['prospective_research_score'])
+          print('2000/2007 false early-warning crossing blocked:',not r['old_crossing_precedes_actual_2000_or_2007_onset'])
+          PY
+      - name: Research protocol scoreboard
+        run: |
+          python - <<'PY'
+          import json,os
+          r=json.load(open('aics_data/research/aics_v55_forward_model_initial_status_2026-11-22.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V55: actual locked forward-only model evaluation contract',file=f)
+              print('Five previously selected expert algorithms and their Git code bytes SHA-locked.',file=f)
+              print('New source first-seen timestamps must precede forecast time; self-reported forecast time cannot exceed real UTC.',file=f)
+              print('Current new prospective predictions **NULL**: no genuine new post-freeze market month and 11 features.',file=f)
+              print('History: reported AICS 2000Q4, 2007Q4 historical crossings were **after** crisis onsets 2000-03-10 / 2007-08-09, no confirmed early warning.',file=f)
+              print('No retrained model weights, no live AICS index, no trading.',file=f)
+          PY
+      - name: Archive forward-only initial model state
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v55-frozen-forward-model-null-initial-state
+          path: aics_data/research/aics_v55_forward_model_initial_status_2026-11-22.json
+          if-no-files-found: error

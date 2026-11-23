@@ -1,0 +1,234 @@
+{
+  "schema_version": "aics-ust30-24-month-durable-public-metrics-v1",
+  "as_of": "2026-11-18",
+  "generated_from_github_workflow_run": 44406350051,
+  "workflow_artifact_id": 14474144522,
+  "original_csv_artifact_id": 14432003774,
+  "original_csv_zip_sha256": "03d06b287dc591d6830223bd181db401d19ce618a785b40c25a999ab1ddd5cc3",
+  "source_csv_dgs30_sha256": "413915e59ea11080d5e2e2ae5e386309a0229feff63d2584a8ae6555cc6eff4b",
+  "source_csv_sofr_sha256": "cbf46ad84a6dfcb062d08ff9a7b0d7597987b3c637d0b181b1958b77153c58ff",
+  "source_archive_rows": 165913,
+  "public_series_observations": [
+    {
+      "as_of_month_end": "2024-11-30",
+      "dgs30_observation_date": "2024-11-27",
+      "sofr_observation_date": "2024-11-27",
+      "dgs30_pct": "4.44",
+      "sofr_pct": "4.57",
+      "dgs30_minus_sofr_bps": "-13.00"
+    },
+    {
+      "as_of_month_end": "2024-12-31",
+      "dgs30_observation_date": "2024-12-30",
+      "sofr_observation_date": "2024-12-30",
+      "dgs30_pct": "4.77",
+      "sofr_pct": "4.37",
+      "dgs30_minus_sofr_bps": "40.00"
+    },
+    {
+      "as_of_month_end": "2025-01-31",
+      "dgs30_observation_date": "2025-01-30",
+      "sofr_observation_date": "2025-01-30",
+      "dgs30_pct": "4.76",
+      "sofr_pct": "4.36",
+      "dgs30_minus_sofr_bps": "40.00"
+    },
+    {
+      "as_of_month_end": "2025-02-28",
+      "dgs30_observation_date": "2025-02-27",
+      "sofr_observation_date": "2025-02-27",
+      "dgs30_pct": "4.56",
+      "sofr_pct": "4.36",
+      "dgs30_minus_sofr_bps": "20.00"
+    },
+    {
+      "as_of_month_end": "2025-03-31",
+      "dgs30_observation_date": "2025-03-28",
+      "sofr_observation_date": "2025-03-28",
+      "dgs30_pct": "4.64",
+      "sofr_pct": "4.34",
+      "dgs30_minus_sofr_bps": "30.00"
+    },
+    {
+      "as_of_month_end": "2025-04-30",
+      "dgs30_observation_date": "2025-04-29",
+      "sofr_observation_date": "2025-04-29",
+      "dgs30_pct": "4.64",
+      "sofr_pct": "4.36",
+      "dgs30_minus_sofr_bps": "28.00"
+    },
+    {
+      "as_of_month_end": "2025-05-31",
+      "dgs30_observation_date": "2025-05-29",
+      "sofr_observation_date": "2025-05-29",
+      "dgs30_pct": "4.92",
+      "sofr_pct": "4.33",
+      "dgs30_minus_sofr_bps": "59.00"
+    },
+    {
+      "as_of_month_end": "2025-06-30",
+      "dgs30_observation_date": "2025-06-27",
+      "sofr_observation_date": "2025-06-27",
+      "dgs30_pct": "4.85",
+      "sofr_pct": "4.39",
+      "dgs30_minus_sofr_bps": "46.00"
+    },
+    {
+      "as_of_month_end": "2025-07-31",
+      "dgs30_observation_date": "2025-07-30",
+      "sofr_observation_date": "2025-07-30",
+      "dgs30_pct": "4.89",
+      "sofr_pct": "4.32",
+      "dgs30_minus_sofr_bps": "57.00"
+    },
+    {
+      "as_of_month_end": "2025-08-31",
+      "dgs30_observation_date": "2025-08-28",
+      "sofr_observation_date": "2025-08-28",
+      "dgs30_pct": "4.88",
+      "sofr_pct": "4.34",
+      "dgs30_minus_sofr_bps": "54.00"
+    },
+    {
+      "as_of_month_end": "2025-09-30",
+      "dgs30_observation_date": "2025-09-29",
+      "sofr_observation_date": "2025-09-29",
+      "dgs30_pct": "4.71",
+      "sofr_pct": "4.13",
+      "dgs30_minus_sofr_bps": "58.00"
+    },
+    {
+      "as_of_month_end": "2025-10-31",
+      "dgs30_observation_date": "2025-10-30",
+      "sofr_observation_date": "2025-10-30",
+      "dgs30_pct": "4.65",
+      "sofr_pct": "4.04",
+      "dgs30_minus_sofr_bps": "61.00"
+    },
+    {
+      "as_of_month_end": "2025-11-30",
+      "dgs30_observation_date": "2025-11-26",
+      "sofr_observation_date": "2025-11-26",
+      "dgs30_pct": "4.64",
+      "sofr_pct": "4.05",
+      "dgs30_minus_sofr_bps": "59.00"
+    },
+    {
+      "as_of_month_end": "2025-12-31",
+      "dgs30_observation_date": "2025-12-30",
+      "sofr_observation_date": "2025-12-30",
+      "dgs30_pct": "4.81",
+      "sofr_pct": "3.71",
+      "dgs30_minus_sofr_bps": "110.00"
+    },
+    {
+      "as_of_month_end": "2026-01-31",
+      "dgs30_observation_date": "2026-01-29",
+      "sofr_observation_date": "2026-01-29",
+      "dgs30_pct": "4.85",
+      "sofr_pct": "3.65",
+      "dgs30_minus_sofr_bps": "120.00"
+    },
+    {
+      "as_of_month_end": "2026-02-28",
+      "dgs30_observation_date": "2026-02-26",
+      "sofr_observation_date": "2026-02-26",
+      "dgs30_pct": "4.67",
+      "sofr_pct": "3.67",
+      "dgs30_minus_sofr_bps": "100.00"
+    },
+    {
+      "as_of_month_end": "2026-03-31",
+      "dgs30_observation_date": "2026-03-30",
+      "sofr_observation_date": "2026-03-30",
+      "dgs30_pct": "4.91",
+      "sofr_pct": "3.63",
+      "dgs30_minus_sofr_bps": "128.00"
+    },
+    {
+      "as_of_month_end": "2026-04-30",
+      "dgs30_observation_date": "2026-04-29",
+      "sofr_observation_date": "2026-04-29",
+      "dgs30_pct": "4.98",
+      "sofr_pct": "3.63",
+      "dgs30_minus_sofr_bps": "135.00"
+    },
+    {
+      "as_of_month_end": "2026-05-31",
+      "dgs30_observation_date": "2026-05-28",
+      "sofr_observation_date": "2026-05-28",
+      "dgs30_pct": "4.98",
+      "sofr_pct": "3.62",
+      "dgs30_minus_sofr_bps": "136.00"
+    },
+    {
+      "as_of_month_end": "2026-06-30",
+      "dgs30_observation_date": "2026-06-29",
+      "sofr_observation_date": "2026-06-29",
+      "dgs30_pct": "4.86",
+      "sofr_pct": "3.62",
+      "dgs30_minus_sofr_bps": "124.00"
+    },
+    {
+      "as_of_month_end": "2026-07-31",
+      "dgs30_observation_date": "2026-07-30",
+      "sofr_observation_date": "2026-07-30",
+      "dgs30_pct": "5.21",
+      "sofr_pct": "3.65",
+      "dgs30_minus_sofr_bps": "156.00"
+    },
+    {
+      "as_of_month_end": "2026-08-31",
+      "dgs30_observation_date": "2026-08-28",
+      "sofr_observation_date": "2026-08-28",
+      "dgs30_pct": "5.22",
+      "sofr_pct": "3.65",
+      "dgs30_minus_sofr_bps": "157.00"
+    },
+    {
+      "as_of_month_end": "2026-09-30",
+      "dgs30_observation_date": "2026-09-29",
+      "sofr_observation_date": "2026-09-29",
+      "dgs30_pct": "5.59",
+      "sofr_pct": "3.88",
+      "dgs30_minus_sofr_bps": "171.00"
+    },
+    {
+      "as_of_month_end": "2026-10-31",
+      "dgs30_observation_date": "2026-10-29",
+      "sofr_observation_date": "2026-10-29",
+      "dgs30_pct": "5.32",
+      "sofr_pct": "3.94",
+      "dgs30_minus_sofr_bps": "138.00"
+    }
+  ],
+  "observed_public_months": 24,
+  "licensed_credit_proxy_series": [
+    {
+      "series_id": "BAMLH0A0HYM2",
+      "source_rows": 12506,
+      "raw_sha256": "c4bbddb7fbc2afd0f91baec52c3fb168e58dfc25abb053cc467b1957e4d1f113"
+    },
+    {
+      "series_id": "BAMLH0A3HYC",
+      "source_rows": 12506,
+      "raw_sha256": "e5dd5b657489e6d9ef90f1c7b16d4bd5e67c0da0f17e0b130a6a2148df0790b8"
+    }
+  ],
+  "copyright_licensed_ice_numeric_values_stored": false,
+  "private_credit_direct_exposure_measured": false,
+  "independent_provider_historical_release_proven": false,
+  "untouched_24_month_oos_proven": false,
+  "stress_scores": {
+    "UST 30Y": null,
+    "Private Credit": null
+  },
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "limitations": [
+    "Actual original ALFRED as-of queries were captured on 2026-11-18; historical release timestamps not attested.",
+    "DGS30 - SOFR is not a Treasury term premium.",
+    "ICE data are high-yield proxies with separate licensing, not direct private credit exposures.",
+    "No model stress score, independent PIT, or held-out predictive skill established."
+  ]
+}

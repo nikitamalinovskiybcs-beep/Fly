@@ -1,0 +1,19 @@
+{
+  "status": "unavailable",
+  "completed_reviewers": [
+    "openrouter"
+  ],
+  "reviewer_count": 1,
+  "proposal_count": 0,
+  "decisions": [],
+  "quorum": 2,
+  "majority": 0.5,
+  "moderation": {
+    "independent_reviews_required": true,
+    "dissent_preserved": true,
+    "safety_veto_enabled": true
+  },
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

@@ -20,7 +20,39 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.lock
+          pip install pytest ruff
+          pip check
+
+      - name: Dependency vulnerability audit
+        continue-on-error: true
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.lock --format json --output pip-audit.json
+
+      - name: Upload dependency audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit
+          path: pip-audit.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Ruff lint
+        run: ruff check app.py src scripts
+
+      - name: Test suite
+        env:
+          SUPABASE_URL: ""
+          SUPABASE_KEY: ""
+          FIREBASE_CREDENTIALS: ""
+          CLICKHOUSE_HOST: ""
+          CLICKHOUSE_PASSWORD: ""
+          R2_ENDPOINT: ""
+          R2_ACCESS_KEY: ""
+          R2_SECRET_KEY: ""
+          REDIS_URL: ""
+        run: pytest -q
 
       - name: Syntax check — all Python files
         run: python -m py_compile app.py && find src/ -name "*.py" -exec python -m py_compile {} +
@@ -69,7 +101,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.lock
 
       - name: Streamlit app launch check
         run: |
@@ -78,6 +110,20 @@ jobs:
           curl -f http://localhost:8501/_stcore/health || exit 1
           echo "Streamlit app started successfully"
           kill %1 2>/dev/null || true
+
+      - name: Built image health check
+        run: |
+          docker build --tag phoenix-ci .
+          container_id=$(docker run --detach --publish 8502:8080 phoenix-ci)
+          trap 'docker rm --force "$container_id"' EXIT
+          for attempt in $(seq 1 12); do
+            if curl --fail http://localhost:8502/_stcore/health; then
+              exit 0
+            fi
+            sleep 5
+          done
+          docker logs "$container_id"
+          exit 1
 
       - name: Self-learning calibration test
         run: |

@@ -1,0 +1,66 @@
+name: AICS MASTER - original 11 node research nowcast
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_master_11node_research_nowcast.py
+      - scripts/aics_v59_24m_uncertainty_envelope.py
+      - scripts/aics_v61_repo_ai_source_to_score_model_risk.py
+      - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
+      - .github/workflows/aics-master-original-11node-nowcast.yml
+
+jobs:
+  master-research-index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout original 11-node AICS research sources
+        uses: actions/checkout@v4
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Calculate one FULL 11-node AICS shadow with honest source status
+        run: |
+          python -m scripts.aics_master_11node_research_nowcast \
+            --out aics_data/research/aics_master_11node_research_nowcast_2026-11-22.json
+      - name: Print plain, usable 11-node index and real historical coverage
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path('aics_data/research/aics_master_11node_research_nowcast_2026-11-22.json')
+          r=json.loads(p.read_text())
+          assert r['full_original_nodes']==11 and r['original_weight_total']==1050
+          assert r['illustrative_full_11node_shadow_AICS']==489.33
+          assert r['hot_node_count']==3 and r['original_hot_multiplier']==1.20
+          assert r['original_expost_research_nodes']==8
+          assert r['additional_posthoc_nonapproved_hypothesis_nodes']==3
+          assert r['official_full_11node_AICS'] is None
+          assert r['production_trades_created'] is False
+          assert len(r['full_24month_original_index_missing_data_intervals_not_fabricated'])==24
+          assert len(r['fixed_11_node_component_table'])==11
+          assert r['hypothetical_score_scenarios_include_entry_watch_and_cash'] is True
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS MASTER — full original 11 nodes, NO toy 3-node index',file=f)
+              print('**Research 11-node shadow as of October 2026: 489.33 / original 1050-weight AICS formula.**',file=f)
+              print('Original 11 node weights **1050**, 3 hot nodes, multiplier **1.20**; **8 original research scores + 3 explicitly unapproved retro source-derived shadow scores**.',file=f)
+              print('The same October raw data yield a six-rule sensitivity range **'+str(r['scenario_score_min_max_from_original_V61_six_rules'])+'**, spanning historical entry/watch/cash. The original missing-node mathematical interval is **322.06–801.07**.',file=f)
+              print('| Original node | Weight | Score /100 | Raw contribution | Evidence status |',file=f)
+              print('|---|---:|---:|---:|---|',file=f)
+              for n in r['fixed_11_node_component_table']:
+                  print('| '+n['node']+' | '+str(n['weight'])+' | '+str(n['risk_score_0_100'])+' | '+str(n['raw_weighted_contribution'])+' | '+('Posthoc, NOT official' if 'ADDED_' in n['source_status'] else 'Original ex-post, NOT PIT certified')+' |',file=f)
+              print('**Important: 489.33 is a retrospective research illustration, NOT current authorized AICS or a trading recommendation. Official AICS=NULL.**',file=f)
+              print('Full 24-month node-coverage history, authentic missing-score bounds and six alternative rules are included in the attached JSON.',file=f)
+          PY
+      - name: Archive full 24-month uncertainty and 11-node detailed master
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-master-original-11node-october-489-33-research-no-trading
+          path: aics_data/research/aics_master_11node_research_nowcast_2026-11-22.json
+          if-no-files-found: error

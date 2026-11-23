@@ -1,0 +1,2465 @@
+{
+  "review_type": "phoenix_whole_system_architecture_audit",
+  "objective": "Review the complete Phoenix repository and recommend what to keep, remove, simplify, replace, or test next.",
+  "system_contract": {
+    "product_term_months": 24,
+    "historical_anchors_months_ago": [
+      6,
+      12,
+      18,
+      24
+    ],
+    "replay_is_not_realized": true,
+    "synthetic_data_is_not_independent_evidence": true,
+    "dealer_quotes_must_not_be_fabricated": true,
+    "ai_may_not_change_production": true,
+    "ai_may_not_create_trades": true
+  },
+  "review_dimensions": [
+    "mathematical correctness and payoff semantics",
+    "probability calibration and baseline comparison",
+    "data provenance, leakage and OOS design",
+    "agent usefulness versus double counting and arbitrary weights",
+    "risk metrics, stress testing and tail dependence",
+    "production architecture, reliability and observability",
+    "security, secrets and external-provider failure handling",
+    "test quality, CI coverage and maintainability",
+    "user-facing decision clarity and auditability"
+  ],
+  "required_output": {
+    "verdict": "approve|revise|reject",
+    "overall_score_0_to_100": 0,
+    "summary": "",
+    "strengths": [],
+    "findings": [
+      {
+        "action": "KEEP|REMOVE|REPLACE|ADD_TEST",
+        "component": "",
+        "reason": "",
+        "replacement": "",
+        "metric_gate": "",
+        "priority": "P0|P1|P2"
+      }
+    ],
+    "architecture_risks": [],
+    "next_experiments": [],
+    "production_safety": "",
+    "production_weights_changed": false,
+    "verdict_mutated": false
+  },
+  "module_inventory": [
+    {
+      "file": "src/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/accuracy_boost.py",
+      "function_count": 16,
+      "class_count": 0,
+      "functions": [
+        "generate_synthetic_baskets",
+        "k_fold_cross_validation",
+        "neural_score",
+        "compute_feature_interactions",
+        "compute_temporal_weights",
+        "platt_scaling",
+        "calibrate_score_to_probability",
+        "adversarial_validation",
+        "calibrate_vol_surface",
+        "copula_worst_of_correction",
+        "dupire_local_vol",
+        "ab_test_models",
+        "detect_drift",
+        "backtest_model",
+        "apply_all_improvements"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/agents/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/agents/base_agent.py",
+      "function_count": 4,
+      "class_count": 1,
+      "functions": [
+        "fit",
+        "predict",
+        "evaluate",
+        "retrain"
+      ],
+      "classes": [
+        "BaseAgent"
+      ]
+    },
+    {
+      "file": "src/agents/models.py",
+      "function_count": 0,
+      "class_count": 7,
+      "functions": [],
+      "classes": [
+        "TradeAction",
+        "PaperTrade",
+        "PaperPosition",
+        "PaperPortfolio",
+        "DailySnapshot",
+        "PaperTradingStats",
+        "LearningInsight"
+      ]
+    },
+    {
+      "file": "src/agents/paper_trader.py",
+      "function_count": 34,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "run_daily",
+        "_collect_signals",
+        "_compute_alpha",
+        "_make_decision",
+        "_execute_paper_trade",
+        "get_portfolio",
+        "get_stats",
+        "get_equity_curve",
+        "weekly_learning",
+        "monthly_evolution",
+        "_fetch_prices",
+        "_update_positions",
+        "_record_snapshot",
+        "_portfolio_value"
+      ],
+      "classes": [
+        "PaperTradingAgent"
+      ]
+    },
+    {
+      "file": "src/agents.py",
+      "function_count": 35,
+      "class_count": 5,
+      "functions": [
+        "run_all_agents",
+        "__init__",
+        "run",
+        "_generate_historical_baskets",
+        "_cross_reference_products",
+        "_validate_existing_notes",
+        "_note_key",
+        "_load_collected",
+        "_save_collected",
+        "_save_report",
+        "__init__",
+        "run",
+        "_generate_candidates",
+        "_save_report",
+        "__init__"
+      ],
+      "classes": [
+        "DataCollectorAgent",
+        "FeatureDiscoveryAgent",
+        "HyperparamTunerAgent",
+        "MarketMonitorAgent",
+        "BenchmarkTrackerAgent"
+      ]
+    },
+    {
+      "file": "src/ai_committee.py",
+      "function_count": 3,
+      "class_count": 0,
+      "functions": [
+        "_proposal_key",
+        "_safety_veto",
+        "deliberate"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/ai_consensus_plan.py",
+      "function_count": 3,
+      "class_count": 0,
+      "functions": [
+        "_load",
+        "build_plan",
+        "main"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/ai_judge_panel.py",
+      "function_count": 6,
+      "class_count": 0,
+      "functions": [
+        "_validated_review",
+        "_call_ollama",
+        "_safe_result",
+        "_call_openai_compatible",
+        "_call_anthropic",
+        "run_judge_panel"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/ai_screening.py",
+      "function_count": 2,
+      "class_count": 0,
+      "functions": [
+        "_metric_gate",
+        "build_screening_target_plan"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/api_manager.py",
+      "function_count": 18,
+      "class_count": 1,
+      "functions": [
+        "mask_key",
+        "__init__",
+        "_load_env",
+        "save_keys",
+        "get_saved_keys",
+        "test_connection",
+        "test_all",
+        "get_status",
+        "get_cached_probe",
+        "probe_connectivity",
+        "setup_supabase_tables",
+        "_test_supabase",
+        "_test_firebase",
+        "_test_clickhouse",
+        "_test_r2"
+      ],
+      "classes": [
+        "APIManager"
+      ]
+    },
+    {
+      "file": "src/assessor.py",
+      "function_count": 17,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "update_market_data",
+        "_ensure_data",
+        "get_performance",
+        "get_all_performance",
+        "run_monte_carlo_test",
+        "run_walk_forward",
+        "get_stability",
+        "get_risk",
+        "get_stress_tests",
+        "get_drawdown_distribution",
+        "check_overfitting",
+        "get_correlations",
+        "get_slippage_impact",
+        "generate_report"
+      ],
+      "classes": [
+        "StrategyRiskAssessor"
+      ]
+    },
+    {
+      "file": "src/auto_improve.py",
+      "function_count": 5,
+      "class_count": 0,
+      "functions": [
+        "run_full_improvement_cycle",
+        "_search_feature_interactions",
+        "_hyperparameter_sweep",
+        "_save_improvement_report",
+        "get_improvement_history"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/autopilot/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/autopilot/analyzer.py",
+      "function_count": 7,
+      "class_count": 1,
+      "functions": [
+        "daily_analysis",
+        "_analyze_signal_accuracy",
+        "_analyze_ticker_performance",
+        "_analyze_temporal_patterns",
+        "_analyze_regime_effectiveness",
+        "_analyze_parameter_staleness",
+        "_load_trades"
+      ],
+      "classes": [
+        "PerformanceAnalyzer"
+      ]
+    },
+    {
+      "file": "src/autopilot/config.py",
+      "function_count": 4,
+      "class_count": 0,
+      "functions": [
+        "load_config",
+        "save_config",
+        "save_snapshot",
+        "validate_parameter"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/autopilot/deployer.py",
+      "function_count": 7,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "deploy",
+        "rollback",
+        "check_trial",
+        "_enter_trial_mode",
+        "_load_trial_mode",
+        "_clear_trial_mode"
+      ],
+      "classes": [
+        "SafeDeployer"
+      ]
+    },
+    {
+      "file": "src/autopilot/main.py",
+      "function_count": 2,
+      "class_count": 0,
+      "functions": [
+        "main",
+        "handle_signal"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/autopilot/models.py",
+      "function_count": 0,
+      "class_count": 7,
+      "functions": [],
+      "classes": [
+        "HealthStatus",
+        "AlertLevel",
+        "HealthReport",
+        "AnalysisInsight",
+        "ParameterChange",
+        "DeploymentResult",
+        "DailyReport"
+      ]
+    },
+    {
+      "file": "src/autopilot/monitor.py",
+      "function_count": 13,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "check_health",
+        "is_safe_to_trade",
+        "is_safe_to_optimize",
+        "_rolling_sharpe_30d",
+        "_win_rate_last_n",
+        "_current_drawdown",
+        "_count_open_positions",
+        "_signal_quality",
+        "_data_freshness_hours",
+        "_disk_usage_pct",
+        "_load_trades",
+        "_load_equity_curve"
+      ],
+      "classes": [
+        "SystemMonitor"
+      ]
+    },
+    {
+      "file": "src/autopilot/optimizer.py",
+      "function_count": 7,
+      "class_count": 1,
+      "functions": [
+        "optimize",
+        "_insight_to_change",
+        "optimize_continuous",
+        "optimize_weights",
+        "grid_search",
+        "objective",
+        "objective"
+      ],
+      "classes": [
+        "ParameterOptimizer"
+      ]
+    },
+    {
+      "file": "src/autopilot/reporter.py",
+      "function_count": 7,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "daily_report",
+        "send_alert",
+        "weekly_report",
+        "_format_daily_telegram",
+        "_send_telegram",
+        "_save_report_json"
+      ],
+      "classes": [
+        "AutopilotReporter"
+      ]
+    },
+    {
+      "file": "src/autopilot/safety.py",
+      "function_count": 14,
+      "class_count": 1,
+      "functions": [
+        "check_kill_switch",
+        "engage_kill_switch",
+        "disengage_kill_switch",
+        "check_max_drawdown",
+        "check_consecutive_losses",
+        "check_optimization_cooldown",
+        "set_optimization_cooldown",
+        "check_change_limits",
+        "check_weekly_limits",
+        "validate_parameter_bounds",
+        "validate_change_magnitude",
+        "log_deployment",
+        "emergency_stop",
+        "_load_deploy_log"
+      ],
+      "classes": [
+        "SafetySystem"
+      ]
+    },
+    {
+      "file": "src/autopilot/scheduler.py",
+      "function_count": 10,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "start",
+        "stop",
+        "run_once",
+        "_run_loop",
+        "_hourly_cycle",
+        "_daily_cycle",
+        "_optimization_cycle",
+        "_report_cycle",
+        "_weekly_cycle"
+      ],
+      "classes": [
+        "AutopilotScheduler"
+      ]
+    },
+    {
+      "file": "src/autopilot/tester.py",
+      "function_count": 5,
+      "class_count": 1,
+      "functions": [
+        "validate",
+        "_compute_sharpe",
+        "_replay_with_change",
+        "_estimate_pbo",
+        "_check_stability"
+      ],
+      "classes": [
+        "ChangeValidator"
+      ]
+    },
+    {
+      "file": "src/backtest.py",
+      "function_count": 20,
+      "class_count": 1,
+      "functions": [
+        "_fetch_historical_prices",
+        "_simulate_phoenix_backtest",
+        "_compare_with_numerix",
+        "_generate_payoff_distribution",
+        "_generate_convergence_chart",
+        "precompute_backtest",
+        "__init__",
+        "predict_p_loss",
+        "predict_coupon",
+        "predict",
+        "_compute_loss_on_settled",
+        "_compute_coupon_mae",
+        "learn_from_real_data",
+        "learn_from_backtest",
+        "_total_loss"
+      ],
+      "classes": [
+        "PhoenixAGI"
+      ]
+    },
+    {
+      "file": "src/backtester/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/backtester/broker_sim.py",
+      "function_count": 3,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "execute_buy",
+        "execute_sell"
+      ],
+      "classes": [
+        "SimulatedBroker"
+      ]
+    },
+    {
+      "file": "src/backtester/engine.py",
+      "function_count": 12,
+      "class_count": 1,
+      "functions": [
+        "_close_on",
+        "_date_str",
+        "_max_dd_duration",
+        "_monthly_returns",
+        "__init__",
+        "_default_fetch",
+        "run",
+        "_apply_signals",
+        "_features_on",
+        "_rebalance_dates",
+        "_build_result",
+        "_add_benchmark_stats"
+      ],
+      "classes": [
+        "BacktestEngine"
+      ]
+    },
+    {
+      "file": "src/backtester/models.py",
+      "function_count": 0,
+      "class_count": 3,
+      "functions": [],
+      "classes": [
+        "BacktestConfig",
+        "BacktestTrade",
+        "BacktestResult"
+      ]
+    },
+    {
+      "file": "src/backtester/portfolio_sim.py",
+      "function_count": 7,
+      "class_count": 1,
+      "functions": [
+        "_days_between",
+        "__init__",
+        "buy",
+        "sell",
+        "get_value",
+        "mark_to_market",
+        "get_positions"
+      ],
+      "classes": [
+        "PortfolioSimulator"
+      ]
+    },
+    {
+      "file": "src/backtester/report.py",
+      "function_count": 4,
+      "class_count": 1,
+      "functions": [
+        "summary",
+        "to_dataframe",
+        "monthly_table",
+        "trades_dataframe"
+      ],
+      "classes": [
+        "BacktestReporter"
+      ]
+    },
+    {
+      "file": "src/backtester/strategy_base.py",
+      "function_count": 4,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals",
+        "position_size",
+        "on_trade"
+      ],
+      "classes": [
+        "BaseStrategy"
+      ]
+    },
+    {
+      "file": "src/basket/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/basket/alerts.py",
+      "function_count": 1,
+      "class_count": 1,
+      "functions": [
+        "check_alerts"
+      ],
+      "classes": [
+        "BasketAlertSystem"
+      ]
+    },
+    {
+      "file": "src/basket/autocall.py",
+      "function_count": 4,
+      "class_count": 1,
+      "functions": [
+        "calculate_probabilities",
+        "_get_ivs",
+        "_get_corr",
+        "_dates_to_years"
+      ],
+      "classes": [
+        "AutocallEngine"
+      ]
+    },
+    {
+      "file": "src/basket/copula.py",
+      "function_count": 4,
+      "class_count": 1,
+      "functions": [
+        "fit",
+        "_normal_correlation",
+        "_crisis_correlation",
+        "_avg_off_diagonal"
+      ],
+      "classes": [
+        "CopulaAnalyzer"
+      ]
+    },
+    {
+      "file": "src/basket/events.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "get_upcoming_events",
+        "event_risk_near_date"
+      ],
+      "classes": [
+        "EventCalendar"
+      ]
+    },
+    {
+      "file": "src/basket/evolution.py",
+      "function_count": 9,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "weights",
+        "record_outcome",
+        "evolve",
+        "_calc_accuracy",
+        "backtest_weights",
+        "_save",
+        "_load",
+        "neg_accuracy"
+      ],
+      "classes": [
+        "BasketEvolutionAgent"
+      ]
+    },
+    {
+      "file": "src/basket/feedback.py",
+      "function_count": 9,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "score_and_track",
+        "check_outcomes",
+        "backfill_historical",
+        "_check_barrier",
+        "_check_historical_basket",
+        "_save",
+        "_load",
+        "get_stats"
+      ],
+      "classes": [
+        "BasketFeedbackLoop"
+      ]
+    },
+    {
+      "file": "src/basket/macro.py",
+      "function_count": 3,
+      "class_count": 1,
+      "functions": [
+        "get_current",
+        "macro_risk_score",
+        "impact_on_basket"
+      ],
+      "classes": [
+        "MacroOverlay"
+      ]
+    },
+    {
+      "file": "src/basket/models.py",
+      "function_count": 0,
+      "class_count": 6,
+      "functions": [],
+      "classes": [
+        "BasketGrade",
+        "RedFlag",
+        "AssetProfile",
+        "CriterionScore",
+        "BasketReport",
+        "EvolutionLog"
+      ]
+    },
+    {
+      "file": "src/basket/scorer.py",
+      "function_count": 21,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "_interp",
+        "score_basket",
+        "score_profiles",
+        "compare_baskets",
+        "_fetch_history_batch",
+        "_build_profiles",
+        "_fetch_profile",
+        "_get_returns",
+        "_score_liquidity",
+        "_score_fundamental",
+        "_score_worst_of_tail_risk",
+        "_score_crisis_correlation",
+        "_score_max_drawdown",
+        "_score_sector_diversification"
+      ],
+      "classes": [
+        "BasketScorer"
+      ]
+    },
+    {
+      "file": "src/basket/sector.py",
+      "function_count": 4,
+      "class_count": 0,
+      "functions": [
+        "classify",
+        "is_mainstream",
+        "unique_sector_count",
+        "conditional_correlation"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/basket/worst_of.py",
+      "function_count": 1,
+      "class_count": 1,
+      "functions": [
+        "predict"
+      ],
+      "classes": [
+        "WorstOfPredictor"
+      ]
+    },
+    {
+      "file": "src/buyside.py",
+      "function_count": 11,
+      "class_count": 0,
+      "functions": [
+        "variance_gamma_pki",
+        "cos_method_pki",
+        "finite_difference_pki",
+        "trinomial_tree_pki",
+        "xgboost_score",
+        "compute_shap_values",
+        "compute_liquidity_factor",
+        "compute_options_sentiment",
+        "credit_adjusted_coupon",
+        "_executive_summary",
+        "compute_buyside_analytics"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/calibration.py",
+      "function_count": 9,
+      "class_count": 0,
+      "functions": [
+        "_confusion_matrix",
+        "_precision_recall_f1",
+        "_kfold_cv",
+        "run_accuracy_backtest",
+        "calibrate_model",
+        "_train_bootstrap_model",
+        "generate_forecast",
+        "run_pipeline",
+        "total_loss_with_l2"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/calibration_agent.py",
+      "function_count": 5,
+      "class_count": 0,
+      "functions": [
+        "_realized_probability_rows",
+        "_metrics",
+        "_candidate_probability",
+        "build_calibration_proposal",
+        "run_calibration_cycle"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/classical_baseline.py",
+      "function_count": 3,
+      "class_count": 0,
+      "functions": [
+        "empirical_probability",
+        "evaluate_against_empirical_baseline",
+        "fixed_24m_gate"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/clickhouse_data.py",
+      "function_count": 4,
+      "class_count": 0,
+      "functions": [
+        "_get_client",
+        "fetch_quantum_risk_stats",
+        "save_quantum_risk_stats",
+        "_fallback_data"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/colab_engine.py",
+      "function_count": 5,
+      "class_count": 0,
+      "functions": [
+        "_basket_hash",
+        "trigger_colab_sim",
+        "poll_colab_result",
+        "get_colab_status",
+        "local_sobol_mc"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/commercial_readiness.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "assess_commercial_readiness"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/committee_progress.py",
+      "function_count": 2,
+      "class_count": 0,
+      "functions": [
+        "_score",
+        "build_progress_score"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/conductor.py",
+      "function_count": 6,
+      "class_count": 0,
+      "functions": [
+        "get_cache_key",
+        "cache_get",
+        "cache_set",
+        "call_railway",
+        "call_github_actions",
+        "analyze"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/continuous_improvement.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_cycle_plan"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/core_metrics.py",
+      "function_count": 14,
+      "class_count": 1,
+      "functions": [
+        "returns_from_prices",
+        "total_return",
+        "cagr",
+        "annualized_volatility",
+        "sharpe_ratio",
+        "sortino_ratio",
+        "max_drawdown",
+        "max_drawdown_duration",
+        "profit_factor",
+        "win_rate",
+        "performance_summary",
+        "monte_carlo_permutation_test",
+        "walk_forward_analysis",
+        "stability_by_periods"
+      ],
+      "classes": [
+        "PerformanceSummary"
+      ]
+    },
+    {
+      "file": "src/data/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/data/data_manager.py",
+      "function_count": 7,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "get_price",
+        "get_prices",
+        "get_history",
+        "start_live",
+        "stop_live",
+        "live_available"
+      ],
+      "classes": [
+        "DataManager"
+      ]
+    },
+    {
+      "file": "src/data/live_feed.py",
+      "function_count": 16,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "_check_ws",
+        "available",
+        "subscribe",
+        "on_price",
+        "_emit",
+        "_is_crypto",
+        "start",
+        "stop",
+        "_spawn",
+        "_run_binance",
+        "_run_finnhub",
+        "get_latest",
+        "on_message",
+        "on_open"
+      ],
+      "classes": [
+        "LiveFeed"
+      ]
+    },
+    {
+      "file": "src/data/providers.py",
+      "function_count": 5,
+      "class_count": 2,
+      "functions": [
+        "history",
+        "last_price",
+        "__init__",
+        "history",
+        "last_price"
+      ],
+      "classes": [
+        "YFinanceProvider",
+        "ProviderChain"
+      ]
+    },
+    {
+      "file": "src/data_module.py",
+      "function_count": 15,
+      "class_count": 0,
+      "functions": [
+        "fetch_prices",
+        "_fetch_ticker_data_uncached",
+        "fetch_ticker_data",
+        "clear_ticker_data_cache",
+        "fetch_stooq_prices",
+        "fetch_iv_percentile",
+        "compute_rolling_correlations",
+        "check_earnings_risk",
+        "fetch_implied_vol_surface",
+        "compute_dcc_correlations",
+        "fetch_macro_factors",
+        "cache_ticker_data",
+        "load_cached_ticker_data",
+        "get_data_source_status",
+        "market_is_closed"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/data_quality.py",
+      "function_count": 4,
+      "class_count": 0,
+      "functions": [
+        "compare_price_sources",
+        "validate_macro_snapshot",
+        "validate_learning_provenance",
+        "validate_market_snapshot"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/data_readiness.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_data_readiness_report"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/decision_gate.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_decision_gate"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/drift_monitor.py",
+      "function_count": 2,
+      "class_count": 0,
+      "functions": [
+        "_mean",
+        "build_evidence_drift_report"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/evidence_contracts.py",
+      "function_count": 4,
+      "class_count": 0,
+      "functions": [
+        "_required",
+        "validate_fixed_24m_outcome",
+        "validate_bcs_quote",
+        "validate_alternative_feature"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/evidence_report.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_fixed_24m_evidence_report"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/external_data.py",
+      "function_count": 11,
+      "class_count": 0,
+      "functions": [
+        "_http_get_json",
+        "get_alpha_vantage_earnings",
+        "get_finnhub_recommendations",
+        "get_finnhub_insider",
+        "get_sec_insider_summary",
+        "get_put_call_ratio",
+        "get_quandl_macro",
+        "get_short_interest",
+        "get_analyst_targets",
+        "fetch_all_external_data",
+        "_compute_basket_signals"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/fact_check.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_fact_check_report"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/feature_store/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/feature_store/cache.py",
+      "function_count": 9,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "_connect",
+        "_create_table",
+        "_is_fresh",
+        "get",
+        "set",
+        "get_vector",
+        "invalidate",
+        "stats"
+      ],
+      "classes": [
+        "FeatureCache"
+      ]
+    },
+    {
+      "file": "src/feature_store/features.py",
+      "function_count": 12,
+      "class_count": 0,
+      "functions": [
+        "compute_rsi",
+        "compute_sma",
+        "compute_ema",
+        "compute_atr",
+        "compute_momentum",
+        "compute_volume_ratio",
+        "compute_volatility",
+        "compute_macd",
+        "compute_bollinger",
+        "compute_adx",
+        "compute_correlation_to_spy",
+        "compute_beta"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/feature_store/models.py",
+      "function_count": 3,
+      "class_count": 1,
+      "functions": [
+        "numeric_fields",
+        "to_dict",
+        "as_feature_map"
+      ],
+      "classes": [
+        "FeatureVector"
+      ]
+    },
+    {
+      "file": "src/feature_store/store.py",
+      "function_count": 10,
+      "class_count": 1,
+      "functions": [
+        "_squeeze",
+        "__init__",
+        "_default_fetch",
+        "get_features",
+        "get_features_batch",
+        "get_feature_matrix",
+        "_get_spy_returns",
+        "_get_vix",
+        "invalidate_cache",
+        "cache_stats"
+      ],
+      "classes": [
+        "FeatureStore"
+      ]
+    },
+    {
+      "file": "src/fred_data.py",
+      "function_count": 5,
+      "class_count": 0,
+      "functions": [
+        "get_fred_data",
+        "get_yahoo_options_iv",
+        "get_vix_term_structure",
+        "get_earnings_calendar",
+        "get_all_external_data"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/full_pipeline.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "run_full_analysis"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/gdrive_store.py",
+      "function_count": 10,
+      "class_count": 0,
+      "functions": [
+        "_load_json",
+        "_save_json",
+        "get_status",
+        "save_calibrated_params",
+        "load_latest_params",
+        "get_params_history",
+        "save_backtest_result",
+        "get_backtest_history",
+        "save_pipeline_run",
+        "get_pipeline_runs"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/gemini_judge.py",
+      "function_count": 4,
+      "class_count": 0,
+      "functions": [
+        "build_judge_prompt",
+        "_extract_json",
+        "_required_mapping",
+        "judge_report"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/improvement_targets.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_improvement_targets"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/infrastructure_health.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_infrastructure_health"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/integrations/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/integrations/numerai.py",
+      "function_count": 17,
+      "class_count": 2,
+      "functions": [
+        "__init__",
+        "enabled",
+        "download_latest_data",
+        "get_meta_model_predictions",
+        "train_numerai_model",
+        "submit_predictions",
+        "get_leaderboard_stats",
+        "extract_alpha_signals",
+        "_zscore",
+        "_rank_to_unit",
+        "_fetch_close_history",
+        "__init__",
+        "enabled",
+        "get_ticker_universe",
+        "format_predictions"
+      ],
+      "classes": [
+        "NumeraiIntegration",
+        "NumeraiSignalsIntegration"
+      ]
+    },
+    {
+      "file": "src/integrations/numerai_pipeline.py",
+      "function_count": 12,
+      "class_count": 0,
+      "functions": [
+        "_napi",
+        "download_data",
+        "_read_columns",
+        "neutralize",
+        "era_correlations",
+        "_mean_era_corr",
+        "_choose_neutralize_proportion",
+        "train_and_predict",
+        "_rank",
+        "submit",
+        "run",
+        "_main"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/integrations/quantconnect.py",
+      "function_count": 8,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "enabled",
+        "export_strategy_to_lean",
+        "run_cloud_backtest",
+        "get_backtest_results",
+        "download_lean_engine",
+        "compare_results",
+        "import_alpha_signals"
+      ],
+      "classes": [
+        "QuantConnectIntegration"
+      ]
+    },
+    {
+      "file": "src/logger.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "get_logger"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/math_evaluation.py",
+      "function_count": 3,
+      "class_count": 0,
+      "functions": [
+        "brier_score",
+        "log_loss",
+        "expected_calibration_error"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/model_lineage.py",
+      "function_count": 2,
+      "class_count": 0,
+      "functions": [
+        "build_lineage_record",
+        "marginal_agent_contributions"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/monte_carlo.py",
+      "function_count": 5,
+      "class_count": 1,
+      "functions": [
+        "fit_regime_model_from_returns",
+        "regime_conditional_monte_carlo",
+        "simple_gbm_monte_carlo",
+        "__init__",
+        "regime_index"
+      ],
+      "classes": [
+        "RegimeModel"
+      ]
+    },
+    {
+      "file": "src/nvidia_ai.py",
+      "function_count": 6,
+      "class_count": 0,
+      "functions": [
+        "_nvidia_chat",
+        "get_status",
+        "analyze_basket_risk",
+        "_fallback_risk",
+        "detect_anomalies",
+        "get_sentiment"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/online_learning.py",
+      "function_count": 4,
+      "class_count": 0,
+      "functions": [
+        "load_realized_feedback",
+        "assess_learning_gate",
+        "apply_guarded_learning",
+        "apply_out_of_sample_learning"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/outcome_engine.py",
+      "function_count": 21,
+      "class_count": 2,
+      "functions": [
+        "build_decision_record",
+        "_observation_positions",
+        "replay_historical",
+        "_correlation_matrix",
+        "simulate_monte_carlo",
+        "simulate_stress_suite",
+        "replay_historical_windows",
+        "evaluate_product_safety",
+        "build_quality_report",
+        "load_quality_report",
+        "_main",
+        "_utc_now",
+        "observation_count",
+        "__init__",
+        "open_note"
+      ],
+      "classes": [
+        "StructuredNoteSpec",
+        "PaperOutcomeTracker"
+      ]
+    },
+    {
+      "file": "src/overfitting.py",
+      "function_count": 8,
+      "class_count": 0,
+      "functions": [
+        "white_reality_check",
+        "_split_returns_into_subsets",
+        "_compute_sharpe_for_combo",
+        "cscv_probability_of_backtest_overfitting",
+        "deflated_sharpe_ratio",
+        "minimum_track_record_length",
+        "permutation_test_vs_random",
+        "out_of_sample_degradation"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/performance_metrics.py",
+      "function_count": 4,
+      "class_count": 0,
+      "functions": [
+        "binary_calibration_metrics",
+        "build_realized_evaluation",
+        "compare_realized_baselines",
+        "build_out_of_sample_gate"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/phoenix/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/phoenix/barrier_risk.py",
+      "function_count": 5,
+      "class_count": 1,
+      "functions": [
+        "analyze",
+        "_calc_barrier_delta",
+        "_calc_gap_risk",
+        "_calc_digital_risk",
+        "_time_to_barrier"
+      ],
+      "classes": [
+        "BarrierRiskAnalyzer"
+      ]
+    },
+    {
+      "file": "src/phoenix/dividend.py",
+      "function_count": 5,
+      "class_count": 1,
+      "functions": [
+        "analyze",
+        "_calc_current_yield",
+        "_calc_forward_yield",
+        "_forecast_ex_dates",
+        "_calc_barrier_impact"
+      ],
+      "classes": [
+        "DividendAnalyzer"
+      ]
+    },
+    {
+      "file": "src/phoenix/greeks.py",
+      "function_count": 9,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "calculate_all",
+        "_reprice",
+        "_calc_delta",
+        "_calc_gamma",
+        "_calc_vega",
+        "_calc_theta",
+        "_calc_rho",
+        "_calc_barrier_delta"
+      ],
+      "classes": [
+        "PhoenixGreeksEngine"
+      ]
+    },
+    {
+      "file": "src/phoenix/implied_corr.py",
+      "function_count": 6,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "calculate",
+        "pairwise_implied",
+        "_dispersion_implied_corr",
+        "_realized_correlation",
+        "_realized_pairwise"
+      ],
+      "classes": [
+        "ImpliedCorrelationEngine"
+      ]
+    },
+    {
+      "file": "src/phoenix/implied_vol.py",
+      "function_count": 13,
+      "class_count": 1,
+      "functions": [
+        "get_atm_iv",
+        "get_vol_smile",
+        "get_skew",
+        "get_iv_percentile",
+        "basket_iv_summary",
+        "_get_spot",
+        "_pick_nearest_monthly",
+        "_days_to_expiry",
+        "_extract_atm_iv",
+        "_iv_at_strike",
+        "_iv_at_strike_calls",
+        "_iv_at_strike_puts",
+        "_historical_vol_estimate"
+      ],
+      "classes": [
+        "ImpliedVolEngine"
+      ]
+    },
+    {
+      "file": "src/phoenix/local_vol.py",
+      "function_count": 4,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "build",
+        "get_local_vol",
+        "_compute_dupire"
+      ],
+      "classes": [
+        "LocalVolSurface"
+      ]
+    },
+    {
+      "file": "src/phoenix/models.py",
+      "function_count": 0,
+      "class_count": 7,
+      "functions": [],
+      "classes": [
+        "GreeksReport",
+        "VolPoint",
+        "VolSurface",
+        "ImpliedCorrelationResult",
+        "BarrierRiskReport",
+        "PhoenixPricingResult",
+        "DividendForecast"
+      ]
+    },
+    {
+      "file": "src/phoenix/pricing.py",
+      "function_count": 4,
+      "class_count": 1,
+      "functions": [
+        "price",
+        "_get_ivs",
+        "_get_correlation_matrix",
+        "_dates_to_years"
+      ],
+      "classes": [
+        "PhoenixPricingEngine"
+      ]
+    },
+    {
+      "file": "src/phoenix_engine.py",
+      "function_count": 7,
+      "class_count": 0,
+      "functions": [
+        "_cache_key",
+        "_cache_get",
+        "_cache_set",
+        "load_prices_yfinance",
+        "simulate_basket",
+        "save_to_gdrive",
+        "list_gdrive_reports"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/phoenix_quality_gates.py",
+      "function_count": 19,
+      "class_count": 0,
+      "functions": [
+        "immutable_safety_flags",
+        "snapshot_hash",
+        "validate_market_observations",
+        "validate_payoff_bounds",
+        "autocall_metrics",
+        "evidence_partition",
+        "require_fixed_24m_anchors",
+        "validate_correlation_matrix",
+        "worst_of_driver",
+        "quote_fit_gate",
+        "confidence_interval",
+        "monte_carlo_convergence",
+        "validate_basket_symbols",
+        "validate_observation_schedule",
+        "feature_lineage"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/portfolio.py",
+      "function_count": 5,
+      "class_count": 0,
+      "functions": [
+        "correlation_matrix",
+        "rolling_correlation",
+        "apply_slippage",
+        "estimate_capacity",
+        "slippage_impact_analysis"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/portfolio_optimizer/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/portfolio_optimizer/_common.py",
+      "function_count": 2,
+      "class_count": 0,
+      "functions": [
+        "annualized_stats",
+        "build_allocation"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/portfolio_optimizer/hrp.py",
+      "function_count": 4,
+      "class_count": 1,
+      "functions": [
+        "optimize",
+        "_quasi_diag",
+        "_recursive_bisection",
+        "_cluster_var"
+      ],
+      "classes": [
+        "HRPOptimizer"
+      ]
+    },
+    {
+      "file": "src/portfolio_optimizer/mean_variance.py",
+      "function_count": 9,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "_prep",
+        "max_sharpe",
+        "min_variance",
+        "target_return",
+        "efficient_frontier",
+        "neg_sharpe",
+        "variance",
+        "variance"
+      ],
+      "classes": [
+        "MeanVarianceOptimizer"
+      ]
+    },
+    {
+      "file": "src/portfolio_optimizer/models.py",
+      "function_count": 0,
+      "class_count": 1,
+      "functions": [],
+      "classes": [
+        "PortfolioAllocation"
+      ]
+    },
+    {
+      "file": "src/portfolio_optimizer/optimizer.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "optimize"
+      ],
+      "classes": [
+        "PortfolioOptimizer"
+      ]
+    },
+    {
+      "file": "src/portfolio_optimizer/risk_parity.py",
+      "function_count": 1,
+      "class_count": 1,
+      "functions": [
+        "optimize"
+      ],
+      "classes": [
+        "RiskParityOptimizer"
+      ]
+    },
+    {
+      "file": "src/precompute.py",
+      "function_count": 39,
+      "class_count": 0,
+      "functions": [
+        "_load_scoring_weights",
+        "_save_scoring_weights",
+        "_score_one_note",
+        "_compute_precision_at_threshold",
+        "_run_momentum_sgd",
+        "_compute_accuracy",
+        "calibrate_scoring_on_settled",
+        "get_model_evolution",
+        "bayesian_score",
+        "advanced_feature_engineering",
+        "regime_specific_score",
+        "compute_smart_alternatives",
+        "rank_best_phoenix",
+        "empirical_p_ki",
+        "_note_avg_tox"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/quant_benchmarks.py",
+      "function_count": 4,
+      "class_count": 0,
+      "functions": [
+        "_terminal_probability",
+        "analytical_worst_of_probability",
+        "historical_barrier_probability",
+        "regime_adjusted_probability"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/quant_improvement.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_quant_improvement_proposal"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/real_data.py",
+      "function_count": 10,
+      "class_count": 0,
+      "functions": [
+        "compute_toxicity",
+        "_sigmoid",
+        "_extract_features",
+        "_train_p_loss_model",
+        "compute_p_loss",
+        "get_p_loss_model_metrics",
+        "predict_dealer_coupon",
+        "find_similar_dealer_quotes",
+        "dealer_quote_summary",
+        "precompute_dealer_benchmark"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/recalculation_inputs.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_recalculation_profile"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/replay_calibration.py",
+      "function_count": 4,
+      "class_count": 0,
+      "functions": [
+        "fit_histogram_calibrator",
+        "apply_histogram_calibrator",
+        "walk_forward_histogram_calibration",
+        "diagnose_calibration_bottleneck"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/research_orchestrator.py",
+      "function_count": 2,
+      "class_count": 0,
+      "functions": [
+        "_stage_status",
+        "run_research_pipeline"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/research_priorities.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "rank_research_candidates"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/risk_metrics.py",
+      "function_count": 10,
+      "class_count": 0,
+      "functions": [
+        "value_at_risk",
+        "conditional_var",
+        "parametric_var",
+        "_mean_excess_plot",
+        "_select_evt_threshold",
+        "evt_var_cvar",
+        "drawdown_series",
+        "drawdown_distribution",
+        "stress_test",
+        "risk_summary"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/runtime_research.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_runtime_research_status"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/scheduler.py",
+      "function_count": 23,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "run_once",
+        "run_snapshot_precompute",
+        "run_all_now",
+        "bootstrap",
+        "_run_paper_trading",
+        "_run_weekly_learning",
+        "_run_monthly_evolution",
+        "_run_numerai_submission",
+        "_load_numerai_round",
+        "_save_numerai_round",
+        "_run_autopilot",
+        "_run_product_search",
+        "_run_outcome_tracking",
+        "_load_note_prices"
+      ],
+      "classes": [
+        "FlyScheduler"
+      ]
+    },
+    {
+      "file": "src/self_learning_agents.py",
+      "function_count": 20,
+      "class_count": 9,
+      "functions": [
+        "_save_agent_state",
+        "_load_agent_state",
+        "run_all_self_learning_agents",
+        "__init__",
+        "predict",
+        "_update_state",
+        "__init__",
+        "predict",
+        "__init__",
+        "predict",
+        "_generate_candidates",
+        "_estimate_signal_quality",
+        "predict",
+        "predict",
+        "predict"
+      ],
+      "classes": [
+        "SentimentAgent",
+        "RegimeAgent",
+        "AlphaAgent",
+        "RiskAgent",
+        "TimingAgent",
+        "CorrelationAgent",
+        "OverfitGuardian",
+        "MetaAgent",
+        "AgentDirector"
+      ]
+    },
+    {
+      "file": "src/snapshot_cache.py",
+      "function_count": 7,
+      "class_count": 1,
+      "functions": [
+        "_path_for",
+        "load_snapshot",
+        "save_snapshot",
+        "refresh_in_background",
+        "start_periodic_refresh",
+        "refresh",
+        "loop"
+      ],
+      "classes": [
+        "Snapshot"
+      ]
+    },
+    {
+      "file": "src/storage/__init__.py",
+      "function_count": 27,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "_init_analytics",
+        "_init_cloud",
+        "_init_firebase",
+        "_init_clickhouse",
+        "_init_r2",
+        "_init_redis",
+        "_init_backup",
+        "save_trade",
+        "get_trades",
+        "record_calculated_note",
+        "count_calculated_notes",
+        "count_calculated_baskets",
+        "close_trade",
+        "save_snapshot"
+      ],
+      "classes": [
+        "Storage"
+      ]
+    },
+    {
+      "file": "src/storage/analytics_db.py",
+      "function_count": 13,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "_connect",
+        "available",
+        "query",
+        "insert_prices",
+        "insert_signals",
+        "insert_backtest",
+        "read_parquet",
+        "get_price_history",
+        "get_signal_accuracy",
+        "get_backtest_history",
+        "table_stats",
+        "close"
+      ],
+      "classes": [
+        "AnalyticsDB"
+      ]
+    },
+    {
+      "file": "src/storage/backup.py",
+      "function_count": 8,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "local_backup",
+        "cloud_backup",
+        "full_backup",
+        "restore_from_local",
+        "list_local_backups",
+        "_cleanup_old_backups",
+        "get_backup_status"
+      ],
+      "classes": [
+        "BackupManager"
+      ]
+    },
+    {
+      "file": "src/storage/clickhouse_client.py",
+      "function_count": 9,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "enabled",
+        "_create_tables",
+        "save_ohlcv",
+        "get_ohlcv",
+        "save_backtest",
+        "get_backtest",
+        "query",
+        "table_stats"
+      ],
+      "classes": [
+        "ClickHouseStorage"
+      ]
+    },
+    {
+      "file": "src/storage/cloud_sync.py",
+      "function_count": 15,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "enabled",
+        "write_ready",
+        "last_error",
+        "_validate_url",
+        "_sanitize_error",
+        "sync_trades",
+        "sync_portfolio",
+        "sync_learning_log",
+        "sync_basket_weights",
+        "sync_daily_pnl",
+        "restore_from_cloud",
+        "get_last_sync_time",
+        "_clean_for_json",
+        "_clean_value"
+      ],
+      "classes": [
+        "CloudSync"
+      ]
+    },
+    {
+      "file": "src/storage/config.py",
+      "function_count": 9,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "_setting",
+        "supabase_available",
+        "firebase_available",
+        "clickhouse_available",
+        "r2_available",
+        "redis_available",
+        "status_report",
+        "log_status"
+      ],
+      "classes": [
+        "StorageConfig"
+      ]
+    },
+    {
+      "file": "src/storage/database.py",
+      "function_count": 31,
+      "class_count": 1,
+      "functions": [
+        "__new__",
+        "__init__",
+        "transaction",
+        "execute",
+        "fetchone",
+        "fetchall",
+        "insert",
+        "insert_or_replace",
+        "update",
+        "delete",
+        "count",
+        "table_stats",
+        "db_size_bytes",
+        "close",
+        "insert_trade"
+      ],
+      "classes": [
+        "Database"
+      ]
+    },
+    {
+      "file": "src/storage/firebase_client.py",
+      "function_count": 11,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "enabled",
+        "update_portfolio",
+        "get_portfolio",
+        "add_alert",
+        "get_active_alerts",
+        "dismiss_alert",
+        "set_agent_status",
+        "get_all_agent_statuses",
+        "set_regime",
+        "get_regime"
+      ],
+      "classes": [
+        "FirebaseStorage"
+      ]
+    },
+    {
+      "file": "src/storage/migration.py",
+      "function_count": 9,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "migrate_trades",
+        "migrate_portfolio",
+        "migrate_learning_log",
+        "migrate_basket_weights",
+        "migrate_config",
+        "full_migration",
+        "verify_migration",
+        "_flatten_trade"
+      ],
+      "classes": [
+        "DataMigrator"
+      ]
+    },
+    {
+      "file": "src/storage/migrations.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "run_migrations"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/storage/r2_client.py",
+      "function_count": 11,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "enabled",
+        "upload_file",
+        "download_file",
+        "upload_model",
+        "download_model",
+        "list_files",
+        "delete",
+        "create_backup",
+        "list_backups",
+        "restore_backup"
+      ],
+      "classes": [
+        "R2Storage"
+      ]
+    },
+    {
+      "file": "src/storage/redis_client.py",
+      "function_count": 15,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "enabled",
+        "set_price",
+        "get_price",
+        "set_iv",
+        "get_iv",
+        "set_regime",
+        "get_regime",
+        "push_signal",
+        "pop_signal",
+        "queue_length",
+        "check_rate_limit",
+        "set_json",
+        "get_json",
+        "cache_stats"
+      ],
+      "classes": [
+        "RedisCache"
+      ]
+    },
+    {
+      "file": "src/storage_readiness.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_storage_readiness"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/strategies/__init__.py",
+      "function_count": 0,
+      "class_count": 0,
+      "functions": [],
+      "classes": []
+    },
+    {
+      "file": "src/strategies/breakout.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals"
+      ],
+      "classes": [
+        "BreakoutStrategy"
+      ]
+    },
+    {
+      "file": "src/strategies/carry.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals"
+      ],
+      "classes": [
+        "CarryStrategy"
+      ]
+    },
+    {
+      "file": "src/strategies/ensemble.py",
+      "function_count": 3,
+      "class_count": 1,
+      "functions": [
+        "__init__",
+        "name",
+        "generate_signals"
+      ],
+      "classes": [
+        "EnsembleStrategy"
+      ]
+    },
+    {
+      "file": "src/strategies/mean_reversion.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals"
+      ],
+      "classes": [
+        "MeanReversionStrategy"
+      ]
+    },
+    {
+      "file": "src/strategies/momentum.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals"
+      ],
+      "classes": [
+        "MomentumStrategy"
+      ]
+    },
+    {
+      "file": "src/strategies/multi_factor.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals"
+      ],
+      "classes": [
+        "MultiFactorStrategy"
+      ]
+    },
+    {
+      "file": "src/strategies/pairs_trading.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals"
+      ],
+      "classes": [
+        "PairsTradingStrategy"
+      ]
+    },
+    {
+      "file": "src/strategies/risk_parity.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals"
+      ],
+      "classes": [
+        "RiskParityStrategy"
+      ]
+    },
+    {
+      "file": "src/strategies/sector_rotation.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals"
+      ],
+      "classes": [
+        "SectorRotationStrategy"
+      ]
+    },
+    {
+      "file": "src/strategies/trend_following.py",
+      "function_count": 2,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals"
+      ],
+      "classes": [
+        "TrendFollowingStrategy"
+      ]
+    },
+    {
+      "file": "src/strategies/volatility_target.py",
+      "function_count": 3,
+      "class_count": 1,
+      "functions": [
+        "name",
+        "generate_signals",
+        "position_size"
+      ],
+      "classes": [
+        "VolatilityTargetStrategy"
+      ]
+    },
+    {
+      "file": "src/structure_audit.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "audit_python_tree"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/structured_product.py",
+      "function_count": 9,
+      "class_count": 0,
+      "functions": [
+        "_split_objectives",
+        "_baseline_comparison",
+        "_market_adjustment",
+        "score_product",
+        "best_config_for_basket",
+        "_agent_adjustment",
+        "_agent_features",
+        "_agent_report",
+        "find_best_structured_product"
+      ],
+      "classes": []
+    },
+    {
+      "file": "src/system_health.py",
+      "function_count": 1,
+      "class_count": 0,
+      "functions": [
+        "build_system_health"
+      ],
+      "classes": []
+    }
+  ],
+  "key_files": [
+    {
+      "file": "README.md",
+      "status": "present",
+      "line_count": 209,
+      "content": "# 📊 Quant Risk Hub — Trading Strategy Risk Assessment Framework v2.3\n\n[![Made with Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)\n[![Streamlit](https://img.shields.io/badge/Streamlit-1.45-red.svg)](https://streamlit.io/)\n[![Deploy on Fly](https://img.shields.io/badge/Fly.io-Deploy-purple.svg)](https://fly.io)\n\nПрактичный фреймворк для оценки рисков торговых стратегий в стиле prop-трейдинговых фирм (Jane Street / Citadel).\n\n## Принципы\n\n- **Slavishly follow the models** — строгое следование правилам без эмоций\n- Моделируем состояние рынка, а не предсказыва",
+      "truncated": true
+    },
+    {
+      "file": "requirements.txt",
+      "status": "present",
+      "line_count": 21,
+      "content": "streamlit>=1.45.0\nyfinance>=0.2.50\nxfinlink>=0.9.0\npandas>=2.2.0\nnumpy>=1.26.0\nscipy>=1.14.0\nplotly>=6.0.0\nschedule>=1.2.0\nqiskit>=1.0.0\nqiskit-aer>=0.13.0\nrequests>=2.31.0\nduckdb>=1.0.0\nsupabase>=2.4.0\nfirebase-admin>=6.5.0\nclickhouse-connect>=0.7.0\nboto3>=1.34.0\nredis>=5.0.0\npython-dotenv>=1.0.0\nnumerapi>=2.16.0\nlightgbm>=4.3.0\nwebsocket-client>=1.7.0\n",
+      "truncated": false
+    },
+    {
+      "file": "app.py",
+      "status": "present",
+      "line_count": 1523,
+      "content": "\"\"\"Worst-of Phoenix Terminal — Bloomberg-style dashboard.\nComputation stays in the domain modules; this file renders the decision workflow.\"\"\"\n\nimport datetime\nimport hashlib\nimport html\nimport json\nimport streamlit as st\nimport plotly.graph_objects as go\n\nfrom src.precompute import precompute_all as _precompute_all, SECTOR_MAP\nfrom src.phoenix_engine import GDRIVE_AVAILABLE\nfrom src.backtest import precompute_backtest as _precompute_backtest, PhoenixAGI\nfrom src.real_data import precompute_dealer_benchmark as _precompute_dealer\nfrom src.calibration import run_pipeline as _run_calibration_pipeline\nfrom src.data_module import get_data_source_status\nfrom src.commercial_readiness import assess_commercial_readiness\nfrom src.full_pipeline import run_full_analysis\nfrom src.outcome_engine import (\n    PaperOutcomeTracker,\n    StructuredNoteSpec,\n    load_quality_report,\n    simulate_stress_suit",
+      "truncated": true
+    },
+    {
+      "file": "src/structured_product.py",
+      "status": "present",
+      "line_count": 381,
+      "content": "\"\"\"Best-structured-product optimizer.\n\nTies the rest of the system together toward the core goal: given a universe of\nunderlyings, find the single best structured product (basket + barrier + tenor)\nby a risk-adjusted objective. Reuses the real, calibrated models:\n\n- ``compute_toxicity`` / ``compute_p_loss`` (logistic model on 50 settled notes)\n- ``predict_dealer_coupon`` (OLS on 828 dealer quotes)\n\nand — when available — the 8-agent self-learning cascade to nudge the score.\n\nEverything here is deterministic and network-free (yf_data is optional), so it\nis fully unit-testable without hitting the market.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport itertools\nimport logging\nfrom typing import Dict, List, Optional\n\nfrom src.real_data import compute_p_loss, compute_toxicity, predict_dealer_coupon\n\nlogger = logging.getLogger(__name__)\n\nBARRIERS = [0.55, 0.60, 0.65, 0.70, 0.75]\nTENORS = [12,",
+      "truncated": true
+    },
+    {
+      "file": "src/real_data.py",
+      "status": "present",
+      "line_count": 492,
+      "content": "\"\"\"\nReal Data Module — Karpathy Method (External Computation).\n\nSources:\n1. TOX dict — toxicity from 90+ real settled US structured notes (2021-2024)\n2. SETTLED — real backtest outcomes (win/loss) for historical products\n3. DEALER_QUOTES — 895 real dealer pricing responses (from XLSX)\n\nAll heavy computation done ONCE in precompute_dealer_benchmark().\nReturns flat dict for pure Streamlit rendering.\n\"\"\"\n\nimport csv\nimport numpy as np\nimport statistics\nfrom typing import Dict, List, Any\nfrom pathlib import Path\n\n\n# ═══════════════════════════════════════════════════════════════════\n# 1. TOXICITY DATABASE (from real settled notes 2021-2024)\n# Format: ticker → (loss_count, win_count) from actual product outcomes\n# ═══════════════════════════════════════════════════════════════════\n\nTOX_EXPERIENCE: Dict[str, tuple] = {\n    # TOXIC — frequently caused losses\n    \"WDC\": (18, 3), \"QCOM\": (16, 4),",
+      "truncated": true
+    },
+    {
+      "file": "src/phoenix_engine.py",
+      "status": "present",
+      "line_count": 265,
+      "content": "\"\"\"\nФЕНИКС v32.0 — Vectorized Worst-of Phoenix Simulation Engine.\n\nSobol MC (500K paths), Memory Coupon, Barrier Pricing.\nIntegrated with ClickHouse caching & Google Drive backups.\n\"\"\"\n\nimport hashlib\nimport importlib.util\nimport json\nimport os\nfrom datetime import datetime, timedelta\n\nimport numpy as np\n\nSCIPY_QMC = importlib.util.find_spec(\"scipy.stats\") is not None\n\n# ── Google Drive (Colab / local fallback) ──\ntry:\n    from google.colab import drive  # type: ignore\n    drive.mount('/content/drive', force_remount=False)\n    GDRIVE_PATH = '/content/drive/MyDrive/phoenix_data/'\n    os.makedirs(GDRIVE_PATH, exist_ok=True)\n    GDRIVE_AVAILABLE = True\nexcept Exception:\n    GDRIVE_PATH = os.path.join(os.path.expanduser(\"~\"), \"phoenix_data\")\n    os.makedirs(GDRIVE_PATH, exist_ok=True)\n    GDRIVE_AVAILABLE = False\n\n\n# ── Default config ──\nDEFAULT_CONFIG = {\n    \"coupon\": 0.065,           # 6.",
+      "truncated": true
+    },
+    {
+      "file": "src/quant_benchmarks.py",
+      "status": "present",
+      "line_count": 153,
+      "content": "\"\"\"Transparent analytical benchmarks for worst-of barrier risk.\"\"\"\n\nfrom __future__ import annotations\n\nfrom collections.abc import Mapping, Sequence\nimport math\n\nimport numpy as np\nfrom scipy.stats import multivariate_normal, norm\n\n\ndef _terminal_probability(volatility: float, barrier: float, years: float) -> float:\n    if volatility <= 0 or years <= 0:\n        return 0.0\n    threshold = (\n        math.log(barrier) + 0.5 * volatility * volatility * years\n    ) / (volatility * math.sqrt(years))\n    return float(norm.cdf(threshold))\n\n\ndef analytical_worst_of_probability(\n    prices: Mapping[str, Sequence[float]],\n    basket: Sequence[str],\n    barrier: float = 0.65,\n    term_months: int = 6,\n) -> dict:\n    \"\"\"Estimate terminal worst-of breach with a Gaussian copula.\n\n    This is an analytical research benchmark, not a barrier Monte Carlo\n    valuation. The robust interval perturbs annuali",
+      "truncated": true
+    },
+    {
+      "file": "src/risk_metrics.py",
+      "status": "present",
+      "line_count": 341,
+      "content": "\"\"\"Risk Metrics — VaR, CVaR, EVT (Extreme Value Theory), Drawdown, Stress Tests.\n\nProvides historical, parametric, and EVT-based risk measures for portfolio returns.\nEVT uses scipy.stats.genpareto with automated Mean Excess threshold selection.\n\"\"\"\n\nimport logging\nfrom typing import Optional\n\nimport numpy as np\nimport pandas as pd\nfrom scipy import stats\n\nlogger = logging.getLogger(__name__)\n\n\n# ═══════════════════════════════════════════════════════════════\n# VaR / CVaR\n# ═══════════════════════════════════════════════════════════════\n\n\ndef value_at_risk(returns: pd.Series, confidence: float = 0.95) -> float:\n    \"\"\"Historical VaR at given confidence level.\n\n    Args:\n        returns: Daily returns series.\n        confidence: Confidence level (e.g. 0.95 for 95%).\n\n    Returns:\n        VaR value (negative = loss).\n\n    Raises:\n        ValueError: If returns is empty or confidence out of ",
+      "truncated": true
+    },
+    {
+      "file": "src/decision_gate.py",
+      "status": "present",
+      "line_count": 85,
+      "content": "\"\"\"Conservative decision gate for buyer-facing structured-product verdicts.\"\"\"\n\nfrom __future__ import annotations\n\nfrom typing import Any, Mapping\n\n\ndef build_decision_gate(\n    data: Mapping[str, Any],\n    product: Mapping[str, Any],\n    evidence_gate: Mapping[str, Any],\n) -> dict[str, Any]:\n    \"\"\"Return one auditable verdict and its blocking reasons.\"\"\"\n    reasons: list[str] = []\n    checks: dict[str, bool] = {}\n\n    checks[\"real_market_data\"] = bool(evidence_gate.get(\"passed\"))\n    if not checks[\"real_market_data\"]:\n        reasons.append(\"real_market_data_incomplete\")\n\n    best = product.get(\"best\")\n    checks[\"product_selected\"] = isinstance(best, Mapping)\n    if not checks[\"product_selected\"]:\n        reasons.append(\"no_product_selected\")\n\n    quote_fit = {}\n    if isinstance(best, Mapping):\n        candidate_quote_fit = best.get(\"dealer_quote_fit\", best.get(\"quote_fit\", {}))\n  ",
+      "truncated": true
+    },
+    {
+      "file": "src/full_pipeline.py",
+      "status": "present",
+      "line_count": 118,
+      "content": "\"\"\"Single entry point for the complete Phoenix decision pipeline.\"\"\"\n\nfrom datetime import datetime, timezone\nfrom typing import Dict, List, Optional\n\nfrom src.data_module import fetch_ticker_data\nfrom src.decision_gate import build_decision_gate\nfrom src.outcome_engine import StructuredNoteSpec, simulate_stress_suite\nfrom src.precompute import precompute_all\nfrom src.structured_product import find_best_structured_product\n\n\nDEFAULT_PRODUCT_UNIVERSE = [\n    \"AAPL\", \"MSFT\", \"GOOGL\", \"AMZN\", \"NVDA\", \"META\", \"JPM\", \"XOM\",\n]\n\n\ndef run_full_analysis(\n    tickers: List[str],\n    product_preferences: Optional[Dict[str, int | float]] = None,\n) -> Dict:\n    \"\"\"Run data, scoring, agents, product selection, and stress in order.\"\"\"\n    preferences = product_preferences or {}\n    target_barrier = preferences.get(\"barrier_pct\")\n    target_tenor = preferences.get(\"tenor_months\")\n    coupon_frequency = i",
+      "truncated": true
+    },
+    {
+      "file": "src/self_learning_agents.py",
+      "status": "present",
+      "line_count": 1163,
+      "content": "\"\"\"\n8 Self-Learning Agents for Phoenix Structured Notes Prediction.\n\nArchitecture (cascade):\n  Market Data → [Sentiment, Regime, Alpha] → [Risk, Timing, Correlation]\n    → [Overfit Guardian, Meta Agent] → FINAL DECISION\n\nAgent 1: SentimentAgent     — news/analyst sentiment scoring per ticker\nAgent 2: RegimeAgent        — Online Bayesian HMM (bull/bear/sideways)\nAgent 3: AlphaAgent         — genetic programming alpha signal discovery\nAgent 4: RiskAgent          — dynamic position/VaR sizing per regime\nAgent 5: TimingAgent        — entry/exit timing via momentum+mean-reversion\nAgent 6: CorrelationAgent   — DCC-GARCH correlation tracking + alerts\nAgent 7: OverfitGuardian    — monitors all agents for degradation\nAgent 8: MetaAgent          — stacking ensemble orchestrator (XGBoost-like)\n\nAll agents use numpy/scipy only (no torch/transformers).\nSafety: never degrade accuracy below 75% or win_",
+      "truncated": true
+    },
+    {
+      "file": "src/continuous_improvement.py",
+      "status": "present",
+      "line_count": 54,
+      "content": "\"\"\"Evidence-gated improvement cycle planning.\n\nThe planner can run repeatedly, but it never edits production weights or\ncreates trades. It stops when targets are met or progress plateaus.\n\"\"\"\n\nfrom __future__ import annotations\n\nfrom collections.abc import Iterable, Mapping\n\n\ndef build_cycle_plan(\n    targets: Iterable[Mapping],\n    history: Iterable[Mapping] = (),\n    plateau_limit: int = 3,\n) -> dict:\n    target_list = list(targets)\n    history_list = list(history)\n    if not target_list:\n        return {\n            \"status\": \"target_met\",\n            \"action\": \"stop\",\n            \"reason\": \"all evidence targets are satisfied\",\n            \"production_weights_changed\": False,\n        }\n\n    target = target_list[0]\n    target_id = str(target.get(\"id\", \"unknown\"))\n    failures = sum(\n        1\n        for item in history_list\n        if item.get(\"target_id\") == target_id\n        and ite",
+      "truncated": true
+    },
+    {
+      "file": "src/ai_judge_panel.py",
+      "status": "present",
+      "line_count": 323,
+      "content": "\"\"\"Provider-agnostic AI judge panel for research-only model review.\"\"\"\n\nfrom __future__ import annotations\n\nimport os\nfrom collections.abc import Mapping\n\nimport requests\n\nfrom src.gemini_judge import _extract_json, build_judge_prompt, judge_report\n\n\nJsonObject = dict[str, object]\n\nOPENAI_COMPATIBLE_PROVIDERS = {\n    \"cerebras\": {\n        \"key\": \"CEREBRAS_API_KEY\",\n        \"url\": \"https://api.cerebras.ai/v1/chat/completions\",\n        \"model\": \"gpt-oss-120b\",\n    },\n    \"nvidia\": {\n        \"key\": \"NVIDIA_API_KEY\",\n        \"url\": \"https://integrate.api.nvidia.com/v1/chat/completions\",\n        \"model\": \"meta/llama-3.1-8b-instruct\",\n    },\n    \"openai\": {\n        \"key\": \"OPENAI_API_KEY\",\n        \"url\": \"https://api.openai.com/v1/chat/completions\",\n        \"model\": \"gpt-4o-mini\",\n    },\n    \"mistral\": {\n        \"key\": \"MISTRAL_API_KEY\",\n        \"url\": \"https://api.mistral.ai/v1/chat/completio",
+      "truncated": true
+    },
+    {
+      "file": ".github/workflows/ci.yml",
+      "status": "present",
+      "line_count": 139,
+      "content": "name: Phoenix CI\n\non:\n  push:\n    branches: [base-branch, main]\n  pull_request:\n    branches: [base-branch, main]\n\njobs:\n  lint-and-check:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n\n      - name: Set up Python\n        uses: actions/setup-python@v5\n        with:\n          python-version: \"3.11\"\n\n      - name: Install dependencies\n        run: |\n          pip install --upgrade pip\n          pip install -r requirements.lock\n          pip install pytest ruff\n          pip check\n\n      - name: Dependency vulnerability audit\n        continue-on-error: true\n        run: ",
+      "truncated": true
+    },
+    {
+      "file": ".github/workflows/auto-improve.yml",
+      "status": "present",
+      "line_count": 145,
+      "content": "name: Auto-Improve Model\n\non:\n  schedule:\n    # Run every Monday at 06:00 UTC\n    - cron: '0 6 * * 1'\n  workflow_dispatch:\n    inputs:\n      force_run:\n        description: 'Force run even if no new data'\n        required: false\n        default: 'false'\n\njobs:\n  auto-improve:\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          ref: base-branch\n\n      - name: Set up Python\n        uses: actions/setup-python@v5\n        with:\n          python-version: \"3.11\"\n\n      - name: Install dependencies\n        run: |\n      ",
+      "truncated": true
+    },
+    {
+      "file": ".github/workflows/friday-multi-horizon-benchmark.yml",
+      "status": "present",
+      "line_count": 173,
+      "content": "name: Friday multi-horizon benchmark\n\non:\n  schedule:\n    - cron: \"0 17 * * 5\"\n  workflow_dispatch:\n\njobs:\n  benchmark:\n    runs-on: ubuntu-latest\n    timeout-minutes: 30\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.11\"\n      - run: pip install -r requirements.txt\n      - run: |\n          python scripts/multi_horizon_benchmark.py \\\n            --baskets 100 \\\n            --period 5y \\\n            --output multi_horizon_benchmark.json\n          python scripts/plan_quant_improvement.py \\\n            multi_horizon_be",
+      "truncated": true
+    }
+  ]
+}

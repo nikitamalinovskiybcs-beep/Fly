@@ -1,0 +1,822 @@
+{
+  "schema_version": "aics-company-universe-research-v1",
+  "source_as_of": "2026-11-18",
+  "source_pdf": {
+    "title": "Brace for Impact: Protecting People and the Economy When the AI Bubble Bursts",
+    "url": "https://www.openmarketsinstitute.org/s/Brace-for-Impact-Scherer-Jenkins-OMI-October2026-WEB-1.pdf",
+    "sha256": "466b8a875752c85e23a41d5e33ad985c44f437ddc5cf801e132310c4e28bff60",
+    "source_type": "SECONDARY_POLICY_RESEARCH",
+    "page_numbers": "PDF physical pages; checked against source text"
+  },
+  "additional_user_source": "11 Telegram screenshots (Spydell_finance); never re-label Telegram-only firms as sourced by OMI",
+  "model_policy": {
+    "fixed_node_count": 11,
+    "fixed_weights": {
+      "Private Credit": 150,
+      "Insurers": 125,
+      "UST 30Y": 125,
+      "Neoclouds": 100,
+      "AI Equities": 100,
+      "Hyperscalers": 100,
+      "SPV": 100,
+      "Repo": 100,
+      "Power/Data Centers": 50,
+      "Semiconductors Supply": 50,
+      "AI Demand": 50
+    },
+    "expanding_entity_universe_does_not_expand_index_weights": true,
+    "entity_mention_does_not_prove_contractual_exposure": true,
+    "one_economic_exposure_must_not_double_count_across_nodes": true,
+    "sec_mandatory_available_at": "filed_at_plus_14_calendar_days",
+    "unverified_issuer_lagged_inputs_excluded": true,
+    "all_new_company_scores": null,
+    "certified_aics": null,
+    "progress_milestone_from_name_discovery": 0,
+    "independently_validated_model_scores": 0
+  },
+  "companies": [
+    {
+      "name": "CoreWeave",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        21
+      ],
+      "candidate_nodes": [
+        "Neoclouds",
+        "Private Credit"
+      ],
+      "role": "public_neocloud",
+      "raw_source_status": "issuer_ir_archived",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "neocloud provider, named explicitly in report"
+    },
+    {
+      "name": "Nebius Group",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        21
+      ],
+      "candidate_nodes": [
+        "Neoclouds",
+        "SPV"
+      ],
+      "role": "public_neocloud",
+      "raw_source_status": "issuer_ir_archived",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "neocloud provider, named explicitly"
+    },
+    {
+      "name": "Crusoe Energy",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        8,
+        35
+      ],
+      "candidate_nodes": [
+        "Neoclouds",
+        "Power/Data Centers",
+        "SPV"
+      ],
+      "role": "private_neocloud_developer",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "Abilene developer/co-developer and facility lessor; exact legal entity needs original contracts"
+    },
+    {
+      "name": "Oracle",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        25,
+        35,
+        36
+      ],
+      "candidate_nodes": [
+        "Hyperscalers",
+        "AI Demand",
+        "SPV"
+      ],
+      "role": "cloud_platform_tenant",
+      "raw_source_status": "issuer_ir_archived",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "leaseholder and intermediary cloud provider in Abilene example"
+    },
+    {
+      "name": "Microsoft",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        19,
+        22,
+        35
+      ],
+      "candidate_nodes": [
+        "Hyperscalers",
+        "AI Demand",
+        "AI Equities"
+      ],
+      "role": "hyperscaler",
+      "raw_source_status": "issuer_ir_archived",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "hyperscaler and OpenAI strategic partner; verify cloud vs equity cashflows"
+    },
+    {
+      "name": "Alphabet",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        19,
+        22,
+        24
+      ],
+      "candidate_nodes": [
+        "Hyperscalers",
+        "AI Demand",
+        "AI Equities"
+      ],
+      "role": "hyperscaler",
+      "raw_source_status": "issuer_ir_archived",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "Google parent; balance and counterparties to verify"
+    },
+    {
+      "name": "Amazon",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        19,
+        22
+      ],
+      "candidate_nodes": [
+        "Hyperscalers",
+        "AI Demand",
+        "AI Equities"
+      ],
+      "role": "hyperscaler",
+      "raw_source_status": "issuer_ir_archived",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "Anthropic strategic partner; do not assume AI-only revenue"
+    },
+    {
+      "name": "Meta",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        19,
+        24
+      ],
+      "candidate_nodes": [
+        "Hyperscalers",
+        "SPV",
+        "AI Equities"
+      ],
+      "role": "hyperscaler",
+      "raw_source_status": "issuer_ir_archived",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "report describes Louisiana data-center SPV; contractual recourse unverified"
+    },
+    {
+      "name": "NVIDIA",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        24,
+        25,
+        35
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply",
+        "AI Demand",
+        "AI Equities",
+        "SPV"
+      ],
+      "role": "gpu_vendor_investor",
+      "raw_source_status": "issuer_ir_archived",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "chipmaker and contractual support counterparty; preserve distinct instrument types"
+    },
+    {
+      "name": "AMD",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        20,
+        21
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply",
+        "AI Equities"
+      ],
+      "role": "chipmaker",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "listed in nine-company issuer universe of report"
+    },
+    {
+      "name": "Broadcom",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        20,
+        21,
+        24
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply",
+        "AI Equities"
+      ],
+      "role": "semiconductor_network",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "AI silicon and Anthropic related commitment discussed"
+    },
+    {
+      "name": "OpenAI",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        20,
+        21,
+        35
+      ],
+      "candidate_nodes": [
+        "AI Demand",
+        "Neoclouds"
+      ],
+      "role": "model_developer_tenant",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "user of Abilene; revenue/outside-customer proof needed"
+    },
+    {
+      "name": "Anthropic",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        20,
+        21,
+        24
+      ],
+      "candidate_nodes": [
+        "AI Demand",
+        "Hyperscalers"
+      ],
+      "role": "model_developer",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "developer and cloud customer; circular financing hypothesis"
+    },
+    {
+      "name": "xAI",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        20
+      ],
+      "candidate_nodes": [
+        "AI Demand",
+        "SPV"
+      ],
+      "role": "model_developer",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "named as developer in report"
+    },
+    {
+      "name": "SpaceX",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        20,
+        21
+      ],
+      "candidate_nodes": [
+        "AI Demand",
+        "AI Equities"
+      ],
+      "role": "corporate_parent_context",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "AI-demand proxy only through xAI relationship, not direct standalone AI revenue"
+    },
+    {
+      "name": "SoftBank",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        8,
+        35
+      ],
+      "candidate_nodes": [
+        "AI Demand",
+        "SPV"
+      ],
+      "role": "equity_financing_counterparty",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "investor in Abilene network, economic recourse unverified"
+    },
+    {
+      "name": "Blue Owl Capital",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        8,
+        24,
+        35
+      ],
+      "candidate_nodes": [
+        "Private Credit",
+        "SPV"
+      ],
+      "role": "private_credit_sponsor",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "Abilene and Meta examples; two distinct projects, do not merge"
+    },
+    {
+      "name": "PIMCO",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        24
+      ],
+      "candidate_nodes": [
+        "Private Credit",
+        "SPV"
+      ],
+      "role": "investment_fund",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "named with Meta/Blue Owl SPV example"
+    },
+    {
+      "name": "Primary Digital Infrastructure",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        8,
+        35
+      ],
+      "candidate_nodes": [
+        "SPV",
+        "Power/Data Centers"
+      ],
+      "role": "project_investment_vehicle",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "Abilene co-developer / equity investor, PDI",
+      "pdf_name_aliases": [
+        "PRIMARY DIGITAL INFRASTRUCTURE",
+        "PRIMARY DIGITAL"
+      ]
+    },
+    {
+      "name": "Lancium",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        8,
+        35
+      ],
+      "candidate_nodes": [
+        "Power/Data Centers",
+        "SPV"
+      ],
+      "role": "site_landowner",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "Abilene site land owner according to figure"
+    },
+    {
+      "name": "JPMorgan Chase",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        8,
+        35
+      ],
+      "candidate_nodes": [
+        "SPV",
+        "Repo"
+      ],
+      "role": "bank_lender_counterparty",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "JPMC noted lender to Abilene project, NOT proof of bank repo stress",
+      "pdf_name_aliases": [
+        "JP MORGAN CHASE",
+        "JPMC"
+      ]
+    },
+    {
+      "name": "Apollo",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        44
+      ],
+      "candidate_nodes": [
+        "Private Credit",
+        "Insurers"
+      ],
+      "role": "private_credit_and_insurer_owner",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "report discusses insurer-PE ownership link, no entity-specific claims"
+    },
+    {
+      "name": "TIAA",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        44
+      ],
+      "candidate_nodes": [
+        "Insurers"
+      ],
+      "role": "insurer_institution",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "named as insurer-holder in discussion of private credit ratings"
+    },
+    {
+      "name": "MassMutual",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        44
+      ],
+      "candidate_nodes": [
+        "Insurers"
+      ],
+      "role": "mutual_insurer",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "named as insurer-holder; original holdings required"
+    },
+    {
+      "name": "Principal Financial Group",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        44
+      ],
+      "candidate_nodes": [
+        "Insurers"
+      ],
+      "role": "insurance_financial_group",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "named as insurer-holder; source independent verification needed"
+    },
+    {
+      "name": "Egan Jones",
+      "origin": "OMI_PDF",
+      "original_pdf_pages": [
+        44
+      ],
+      "candidate_nodes": [
+        "Insurers"
+      ],
+      "role": "external_rating_agency",
+      "raw_source_status": "secondary_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "ratings actor, NOT an insurer; context only"
+    },
+    {
+      "name": "Lambda",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052507.jpg"
+      ],
+      "candidate_nodes": [
+        "Neoclouds"
+      ],
+      "role": "private_neocloud",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "lease or GPU capacity claims not verified in signed contracts"
+    },
+    {
+      "name": "Firmus",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052507.jpg"
+      ],
+      "candidate_nodes": [
+        "Neoclouds",
+        "Power/Data Centers"
+      ],
+      "role": "private_neocloud_candidate",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "reported take-or-pay pool; exact entity identity and source contract needed"
+    },
+    {
+      "name": "SharonAI",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052507.jpg"
+      ],
+      "candidate_nodes": [
+        "Neoclouds"
+      ],
+      "role": "private_neocloud_candidate",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "reported partner; issuer disclosure required"
+    },
+    {
+      "name": "GMI",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052507.jpg"
+      ],
+      "candidate_nodes": [
+        "Neoclouds"
+      ],
+      "role": "private_neocloud_candidate_ambiguous_name",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "ambiguous abbreviation: legal entity must be resolved before joining financial data"
+    },
+    {
+      "name": "Nscale",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052508.jpg"
+      ],
+      "candidate_nodes": [
+        "Neoclouds",
+        "Power/Data Centers"
+      ],
+      "role": "private_neocloud_candidate",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "site developer/tenant claim; signed lease verification required"
+    },
+    {
+      "name": "SB Energy",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052508.jpg"
+      ],
+      "candidate_nodes": [
+        "SPV",
+        "Power/Data Centers"
+      ],
+      "role": "infrastructure_project_sponsor",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "telegram plus separate NVIDIA SEC financing/guarantee description; not PDF company"
+    },
+    {
+      "name": "Lumentum",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052509.jpg"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "role": "optics_supplier",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "investment amount not proven"
+    },
+    {
+      "name": "Coherent",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052509.jpg"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "role": "optics_supplier",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "investment amount not proven"
+    },
+    {
+      "name": "Intel",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052509.jpg"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "role": "semiconductor_manufacturer",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "counterparty exposure not proven"
+    },
+    {
+      "name": "Nokia",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052509.jpg"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "role": "network_equipment",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "counterparty exposure not proven"
+    },
+    {
+      "name": "Groq",
+      "origin": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "original_pdf_pages": [],
+      "telegram_image_ids": [
+        "1000052509.jpg"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply",
+        "AI Demand"
+      ],
+      "role": "ai_accelerator_developer",
+      "raw_source_status": "secondary_social_lead_only",
+      "confirmed_financial_exposure_usd": null,
+      "stress_score": null,
+      "model_eligible": false,
+      "notes": "deal sum and future payments not proven"
+    }
+  ],
+  "reported_relationships": [
+    {
+      "project": "Abilene Texas / Stargate",
+      "paper_pages": [
+        8,
+        35
+      ],
+      "entities": [
+        "OpenAI",
+        "Oracle",
+        "Crusoe Energy",
+        "Blue Owl Capital",
+        "Primary Digital Infrastructure",
+        "JPMorgan Chase",
+        "Lancium",
+        "NVIDIA",
+        "SoftBank"
+      ],
+      "reported_terms": [
+        {
+          "amount": 5,
+          "unit": "USD billion",
+          "kind": "financing_equity_or_cash_claim_from_secondary_report"
+        },
+        {
+          "amount": 10,
+          "unit": "USD billion",
+          "kind": "project_loan_claim_from_secondary_report"
+        }
+      ],
+      "source_status": "OMI_PDF_SECONDARY_NOT_CONTRACT_ATTESTED",
+      "risk_paths": [
+        "cloud_user_to_leaseholder",
+        "leaseholder_to_developer",
+        "developer_to_project_borrower",
+        "project_borrower_to_lender"
+      ],
+      "legal_entity_ciks_verified": false,
+      "score_eligible": false
+    },
+    {
+      "project": "Meta Louisiana data-center financing",
+      "paper_pages": [
+        24
+      ],
+      "entities": [
+        "Meta",
+        "Blue Owl Capital",
+        "PIMCO"
+      ],
+      "reported_terms": [
+        {
+          "amount": 26,
+          "unit": "USD billion",
+          "kind": "loan_claim_from_secondary_report"
+        }
+      ],
+      "source_status": "OMI_PDF_SECONDARY_NOT_CONTRACT_ATTESTED",
+      "risk_paths": [
+        "lease_guarantee",
+        "project_debt"
+      ],
+      "legal_entity_ciks_verified": false,
+      "score_eligible": false
+    },
+    {
+      "project": "NVIDIA reported contracts - non-PDF additional candidates",
+      "paper_pages": [],
+      "entities": [
+        "NVIDIA",
+        "Lambda",
+        "Firmus",
+        "SharonAI",
+        "GMI",
+        "Nscale",
+        "SB Energy"
+      ],
+      "reported_terms": [],
+      "source_status": "TELEGRAM_SCREENSHOTS_NOT_IN_OMI_PDF",
+      "risk_paths": [
+        "lease",
+        "GPU_capacity",
+        "guarantee"
+      ],
+      "legal_entity_ciks_verified": false,
+      "score_eligible": false
+    }
+  ],
+  "collections": {
+    "pdf_specific_named_neoclouds": [
+      "CoreWeave",
+      "Nebius Group",
+      "Crusoe Energy"
+    ],
+    "telegram_only_small_neocloud_candidates": [
+      "Lambda",
+      "Firmus",
+      "SharonAI",
+      "GMI",
+      "Nscale"
+    ],
+    "company_count": 37,
+    "pdf_named_count": 26,
+    "telegram_only_count": 11
+  },
+  "followup_primary_sources": [
+    "Official SEC EDGAR and issuer IR original filings for named listed entities",
+    "Actual loan/lease/project agreements and asset owner maps for Crusoe, PDI, JPMorgan, Blue Owl, Meta",
+    "Original lender investment notes and NAIC statutory filings for insurer links",
+    "Issuer and private-party confirmations for Telegram-only smaller Neoclouds",
+    "Source-dated monthly/time-series data, no backfill, prior to score calibration"
+  ],
+  "status": "CANDIDATE_UNIVERSE_NOT_MODEL_PROMOTION"
+}

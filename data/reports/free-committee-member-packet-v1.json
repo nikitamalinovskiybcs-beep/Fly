@@ -1,0 +1,76 @@
+{
+  "status": "research_only",
+  "scope": "free and local AI committee member selection",
+  "constraints": [
+    "no paid service required",
+    "no new credentials",
+    "must run on current 8GB RAM machine",
+    "must preserve provider status and dissent"
+  ],
+  "candidates": [
+    {
+      "id": "qwen2.5:1.5b",
+      "type": "ollama_local",
+      "cost": "free",
+      "resource": "low",
+      "current_status": "available_and_smoke_tested"
+    },
+    {
+      "id": "deepseek-r1:1.5b",
+      "type": "ollama_local",
+      "cost": "free",
+      "resource": "low",
+      "current_status": "available_and_smoke_tested"
+    },
+    {
+      "id": "llama3.2:1b",
+      "type": "ollama_local",
+      "cost": "free",
+      "resource": "low",
+      "current_status": "not_installed"
+    },
+    {
+      "id": "gemma3:1b",
+      "type": "ollama_local",
+      "cost": "free",
+      "resource": "low",
+      "current_status": "not_installed"
+    },
+    {
+      "id": "phi3:mini",
+      "type": "ollama_local",
+      "cost": "free",
+      "resource": "medium",
+      "current_status": "not_installed"
+    },
+    {
+      "id": "smollm2:1.7b",
+      "type": "ollama_local",
+      "cost": "free",
+      "resource": "low",
+      "current_status": "not_installed"
+    },
+    {
+      "id": "qwen2.5:7b",
+      "type": "ollama_local",
+      "cost": "free",
+      "resource": "high",
+      "current_status": "available_but_slow"
+    },
+    {
+      "id": "deepseek-r1:7b",
+      "type": "ollama_local",
+      "cost": "free",
+      "resource": "high",
+      "current_status": "available_but_slow"
+    }
+  ],
+  "committee_questions": [
+    "rank the best 3 free members for independent review",
+    "balance reasoning quality, hallucination risk, latency and RAM",
+    "recommend which models to install next"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

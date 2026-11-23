@@ -1,0 +1,98 @@
+{
+  "catalog_id": "phoenix-academic-public-sources-v1",
+  "generated_at": "2026-08-03T21:47:56.153361+00:00",
+  "scope": "Public MIT, arXiv and SSRN sources relevant to Phoenix structured products.",
+  "sources": [
+    {
+      "url": "https://ocw.mit.edu/courses/15-450-analytics-of-finance-fall-2010/0d1260b891a96241316d883d4f5bfaec_MIT15_450F10_lec02.pdf",
+      "type": "MIT OCW",
+      "topic": "Heston/stochastic volatility/risk-neutral pricing",
+      "use": "methodology/challenger reference"
+    },
+    {
+      "url": "https://ocw.mit.edu/courses/15-450-analytics-of-finance-fall-2010/4fa033082ff5ee58722a67fe81f0dce7_MIT15_450F10_lec03.pdf",
+      "type": "MIT OCW",
+      "topic": "simulation/control variates/barrier options",
+      "use": "variance reduction and validation reference"
+    },
+    {
+      "url": "https://dspace.mit.edu/bitstream/handle/1721.1/107122/10444_2015_9421_ReferencePDF.pdf",
+      "type": "MIT DSpace",
+      "topic": "reduced models for basket options under BS/Heston",
+      "use": "speed/challenger research"
+    },
+    {
+      "url": "https://arxiv.org/pdf/2106.12431",
+      "type": "arXiv",
+      "topic": "Chebyshev Greeks; memory worst-of autocall example",
+      "use": "Greek estimation/reference test"
+    },
+    {
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3228065",
+      "type": "SSRN",
+      "topic": "stochastic volatility and correlations in worst-of autocallables",
+      "use": "risk-factor/challenger design"
+    },
+    {
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2411789",
+      "type": "SSRN",
+      "topic": "US autocall issuance and contractual properties",
+      "use": "dataset discovery/taxonomy; outcome evidence not assumed"
+    },
+    {
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4214697",
+      "type": "SSRN",
+      "topic": "local-stochastic volatility autocall pricing",
+      "use": "model challenger/reference"
+    },
+    {
+      "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1125725",
+      "type": "SSRN",
+      "topic": "conditional analytic Monte Carlo for autocallables",
+      "use": "variance/error-reduction research"
+    }
+  ],
+  "committee_review": {
+    "proposal_id": "phoenix-academic-public-sources-v1",
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "decision": "RESEARCH",
+    "review": {
+      "decision": "proceed_with_phoenix_development",
+      "source_assessments": {
+        "theory_methodology": [
+          "MIT OCW 15.450 lectures on stochastic volatility, Heston, simulation, barrier options, and control variates: Highly relevant for theoretical foundation and methodological improvements in Phoenix's pricing and simulation frameworks.",
+          "MIT DSpace paper on reduced models for basket options under Black-Scholes/Heston: Relevant for methodological advancements in reduced-form models, particularly for basket options, which may inform Phoenix's handling of multi-asset structures.",
+          "arXiv 2106.12431 Chebyshev Greeks with a memory worst-of autocall example: Relevant for methodological improvements in sensitivity analysis (Greeks) and handling path-dependent features in autocallables.",
+          "SSRN 3228065 on stochastic volatility/correlations in equity worst-of autocallables: Relevant for methodological extensions to incorporate stochastic volatility and correlation dynamics in worst-of autocallables.",
+          "SSRN 4214697 pricing autocallables under local-stochastic volatility: Relevant for methodological improvements in pricing autocallables under more realistic local-stochastic volatility models.",
+          "SSRN 1125725 conditional analytic Monte Carlo for autocallables: Relevant for methodological advancements in efficient Monte Carlo simulation techniques for autocallables."
+        ],
+        "verified_market_evidence": [
+          "SSRN 2411789 collecting US autocall issuance data and contractual properties: Useful for out-of-sample (OOS) validation and training data to assess Phoenix's performance against real-world market data."
+        ]
+      },
+      "useful_for_engine": [
+        "MIT OCW 15.450 lectures: Directly applicable for improving simulation engines, control variates, and barrier option handling in Phoenix.",
+        "arXiv 2106.12431: Useful for enhancing sensitivity analysis (Greeks) and path-dependent feature handling in autocallables.",
+        "SSRN 1125725: Applicable for improving Monte Carlo simulation efficiency in Phoenix's engine."
+      ],
+      "useful_for_data": [
+        "SSRN 2411789: Provides real-world issuance data and contractual properties, useful for training and validating Phoenix's data-driven components."
+      ],
+      "blockers": [],
+      "next_experiment": "Implement stochastic volatility (Heston) and local-stochastic volatility models in Phoenix's simulation engine, incorporating control variates and Chebyshev-based Greeks for path-dependent autocallables. Validate against real-world issuance data from SSRN 2411789.",
+      "safety_flags": []
+    },
+    "baseline": "Phoenix canonical Monte Carlo and payoff engine with incomplete OOS evidence",
+    "target": "Use public theory as challenger/methodology input without converting papers into market labels",
+    "next_experiment": "Select one variance-reduction method and one stochastic-volatility/correlation challenger for offline comparison against canonical engine.",
+    "final_devin_validation": "Sources classified; no paper result treated as realized evidence and no production logic changed."
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

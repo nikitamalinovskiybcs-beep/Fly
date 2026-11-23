@@ -1,6 +1,5 @@
 """Portfolio & Practical Risk — корреляции, slippage, capacity."""
 
-import numpy as np
 import pandas as pd
 
 

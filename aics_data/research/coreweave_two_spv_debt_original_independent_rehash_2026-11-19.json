@@ -1,0 +1,73 @@
+{
+  "schema_version": "aics-coreweave-ddtl4-ddtl5-original-sec-independent-rehash-v1",
+  "original_issuer": "CoreWeave",
+  "issuer_cik": "1769628",
+  "economic_report_date": "2026-06-30",
+  "sec_filed_at": "2026-08-12",
+  "strict_aics_sec_available_at": "2026-08-26",
+  "original_form": "10-Q",
+  "original_accession": "0001769628-26-000366",
+  "original_sec_url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000366/0001769628-26-000366.txt",
+  "primary_original_url": "https://www.sec.gov/Archives/edgar/data/1769628/000176962826000366/crwv-20260630.htm",
+  "original_full_submission_bytes": 12588161,
+  "original_full_submission_sha256": "ca366091455e6f3262a98868d3e62cfaef28a667729df7253270fd75cdd8f687",
+  "source_embedded_document_sha256": "a50f45f48899270f2018c2950b624102b33bb57ddebc999558211d06230d6e96",
+  "github_actions_run_id": 44571253169,
+  "github_actions_artifact_id": 14553887671,
+  "artifact_name": "aics-coreweave-two-spv-debt-original-10q-not-pit",
+  "archive_expiration_date": "2026-12-19",
+  "artifact_zip_bytes": 1299610,
+  "independently_recalculated_artifact_zip_sha256": "ae5597e2dacab3ce538c50d113db55597ea4c5919972d86bf2847f78de6dded0",
+  "zip_crc_valid": true,
+  "independent_raw_rehash_performed_outside_github_actions": true,
+  "source_replay_report_bytes": 3191,
+  "source_replay_report_sha256": "e943978b8e8bb77136b4b29cd0fade4b87e26047faa778af4448bf0ff0493209",
+  "source_replay_second_pass_bytes": 3191,
+  "source_replay_second_pass_sha256": "e943978b8e8bb77136b4b29cd0fade4b87e26047faa778af4448bf0ff0493209",
+  "report_replayed_exactly": true,
+  "report_nodes": [
+    "SPV",
+    "Neoclouds"
+  ],
+  "observations": [
+    {
+      "facility": "DDTL 4.0",
+      "borrower": "CoreWeave Compute Acquisition Co. VIII, LLC",
+      "reported_debt_usd_m": 2837,
+      "facility_ceiling_usd_m": 8500,
+      "reported_balance_to_ceiling_pct": "33.38",
+      "recourse": "Non-recourse except for customary limited guarantees",
+      "parent_enforceable_guarantee_usd_m": null
+    },
+    {
+      "facility": "DDTL 5.0",
+      "borrower": "CoreWeave Financing DDTL V, LLC",
+      "reported_debt_usd_m": 1101,
+      "facility_ceiling_usd_m": 3100,
+      "reported_balance_to_ceiling_pct": "35.52",
+      "recourse": "Unconditional parent guarantee",
+      "parent_enforceable_guarantee_usd_m": null
+    }
+  ],
+  "separate_same_date_facility_reported_debt_total_usd_m": 3938,
+  "separate_same_date_facility_ceiling_total_usd_m": 11600,
+  "reported_debt_to_ceiling_pct": "33.95",
+  "combined_parent_recourse_or_loss_usd_m": null,
+  "present_day_drawn_principal_usd_m": null,
+  "recoverable_spv_equity_usd_m": null,
+  "is_independent_historical_provider_release_attestation": false,
+  "historical_pit_source_delivery_verified": false,
+  "untouched_24m_oos": false,
+  "synthetic_market_rows": 0,
+  "indexed_stress_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "constraints": [
+    "Original actual debt balances are from CoreWeave 10-Q at June 30, 2026 and not retrospectively promoted to earlier AICS eligibility.",
+    "DDTL 4.0 is non-recourse apart from limited customary carve-outs; DDTL 5.0 is subject to an unconditional parent guarantee. Neither figure is a directly verified parent loss exposure.",
+    "Contractual ceilings are distinct from actual debt and accessible undrawn liquidity; balance-to-ceiling is descriptive only.",
+    "The two reported balances are same-date separate facilities. Their sum does not add to consolidated debt, unrelated Nscale borrowings, nominal guarantees or lease commitments.",
+    "Original bytes independently rehashed outside GitHub Actions on 2026-11-19, but not re-captured at the August 2026 historical publication moment.",
+    "Raw SEC 10-Q is stored only in expiring Actions artifact; persistent record stores digests and derived research quantities, not raw provider files."
+  ]
+}

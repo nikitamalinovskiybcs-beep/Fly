@@ -1,0 +1,111 @@
+{
+  "schema_version": "aics-private-credit-three-original-sec-bdc-q1q3-durable-v1",
+  "as_of": "2026-11-19",
+  "node": "Private Credit",
+  "node_fixed_weight": 150,
+  "source_repro_workflow_run_id": 44418985389,
+  "source_output_artifact_id": 14481925376,
+  "source_output_artifact_zip_sha256": "41395aa734719c683edfabbbb7e83fc0f91b55d3a65c3ac61727738ecef346d0",
+  "source_generated_panel_sha256": "16e7604f1c6529f35d5af83630c2420f200c8adff42e95343619756d4e0a6434",
+  "original_provider_zip_sha256s": {
+    "ARCC_source_timeline": "38e6c0bb5ba64ed2edb1a76728cca3e74c455dfc1104e5b66cce2f9def79a5d1",
+    "OBDC": "3af6fc515102edefe4e533f431b87bc87c25b87d6565616ace3fcc2ca07141e8",
+    "BXSL_Q3": "d34ba8b21eac65f8ba83d23ddd9572ba6d6ac8227a5415b6b90e7f3dcc924950",
+    "BXSL_Q1_Q2": "63e68b50de6ab08527a90cf1a16703b21c20d818fc8c022af9c7c75accc3a6c3"
+  },
+  "issuers": [
+    "ARCC",
+    "BXSL",
+    "OBDC"
+  ],
+  "original_source_issuer_period_records": 11,
+  "original_nonaccrual_percentage_measures": 22,
+  "matched_issuer_period_records_in_quarter_matrix": 9,
+  "matched_separately_disclosed_percentage_measures": 18,
+  "matched_quarter_count": 3,
+  "three_issuer_quarter_comparison": [
+    {
+      "period_end": "2026-03-31",
+      "all_three_sec_available_at": "2026-05-21",
+      "issuer_rows": [
+        {
+          "issuer": "ARCC",
+          "nonaccrual_amortized_cost_pct": "2.1",
+          "nonaccrual_fair_value_pct": "1.2",
+          "available_at": "2026-05-12"
+        },
+        {
+          "issuer": "BXSL",
+          "nonaccrual_amortized_cost_pct": "4.7",
+          "nonaccrual_fair_value_pct": "3.1",
+          "available_at": "2026-05-21"
+        },
+        {
+          "issuer": "OBDC",
+          "nonaccrual_amortized_cost_pct": "2.0",
+          "nonaccrual_fair_value_pct": "1.0",
+          "available_at": "2026-05-20"
+        }
+      ]
+    },
+    {
+      "period_end": "2026-06-30",
+      "all_three_sec_available_at": "2026-08-20",
+      "issuer_rows": [
+        {
+          "issuer": "ARCC",
+          "nonaccrual_amortized_cost_pct": "2.4",
+          "nonaccrual_fair_value_pct": "1.4",
+          "available_at": "2026-08-12"
+        },
+        {
+          "issuer": "BXSL",
+          "nonaccrual_amortized_cost_pct": "3.6",
+          "nonaccrual_fair_value_pct": "1.8",
+          "available_at": "2026-08-20"
+        },
+        {
+          "issuer": "OBDC",
+          "nonaccrual_amortized_cost_pct": "2.8",
+          "nonaccrual_fair_value_pct": "0.8",
+          "available_at": "2026-08-19"
+        }
+      ]
+    },
+    {
+      "period_end": "2026-09-30",
+      "all_three_sec_available_at": "2026-11-18",
+      "issuer_rows": [
+        {
+          "issuer": "ARCC",
+          "nonaccrual_amortized_cost_pct": "2.4",
+          "nonaccrual_fair_value_pct": "1.4",
+          "available_at": "2026-11-10"
+        },
+        {
+          "issuer": "BXSL",
+          "nonaccrual_amortized_cost_pct": "2.8",
+          "nonaccrual_fair_value_pct": "2.1",
+          "available_at": "2026-11-18"
+        },
+        {
+          "issuer": "OBDC",
+          "nonaccrual_amortized_cost_pct": "2.9",
+          "nonaccrual_fair_value_pct": "0.8",
+          "available_at": "2026-11-18"
+        }
+      ]
+    }
+  ],
+  "SEC_available_at_filed_at_plus_calendar_days": 14,
+  "amortized_cost_and_fair_value_denominators_kept_separate": true,
+  "issuer_aggregation_performed": false,
+  "portfolio_weights_assigned": false,
+  "synthetic_market_rows": 0,
+  "complete_independently_attested_historical_pit": false,
+  "independent_24_month_oos": false,
+  "private_credit_node_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "note": "Direct SEC 8-K original exhibits have been independently rehashed after historical filing; historical live-delivery timestamp PIT and 24-month holdout remain unproven. Three BDCs not representative of whole private credit, no AICS trading signal."
+}

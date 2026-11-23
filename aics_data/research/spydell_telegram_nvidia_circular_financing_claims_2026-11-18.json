@@ -1,0 +1,1075 @@
+{
+  "schema_version": "aics-telegram-source-claims-v1",
+  "as_of": "2026-11-18",
+  "telegram_source": {
+    "channel": "Spydell_finance",
+    "post_date_claim": "2026-11-16",
+    "origin": "11 screenshots directly provided by user",
+    "original_images_in_git_repository": false,
+    "original_images_user_conversation": true,
+    "transcription_method": "manual visual reading of user screenshot text; complex chart fine print not treated as verified",
+    "source_classification": "SECONDARY_SOCIAL_MEDIA_ANALYSIS",
+    "images": [
+      {
+        "filename": "1000052500.jpg",
+        "sha256": "332dcac7e5f823468e295678a45f1fee20a6d9c6b2003265bb1d3de2f1f7f518",
+        "topic": "interpretation of lending/accounting circular structure",
+        "image_is_market_source": false
+      },
+      {
+        "filename": "1000052501.jpg",
+        "sha256": "ad03282f1cea70fdb44a84b103a9ce70d246c0860fb4e1e8d23bd612d429d1e8",
+        "topic": "eight-instrument obligations chart",
+        "image_is_market_source": false
+      },
+      {
+        "filename": "1000052502.jpg",
+        "sha256": "e23aea6934b456a9f8b301b945c59254ab0f1a4de5b2d854110b3df7df08c840",
+        "topic": "equity securities investments, future commitments, private SPV capital",
+        "image_is_market_source": false
+      },
+      {
+        "filename": "1000052503.jpg",
+        "sha256": "ecde73b576a39cd4f74a6b32ef480ddef2d969d27445fef8b18144b765516206",
+        "topic": "xAI Colossus equity debt, NVIDIA guarantee narrative",
+        "image_is_market_source": false
+      },
+      {
+        "filename": "1000052504.jpg",
+        "sha256": "3ba7cc446ab990f19662e4b7acb75dd37be5cca14542834a236f1de280a0b14b",
+        "topic": "accounts receivable chart and cash conversion",
+        "image_is_market_source": false
+      },
+      {
+        "filename": "1000052505.jpg",
+        "sha256": "7b10e1ee2e8f8adabedf3f7d71e429807c35486be7ec7212e9bcd05d8cf5c12c",
+        "topic": "extended payment terms, 40.71 to 63.06 and days sales outstanding",
+        "image_is_market_source": false
+      },
+      {
+        "filename": "1000052506.jpg",
+        "sha256": "3a3001766a0cbed0400a195254610bf766a0df4d85d79b0c9318a1aed31e3ff8",
+        "topic": "deferred revenue, customer advances, prepaid cash flow",
+        "image_is_market_source": false
+      },
+      {
+        "filename": "1000052507.jpg",
+        "sha256": "38d5d2e0a07f3560c05d20a3a9a605958f703f703c9ef7af017308fe40866ad0",
+        "topic": "take-or-pay 36, cloud service 29, lease 20 and 25 claims",
+        "image_is_market_source": false
+      },
+      {
+        "filename": "1000052508.jpg",
+        "sha256": "a99fd04851c3f5478648971988704c11deaa978377e99edbc4a811499a150dd0",
+        "topic": "SB Energy, 108.5 gross maximum guarantees, Groq optics claims",
+        "image_is_market_source": false
+      },
+      {
+        "filename": "1000052509.jpg",
+        "sha256": "4e658db529952862c8ee5489f12aecd65532f7397feae7537d10e6d722ec63e1",
+        "topic": "Groq license paid and deferred consideration, Intel and optics company claims",
+        "image_is_market_source": false
+      },
+      {
+        "filename": "1000052510.jpg",
+        "sha256": "51807082bcbb2c31f9326257740d4da4fe355332334b44982a896b24659e813c",
+        "topic": "Telegram author's economic interpretation and circular financing thesis",
+        "image_is_market_source": false
+      }
+    ]
+  },
+  "primary_sources": {
+    "nvda_q2fy27_10q": {
+      "issuer": "NVIDIA",
+      "issuer_cik": "0001045810",
+      "accession": "0001045810-26-000075",
+      "filed_at": "2026-08-26",
+      "available_at": "2026-09-09",
+      "period_end": "2026-07-26",
+      "url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+      "original_sec_html_sha256": null,
+      "original_source_bytes_archived_in_project": false
+    },
+    "nvda_q1fy27_ir": {
+      "issuer": "NVIDIA",
+      "period_end": "2026-04-26",
+      "url": "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-First-Quarter-Fiscal-2027/default.aspx",
+      "sec_filed_at": null,
+      "original_source_bytes_archived_in_project": false
+    }
+  },
+  "extracted_company_names": [
+    {
+      "name": "NVIDIA",
+      "candidate_nodes": [
+        "Semiconductors Supply",
+        "AI Equities",
+        "AI Demand",
+        "SPV"
+      ],
+      "origin_strength": "SEC_PRIMARY_NVDA_Q2_FY27",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "CoreWeave",
+      "candidate_nodes": [
+        "Neoclouds",
+        "Private Credit",
+        "AI Demand"
+      ],
+      "origin_strength": "IR_ARCHIVED_ECONOMIC_RELATIONSHIPS_NOT_ALL_VERIFIED",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Lambda",
+      "candidate_nodes": [
+        "Neoclouds",
+        "AI Demand"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Firmus",
+      "candidate_nodes": [
+        "Neoclouds",
+        "AI Demand"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "SharonAI",
+      "candidate_nodes": [
+        "Neoclouds",
+        "AI Demand"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "GMI",
+      "candidate_nodes": [
+        "Neoclouds"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Nscale",
+      "candidate_nodes": [
+        "Neoclouds",
+        "Power/Data Centers"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Crusoe",
+      "candidate_nodes": [
+        "Neoclouds",
+        "Power/Data Centers"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "SB Energy",
+      "candidate_nodes": [
+        "SPV",
+        "Power/Data Centers"
+      ],
+      "origin_strength": "SEC_PRIMARY_NVDA_Q2_FY27",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "OpenAI",
+      "candidate_nodes": [
+        "AI Demand",
+        "Neoclouds"
+      ],
+      "origin_strength": "SEC_PRIMARY_NVDA_Q2_FY27",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "xAI",
+      "candidate_nodes": [
+        "AI Demand",
+        "SPV",
+        "Neoclouds"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_FINANCING_DETAILS",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Groq",
+      "candidate_nodes": [
+        "Semiconductors Supply",
+        "AI Demand"
+      ],
+      "origin_strength": "SEC_PRIMARY_LICENSE_EXISTENCE_BUT_TOTAL_UNVERIFIED",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Lumentum",
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_TRANSACTION_DETAILS",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Coherent",
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_TRANSACTION_DETAILS",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Intel",
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_TRANSACTION_DETAILS",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Nokia",
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_TRANSACTION_DETAILS",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Synopsys",
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_TRANSACTION_DETAILS",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Valor Equity",
+      "candidate_nodes": [
+        "Private Credit",
+        "SPV"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Apollo",
+      "candidate_nodes": [
+        "Private Credit",
+        "SPV"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Blackstone",
+      "candidate_nodes": [
+        "Private Credit",
+        "SPV"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Brookfield",
+      "candidate_nodes": [
+        "Private Credit",
+        "Power/Data Centers",
+        "SPV"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Magnetar",
+      "candidate_nodes": [
+        "Private Credit",
+        "Neoclouds"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    },
+    {
+      "name": "Macquarie",
+      "candidate_nodes": [
+        "Private Credit",
+        "Neoclouds"
+      ],
+      "origin_strength": "SCREENSHOT_ONLY_RELATIONSHIP",
+      "verified_counterparty_exposure_usd": null,
+      "score_eligible": false
+    }
+  ],
+  "quantitative_claims": [
+    {
+      "id": "NVDA_MAX_CONTINGENT_GUARANTEES_108_5",
+      "telegram_as_reported": "$108.5bn maximum contingent guarantees",
+      "screenshots": [
+        "1000052508.jpg"
+      ],
+      "value": 108.5,
+      "unit": "USD billions",
+      "dimension": "contingent_gross_max",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "$105bn conditional, phase-in guarantee of SB Energy/OpenAI construction leases plus $3.5bn AI cloud land/power/shell; maximum gross contractual exposure, not loan outstandings nor recognized losses.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "SPV",
+        "Neoclouds",
+        "Power/Data Centers"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_SB_ENERGY_GUARANTEES_105",
+      "telegram_as_reported": "$105bn SB Energy guarantee",
+      "screenshots": [
+        "1000052508.jpg"
+      ],
+      "value": 105,
+      "unit": "USD billions",
+      "dimension": "contingent_gross_max",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "Conditional, up to $105bn at SB Energy PORTS, 4.25 GW, 9 phases; effective on ready-for-service leasing phases starting FY2029, subject to terms.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "SPV",
+        "Power/Data Centers"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_AI_CLOUD_COMMITMENTS_36",
+      "telegram_as_reported": "$36bn take-or-pay/AI cloud agreements",
+      "screenshots": [
+        "1000052507.jpg"
+      ],
+      "value": 36,
+      "unit": "USD billions",
+      "dimension": "future_purchase_commitment",
+      "primary_verification": "PRIMARY_SEC_RELATED_VALUE_BUT_TELEGRAM_LABEL_INACCURATE",
+      "primary_interpretation_or_correction": "10-Q calls these AI cloud agreements with stoppable cloud services and third-party resale rights; term take-or-pay is commentator interpretation, not substitute for precise contractual text.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Neoclouds",
+        "AI Demand"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_CLOUD_SERVICE_FUTURE_29",
+      "telegram_as_reported": "$29bn NVIDIA cloud service agreements",
+      "screenshots": [
+        "1000052507.jpg"
+      ],
+      "value": 29,
+      "unit": "USD billions",
+      "dimension": "future_purchase_commitment",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "10-Q Note 10 main future commitments table. Corporate R&D cloud services; not the same as recognized debt and not the same line as $36bn additional AI cloud agreements.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Neoclouds"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_DC_LEASE_NOT_COMMENCED_25",
+      "telegram_as_reported": "$25bn NVIDIA leases not yet commenced for own sites",
+      "screenshots": [
+        "1000052507.jpg"
+      ],
+      "value": 25,
+      "unit": "USD billions",
+      "dimension": "future_operating_lease_not_commenced",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "Note 10 main future commitments. Lease starts contingent on future construction; excluded from presently recognized operating lease liabilities until commencement.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Power/Data Centers",
+        "SPV"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_DC_LEASE_NOT_COMMENCED_20",
+      "telegram_as_reported": "$20bn not-commenced leases intended for third parties",
+      "screenshots": [
+        "1000052507.jpg",
+        "1000052508.jpg"
+      ],
+      "value": 20,
+      "unit": "USD billions",
+      "dimension": "future_operating_lease_for_third_party",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "Note 10 additional commitments; expect reassignment, duration about 15 years; does not mean $20bn is a currently funded bank loan.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Power/Data Centers",
+        "SPV",
+        "Neoclouds"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_AR_63_059",
+      "telegram_as_reported": "$63.06bn accounts receivable Q2 FY2027",
+      "screenshots": [
+        "1000052504.jpg",
+        "1000052505.jpg"
+      ],
+      "value": 63.059,
+      "unit": "USD billions",
+      "dimension": "balance_sheet_receivable_stock",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "10-Q balance sheet July 26 2026. Receivable is not the same as cash lending; some customers receive 90d-to-1yr payment terms.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "AI Demand",
+        "Neoclouds"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_PRIOR_Q_AR_40_710",
+      "telegram_as_reported": "$40.71bn receivables prior quarter",
+      "screenshots": [
+        "1000052505.jpg"
+      ],
+      "value": 40.71,
+      "unit": "USD billions",
+      "dimension": "balance_sheet_receivable_stock",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "First quarter fiscal 2027 official NVIDIA IR balance sheet for April 26 2026.",
+      "primary_urls": [
+        "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-First-Quarter-Fiscal-2027/default.aspx"
+      ],
+      "candidate_nodes": [
+        "AI Demand"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_AR_QOQ_DELTA_22_349",
+      "telegram_as_reported": "$22.35bn accounts receivable one-quarter jump",
+      "screenshots": [
+        "1000052505.jpg"
+      ],
+      "value": 22.349,
+      "unit": "USD billions",
+      "dimension": "derived_change_from_two_verified_stocks",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "Calculated 63.059 - 40.710; fiscal-quarter balance sheet change, not default or net incremental sales.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+        "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-First-Quarter-Fiscal-2027/default.aspx"
+      ],
+      "candidate_nodes": [
+        "AI Demand",
+        "Neoclouds"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_DSO_59_8",
+      "telegram_as_reported": "DSO 59.8 days vs 45.5 days",
+      "screenshots": [
+        "1000052505.jpg"
+      ],
+      "value": 59.8,
+      "unit": "days",
+      "dimension": "telegram_derived_days_sales_outstanding",
+      "primary_verification": "TELEGRAM_ASSERTION_PRIMARY_DEAL_UNVERIFIED",
+      "primary_interpretation_or_correction": "DSO depends on selected number of days and revenue denominator (period-end vs average receivables). Screenshots do not document a reproducible method; not an SEC disclosed metric.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm",
+        "https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Announces-Financial-Results-for-First-Quarter-Fiscal-2027/default.aspx"
+      ],
+      "candidate_nodes": [
+        "AI Demand"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_DEFERRED_REVENUE_6_412",
+      "telegram_as_reported": "$6.41bn attributed to customer advances",
+      "screenshots": [
+        "1000052506.jpg"
+      ],
+      "value": 6.412,
+      "unit": "USD billions",
+      "dimension": "deferred_revenue_total_balance",
+      "primary_verification": "PRIMARY_SEC_RELATED_VALUE_BUT_TELEGRAM_LABEL_INACCURATE",
+      "primary_interpretation_or_correction": "10-Q says deferred revenue total $6.412bn; it includes unearned hardware/software/service revenue and is NOT equivalent to separately specified customer advance balance.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "AI Demand"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_CUSTOMER_ADVANCES_2_8",
+      "telegram_as_reported": "Customer prepayments implied by $6.41bn",
+      "screenshots": [
+        "1000052506.jpg"
+      ],
+      "value": 2.8,
+      "unit": "USD billions",
+      "dimension": "customer_advance_balance",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "Actual as-of July26 customer advances included in accrued/deferred revenue: $2.8bn per Note 7; differs from $6.412bn total deferred revenue.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "AI Demand"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_CFO_PREPAIDS_6_480",
+      "telegram_as_reported": "$6.48bn prepaids to suppliers alleged",
+      "screenshots": [
+        "1000052506.jpg"
+      ],
+      "value": 6.48,
+      "unit": "USD billions",
+      "dimension": "six_month_operating_cash_flow_change",
+      "primary_verification": "PRIMARY_SEC_RELATED_VALUE_BUT_TELEGRAM_LABEL_INACCURATE",
+      "primary_interpretation_or_correction": "Cash flow line is change in prepaid expenses AND OTHER assets, 6 months through July26 2026; cannot label whole sum 'advances to memory factories' without separate breakdown.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_OTHER_ASSETS_15_746",
+      "telegram_as_reported": "Other noncurrent assets $8.30bn to $15.75bn",
+      "screenshots": [
+        "1000052506.jpg"
+      ],
+      "value": 15.746,
+      "unit": "USD billions",
+      "dimension": "other_assets_balance_stock",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "10-Q balance sheet Other assets $15.746bn vs $8.301bn Jan25, not verified to be exclusively supplier prepayments.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_MARKETABLE_EQUITY_42_783",
+      "telegram_as_reported": "$42.78bn public equities",
+      "screenshots": [
+        "1000052502.jpg"
+      ],
+      "value": 42.783,
+      "unit": "USD billions",
+      "dimension": "marketable_equity_carrying_value",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "Current marketable equity securities balance at July26; long-term publicly-held equities included in Other assets are distinct and not captured by this current-line subtotal.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "AI Equities"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_NONMARKET_EQUITY_47_898",
+      "telegram_as_reported": "$47.90bn nonmarketable private equity",
+      "screenshots": [
+        "1000052502.jpg"
+      ],
+      "value": 47.898,
+      "unit": "USD billions",
+      "dimension": "nonmarketable_equity_carrying_value",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "10-Q Note 6 non-marketable equity holdings, susceptible to observable round marks and impairment.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "SPV",
+        "AI Equities"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_90_681_SUBTOTAL",
+      "telegram_as_reported": "$90.68bn marketable + private holdings",
+      "screenshots": [
+        "1000052502.jpg"
+      ],
+      "value": 90.681,
+      "unit": "USD billions",
+      "dimension": "derived_subtotal_of_two_equity_carrying_values",
+      "primary_verification": "PRIMARY_SEC_RELATED_VALUE_BUT_TELEGRAM_LABEL_INACCURATE",
+      "primary_interpretation_or_correction": "42.783 + 47.898 = 90.681, not necessarily Nvidia's TOTAL equity exposure: additional long-term publicly held securities and equity-method assets may be elsewhere.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "AI Equities",
+        "SPV"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_EQUITY_FUTURE_25",
+      "telegram_as_reported": "$25bn future equity investment commitments",
+      "screenshots": [
+        "1000052502.jpg"
+      ],
+      "value": 25,
+      "unit": "USD billions",
+      "dimension": "future_equity_commitments",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "10-Q Note 10 future equity investment commitments subject to contingencies, not current drawn investments or debt.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "SPV",
+        "Neoclouds"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_VIE_MAX_LOSS_4_7",
+      "telegram_as_reported": "Private financiers equity exposure/SPV",
+      "screenshots": [
+        "1000052502.jpg"
+      ],
+      "value": 4.7,
+      "unit": "USD billions",
+      "dimension": "VIE_max_loss_contingent",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "10-Q Note 6 maximum loss exposure including carrying values and future amounts of unconsolidated infrastructure-financier VIEs $4.7bn; report's $3.26bn equity position is not independently reconciled to the $3.3bn rounded equity-method amount.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "SPV",
+        "Private Credit"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_GROQ_17",
+      "telegram_as_reported": "$17bn Groq license deal including $13bn cash + $4bn later",
+      "screenshots": [
+        "1000052509.jpg"
+      ],
+      "value": 17,
+      "unit": "USD billions",
+      "dimension": "reported_deal_total_unverified",
+      "primary_verification": "TELEGRAM_ASSERTION_PRIMARY_DEAL_UNVERIFIED",
+      "primary_interpretation_or_correction": "10-Q confirms Groq non-exclusive licensing arrangements and $2.944bn half-year financing cash outflow, but these do NOT independently verify a full $17bn contractual structure.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_OPTICS_10",
+      "telegram_as_reported": "$10bn optic-network commitments",
+      "screenshots": [
+        "1000052509.jpg"
+      ],
+      "value": 10,
+      "unit": "USD billions",
+      "dimension": "reported_deal_commitment_unverified",
+      "primary_verification": "TELEGRAM_ASSERTION_PRIMARY_DEAL_UNVERIFIED",
+      "primary_interpretation_or_correction": "Screenshots mention optic and network investments; SEC 10-Q reviewed does not isolate this total as comparable single category.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_COREWEAVE_TAKE_OR_PAY_6_3",
+      "telegram_as_reported": "CoreWeave $6.3bn to 2032 take-or-pay",
+      "screenshots": [
+        "1000052507.jpg"
+      ],
+      "value": 6.3,
+      "unit": "USD billions",
+      "dimension": "reported_counterparty_contract_unverified",
+      "primary_verification": "TELEGRAM_ASSERTION_PRIMARY_DEAL_UNVERIFIED",
+      "primary_interpretation_or_correction": "No borrower-level executed contract and corresponding NVIDIA commitments uniquely verified for this figure yet.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Neoclouds",
+        "AI Demand"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_FIRMUS_SHARONAI_GMI_29_7",
+      "telegram_as_reported": "Firmus SharonAI GMI pool take-or-pay $29.7bn",
+      "screenshots": [
+        "1000052507.jpg"
+      ],
+      "value": 29.7,
+      "unit": "USD billions",
+      "dimension": "reported_counterparty_pool_unverified",
+      "primary_verification": "TELEGRAM_ASSERTION_PRIMARY_DEAL_UNVERIFIED",
+      "primary_interpretation_or_correction": "Names and pool value appear on Telegram; matching signed loan/lease or 10-Q company-specific terms not independently verified.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Neoclouds",
+        "Private Credit"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_LAMBDA_LEASE_1_5",
+      "telegram_as_reported": "Lambda 18k GPUs lease $1.5bn",
+      "screenshots": [
+        "1000052507.jpg"
+      ],
+      "value": 1.5,
+      "unit": "USD billions",
+      "dimension": "reported_specific_lease_unverified",
+      "primary_verification": "TELEGRAM_ASSERTION_PRIMARY_DEAL_UNVERIFIED",
+      "primary_interpretation_or_correction": "Contract/capacity not confirmed from primary counterparties, cannot infer debt under another party's balance sheet.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Neoclouds"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "XAI_COLOSSUS_FINANCING_20",
+      "telegram_as_reported": "xAI Colossus $20bn with $7.5bn equity, $12.5bn debt",
+      "screenshots": [
+        "1000052503.jpg"
+      ],
+      "value": 20,
+      "unit": "USD billions",
+      "dimension": "reported_project_financing_unverified",
+      "primary_verification": "TELEGRAM_ASSERTION_PRIMARY_DEAL_UNVERIFIED",
+      "primary_interpretation_or_correction": "Screenshot includes alleged NVIDIA $2bn equity; legal SPV, actual funded amount and collateral not confirmed from original loan agreements.",
+      "primary_urls": [],
+      "candidate_nodes": [
+        "SPV",
+        "Neoclouds",
+        "Private Credit"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_SUPPLY_CAPACITY_COMMITMENTS_279",
+      "telegram_as_reported": "Large supply/capacity commitments",
+      "screenshots": [
+        "1000052501.jpg",
+        "1000052506.jpg"
+      ],
+      "value": 279,
+      "unit": "USD billions",
+      "dimension": "future_supply_and_capacity_contracts",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "10-Q Note10 future supply/capacity commitments $279bn (as of July26), not guaranteed minimum revenue or balance-sheet debt.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_GROQ_CASH_OUTFLOW_2_944",
+      "telegram_as_reported": "Groq deferred payment narrative",
+      "screenshots": [
+        "1000052509.jpg"
+      ],
+      "value": 2.944,
+      "unit": "USD billions",
+      "dimension": "six_month_financing_cash_outflow",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "10-Q financing cash-flow line Groq Inc $2.944bn for first six months FY27; does not by itself verify all Telegram totals.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "Semiconductors Supply"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    },
+    {
+      "id": "NVDA_NONMARKET_CUM_GAIN_9_1",
+      "telegram_as_reported": "Private equity investment paper gains",
+      "screenshots": [
+        "1000052502.jpg",
+        "1000052509.jpg"
+      ],
+      "value": 9.1,
+      "unit": "USD billions",
+      "dimension": "cumulative_unrealized_gains_nonmarketable",
+      "primary_verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_SOURCE_HASH_PENDING",
+      "primary_interpretation_or_correction": "10-Q Note 6 cumulative unrealized gains on nonmarketable equity securities at July26 2026 $9.1bn; not cash income.",
+      "primary_urls": [
+        "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000075/nvda-20260726.htm"
+      ],
+      "candidate_nodes": [
+        "AI Equities"
+      ],
+      "score_eligible": false,
+      "independently_verified_pit": false
+    }
+  ],
+  "counterparty_edges": [
+    {
+      "from": "NVIDIA",
+      "to": "SB Energy",
+      "contract_or_risk_path": "contingent lease/power guarantee",
+      "amount": 105,
+      "unit": "USD billions",
+      "verification": "PRIMARY_SEC_AMOUNT_CORROBORATED",
+      "underlying_debt_or_cashflow_document_verified": true,
+      "score_eligible": false
+    },
+    {
+      "from": "SB Energy",
+      "to": "OpenAI",
+      "contract_or_risk_path": "land/power/shell lease host/customer",
+      "amount": null,
+      "unit": null,
+      "verification": "PRIMARY_SEC_RELATIONSHIPS_TEXT_CORROBORATED",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    },
+    {
+      "from": "NVIDIA",
+      "to": "AI cloud partner group (not entity-resolved)",
+      "contract_or_risk_path": "capacity/cloud service commitment",
+      "amount": 36,
+      "unit": "USD billions",
+      "verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_COUNTERPARTY_UNKNOWN",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    },
+    {
+      "from": "NVIDIA",
+      "to": "infrastructure financier VIE group (not entity-resolved)",
+      "contract_or_risk_path": "equity method / exposure to loss",
+      "amount": 4.7,
+      "unit": "USD billions",
+      "verification": "PRIMARY_SEC_AMOUNT_CORROBORATED_COUNTERPARTY_UNKNOWN",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    },
+    {
+      "from": "NVIDIA",
+      "to": "CoreWeave",
+      "contract_or_risk_path": "alleged take-or-pay",
+      "amount": 6.3,
+      "unit": "USD billions",
+      "verification": "SCREENSHOT_ONLY_DEAL_UNVERIFIED",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    },
+    {
+      "from": "NVIDIA",
+      "to": "Lambda",
+      "contract_or_risk_path": "alleged take-or-pay / GPU lease",
+      "amount": 1.5,
+      "unit": "USD billions",
+      "verification": "SCREENSHOT_ONLY_DEAL_UNVERIFIED",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    },
+    {
+      "from": "NVIDIA",
+      "to": "Firmus/SharonAI/GMI",
+      "contract_or_risk_path": "alleged take-or-pay pool",
+      "amount": 29.7,
+      "unit": "USD billions",
+      "verification": "SCREENSHOT_ONLY_DEAL_UNVERIFIED",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    },
+    {
+      "from": "NVIDIA",
+      "to": "xAI",
+      "contract_or_risk_path": "alleged project equity / financing",
+      "amount": 2,
+      "unit": "USD billions",
+      "verification": "SCREENSHOT_ONLY_DEAL_UNVERIFIED",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    },
+    {
+      "from": "NVIDIA",
+      "to": "Groq",
+      "contract_or_risk_path": "nonexclusive intellectual property license",
+      "amount": null,
+      "unit": null,
+      "verification": "PRIMARY_SEC_RELATIONSHIP_CORROBORATED_TOTAL_UNVERIFIED",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    },
+    {
+      "from": "NVIDIA",
+      "to": "Lumentum/Coherent",
+      "contract_or_risk_path": "alleged optical/network capital support",
+      "amount": 10,
+      "unit": "USD billions",
+      "verification": "SCREENSHOT_ONLY_POOL_UNVERIFIED",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    },
+    {
+      "from": "Blackstone/Magnetar/Macquarie",
+      "to": "Neocloud borrowers",
+      "contract_or_risk_path": "alleged debt/collateral financing",
+      "amount": null,
+      "unit": null,
+      "verification": "SCREENSHOT_ONLY_COUNTERPARTY_EXPOSURE_UNVERIFIED",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    },
+    {
+      "from": "Apollo/Brookfield/Valor Equity",
+      "to": "Project SPVs",
+      "contract_or_risk_path": "alleged debt/equity financing",
+      "amount": null,
+      "unit": null,
+      "verification": "SCREENSHOT_ONLY_COUNTERPARTY_EXPOSURE_UNVERIFIED",
+      "underlying_debt_or_cashflow_document_verified": false,
+      "score_eligible": false
+    }
+  ],
+  "categorization_rules": {
+    "notional_is_not_current_loss": true,
+    "unfunded_guarantees_are_not_drawn_debt": true,
+    "equity_current_and_future_commitments_distinct": true,
+    "contract_amounts_may_overlap": true,
+    "no_sum_across_stocks_flows_guarantees_and_future_commitments": true,
+    "do_not_treat_visible_company_name_as_verified_debtor_creditor": true,
+    "sec_14_calendar_day_lag_mandatory": true,
+    "source_images_are_not_original_filing": true,
+    "do_not_infer_spv_legal_form_from_text": true
+  },
+  "fixed_aics_nodes": [
+    "Private Credit",
+    "Insurers",
+    "UST 30Y",
+    "Neoclouds",
+    "AI Equities",
+    "Hyperscalers",
+    "SPV",
+    "Repo",
+    "Power/Data Centers",
+    "Semiconductors Supply",
+    "AI Demand"
+  ],
+  "certified_node_scores": 0,
+  "telegram_only_new_certified_metrics": 0,
+  "index_aics": null,
+  "predictive_skill_score": null,
+  "trade_signal": null,
+  "model_promotion": "BLOCKED",
+  "review_state": "RESEARCH_CLAIM_INTAKE_WITH_PARTIAL_PRIMARY_VERIFICATION",
+  "notes": [
+    "Most 2026Q2 SEC line-item numbers are authentic; economic accusations and specific private counterparties require contracts and disclosures.",
+    "Other recent NVDA Q3 FY27 disclosure filed near November 18 is excluded from this vintage until filed_at +14; use dated July26 filing for the shown numbers.",
+    "Screenshot 1000052501 and other tiny charts contain labels unreadable at supplied 709px width; names listed here are from legible body text only.",
+    "Source screenshot SHA-256 identifies user originals here but images are not retained as Git repository binary files.",
+    "Prevent a circular revenue score from reusing same dollars across different obligations, leases, receivables and equity positions."
+  ]
+}

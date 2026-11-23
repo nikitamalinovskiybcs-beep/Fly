@@ -1,0 +1,73 @@
+name: AICS ALFRED real vintage revision audit
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_audit_alfred_vintage_revisions.py'
+      - 'tests/test_aics_alfred_vintage_revisions.py'
+      - 'aics_data/research/alfred_iorb_power_cross_run_independent_rehash_2026_11_18.json'
+      - '.github/workflows/aics-alfred-revisions.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  rehash-and-diff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile and exercise adversarial ALFRED PIT revision fixtures
+        run: |
+          python -m py_compile scripts/aics_audit_alfred_vintage_revisions.py
+          python -m unittest discover -s tests -p 'test_aics_alfred_vintage_revisions.py' -v
+      - name: Retrieve original exact GitHub artifact ZIP, not recompressed bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/aics_alfred"
+          curl --fail --silent --show-error --location --retry 2 --max-time 90 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GH_REPO/actions/artifacts/14471917435/zip" \
+            -o "$RUNNER_TEMP/aics_alfred/merged.zip"
+      - name: Rehash originals and audit all 23 adjacent vintage comparisons per series
+        run: |
+          python -m scripts.aics_audit_alfred_vintage_revisions \
+            --archive "$RUNNER_TEMP/aics_alfred/merged.zip"
+      - name: Validate report is complete and not AICS stress or an attested PIT source
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path = Path("docs/audit/aics_alfred_iorb_power_revision_audit_2026-11-18.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          assert data["original_provider_files_rehashed"] == 48
+          assert data["recounted_original_observation_rows"] == 39934
+          assert data["series"]["IORB"]["adjacent_snapshot_comparisons"] == 23
+          assert data["series"]["WPU0543"]["adjacent_snapshot_comparisons"] == 23
+          assert len(data["observed_cross_vintage_revisions"]) == data["observed_revision_event_count"]
+          assert data["synthetically_filled_rows"] == 0
+          assert data["retrospective_api_asof_replay_only"] is True
+          assert data["independent_contemporaneous_publication_proof"] is False
+          assert data["index_aics"] is None and data["promotion"] == "BLOCKED"
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              print("## Historical ALFRED: original source revision audit",file=f)
+              print("48 original JSON source files, 39,934 row instances; 46 adjacent comparisons.",file=f)
+              for name, record in data["series"].items():
+                  print(f"- {name}: {record['changed_existing_nonmissing_observations']} changed values across 23 adjacent monthly vintage pairs",file=f)
+              print("A retrospective as-of replay is not independent contemporaneous PIT; 0/11 certified.",file=f)
+          PY
+      - name: Preserve auditable real revision events, transitions, and original source hashes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-alfred-original-vintage-revisions-2026-11-18
+          path: docs/audit/aics_alfred_iorb_power_revision_audit_2026-11-18.json
+          retention-days: 30
+          if-no-files-found: warn

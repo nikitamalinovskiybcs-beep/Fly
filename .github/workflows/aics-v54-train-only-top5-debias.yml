@@ -1,0 +1,98 @@
+name: AICS V54 - train-only model tournament and independent-signal audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v54_chronological_top5_debias.py
+      - tests/test_aics_v54_chronological_top5_debias.py
+      - scripts/aics_v53_hundred_model_top5_ensemble.py
+      - scripts/aics_v51_credit_magnitude_early_warning.py
+      - aics_data/research/private_credit_2024q2_2026q1_first_sec_cost_breadth_2026-11-22.json
+      - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
+      - aics_data/research/sp500_24_month_closes_2026-11-21.json
+      - .github/workflows/aics-v54-train-only-top5-debias.yml
+
+jobs:
+  anti-overfit-model-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Assert 100-model time cutoff and fail-closed 11-node status
+        run: |
+          python -m compileall -q scripts/aics_v54_chronological_top5_debias.py tests/test_aics_v54_chronological_top5_debias.py
+          python -m unittest discover -s tests -p 'test_aics_v54_chronological_top5_debias.py' -v
+      - name: Run model tournament with only 2025-10 knowable training labels
+        run: |
+          python -m scripts.aics_v54_chronological_top5_debias --out aics_data/research/aics_v54_chronological_top5_debias_2026-11-22.json
+      - name: Require prospective-label honesty and stronger diversity
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('aics_data/research/aics_v54_chronological_top5_debias_2026-11-22.json')
+          r=json.loads(p.read_text(encoding='utf-8'))
+          assert r['hundred_original_different_model_strategies_recomputed']==100
+          assert r['model_selection_training_date_cutoff']=='2025-10'
+          assert r['horizon_future_label_ends_before_training_cutoff'] is True
+          assert r['post_cutoff_evaluation_NOT_prospective_or_untouched_OOS'] is True
+          assert len(r['five_selected_using_only_train_end_date_labels'])==5
+          assert len(r['five_selected_with_0_80_max_abs_correlation_using_only_train_features'])==5
+          assert r['diversity_selected_five_max_abs_pearson']<=0.8
+          assert r['certified_historical_first_delivery_PIT_nodes']==0
+          assert r['full_AICS_index'] is None
+          assert r['production_trades'] is False
+          rows=r['honest_time_split_metrics']
+          assert [x['training_true_labels_at_cutoff']['month_count'] for x in rows]==[8,6,3]
+          assert [x['later_observed_labels_after_cutoff']['month_count'] for x in rows]==[9,9,6]
+          for x in rows:
+              print('HORIZON',x['horizon_months'],
+                    'train n',x['training_true_labels_at_cutoff']['month_count'],
+                    'train positives',x['training_true_labels_at_cutoff']['positive_months'],
+                    'later n',x['later_observed_labels_after_cutoff']['month_count'],
+                    'later positives',x['later_observed_labels_after_cutoff']['positive_months'],
+                    'AUC train-selected median',x['later_auc_by_competitor']['training_time_selected_five_median'],
+                    'AUC diversified median',x['later_auc_by_competitor']['training_time_diversified_five_median'],
+                    'AUC legacy',x['later_auc_by_competitor']['original_breadth'],
+                    'AUC past market baseline',x['later_auc_by_competitor']['prior_3month_SP500_loss_baseline'])
+          print('5 picked using cutoff only:',r['five_selected_using_only_train_end_date_labels'])
+          print('5 after risk-score Pearson cap:',r['five_selected_with_0_80_max_abs_correlation_using_only_train_features'])
+          print('Max pairwise corr:',r['train_selected_five_max_abs_pearson'],
+                '=>',r['diversity_selected_five_max_abs_pearson'])
+          Path('aics_v54_executive_scorecard.json').write_text(
+              json.dumps({k:v for k,v in r.items()
+                         if k!='training_only_all_100_candidate_ranked_model_results'},
+                         indent=2,ensure_ascii=False)+'\n')
+          PY
+      - name: Summarize model accuracy fragility, not extra data checks
+        run: |
+          python - <<'PY'
+          import json,os
+          r=json.load(open('aics_v54_executive_scorecard.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V54: 100 expert selection suffers from time-selection bias',file=f)
+              print('100 model strategies reranked on strictly **2025-10 knowable labels**; later source risk scores compared only after the split.',file=f)
+              print('Only one training positive-market episode (Feb 2025) and one later episode (Jan-Feb 2026). Not an untouched validation: research model itself was created after seeing outcomes.',file=f)
+              print('**Five from past only:** '+str(r['five_selected_using_only_train_end_date_labels']),file=f)
+              print('**Five from past with max |r|<=0.8:** '+str(r['five_selected_with_0_80_max_abs_correlation_using_only_train_features']),file=f)
+              print('Max pairwise training-period correlation: '+str(r['train_selected_five_max_abs_pearson'])+' => '+str(r['diversity_selected_five_max_abs_pearson']),file=f)
+              for x in r['honest_time_split_metrics']:
+                  print('Horizon '+str(x['horizon_months'])+'m: later AUC median 5 train-only '+str(x['later_auc_by_competitor']['training_time_selected_five_median'])+', diversified '+str(x['later_auc_by_competitor']['training_time_diversified_five_median'])+', original '+str(x['later_auc_by_competitor']['original_breadth'])+', market '+str(x['later_auc_by_competitor']['prior_3month_SP500_loss_baseline'])+'.',file=f)
+              print('**Conclusion: ensemble improvement NOT verified.** 11-node AICS, weights, thresholds unchanged, no trades.',file=f)
+          PY
+      - name: Archive cutoff-correct model evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v54-historical-time-split-top5-diversity-falsification
+          path: |
+            aics_data/research/aics_v54_chronological_top5_debias_2026-11-22.json
+            aics_v54_executive_scorecard.json
+          if-no-files-found: error

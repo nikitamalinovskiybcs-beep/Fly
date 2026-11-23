@@ -1,0 +1,83 @@
+{
+  "schema_version": "aics-met-q2-original-sec-credit-separate-external-rehash-v1",
+  "research_as_of": "2026-11-19",
+  "node": "Insurers",
+  "issuer": "MetLife, Inc.",
+  "cik": "1099219",
+  "primary_original": "https://www.sec.gov/Archives/edgar/data/1099219/000109921926000050/0001099219-26-000050.txt",
+  "filing_accession": "0001099219-26-000050",
+  "filing_form": "10-Q",
+  "sec_filed_at": "2026-08-06",
+  "aics_sec_available_at_plus_14_calendar_days": "2026-08-20",
+  "balance_sheet_period_end": "2026-06-30",
+  "workflow_run_id": 44579156955,
+  "workflow_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44579156955",
+  "artifact_id": 14557198374,
+  "artifact_name": "aics-met-june-original-mortgage-credit-not-pit",
+  "artifact_zip_bytes": 2779610,
+  "artifact_zip_sha256": "9dbd375f2d492bf8590cae480cbf6038c97f6f6e68076b6bab0f543a0062a856",
+  "artifact_zip_crc_integrity_passed": true,
+  "independent_zip_member_rehash_outside_actions": true,
+  "original_full_sec_submission_bytes": 42939093,
+  "original_full_sec_submission_sha256": "a2b5359da635b89ffb3ab39908538328d52d4dac6099073ffcc4b4636fc3209b",
+  "original_embedded_primary_document_sha256": "363dd1ce87ef01168f4bda0c02c7ad1779f5f3b81d698a3c8e0bb4db6d7638d6",
+  "replay_research_json_bytes": 2725,
+  "replay_research_json_sha256": "aabdaa0a249081eca466b402e413065371a803902ceea8d3de69393b1b97ac36",
+  "source_derived_observations": {
+    "earlier_as_of": "2025-12-31",
+    "later_as_of": "2026-06-30",
+    "units": "USD millions",
+    "mortgage_loans_net": {
+      "earlier": 84593,
+      "later": 82856,
+      "change_millions": -1737,
+      "change_pct": "-2.05"
+    },
+    "mortgage_loan_acl": {
+      "earlier": 1193,
+      "later": 1358,
+      "change_millions": 165,
+      "change_pct": "13.83"
+    },
+    "six_month_acl_provision": {
+      "commercial": 348,
+      "agricultural": 1,
+      "residential": -33,
+      "total": 316
+    },
+    "six_month_net_chargeoffs": 151,
+    "acl_ending_by_segment": {
+      "commercial": 1016,
+      "agricultural": 107,
+      "residential": 235,
+      "total": 1358
+    },
+    "acl_ending_commercial_share_pct": "74.82",
+    "mechanical_acl_over_net_loans_plus_acl_proxy_pct": {
+      "earlier": "1.39",
+      "later": "1.61"
+    },
+    "conservation_check": "1193+316-151=1358"
+  },
+  "met_sept_2026_q3_sec_filed_at": "2026-11-06",
+  "met_sept_2026_q3_sec_eligible_at": "2026-11-20",
+  "met_sept_2026_q3_metrics_allowed_on_2026_11_19": false,
+  "met_sept_2026_q3_mortgage_loan_amount_usd": null,
+  "cross_issuer_direct_loan_risk_ratio_claim": false,
+  "independent_historical_provider_delivery_attested": false,
+  "24_month_untouched_oos": false,
+  "historical_timeseries_backfilled": false,
+  "no_real_source_stress_score_generated": true,
+  "insurers_node_score": null,
+  "index_aics": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "milestones_completed": 22,
+  "limitations": [
+    "Original SEC submission was downloaded retrospectively during November 2026, not attested as a live 2026-08-06 arrival or independently archived historical PIT.",
+    "MET mortgage asset scope and credit allowance methodology differ from PRU's commercial mortgage and other loans and must not be directly ranked by this proxy.",
+    "December 2025 comparative appears in the later filing; it is not a December 2025 information-set snapshot.",
+    "Only MET 2026-06-30 available; September 2026 MET Q3 remains embargoed on frozen November 19.",
+    "Reserve increase is an observed filing fact, not proof of AI-linked private loan stress, default, NAIC solvency or trading signal."
+  ]
+}

@@ -1,0 +1,32 @@
+name: AICS research multi-node publication overlay
+
+on:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_24m_multi_node_publication_overlay.py
+      - tests/test_aics_24m_multi_node_publication_overlay.py
+      - scripts/aics_publication_policy.py
+      - .github/workflows/aics-research-multi-node-publication.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  first-public-source-overlay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate Python source
+        run: python -m compileall -q scripts/aics_24m_multi_node_publication_overlay.py tests/test_aics_24m_multi_node_publication_overlay.py
+      - name: Run source-to-24m coverage tests
+        run: python -m unittest discover -s tests -p 'test_aics_24m_multi_node_publication_overlay.py' -v
+      - name: Reproduce source summary
+        run: |
+          python -m scripts.aics_24m_multi_node_publication_overlay > /tmp/aics_24m_multi_node_research_overlay.json
+          python -c 'import json; j=json.load(open("/tmp/aics_24m_multi_node_research_overlay.json")); print({k:j[k] for k in ("converted_existing_sec_events","new_calendar_end_research_coverage_pct","new_last_weekday_proxy_coverage_pct","complete_11_node_aics_months")})'

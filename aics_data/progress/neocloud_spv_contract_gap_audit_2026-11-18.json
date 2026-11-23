@@ -1,0 +1,144 @@
+{
+  "schema_version": "aics-neocloud-spv-contract-gap-audit-v1",
+  "as_of": "2026-11-18",
+  "source_universe_sha256": "317af5f4a4074cc60dbfa044b4497d94a9760045d633669d8a7110778e85bd32",
+  "sec_registry_sha256": "ead544ef2e75e23291837665801855fe1d7216410c34efa259c293e75c6b595c",
+  "research_company_count": 37,
+  "omi_named_count": 26,
+  "telegram_only_count": 11,
+  "candidate_memberships_by_node": {
+    "Private Credit": 4,
+    "Insurers": 5,
+    "UST 30Y": 0,
+    "Neoclouds": 9,
+    "AI Equities": 8,
+    "Hyperscalers": 6,
+    "SPV": 13,
+    "Repo": 1,
+    "Power/Data Centers": 6,
+    "Semiconductors Supply": 8,
+    "AI Demand": 11
+  },
+  "neocloud_company_candidates": 9,
+  "spv_company_candidates": 13,
+  "private_neocloud_contract_leads": [
+    "Crusoe Energy",
+    "Firmus",
+    "GMI",
+    "Lambda",
+    "Nscale",
+    "SharonAI"
+  ],
+  "original_private_contracts_confirmed": 0,
+  "sec_registry_docs": 5,
+  "sec_date_eligible_docs": 4,
+  "sec_embargoed_docs": 1,
+  "sec_documents": [
+    {
+      "source_id": "NBIS_CITI_6K_20261022",
+      "issuer": "Nebius Group",
+      "form": "6-K",
+      "filed_at": "2026-10-22",
+      "available_at": "2026-11-05",
+      "date_gate": "DATE_ELIGIBLE_NOT_RETRIEVAL_OR_PIT_PROOF",
+      "candidate_nodes": [
+        "SPV",
+        "Neoclouds"
+      ],
+      "original_bytes_verified_in_this_audit": false,
+      "drawn_debt_usd": null,
+      "recourse_proven": false,
+      "score_eligible": false
+    },
+    {
+      "source_id": "NBIS_CITI_EX99_20261022",
+      "issuer": "Nebius Group",
+      "form": "6-K",
+      "filed_at": "2026-10-22",
+      "available_at": "2026-11-05",
+      "date_gate": "DATE_ELIGIBLE_NOT_RETRIEVAL_OR_PIT_PROOF",
+      "candidate_nodes": [
+        "SPV",
+        "Neoclouds"
+      ],
+      "original_bytes_verified_in_this_audit": false,
+      "drawn_debt_usd": null,
+      "recourse_proven": false,
+      "score_eligible": false
+    },
+    {
+      "source_id": "EQIX_10Q_20261028",
+      "issuer": "Equinix",
+      "form": "10-Q",
+      "filed_at": "2026-10-28",
+      "available_at": "2026-11-11",
+      "date_gate": "DATE_ELIGIBLE_NOT_RETRIEVAL_OR_PIT_PROOF",
+      "candidate_nodes": [
+        "SPV"
+      ],
+      "original_bytes_verified_in_this_audit": false,
+      "drawn_debt_usd": null,
+      "recourse_proven": false,
+      "score_eligible": false
+    },
+    {
+      "source_id": "APLD_10Q_20261007",
+      "issuer": "Applied Digital",
+      "form": "10-Q",
+      "filed_at": "2026-10-07",
+      "available_at": "2026-10-21",
+      "date_gate": "DATE_ELIGIBLE_NOT_RETRIEVAL_OR_PIT_PROOF",
+      "candidate_nodes": [
+        "Neoclouds",
+        "SPV"
+      ],
+      "original_bytes_verified_in_this_audit": false,
+      "drawn_debt_usd": null,
+      "recourse_proven": false,
+      "score_eligible": false
+    },
+    {
+      "source_id": "CRWV_10Q_20261112",
+      "issuer": "CoreWeave",
+      "form": "10-Q",
+      "filed_at": "2026-11-12",
+      "available_at": "2026-11-26",
+      "date_gate": "EMBARGOED_SEC_PLUS_14_DAYS",
+      "candidate_nodes": [
+        "Neoclouds"
+      ],
+      "original_bytes_verified_in_this_audit": false,
+      "drawn_debt_usd": null,
+      "recourse_proven": false,
+      "score_eligible": false
+    }
+  ],
+  "independently_verified_spv_legal_recourse_contracts": 0,
+  "numeric_contractual_exposure_usd": null,
+  "node_stress_scores": {
+    "Private Credit": null,
+    "Insurers": null,
+    "UST 30Y": null,
+    "Neoclouds": null,
+    "AI Equities": null,
+    "Hyperscalers": null,
+    "SPV": null,
+    "Repo": null,
+    "Power/Data Centers": null,
+    "Semiconductors Supply": null,
+    "AI Demand": null
+  },
+  "index_aics": null,
+  "predictive_skill_score": null,
+  "independently_attested_pit": false,
+  "untouched_24m_oos": false,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "limitations": [
+    "Date eligibility is not original filing download or independently verified PIT.",
+    "Node memberships overlap: 9 Neocloud and 13 SPV are NOT 22 additive claims.",
+    "Current IR, OMI and Telegram cannot establish signed contracts, drawn debt or recourse.",
+    "Unconfirmed facility principal, guarantees, lease and equity commitments must not be added.",
+    "No 0-100 score, independent OOS, or investment signal is produced."
+  ]
+}

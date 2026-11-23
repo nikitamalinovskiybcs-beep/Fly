@@ -1,0 +1,29 @@
+{
+  "proposal_id": "phoenix-postdeploy-go-gates-v1",
+  "provider": "mistral",
+  "model": "mistral-small-latest",
+  "status": "completed",
+  "decision": "REJECTED",
+  "deployment_observed": {
+    "platform": "Streamlit Community Cloud",
+    "url": "https://phoenixdashboard2026.streamlit.app/",
+    "branch": "devin/1779618014-quant-risk-framework",
+    "entrypoint": "app.py",
+    "status": "reachable_after_merge_and_reboot"
+  },
+  "blockers": [
+    "Verified fixed-24m OOS evidence with 6/12/18/24 anchors is missing",
+    "Baseline metrics are not established or documented",
+    "Field provenance and settled evidence are incomplete",
+    "Human suitability, compliance, and model-risk sign-off is missing",
+    "Key custody policy is not documented or verified",
+    "Live rollback drill is not performed or documented",
+    "Human reviewer fields remain blank"
+  ],
+  "go_definition": "GO requires all blockers to be evidenced and human-verified; deployment reachability alone is insufficient.",
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

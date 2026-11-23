@@ -1,0 +1,37 @@
+name: AICS 100 real ALFRED vintage collections
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_collect_100_real_vintages.py'
+      - '.github/workflows/aics-100-real-vintages.yml'
+permissions:
+  contents: read
+concurrency:
+  group: aics-100-vintages
+  cancel-in-progress: false
+jobs:
+  collect-100:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile 100-collection job
+        run: python -m py_compile scripts/aics_collect_100_real_vintages.py
+      - name: Collect 100 real as-of vintage jobs
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/aics_collect_100_real_vintages.py
+      - name: Preserve actual evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-100-real-alfred-vintages
+          path: aics_data/pit_100/
+          if-no-files-found: warn
+          retention-days: 30

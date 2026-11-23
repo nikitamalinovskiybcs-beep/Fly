@@ -1,0 +1,134 @@
+name: AICS historical ALFRED PIT audit
+# Research-only; 24 actual monthly as-of snapshots per series. No backfill.
+on:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - '.github/workflows/aics-alfred-pit.yml'
+      - 'scripts/aics_collect_alfred_pit.py'
+      - 'scripts/aics_validate_alfred_pit.py'
+      - 'scripts/aics_pit_coverage_report.py'
+      - 'scripts/aics_committee_readiness.py'
+      - 'scripts/aics_score_reproducibility_gate.py'
+      - 'tests/test_aics_score_reproducibility_gate.py'
+      - 'scripts/aics_minimal_model.py'
+      - 'tests/test_aics_minimal_model.py'
+  workflow_dispatch:
+  issue_comment:
+    types: [created]
+  schedule:
+    - cron: '45 11 * * 1'
+  pull_request:
+    paths:
+      - '.github/workflows/aics-alfred-pit.yml'
+      - 'scripts/aics_collect_alfred_pit.py'
+      - 'scripts/aics_validate_alfred_pit.py'
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: aics-alfred-pit-${{ github.run_id }}
+  cancel-in-progress: false
+jobs:
+  historical-pit:
+    if: >-
+      github.event_name != 'issue_comment' ||
+      (github.event.issue.number == 55 &&
+       github.event.comment.user.login == 'nikitamalinovskiybcs-beep' &&
+       github.event.comment.body == '/run-aics-pit')
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Identify actual execution event
+        run: |
+          echo "AICS PIT event: ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "AICS PIT ref: ${{ github.ref }}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Declare PR checks are compile-only
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## PR checks only" >> "$GITHUB_STEP_SUMMARY"
+          echo "No ALFRED retrieval, PIT validation or index calculation runs on pull_request events." >> "$GITHUB_STEP_SUMMARY"
+          echo "A green PR check is NOT historical PIT evidence." >> "$GITHUB_STEP_SUMMARY"
+      - name: Compile PIT scripts
+        run: python -m py_compile scripts/aics_collect_alfred_pit.py scripts/aics_validate_alfred_pit.py scripts/aics_pit_coverage_report.py scripts/aics_committee_readiness.py
+      - name: Verify score arithmetic and PIT fail-closed rules
+        run: python -m unittest discover -s tests -p 'test_aics_score_reproducibility_gate.py' -v
+      - name: Test minimal AICS research model
+        run: python -m unittest discover -s tests -p 'test_aics_minimal_model.py' -v
+      - name: Confirm live run and required FRED credential
+        if: github.event_name != 'pull_request'
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          echo "Event: ${{ github.event_name }}; ref: ${{ github.ref }}" >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "$FRED_API_KEY" ]; then
+            echo "::error::FRED_API_KEY is missing; historical PIT cannot run"
+            echo "**BLOCKED: FRED_API_KEY secret missing. No historical vintages retrieved.**" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "FRED_API_KEY present (value never logged)." >> "$GITHUB_STEP_SUMMARY"
+      - name: Collect actual monthly historical vintages
+        if: github.event_name != 'pull_request' && success()
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/aics_collect_alfred_pit.py
+      - name: Validate as-of chronology and source coverage
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_validate_alfred_pit.py
+      - name: Report actual historical vintage coverage and gaps
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_pit_coverage_report.py
+      - name: Generate committee readiness evidence
+        if: github.event_name != 'pull_request' && always()
+        run: python scripts/aics_committee_readiness.py
+      - name: Publish PIT coverage summary
+        if: github.event_name != 'pull_request' && always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p = Path("aics_data/pit/coverage_report.json")
+          print("## Historical ALFRED PIT")
+          if not p.exists():
+              print("**BLOCKED:** historical PIT coverage missing. AICS N/A.")
+          else:
+              d = json.loads(p.read_text())
+              for x in d.get("series", []):
+                  print(f'- {x["series_id"]}: {x["snapshots_downloaded_unverified"]}/24 historical snapshots')
+              print("**AICS N/A; PIT promotion BLOCKED; no trading.**")
+          PY
+      - name: Post verifiable result back to issue 55
+        if: github.event_name == 'issue_comment' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY' > /tmp/aics_pit_receipt.md
+          import json, os
+          from pathlib import Path
+          p=Path("aics_data/pit/coverage_report.json")
+          print("### AICS historical PIT execution receipt")
+          print("Run:", os.environ["RUN_URL"])
+          if not p.exists():
+              print("**BLOCKED**: no PIT coverage report; AICS N/A.")
+          else:
+              d=json.loads(p.read_text())
+              for item in d.get("series",[]):
+                  print(f'- {item["series_id"]}: {item["snapshots_downloaded_unverified"]}/24 snapshots; statuses {item.get("status_counts",{})}')
+              print("**PIT promotion: BLOCKED; AICS N/A; no trades.**")
+          PY
+          gh issue comment 55 --body-file /tmp/aics_pit_receipt.md
+      - name: Preserve PIT audit and failed-source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-alfred-historical-pit
+          path: aics_data/pit/
+          retention-days: 30
+          if-no-files-found: warn

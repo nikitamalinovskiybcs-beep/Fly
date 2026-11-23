@@ -1,0 +1,13 @@
+{
+  "schema_version": "calculated-notes-backfill-v1",
+  "source": "data/reports/multi_horizon_benchmark_v2.json",
+  "rows_attempted": 392,
+  "tracked_calculated_notes_last_6_months": 392,
+  "unique_baskets_last_6_months": 98,
+  "lifecycle_status": "historical_replay",
+  "evidence_status": "historical_replay_not_settled",
+  "settled_phoenix_notes_added": 0,
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

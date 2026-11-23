@@ -1,0 +1,32 @@
+{
+  "proposal_id": "phoenix-compliance-hardening-v1",
+  "scope": [
+    "src/commercial_readiness.py",
+    "src/production_readiness.py",
+    "app.py",
+    "docs/external-compliance-project-overview-v1.md",
+    "docs/external-compliance-project-overview-v1-ru.md"
+  ],
+  "review_findings": [
+    "Make model limitations and potential bias explicit.",
+    "Separate AI-generated proposals from human approvals.",
+    "Expose evidence classes and current blockers to the operator.",
+    "Do not imply production readiness, legal approval, suitability, or live performance."
+  ],
+  "bounded_change": [
+    "Extend commercial-readiness output with explicit human-review and claim-policy fields.",
+    "Show those controls in the existing Note Outcomes readiness block.",
+    "Preserve all quantitative calculations and verdict logic.",
+    "Keep production promotion blocked until evidence and human gates pass."
+  ],
+  "acceptance_tests": [
+    "Commercial readiness always reports human_review_required=true.",
+    "Production readiness and legal/compliance approval are not conflated.",
+    "Blocked claims include guaranteed returns, proven live win rate, and AI/compliance approval.",
+    "Current evidence blockers remain visible.",
+    "Existing full suite remains green."
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

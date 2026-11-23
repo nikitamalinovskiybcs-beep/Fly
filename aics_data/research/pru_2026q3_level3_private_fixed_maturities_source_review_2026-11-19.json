@@ -1,0 +1,89 @@
+{
+  "schema_version": "aics-insurers-pru-level3-original-source-review-v1",
+  "as_of": "2026-11-19",
+  "node": "Insurers",
+  "issuer": "Prudential Financial, Inc.",
+  "ticker": "PRU",
+  "unit": "USD millions",
+  "original_sec": {
+    "form": "10-Q",
+    "accession": "0001137774-26-000221",
+    "cik": "1137774",
+    "filed_at": "2026-11-04",
+    "available_at_sec_plus_14": "2026-11-18",
+    "eligible_on_2026_11_19": true,
+    "report_period": "2026-09-30",
+    "primary_document": "https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/pru-20260930.htm",
+    "original_submission": "https://www.sec.gov/Archives/edgar/data/1137774/000113777426000221/0001137774-26-000221.txt",
+    "original_full_submission_bytes": 56649032,
+    "independently_previously_rehashed_original_sha256": "49947c62bc026ff11df94e2c157ac67c18a073c7ec2f4e87f95f7c1645d59b41",
+    "source_sections": [
+      "10-Q Note 6, Assets and Liabilities by Hierarchy Level",
+      "10-Q MD&A Valuation of Assets and Liabilities, PFI excluding Closed Block and Funds Withheld"
+    ],
+    "source_review_method": "Manual same-filing cross-table arithmetic; NOT a fresh independent rehash of extracted Level 3 fields"
+  },
+  "scope": "PFI excluding Closed Block Division and Funds Withheld (NOT PRU total consolidated, not separate-account customer risk)",
+  "reported_2026_09_30": {
+    "level3_private_fixed_maturities": 12510,
+    "level3_public_fixed_maturities": 1154,
+    "level3_fixed_maturities_total_private_plus_public": 13664,
+    "level3_afs_fixed_maturities": 13135,
+    "level3_trading_fixed_maturities": 529,
+    "level3_fixed_maturities_total_afs_plus_trading": 13664,
+    "total_recurring_fair_value_assets_level3": 18131,
+    "total_recurring_fair_value_assets": 500781
+  },
+  "same_2026_q3_filing_comparative_2025_12_31": {
+    "level3_afs_fixed_maturities": 10802,
+    "level3_trading_fixed_maturities": 480,
+    "level3_afs_plus_trading": 11282,
+    "total_recurring_fair_value_assets_level3": 15488,
+    "total_recurring_fair_value_assets": 507023
+  },
+  "calculations": {
+    "same_date_cross_table_reconciliation": "12510+1154=13135+529=13664",
+    "private_share_of_level3_fixed_maturities_pct": "91.55",
+    "prior_afs_plus_trading_reconciliation": "10802+480=11282",
+    "level3_fixed_maturity_2025_12_vs_2026_09_change_millions": 2382,
+    "level3_fixed_maturity_2025_12_vs_2026_09_change_pct": "21.11",
+    "level3_total_recurring_fair_value_assets_change_millions": 2643,
+    "level3_total_recurring_fair_value_assets_change_pct": "17.06",
+    "private_level3_prior_period_amount": null,
+    "private_level3_change_pct": null
+  },
+  "separate_consolidated_note6_scope_not_additive": {
+    "level3_afs_2026_09_30": 14837,
+    "level3_afs_2025_12_31": 11998,
+    "level3_abs_2026_09_30": 7223,
+    "level3_abs_2025_12_31": 4102,
+    "level3_abs_change_millions": 3121,
+    "level3_abs_change_pct": "76.08",
+    "note": "These are consolidated Note 6 Level 3 AFS/ABS amounts, NOT incremental assets on top of the PFI-excluding-Closed-Block/Funds-Withheld population. ABS is within AFS, and the population boundaries differ."
+  },
+  "safeguards": {
+    "reported_2025_12_31_numbers_are_comparatives_in_2026_11_04_filing": true,
+    "dec_2025_point_in_time_arrival_attested": false,
+    "original_retrieved_contemporaneously_in_2026_11_04": false,
+    "independently_attested_historical_pit": false,
+    "no_lookahead_source_eligibility": true,
+    "model_eligible": false,
+    "full_insurers_level3_universe_certified": false,
+    "private_credit_attribution_certified": false,
+    "ai_exposure_usd": null,
+    "naic_rbc_certified": false,
+    "untouched_24m_oos": false,
+    "insurers_node_stress_score": null,
+    "index_aics": null,
+    "promotion": "BLOCKED",
+    "milestones_completed": 22,
+    "milestones_total": 66
+  },
+  "interpretation": [
+    "Most PFI-excluding-Closed-Block/Funds-Withheld Level 3 fixed maturities in the 2026 September disclosure are privately placed ($12,510m of $13,664m); this is valuation opacity, not automatic impairment.",
+    "The $2,382m increase compares two balance dates disclosed in the eligible November 2026 10-Q. It is NOT a 2025-12 PIT historical observation.",
+    "PFI excluded-population and consolidated Note 6 disclosures overlap: never add them together.",
+    "Trading plus AFS reconciles private plus public Level 3 fixed maturities exactly; this does not certify the independent historical source-delivery timestamp.",
+    "Prudential September filing is SEC+14 eligible on Nov 19, unlike MetLife September filing (eligible Nov 20); the two insurer periods are not synchronized."
+  ]
+}

@@ -5,7 +5,6 @@ PBO checks, and stability analysis across multiple data splits.
 """
 
 import logging
-from typing import Optional
 
 import numpy as np
 
@@ -39,7 +38,6 @@ class ChangeValidator:
             return change
 
         split = int(n * 0.7)
-        train = trade_returns[:split]
         test = trade_returns[split:]
 
         sharpe_old = self._compute_sharpe(test)

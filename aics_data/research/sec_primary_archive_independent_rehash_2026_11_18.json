@@ -1,0 +1,155 @@
+{
+  "schema_version": "aics-sec-primary-byte-audit-v1",
+  "as_of": "2026-11-18",
+  "scope": "CURRENT_ARCHIVED_SEC_BYTES_AND_RESEARCH_BALANCE_SHEET_RATIOS_NOT_HISTORICAL_PIT",
+  "provenance_note": "Independently downloaded the corresponding GitHub Actions ZIP artifacts; SHA256 rehashed ZIPs and raw source bytes and checked issuer CSV chronology against SEC companyfacts. This does not attest that SEC history was captured contemporaneously or that any companyfacts vintage was frozen.",
+  "insurers": {
+    "github_run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44390127352",
+    "artifact_id": 14468760362,
+    "archive_expires_at_utc": "2026-12-18T20:21:25Z",
+    "artifact_zip_sha256": "6fdd17bb67b58cfee8bf3093d362038ae53b6c27667ffcf7975b44c618401bbf",
+    "candidate_csv_sha256": "052e2504c7711bab035c612372fac9d7a060c60a2336a5b372daac7dc82add86",
+    "original_sec_json_files": [
+      {
+        "issuer": "MET",
+        "kind": "submissions",
+        "sha256": "7321bf1b45f3bd2f8e00279a40c0cc7b4e63b241013d72b19492a611e88068ba",
+        "bytes": 164957
+      },
+      {
+        "issuer": "MET",
+        "kind": "companyfacts",
+        "sha256": "14cba5f6f625024d02253e998dc548d1cd196fbc9547553bf9c8f9a0554852e0",
+        "bytes": 9337094
+      },
+      {
+        "issuer": "MET",
+        "kind": "filings.files",
+        "sha256": "982b03fd7168c422b4f436a7ae35e4e4a5fb94791e96bcf8e021b469ff2dbb4a",
+        "bytes": 319398
+      },
+      {
+        "issuer": "PRU",
+        "kind": "submissions",
+        "sha256": "71c6e305cd9211db36315c1490ab632eefe03cee509652f3fb4a8921118ffc92",
+        "bytes": 160559
+      },
+      {
+        "issuer": "PRU",
+        "kind": "companyfacts",
+        "sha256": "cdfe1cbbf9acd0feea18c3b56fd4f51c4ab7010c363f5dcd80bb08744d114636",
+        "bytes": 6814681
+      },
+      {
+        "issuer": "PRU",
+        "kind": "filings.files",
+        "sha256": "7e91bce4dc96d5aaaa9f8f6216ae9769530485d409ebb5bb50c18faf420b7680",
+        "bytes": 302209
+      }
+    ],
+    "issuer_counts": {
+      "MET": 257,
+      "PRU": 264
+    },
+    "candidate_observation_count": 521,
+    "all_candidates_checked_for_sec_filed_plus_14_days": true,
+    "records_primary_provider_current_companyfacts_not_historical_vintage": true,
+    "research_asset_mix": [
+      {
+        "issuer": "MET",
+        "cik": "0001099219",
+        "period_end": "2026-06-30",
+        "form": "10-Q",
+        "accession": "0001099219-26-000050",
+        "filed_at": "2026-08-06",
+        "available_at": "2026-08-20",
+        "assets_usd": 759372000000,
+        "afs_debt_securities_usd": 322183000000,
+        "afs_to_assets_pct": 42.4276,
+        "source_companyfacts_sha256": "14cba5f6f625024d02253e998dc548d1cd196fbc9547553bf9c8f9a0554852e0",
+        "ai_specific_exposure_verified": false,
+        "stress_score": null
+      },
+      {
+        "issuer": "PRU",
+        "cik": "0001137774",
+        "period_end": "2026-09-30",
+        "form": "10-Q",
+        "accession": "0001137774-26-000221",
+        "filed_at": "2026-11-04",
+        "available_at": "2026-11-18",
+        "assets_usd": 771378000000,
+        "afs_debt_securities_usd": 322460000000,
+        "afs_to_assets_pct": 41.8031,
+        "source_companyfacts_sha256": "cdfe1cbbf9acd0feea18c3b56fd4f51c4ab7010c363f5dcd80bb08744d114636",
+        "ai_specific_exposure_verified": false,
+        "stress_score": null
+      }
+    ],
+    "metric_interpretation": "Both numbers are a candidate reported GAAP balance-sheet stock ratio for different report quarters, not a time-aligned comparison, private credit volume, AI credit risk, NAIC statutory metric, or AICS score. Current companyfacts can contain later revisions.",
+    "independent_historical_pit_verified": false
+  },
+  "neocloud_spv": {
+    "github_run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44389973635",
+    "artifact_id": 14468255306,
+    "archive_expires_at_utc": "2026-12-18T20:20:30Z",
+    "artifact_zip_sha256": "bc9b1a6b79c267d1dac44241eae729ebe987acf385742522ea973b12e0eeafcc",
+    "source_registry_sha256": "ead544ef2e75e23291837665801855fe1d7216410c34efa259c293e75c6b595c",
+    "available_count": 4,
+    "raw_html_sha256_rechecked_count": 4,
+    "embargo_excluded_count": 1,
+    "original_sec_html_files": [
+      {
+        "source_id": "NBIS_CITI_6K_20261022",
+        "issuer": "Nebius Group",
+        "filed_at": "2026-10-22",
+        "available_at": "2026-11-05",
+        "sha256": "f10f3022f35de7f9b325313b7066839796e1945bd7328e5466efe81a2f0368f8",
+        "bytes": 11962
+      },
+      {
+        "source_id": "NBIS_CITI_EX99_20261022",
+        "issuer": "Nebius Group",
+        "filed_at": "2026-10-22",
+        "available_at": "2026-11-05",
+        "sha256": "51a5317aa15dfb8b1affcbbab878bad804317d2b8fd27e31d11ebc857ad0000c",
+        "bytes": 13695
+      },
+      {
+        "source_id": "EQIX_10Q_20261028",
+        "issuer": "Equinix",
+        "filed_at": "2026-10-28",
+        "available_at": "2026-11-11",
+        "sha256": "65d26edf2c713a1256ed9ecce11cf5c473a0860cc2170e293f902703416be358",
+        "bytes": 2908803
+      },
+      {
+        "source_id": "APLD_10Q_20261007",
+        "issuer": "Applied Digital",
+        "filed_at": "2026-10-07",
+        "available_at": "2026-10-21",
+        "sha256": "89dffa50a0f674cc01168823e4358dec775072b22c3700820101d0e8c4e3e6a6",
+        "bytes": 1712876
+      }
+    ],
+    "date_excluded": {
+      "source_id": "CRWV_10Q_20261112",
+      "issuer": "CoreWeave",
+      "filed_at": "2026-11-12",
+      "available_at": "2026-11-26",
+      "status": "excluded_14_day_sec_lag"
+    },
+    "independently_verified_spv_contracts": 0,
+    "drawn_debt_verified_usd": null,
+    "independent_historical_pit_verified": false
+  },
+  "fixed_node_count": 11,
+  "total_weight": 1050,
+  "additional_project_milestones": 0,
+  "new_node_score": null,
+  "index_aics": null,
+  "predictive_skill_score": null,
+  "independently_certified_nodes": 0,
+  "promotion": "BLOCKED",
+  "trades_created": false
+}

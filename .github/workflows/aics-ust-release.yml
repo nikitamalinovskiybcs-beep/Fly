@@ -1,0 +1,30 @@
+name: AICS Treasury release dates
+on:
+  push:
+    paths:
+      - '.github/workflows/aics-ust-release.yml'
+      - 'scripts/aics_ust_release.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/14432003774/zip" > "$RUNNER_TEMP/input.zip"
+      - env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          python scripts/aics_ust_release.py "$RUNNER_TEMP/input.zip"
+          python scripts/aics_ust_release.py "$RUNNER_TEMP/input.zip" SOFR
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ust-release-dates
+          path: "*_release_dates.json"
+          if-no-files-found: ignore

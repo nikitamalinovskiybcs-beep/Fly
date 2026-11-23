@@ -1,0 +1,138 @@
+{
+  "comparison_id": "phoenix-public-challenger-comparison-v1",
+  "generated_at": "2026-08-03T22:04:28.860976+00:00",
+  "status": "research_only",
+  "baseline": {
+    "project": "Phoenix",
+    "focused_tests": "30 passed"
+  },
+  "challengers": [
+    {
+      "name": "autocallable-pricer",
+      "license": "MIT",
+      "scope": "worst-of Phoenix, Heston, correlated MC, memory coupon, KI, fair-coupon solver",
+      "tests": "10 passed",
+      "status": "reference_passed",
+      "adoption": "isolated challenger only"
+    },
+    {
+      "name": "structured-products-analytics",
+      "license": "public repository; license review pending",
+      "scope": "portfolio monitoring, payoff/barrier/autocall lifecycle, stress, AI-assisted term extraction",
+      "tests": "740 passed, 1 xfailed",
+      "status": "reference_passed_with_xfail",
+      "adoption": "lifecycle/monitoring reference only"
+    },
+    {
+      "name": "QuantLib",
+      "scope": "barrier/payoff/date/curve reference",
+      "status": "not_installed",
+      "adoption": "future adapter"
+    },
+    {
+      "name": "finmath-lib",
+      "scope": "MC/Heston/AAD/GPU reference",
+      "status": "not_installed",
+      "adoption": "future adapter"
+    },
+    {
+      "name": "OpenGamma Strata",
+      "scope": "market conventions/resolved products/risk primitives",
+      "status": "not_installed",
+      "adoption": "future adapter"
+    },
+    {
+      "name": "FinancePy/vollib",
+      "scope": "vanilla/barrier/Greeks sanity reference",
+      "status": "not_installed",
+      "adoption": "future adapter"
+    }
+  ],
+  "committee_review": {
+    "proposal_id": "phoenix-public-challenger-comparison-v1",
+    "provider": "mistral",
+    "model": "mistral-small-latest",
+    "status": "completed",
+    "decision": "RESEARCH",
+    "review": {
+      "decision": "do_not_adopt",
+      "findings": {
+        "autocallable-pricer": {
+          "status": "production_ready",
+          "tests": "10/10_passing",
+          "features": [
+            "worst-of",
+            "Phoenix",
+            "Heston",
+            "correlated_MC",
+            "memory_coupon",
+            "KI",
+            "fair-coupon_solver"
+          ],
+          "quality": "high"
+        },
+        "structured-products-analytics": {
+          "status": "production_ready",
+          "tests": "740_passed, 1_xfailed",
+          "features": [
+            "portfolio_monitoring",
+            "payoff/barrier/autocall_schedules",
+            "stress_testing",
+            "AI-assisted_term-sheet_extraction"
+          ],
+          "quality": "high_with_minor_warnings"
+        },
+        "reference_libraries": {
+          "status": "not_installed",
+          "reviewed": [
+            "QuantLib",
+            "finmath",
+            "Strata",
+            "FinancePy",
+            "vollib"
+          ],
+          "reason": "no_immediate_need"
+        }
+      },
+      "recommended_adoption": false,
+      "blockers": [],
+      "acceptance_tests": {
+        "autocallable-pricer": "all_tests_passing",
+        "structured-products-analytics": "740_passed,_1_xfailed"
+      },
+      "next_experiment": "monitor_reference_libraries_for_future_consideration",
+      "safety_flags": {
+        "production_weights": "unchanged",
+        "verdicts": "unchanged",
+        "trades": "unchanged"
+      }
+    },
+    "implementation_files": [
+      "data/reports/phoenix-public-challenger-comparison-v1.json"
+    ],
+    "baseline": "Phoenix canonical engine and 30 focused tests",
+    "target": "Independent fixture comparison before any production integration",
+    "observed_metric": "autocallable-pricer 10/10 tests; structured-products-analytics 740 passed, 1 xfailed",
+    "data_code_config_lineage": [
+      "public GitHub repositories",
+      "Phoenix focused tests"
+    ],
+    "blockers": [
+      "License review pending for non-MIT repository",
+      "External libraries not installed",
+      "No market outcome evidence from challengers"
+    ],
+    "acceptance_tests": [
+      "Shared payoff fixtures agree within declared tolerance",
+      "Date/past-fixing/lifecycle semantics agree",
+      "No production weights/verdicts/trades change"
+    ],
+    "next_experiment": "Implement isolated fixture adapters and compare canonical payoff, lifecycle and MC outputs.",
+    "final_devin_validation": "Public challenger tests passed; no code copied or production logic changed."
+  },
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

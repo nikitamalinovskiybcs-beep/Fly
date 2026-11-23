@@ -1,0 +1,110 @@
+name: AICS Repo 24 actual monthly source-matched spreads
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_derive_repo_spread_research.py'
+      - 'tests/test_aics_derive_repo_spread_research.py'
+      - 'tests/test_aics_repo_pinned_research.py'
+      - 'aics_data/research/repo_24_month_observed_research_2026-11-18.json'
+      - 'aics_data/research/alfred_iorb_power_cross_run_independent_rehash_2026_11_18.json'
+      - 'aics_data/research/nyfed_repo_original_archive_independent_rehash_2026_11_18.json'
+      - '.github/workflows/aics-repo-observed-spreads.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  source-matched-24-months:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit tests prohibit synthetic observations and unchecked PIT claims
+        run: |
+          python -m py_compile scripts/aics_derive_repo_spread_research.py
+          python -m unittest discover -s tests -p 'test_aics_derive_repo_spread_research.py' -v
+          python -m unittest discover -s tests -p 'test_aics_repo_pinned_research.py' -v
+      - name: Fetch immutable NY Fed and ALFRED original GitHub ZIP bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/aics_sources"
+          for id in 14471917435 14470900410; do
+            curl --fail --silent --show-error --location --retry 2 --max-time 90 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GH_REPO/actions/artifacts/$id/zip" \
+              -o "$RUNNER_TEMP/aics_sources/$id.zip"
+          done
+      - name: Compute observed matched SOFR BGCR TGCR minus IORB month-end rates
+        run: |
+          python -m scripts.aics_derive_repo_spread_research \
+            --nyfed-zip "$RUNNER_TEMP/aics_sources/14470900410.zip" \
+            --alfred-zip "$RUNNER_TEMP/aics_sources/14471917435.zip"
+      - name: Require 24 actual matches, immutable fixed index weights and zero score promotion
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path('docs/audit/aics_repo_market_spreads_research_2026-11-18.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          rows = data['monthly_source_aligned_observations']
+          assert len(rows) == 24 and not data['missing_coverage']
+          assert len({x['as_of_month_end'] for x in rows}) == 24
+          assert all(x['nyfed_effective_date'] < x['as_of_month_end'] for x in rows)
+          assert data['synthetic_rows_created'] == 0
+          assert data['NYFED_historical_release_pit_attested'] is False
+          assert data['ALFRED_original_contemporaneous_snapshots_attested'] is False
+          assert data['independent_source_to_score_methodology'] is False
+          assert data['node_stress_score'] is None and data['index_aics'] is None
+          assert data['promotion'] == 'BLOCKED'
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## Repo: 24 genuine source-aligned month-end observations', file=f)
+              print('NY Fed SOFR/BGCR/TGCR original capture + 24 dated ALFRED IORB snapshots.', file=f)
+              print('SOFR-IORB bps: min '
+                    +data['summary']['minimum_sofr_minus_iorb_bps']+'; max '
+                    +data['summary']['maximum_sofr_minus_iorb_bps']+'; mean '
+                    +data['summary']['mean_sofr_minus_iorb_bps'], file=f)
+              print('Observed spreads only; no independently attested historical release PIT or certified AICS.', file=f)
+          PY
+      - name: Compare durable 24-month panel against regenerated original source archives
+        run: |
+          python - <<'PY'
+          import json
+          from decimal import Decimal
+          from pathlib import Path
+          generated = json.loads(Path('docs/audit/aics_repo_market_spreads_research_2026-11-18.json').read_text())
+          pinned = json.loads(Path('aics_data/research/repo_24_month_observed_research_2026-11-18.json').read_text())
+          src = generated['provider_archive_sha256']
+          assert pinned['raw_provider_archive_sha256'] == {'nyfed': src['NYFED'], 'alfred': src['ALFRED']}
+          candidates = generated['monthly_source_aligned_observations']
+          records = pinned['monthly_observations']
+          assert len(candidates) == len(records) == 24
+          for source, observed in zip(candidates, records):
+              assert source['as_of_month_end'] == observed['as_of']
+              assert source['nyfed_effective_date'] == observed['market_effective_date']
+              assert source['nyfed_next_business_session_publication_proxy'] == observed['publication_proxy_date']
+              assert observed['publication_proxy_date'] <= observed['as_of']
+              for key in ('iorb_pct','sofr_pct','bgcr_pct','tgcr_pct'):
+                  assert Decimal(source[key]) == Decimal(observed[key])
+              for key in ('sofr_minus_iorb_bps','sofr_minus_bgcr_bps'):
+                  assert Decimal(source[key]) == Decimal(observed[key])
+          assert pinned['synthetic_market_rows'] == 0
+          assert pinned['source_release_timestamp_pit_attested'] is False
+          assert pinned['stress_score'] is None and pinned['index_aics'] is None
+          assert pinned['promotion'] == 'BLOCKED'
+          print('PASS: 24 pinned original-derived market research matches regenerated ZIP inputs')
+          PY
+      - name: Archive 24 matched observed metrics and source-hash provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-repo-real-observed-spreads-24-months
+          path: docs/audit/aics_repo_market_spreads_research_2026-11-18.json
+          if-no-files-found: error
+          retention-days: 30

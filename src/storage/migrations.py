@@ -102,6 +102,22 @@ TABLES_SQL: list[str] = [
         sharpe REAL
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS calculated_notes (
+        note_id TEXT PRIMARY KEY,
+        calculated_at TEXT NOT NULL,
+        basket TEXT NOT NULL,
+        barrier REAL,
+        term_months INTEGER NOT NULL,
+        coupon_pa REAL,
+        p_ki REAL,
+        verdict TEXT,
+        evidence_status TEXT,
+        lifecycle_status TEXT DEFAULT 'calculated',
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_calculated_notes_at ON calculated_notes(calculated_at)",
 ]
 
 

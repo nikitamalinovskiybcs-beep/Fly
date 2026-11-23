@@ -1,0 +1,24 @@
+name: AICS ARCC nonaccrual source
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/aics-arcc-nonaccrual-source.yml'
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Capture accession-specific SEC filing
+        env:
+          SEC_IDENTITY: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY }}
+        run: |
+          curl -fsSL --retry 2 -A "$SEC_IDENTITY" 'https://www.sec.gov/Archives/edgar/data/1287750/000162828026067383/arcc-20260930.htm' -o arcc-20260930.htm
+          grep -q '0001287750' arcc-20260930.htm
+          sha256sum arcc-20260930.htm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arcc-q3-filing
+          path: arcc-20260930.htm

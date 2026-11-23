@@ -1,0 +1,30 @@
+{
+  "proposal_id": "phoenix-production-readiness-v1",
+  "request": "Determine what remains before a safe production transition.",
+  "current_state": {
+    "research_quality": "8/10",
+    "production_readiness": "3-4/10",
+    "safety_flags": {
+      "production_weights_changed": false,
+      "verdict_mutated": false,
+      "trades_created": false
+    }
+  },
+  "known_blockers": [
+    "fixed-24m chronological OOS and 6/12/18/24 anchors are not evidenced in the current packet",
+    "field-level provenance and quote-fit evidence are incomplete",
+    "real settled-note and dealer-quote evidence is incomplete",
+    "human model-risk, compliance, and client-suitability review is not recorded",
+    "provider quorum is unstable because of 403/429/402/timeouts",
+    "full suite has three known state/environment failures",
+    "memory backup/encryption/restore policy is not complete",
+    "persistent production deployment and rollback proof are not complete"
+  ],
+  "required_output": [
+    "production gates in priority order",
+    "objective acceptance criteria for each gate",
+    "what can be fixed in code versus what requires human/data approval",
+    "go/no-go recommendation",
+    "no automatic production promotion"
+  ]
+}

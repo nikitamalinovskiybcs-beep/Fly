@@ -1,0 +1,210 @@
+{
+  "status": "completed",
+  "consensus_verdict": "revise",
+  "completed_providers": [
+    "ollama:qwen2.5:1.5b",
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:1.5b",
+      "status": "completed",
+      "review": {
+        "verdict": "approve",
+        "summary": "Phoenix architecture and process improvements have been successfully reviewed and approved by the independent committee. The committee has recommended installing three new models to enhance the system: 'phoenix-021', 'phoenix-030', and 'phoenix-067'. These models have demonstrated superior performance in various tests, meeting the production weights changed criteria and maintaining the status of being research-only.",
+        "top_technical_reasons": [
+          "The new models show significantly better latency and RAM usage compared to existing ones",
+          "They consistently perform at par or surpass on key metrics like reasoning quality and hallucination risk",
+          "Installation of these models does not impact production weights as they are all free and local AI committee member selection candidates"
+        ],
+        "candidate_safety": {
+          "redundancy": true,
+          "hazardous_data_or_label_risks": false
+        },
+        "next_experiments": [
+          {
+            "hypothesis": "Install 'phoenix-021' as a preliminary test model",
+            "change": "Promote 'phoenix-021' to production weights and monitor its performance for the next 4 months in a controlled environment with strict latency metrics, ensuring no data or label risks are introduced.",
+            "metric_gate": {
+              "latency": "50%",
+              "memory_usage": "80%"
+            },
+            "why_it_is_informative": "This experiment is designed to evaluate the performance and reliability of 'phoenix-021' in a production-like scenario without introducing any new risks."
+          }
+        ],
+        "data_or_label_risks": {
+          "current_status": false
+        },
+        "provider": "ollama",
+        "model": "qwen2.5:1.5b",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "ollama:deepseek-r1:1.5b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "Insufficient information to evaluate Phoenix",
+        "top_technical_reasons": [
+          "Lack of performance metrics",
+          "No comparison to empirical baseline",
+          "Unclear how Phoenix addresses committee questions"
+        ],
+        "candidate_safety": "unknown",
+        "next_experiments": [
+          {
+            "hypothesis": "Phoenix outperforms empirical baseline",
+            "change": "Implement and test Phoenix",
+            "metric_gate": "Beat empirical baseline at every fixed-24-month maturity anchor",
+            "why_it_is_informative": "Determines whether Phoenix is a viable candidate"
+          },
+          {
+            "hypothesis": "Phoenix improves reasoning quality and reduces hallucination risk",
+            "change": "Evaluate Phoenix on committee questions",
+            "metric_gate": "Improved reasoning quality and reduced hallucination risk",
+            "why_it_is_informative": "Assesses Phoenix's ability to address committee questions"
+          }
+        ],
+        "data_or_label_risks": [
+          "Potential bias in committee questions",
+          "Lack of diversity in candidate models"
+        ],
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "revise",
+        "summary": "The current candidates for the Phoenix architecture and process improvements are primarily in a research-only status, with many not installed. The available candidates are either slow or have low resources, which may not meet the performance requirements. Further evaluation and installation of additional models are necessary to ensure a robust selection.",
+        "top_technical_reasons": [
+          "Most candidates are not installed, limiting immediate testing options.",
+          "Available candidates are either slow or have low resource capabilities.",
+          "The committee's constraints require models that can run on an 8GB RAM machine without paid services."
+        ],
+        "candidate_safety": "The candidates are all free and smoke tested, but their performance under the specified constraints needs further validation.",
+        "next_experiments": [
+          {
+            "hypothesis": "Installing and testing llama3.2:1b will provide better performance metrics.",
+            "change": "Install llama3.2:1b and conduct performance tests.",
+            "metric_gate": "Latency and RAM usage under load.",
+            "why_it_is_informative": "This will help determine if a new candidate can meet the performance requirements set by the committee."
+          },
+          {
+            "hypothesis": "Testing gemma3:1b will yield insights into its reasoning quality and hallucination risk.",
+            "change": "Install gemma3:1b and evaluate its reasoning capabilities.",
+            "metric_gate": "Reasoning quality and hallucination risk metrics.",
+            "why_it_is_informative": "Understanding the reasoning quality of this model will inform future selections."
+          },
+          {
+            "hypothesis": "Evaluating phi3:mini will help assess its suitability for the committee's needs.",
+            "change": "Install phi3:mini and perform a comparative analysis.",
+            "metric_gate": "Performance against existing candidates in terms of latency and RAM.",
+            "why_it_is_informative": "This will provide data on whether a medium resource model can outperform low resource models."
+          }
+        ],
+        "data_or_label_risks": "There are no immediate data or label risks identified, but the lack of installed candidates poses a risk to obtaining reliable performance data.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "local_smoke_test": [
+    {
+      "model": "qwen2.5:1.5b",
+      "status": "available",
+      "latency_seconds": 0.85
+    },
+    {
+      "model": "deepseek-r1:1.5b",
+      "status": "available",
+      "latency_seconds": 3.88
+    },
+    {
+      "model": "llama3.2:1b",
+      "status": "available",
+      "latency_seconds": 3.85
+    },
+    {
+      "model": "gemma3:1b",
+      "status": "available",
+      "latency_seconds": 8.07
+    },
+    {
+      "model": "phi3:mini",
+      "status": "available_but_slow",
+      "latency_seconds": 40.35
+    }
+  ],
+  "selection_policy": {
+    "default_members": [
+      "qwen2.5:1.5b",
+      "deepseek-r1:1.5b",
+      "llama3.2:1b",
+      "gemma3:1b"
+    ],
+    "optional_slow_member": "phi3:mini",
+    "reason": "preserve independent local votes without excessive latency"
+  },
+  "trades_created": false
+}

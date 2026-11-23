@@ -1,0 +1,139 @@
+{
+  "status": "completed",
+  "consensus_verdict": "reject",
+  "completed_providers": [
+    "groq",
+    "openrouter"
+  ],
+  "reviews": [
+    {
+      "provider": "ollama:qwen2.5:7b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "ollama:deepseek-r1:7b",
+      "status": "deferred",
+      "reason": "Ollama timed out",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "google_gemini",
+      "status": "deferred",
+      "reason": "HTTP 429",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "anthropic",
+      "status": "deferred",
+      "reason": "HTTP 400",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "cerebras",
+      "status": "deferred",
+      "reason": "HTTP 402",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "nvidia",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "openai",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "mistral",
+      "status": "skipped",
+      "reason": "API key not configured",
+      "production_weights_changed": false,
+      "verdict_mutated": false
+    },
+    {
+      "provider": "groq",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "The candidate is rejected due to failing to meet the production rule and having multiple areas that require attention and improvement.",
+        "top_technical_reasons": [
+          "The candidate failed the fixed_24m_promotion_gate check.",
+          "The candidate has multiple areas that require attention, including container hardening and dependency reproducibility."
+        ],
+        "candidate_safety": "low",
+        "next_experiments": [
+          {
+            "hypothesis": "Improving container hardening and dependency reproducibility will increase the candidate's safety and reliability.",
+            "change": "Implement non-root Docker user and healthcheck, and pin runtime dependencies.",
+            "metric_gate": "Passing the container hardening and dependency reproducibility checks.",
+            "why_it_is_informative": "This experiment will help determine if addressing the identified areas of concern will improve the candidate's overall safety and reliability."
+          },
+          {
+            "hypothesis": "Versioning the unified health schema will improve the candidate's maintainability and scalability.",
+            "change": "Version the unified health schema.",
+            "metric_gate": "Successful implementation and testing of the versioned unified health schema.",
+            "why_it_is_informative": "This experiment will help determine if versioning the unified health schema will improve the candidate's maintainability and scalability."
+          }
+        ],
+        "data_or_label_risks": "medium",
+        "provider": "groq",
+        "model": "llama-3.3-70b-versatile",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    },
+    {
+      "provider": "openrouter",
+      "status": "completed",
+      "review": {
+        "verdict": "reject",
+        "summary": "The Phoenix proposal has been rejected for production promotion due to several areas of attention and a blocked promotion gate. Key technical concerns include the need for improved container hardening and dependency reproducibility.",
+        "top_technical_reasons": [
+          "Container hardening requires attention to ensure security.",
+          "Dependency reproducibility is flagged for attention, indicating potential issues with consistent builds.",
+          "The fixed 24-month promotion gate is blocked, preventing advancement to production."
+        ],
+        "candidate_safety": "The candidate has not demonstrated sufficient safety and reliability to meet production standards.",
+        "next_experiments": [
+          {
+            "hypothesis": "Improving container hardening will enhance security.",
+            "change": "Implement a non-root Docker user and health checks.",
+            "metric_gate": "Successful completion of security audits.",
+            "why_it_is_informative": "This will provide insights into the security posture of the deployment environment."
+          },
+          {
+            "hypothesis": "Enhancing dependency reproducibility will lead to more stable builds.",
+            "change": "Pin runtime dependencies and implement dependency vulnerability scanning.",
+            "metric_gate": "Reduction in build failures due to dependency issues.",
+            "why_it_is_informative": "This will help assess the impact of dependency management on overall system stability."
+          },
+          {
+            "hypothesis": "Establishing artifact retention and rollback policies will improve deployment safety.",
+            "change": "Define and implement artifact retention and rollback policies.",
+            "metric_gate": "Successful execution of rollback scenarios without failures.",
+            "why_it_is_informative": "This will evaluate the effectiveness of the rollback process in maintaining system integrity."
+          }
+        ],
+        "data_or_label_risks": "There are potential risks associated with data provenance and the need for CI health and safety artifacts for deployment.",
+        "provider": "openrouter",
+        "model": "openai/gpt-4o-mini",
+        "production_weights_changed": false,
+        "verdict_mutated": false
+      }
+    }
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

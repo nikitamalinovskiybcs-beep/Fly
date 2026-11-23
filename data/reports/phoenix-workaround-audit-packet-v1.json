@@ -1,0 +1,66 @@
+{
+  "proposal_id": "phoenix-workaround-audit-v1",
+  "scope": [
+    "app.py",
+    "src/precompute.py",
+    "src/data_module.py",
+    "src/external_data.py",
+    "src/agents.py",
+    "src/self_learning_agents.py",
+    "src/structured_product.py",
+    "src/storage/",
+    "src/autopilot/"
+  ],
+  "objective": "Find and remove code workarounds that hide failures, duplicate work, or weaken evidence without breaking intentional fallbacks.",
+  "static_findings": {
+    "broad_exception_handlers": "Many except Exception handlers exist; most return explicit degraded status or preserve local/cloud fallback.",
+    "bare_pass_candidates": [
+      "src/agents.py:126",
+      "src/agents.py:201",
+      "src/agents.py:216",
+      "src/agents.py:327",
+      "src/agents.py:487",
+      "src/agents.py:692",
+      "src/agents.py:829",
+      "src/agents.py:844",
+      "src/precompute.py:52",
+      "src/precompute.py:62",
+      "src/precompute.py:1010",
+      "src/precompute.py:1189",
+      "src/precompute.py:1195",
+      "src/precompute.py:1585",
+      "src/precompute.py:2158",
+      "src/precompute.py:2165",
+      "src/precompute.py:2395"
+    ],
+    "fallback_candidates": [
+      "src/data_module.py: fallback_defaults",
+      "src/nvidia_ai.py: fallback_rules",
+      "src/phoenix/pricing.py: fixed correlation/volatility fallback",
+      "src/basket/autocall.py: fixed autocall/correlation fallback"
+    ]
+  },
+  "safety_constraints": [
+    "Never replace missing market evidence with synthetic values.",
+    "Every fallback must remain explicitly labeled and must not pass the evidence gate.",
+    "Preserve SQLite/DuckDB fallback and provider failure visibility.",
+    "Do not change payoff, P(KI), autocall, calibration, OOS, verdict, production weights, or trades.",
+    "Missing AI votes are not approval."
+  ],
+  "committee_questions": [
+    "Which handlers are silent suppression versus intentional degraded-mode handling?",
+    "Which fixed fallbacks can affect a decision and should instead return MISSING/BLOCKED?",
+    "Which duplicate network calls or imports can be removed safely?",
+    "What contract tests are required before changing each candidate?"
+  ],
+  "acceptance_gates": [
+    "Frozen key outputs unchanged for valid-data fixtures.",
+    "Missing/stale data remains visibly blocked, never silently promoted.",
+    "Full test suite passes.",
+    "Ruff, compileall, and git diff check pass.",
+    "Production safety flags remain explicitly false."
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

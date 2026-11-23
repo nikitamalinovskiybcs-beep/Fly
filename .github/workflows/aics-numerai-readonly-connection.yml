@@ -1,0 +1,38 @@
+name: AICS Numerai read-only API connection
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_numerai_readonly_probe.py'
+      - 'tests/test_aics_numerai_readonly_probe.py'
+      - '.github/workflows/aics-numerai-readonly-connection.yml'
+permissions:
+  contents: read
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify strict read-only connection safety offline
+        run: |
+          python -m py_compile scripts/aics_numerai_readonly_probe.py
+          python -m unittest discover -s tests -p 'test_aics_numerai_readonly_probe.py' -v
+      - name: Verify stored Numerai API secrets with minimum-privilege read-only query
+        env:
+          NUMERAI_PUBLIC_ID: ${{ secrets.NUMERAI_PUBLIC_ID }}
+          NUMERAI_SECRET_KEY: ${{ secrets.NUMERAI_SECRET_KEY }}
+        run: python -m scripts.aics_numerai_readonly_probe
+      - name: Upload credential-free diagnostics even if auth fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-numerai-readonly-connectivity
+          path: aics_data/progress/numerai_readonly_connection_check.json
+          if-no-files-found: warn
+          retention-days: 7

@@ -1,0 +1,89 @@
+name: AICS V60 - original UST30 historical data and shadow formulas
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v60_ust30_shadow_score_hypotheses.py
+      - tests/test_aics_v60_ust30_shadow_score_hypotheses.py
+      - aics_data/research/ust30_24_month_public_observed_panel_2026-11-18.json
+      - aics_data/research/ust30_yield_change_volatility_2024_2026.json
+      - scripts/aics_v59_24m_uncertainty_envelope.py
+      - .github/workflows/aics-v60-ust30-24m-research-score.yml
+
+jobs:
+  real-source-shadow-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout original UST30 and historical Treasury 24m source evidence
+        uses: actions/checkout@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test strict original-ALFRED source match and not-approved scoring rules
+        run: |
+          python -m compileall -q scripts/aics_v60_ust30_shadow_score_hypotheses.py tests/test_aics_v60_ust30_shadow_score_hypotheses.py
+          python -m unittest discover -s tests -p 'test_aics_v60_ust30_shadow_score_hypotheses.py' -v
+      - name: Compute 24 observed UST 30Y yields and two research-only risk hypotheses
+        run: |
+          python -m scripts.aics_v60_ust30_shadow_score_hypotheses --out aics_data/research/aics_v60_ust30_two_research_score_hypotheses_24m_2026-11-22.json
+      - name: Fail closed on inventing official AICS, old source PIT, or trading authority
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('aics_data/research/aics_v60_ust30_two_research_score_hypotheses_24m_2026-11-22.json').read_text())
+          assert r['research_source_months']==24
+          assert r['original_Treasury_volatility_20_daily_returns_observed_months']==24
+          assert r['month_count_with_VolPlusRise_hypothesis']==23
+          assert r['normalization_10bp_and_50bp_thresholds_NOT_trained_or_preregistered'] is True
+          assert r['historically_original_publisher_delivery_PIT_proven'] is False
+          assert r['frozen_original_UST30_node_score_method_found_and_certified'] is False
+          assert r['historical_full_11node_AICS'] is None
+          assert r['independently_certified_AICS_nodes']==0
+          assert r['all_11_weights_total']==1050
+          assert r['production_signal_or_trade'] is None
+          assert r['hypothesis_scenarios_with_conclusive_trading_regime_in_24m']=={'Vol10':0,'VolPlusRise':0}
+          x=r['observed_months_and_hypothetical_score_stress_tests'][-1]
+          assert x['month']=='2026-10'
+          assert x['original_ALFRED_DGS30_yield_percent']=='5.32'
+          assert x['source_verified_20_daily_change_sd_bp']=='4.98'
+          assert x['candidate_Vol10_risk_proxy_0_100_NOT_OFFICIAL']==49.8
+          assert x['candidate_VolPlusRise_risk_proxy_0_100_NOT_OFFICIAL']==24.9
+          assert r['Oct_2026_hypothesis_intervals']['Vol10']['official_AICS'] is None
+          print('UST30 Oct 2026 ALFRED observed yield %:',x['original_ALFRED_DGS30_yield_percent'])
+          print('UST30 Oct 2026 observed volatility bps:',x['source_verified_20_daily_change_sd_bp'])
+          print('Hypothesis Vol10 and VolPlusRise risk scores, NOT official:',
+                x['candidate_Vol10_risk_proxy_0_100_NOT_OFFICIAL'],
+                x['candidate_VolPlusRise_risk_proxy_0_100_NOT_OFFICIAL'])
+          print('Original V59 conditional unscored AICS bounds:',r['prior_V59_conditional_Oct_2026'])
+          print('Two shadow scenario intervals, also NOT official:',r['Oct_2026_hypothesis_intervals'])
+          print('True full 11-node AICS remains NULL')
+          PY
+      - name: Conductor model evidence summary
+        run: |
+          python - <<'PY'
+          import json,os
+          r=json.load(open('aics_data/research/aics_v60_ust30_two_research_score_hypotheses_24m_2026-11-22.json'))
+          x=r['observed_months_and_hypothetical_score_stress_tests'][-1]
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V60: 24 months of real UST 30Y source data already exist',file=f)
+              print('Oct 2026 real ALFRED: DGS30='+x['original_ALFRED_DGS30_yield_percent']+'%, observed 20 daily changes std dev='+x['source_verified_20_daily_change_sd_bp']+' basis points.',file=f)
+              print('Two explicit **post-hoc** UST-to-risk hypotheses, score '+str(x['candidate_Vol10_risk_proxy_0_100_NOT_OFFICIAL'])+' vs '+str(x['candidate_VolPlusRise_risk_proxy_0_100_NOT_OFFICIAL'])+' /100. **Neither is official**.',file=f)
+              print('Oct 2026 scenario Vol10 conditional risk interval: '+str(r['Oct_2026_hypothesis_intervals']['Vol10']['lower_conditional_research_AICS_NOT_CERTIFIED'])+'–'+str(r['Oct_2026_hypothesis_intervals']['Vol10']['upper_conditional_research_AICS_NOT_CERTIFIED'])+'.',file=f)
+              print('Oct 2026 scenario VolPlusRise: '+str(r['Oct_2026_hypothesis_intervals']['VolPlusRise']['lower_conditional_research_AICS_NOT_CERTIFIED'])+'–'+str(r['Oct_2026_hypothesis_intervals']['VolPlusRise']['upper_conditional_research_AICS_NOT_CERTIFIED'])+'.',file=f)
+              print('**Crucial missing item is certified and time-anchored original UST 30Y risk scoring method**, not source yield data; two other missing nodes Repo and AI Equities remain unknown.',file=f)
+              print('All 24 official trading regimes undecidable, 0/11 independently PIT-certified nodes, 22/66 strict readiness unchanged; no trading.',file=f)
+          PY
+      - name: Archive actual source-verified UST 24m research and two nonofficial models
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v60-original-ust30-24m-two-research-shadows-not-official
+          path: aics_data/research/aics_v60_ust30_two_research_score_hypotheses_24m_2026-11-22.json
+          if-no-files-found: error

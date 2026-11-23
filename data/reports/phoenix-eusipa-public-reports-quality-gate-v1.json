@@ -1,0 +1,20 @@
+{
+  "run_id": "phoenix-eusipa-public-reports-quality-gate-v1",
+  "run_at": "2026-08-03T23:12:21.344680+00:00",
+  "items_tested": {
+    "posts": 58,
+    "downloaded_pdfs": 24,
+    "pdf_sha256": 24,
+    "pdf_magic_headers": 24
+  },
+  "passed": true,
+  "failures": [],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  },
+  "limitations": [
+    "semantic PDF table extraction not tested because parser unavailable"
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "schema_version": "reference-basket-facts-v1",
+  "status": "research_only",
+  "reference_date": "2024-11-01",
+  "source": "yfinance",
+  "source_type": "free_historical_market_data",
+  "basket_original": [
+    "DAL",
+    "FB",
+    "DELL",
+    "BA",
+    "RCL",
+    "SBUX"
+  ],
+  "basket_normalized": [
+    "DAL",
+    "META",
+    "DELL",
+    "BA",
+    "RCL",
+    "SBUX"
+  ],
+  "ticker_normalization": {
+    "FB": "META"
+  },
+  "facts": {
+    "DAL": {
+      "as_of": "2024-11-01",
+      "last_trading_date": "2024-11-01",
+      "close": 58.389999,
+      "adj_close": 57.247208
+    },
+    "META": {
+      "as_of": "2024-11-01",
+      "last_trading_date": "2024-11-01",
+      "close": 567.159973,
+      "adj_close": 563.915588
+    },
+    "DELL": {
+      "as_of": "2024-11-01",
+      "last_trading_date": "2024-11-01",
+      "close": 130.869995,
+      "adj_close": 127.367035
+    },
+    "BA": {
+      "as_of": "2024-11-01",
+      "last_trading_date": "2024-11-01",
+      "close": 154.589996,
+      "adj_close": 154.589996
+    },
+    "RCL": {
+      "as_of": "2024-11-01",
+      "last_trading_date": "2024-11-01",
+      "close": 202.059998,
+      "adj_close": 196.958786
+    },
+    "SBUX": {
+      "as_of": "2024-11-01",
+      "last_trading_date": "2024-11-01",
+      "close": 98.870003,
+      "adj_close": 94.553345
+    }
+  },
+  "annualized_volatility_2y": {
+    "DAL": 0.315241,
+    "META": 0.403259,
+    "DELL": 0.484759,
+    "BA": 0.315828,
+    "RCL": 0.367571,
+    "SBUX": 0.313778
+  },
+  "correlation_2y": {
+    "DAL": {
+      "DAL": 1.0,
+      "META": 0.2017,
+      "DELL": 0.2126,
+      "BA": 0.3651,
+      "RCL": 0.5199,
+      "SBUX": 0.2619
+    },
+    "META": {
+      "DAL": 0.2017,
+      "META": 1.0,
+      "DELL": 0.25,
+      "BA": 0.1765,
+      "RCL": 0.282,
+      "SBUX": 0.1389
+    },
+    "DELL": {
+      "DAL": 0.2126,
+      "META": 0.25,
+      "DELL": 1.0,
+      "BA": 0.1014,
+      "RCL": 0.2018,
+      "SBUX": 0.1441
+    },
+    "BA": {
+      "DAL": 0.3651,
+      "META": 0.1765,
+      "DELL": 0.1014,
+      "BA": 1.0,
+      "RCL": 0.3288,
+      "SBUX": 0.2152
+    },
+    "RCL": {
+      "DAL": 0.5199,
+      "META": 0.282,
+      "DELL": 0.2018,
+      "BA": 0.3288,
+      "RCL": 1.0,
+      "SBUX": 0.2741
+    },
+    "SBUX": {
+      "DAL": 0.2619,
+      "META": 0.1389,
+      "DELL": 0.1441,
+      "BA": 0.2152,
+      "RCL": 0.2741,
+      "SBUX": 1.0
+    }
+  },
+  "worst_of_reference": {
+    "metric": "adjusted_close_normalized_to_reference_date",
+    "levels": {
+      "DAL": 57.247208,
+      "META": 563.915588,
+      "DELL": 127.367035,
+      "BA": 154.589996,
+      "RCL": 196.958786,
+      "SBUX": 94.553345
+    }
+  },
+  "screenshot_terms_raw": {
+    "row_id": "1411",
+    "worst_of": true,
+    "tenor_text": "7 years",
+    "currency": "USD",
+    "coupon_pa": 0.049,
+    "raw_tokens": [
+      "0.85",
+      "0.999",
+      "0.08",
+      "1.08",
+      "12",
+      "0",
+      "1",
+      "0.30",
+      "0.85",
+      "1"
+    ],
+    "visible_dates": [
+      "21-Oct"
+    ]
+  },
+  "unverified_or_ambiguous": [
+    "Screenshot date shows 21-Oct rather than 2024-11-01",
+    "Barrier/strike/coupon frequency and all token meanings require original quote export",
+    "No timestamped observation path or settled outcome supplied",
+    "Historical implied volatility/skew and dealer identity are not verified from screenshot"
+  ],
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false,
+  "strike_date": "2024-11-01",
+  "strike_definition": "official close on strike date; each asset normalized to 100%",
+  "strike_levels": {
+    "DAL": 58.389999,
+    "META": 567.159973,
+    "DELL": 130.869995,
+    "BA": 154.589996,
+    "RCL": 202.059998,
+    "SBUX": 98.870003
+  },
+  "strike_normalized_levels": {
+    "DAL": 1.0,
+    "META": 1.0,
+    "DELL": 1.0,
+    "BA": 1.0,
+    "RCL": 1.0,
+    "SBUX": 1.0
+  }
+}

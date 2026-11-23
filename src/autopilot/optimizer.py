@@ -221,7 +221,6 @@ class ParameterOptimizer:
         train_n = int(n * 0.7)
 
         for val in values:
-            train = trade_returns[:train_n]
             test = trade_returns[train_n:]
             if len(test) < 3:
                 continue

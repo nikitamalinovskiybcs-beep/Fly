@@ -2,8 +2,10 @@
 FRED API, Alpha Vantage, Yahoo Options, Finviz, CBOE VIX term structure.
 All free, no API key required for FRED. Graceful fallback if unavailable."""
 
-import math
-from typing import Dict, List, Optional
+import csv
+import io
+from typing import Dict, List
+import urllib.request
 
 # Cached data (avoid repeated network calls in single session)
 _cache: Dict[str, any] = {}
@@ -16,7 +18,6 @@ def get_fred_data() -> Dict:
         return _cache["fred"]
 
     try:
-        import urllib.request
         import json
 
         # FRED series: VIX, 10Y Treasury, 2Y Treasury, BAA-AAA spread
@@ -25,6 +26,10 @@ def get_fred_data() -> Dict:
             "rate_10y": "DGS10",
             "rate_2y": "DGS2",
             "baa_spread": "BAMLC0A4CBBB",  # BBB corporate spread
+            "fed_rate": "DFF",
+            "yield_curve_slope": "T10Y2Y",
+            "dollar_index": "DTWEXBGS",
+            "oil": "DCOILWTICO",
         }
         result = {}
         for key, series_id in series.items():
@@ -39,16 +44,31 @@ def get_fred_data() -> Dict:
                             result[key] = float(o["value"])
                             break
             except Exception:
-                pass
+                try:
+                    url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
+                    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                    with urllib.request.urlopen(req, timeout=5) as resp:
+                        rows = list(csv.DictReader(io.StringIO(resp.read().decode())))
+                    for row in reversed(rows[-10:]):
+                        value = row.get(series_id)
+                        if value and value != ".":
+                            result[key] = float(value)
+                            break
+                except Exception:
+                    pass
 
         # Derived metrics
         observed_keys = set(result)
         rate_10y = result.get("rate_10y", 4.5)
         rate_2y = result.get("rate_2y", 4.3)
-        result["yield_curve_slope"] = round(rate_10y - rate_2y, 2)
+        result["yield_curve_slope"] = round(
+            result.get("yield_curve_slope", rate_10y - rate_2y), 2
+        )
         result["yield_curve_inverted"] = rate_10y < rate_2y
         result["vix"] = result.get("vix", 20.0)
         result["credit_spread"] = result.get("baa_spread", 1.5)
+        result["fed_rate"] = result.get("fed_rate", 4.5)
+        result["macro_feature_count"] = len(observed_keys)
 
         # Regime detection from FRED data
         vix = result["vix"]
@@ -60,7 +80,7 @@ def get_fred_data() -> Dict:
             result["fred_regime"] = "normal"
 
         result["available"] = bool(observed_keys)
-        result["source"] = "fred_live" if len(observed_keys) == 4 else "fred_partial"
+        result["source"] = "fred_live" if len(observed_keys) >= 8 else "fred_partial"
         if not observed_keys:
             result["warning"] = "FRED unavailable; defaults used"
         _cache["fred"] = result
@@ -70,7 +90,9 @@ def get_fred_data() -> Dict:
         fallback = {
             "vix": 20.0, "rate_10y": 4.5, "rate_2y": 4.3,
             "yield_curve_slope": 0.2, "yield_curve_inverted": False,
-            "credit_spread": 1.5, "fred_regime": "normal", "available": False,
+            "credit_spread": 1.5, "fed_rate": 4.5,
+            "dollar_index": None, "oil": None,
+            "macro_feature_count": 0, "fred_regime": "normal", "available": False,
             "source": "fallback_defaults",
             "warning": "FRED unavailable; defaults used",
         }
@@ -144,8 +166,6 @@ def get_vix_term_structure() -> Dict:
         return _cache["vix_term"]
 
     try:
-        import urllib.request
-        import json
         # Use FRED for VIX spot, estimate term structure
         fred = get_fred_data()
         vix_spot = fred.get("vix", 20.0)
@@ -183,7 +203,7 @@ def get_earnings_calendar(tickers: List[str]) -> Dict:
     Checks if any ticker has earnings in next 14 days."""
     try:
         import yfinance as yf
-        from datetime import datetime, timedelta
+        from datetime import datetime
 
         now = datetime.now()
         upcoming = {}

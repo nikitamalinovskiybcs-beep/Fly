@@ -1,0 +1,23 @@
+{
+  "proposal_id": "phoenix-convergence-recovery-v1",
+  "baseline": {
+    "cycles": 100,
+    "guardian_failures": 100,
+    "degraded_cycles": 100,
+    "disagreement_cycles": 100,
+    "evidence_class": "research_fixture_not_market_evidence"
+  },
+  "proposal": [
+    "Require a minimum warmup before convergence decisions",
+    "Require consecutive stable score deltas before research updates",
+    "Pause on large score drawdown or excessive disagreement",
+    "Preserve last known stable checkpoint for research replay",
+    "Never mutate production weights, verdicts, or trades"
+  ],
+  "acceptance": [
+    "No update is marked converged before warmup and stability thresholds",
+    "Circuit breaker returns paused with an explicit reason",
+    "Checkpoint restore is deterministic",
+    "All safety flags remain false"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": "production-readiness-v1",
+  "status": "blocked",
+  "blocks": {
+    "data": {
+      "status": "blocked",
+      "owner": "data-evidence",
+      "metric_gate": "all required sources valid",
+      "evidence": "data-readiness-current.json"
+    },
+    "payoff": {
+      "status": "passed",
+      "owner": "phoenix-payoff",
+      "metric_gate": "payoff contract tests",
+      "evidence": "tests/test_structured_product.py"
+    },
+    "risk": {
+      "status": "research_only",
+      "owner": "risk-model",
+      "metric_gate": "stress and tail-dependence checks",
+      "evidence": "phoenix-quality-gates"
+    },
+    "calibration": {
+      "status": "blocked",
+      "owner": "calibration",
+      "metric_gate": "beat empirical baseline",
+      "evidence": "multi_horizon_benchmark_v2.json"
+    },
+    "oos": {
+      "status": "blocked",
+      "owner": "oos-evaluation",
+      "metric_gate": "chronological fixed-24m evidence",
+      "evidence": "current_24m_effectiveness.json"
+    },
+    "committee": {
+      "status": "blocked",
+      "owner": "ai-committee",
+      "metric_gate": "quorum and dissent record",
+      "evidence": "whole-system-committee-decision-v2.json"
+    },
+    "storage": {
+      "status": "ready",
+      "owner": "storage",
+      "metric_gate": "CloudSync health-check",
+      "evidence": "supabase-storage-connection-v2.json"
+    },
+    "operations": {
+      "status": "research_only",
+      "owner": "production",
+      "metric_gate": "human-approved release gate",
+      "evidence": "system_health_current.json"
+    }
+  },
+  "blockers": [
+    "data:blocked",
+    "risk:research_only",
+    "calibration:blocked",
+    "oos:blocked",
+    "committee:blocked",
+    "operations:research_only"
+  ],
+  "human_review_required": true,
+  "research_only": true,
+  "production_weights_changed": false,
+  "verdict_mutated": false,
+  "trades_created": false
+}

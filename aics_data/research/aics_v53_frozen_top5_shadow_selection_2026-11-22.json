@@ -1,0 +1,39 @@
+{
+  "schema": "aics-v53-five-selected-model-experts-preregistered-shadow-candidate-v1",
+  "recorded_at_date": "2026-11-22",
+  "conductor_version": "V53",
+  "source_research_window_start": "2024-11",
+  "source_research_window_end": "2026-10",
+  "chosen_top5_agent_ids": [
+    "EXPERT-078",
+    "EXPERT-052",
+    "EXPERT-041",
+    "EXPERT-001",
+    "EXPERT-021"
+  ],
+  "chosen_top5_families": [
+    "one_month_market_shock_analyst",
+    "severity_acceleration_sentinel",
+    "breadth_acceleration_sentinel",
+    "breadth_persistence_specialist",
+    "credit_mix_architect"
+  ],
+  "fusion_variants": [
+    "equal_20pct_mean",
+    "five_model_median"
+  ],
+  "default_unapproved_fusion": "five_model_median",
+  "historical_selection_uses_outcomes": true,
+  "historical_5pct_event_auc_selected_after_seeing_data": true,
+  "historical_crisis_10pct_positives_all_horizons_1_3_6": 0,
+  "no_rerank_on_fresh_data_without_new_version": true,
+  "future_test_objective": "fresh future monthly-close S&P 500 drawdown >=10%, 1/3/6 month horizons; compare against fixed baselines at identical as-of dates",
+  "future_out_of_sample_results": null,
+  "historical_11node_PIT_certified": false,
+  "same_source_first_delivery_PIT_attested": false,
+  "production_AICS": null,
+  "old_11node_weights_total_unchanged": 1050,
+  "trading_approved": false,
+  "evidence_workflow_run": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/45024709986",
+  "note": "Shadow candidate registered after historical outcomes; freeze may support future evaluation but does not make 2024-2026 an untouched test."
+}

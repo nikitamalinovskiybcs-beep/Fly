@@ -1,0 +1,75 @@
+{
+  "schema_version": "aics-ir-raw-archive-receipt-v1",
+  "as_of": "2026-11-18",
+  "captured_at_utc": "2026-11-18T18:25:30.678565+00:00",
+  "scope": "RAW_CANDIDATE_SOURCE_BYTES_ARCHIVED_NOT_HISTORICAL_PIT",
+  "node": "Insurers",
+  "artifact_run_url": "https://github.com/nikitamalinovskiybcs-beep/Fly/actions/runs/44369543954",
+  "artifact_id": 14458942315,
+  "artifact_name": "aics-met-pru-ir-live-research",
+  "artifact_zip_sha256": "7f8712108be64add7afd4c77c03cc4c1cae48967b5b75102c9fea9fc75dc93bb",
+  "internal_manifest_sha256": "ea1cd14825cec84605ab1718ee6292266edda9e1b5f39b51cd84387df8c51a80",
+  "source_registry_sha256": "22fe9127b499269a8f341fdd606eeeb61c645108378c2347eaa32e806e639a80",
+  "independent_recalculation": {
+    "method": "Downloaded GitHub Actions artifact ZIP; independently opened ZIP and SHA256-hashed all four original HTML file members against archived manifest entries",
+    "checked_files": 4,
+    "verified_hashes_matching": 4,
+    "earnings_disclosure_sources": 2,
+    "official_ir_index_sources": 2,
+    "historical_pit_independently_verified": false,
+    "filing_accession_verified": false,
+    "node_score_calibrated": false
+  },
+  "original_files": [
+    {
+      "kind": "quarterly_release",
+      "issuer": "MetLife",
+      "source_id": "MET_2026Q3",
+      "release_date": "2026-11-04",
+      "url": "https://www.metlife.com/about-us/newsroom/2026/november/metlife-announces-third-quarter-2026-results/",
+      "html_sha256": "9bdb9237dd00271b828fb8e87d237dedb51a96bf22a7113a2be3607eea348fa3",
+      "bytes": 278697
+    },
+    {
+      "kind": "quarterly_release",
+      "issuer": "Prudential Financial",
+      "source_id": "PRU_2026Q3",
+      "release_date": "2026-11-03",
+      "url": "https://investor.prudential.com/news/detail/2652/prudential-financial-inc-announces-third-quarter-2026-results",
+      "html_sha256": "6866aec4736b928a87d506e80edc4c457982b6b13524f20bbcf232426461fe36",
+      "bytes": 304621
+    },
+    {
+      "kind": "landing_page",
+      "issuer": "MetLife",
+      "source_id": "MET_IR_INDEX_20261118",
+      "release_date": null,
+      "url": "https://investor.metlife.com/news/Financial-Press-Releases/default.aspx",
+      "html_sha256": "1a723545cb36335cbb69b76d99ea7883190da1c27509e3e44ff5eff89b88707f",
+      "bytes": 104775
+    },
+    {
+      "kind": "landing_page",
+      "issuer": "Prudential Financial",
+      "source_id": "PRU_IR_INDEX_20261118",
+      "release_date": null,
+      "url": "https://investor.prudential.com/",
+      "html_sha256": "1c8e118d7af9044364e47c473bc7d29a3ca0c87fcb8288dc42fc98181ddfc99c",
+      "bytes": 49409
+    }
+  ],
+  "date_basis": "issuer IR release dates shown by official publishers, not historical SEC filing timestamps",
+  "source_blob_archive_expires_after_days": 30,
+  "raw_archive_candidate_milestone_complete": true,
+  "certified_stress_score": null,
+  "index_aics": null,
+  "model_predictive_skill": null,
+  "promotion": "BLOCKED",
+  "trades_created": false,
+  "limitations": [
+    "Original HTML files retained as GitHub Actions artifact (30-day retention); receipts and SHA256 alone are not equivalent to indefinite byte preservation.",
+    "Independent SHA256 verification applies to bytes inside downloaded artifact against its manifest; it does not verify original historical publication time.",
+    "No original SEC accession/date provenance or insurer private-credit RBC/Level-3 stress metrics were independently verified.",
+    "No node or total AICS scores may be generated from source bytes alone."
+  ]
+}

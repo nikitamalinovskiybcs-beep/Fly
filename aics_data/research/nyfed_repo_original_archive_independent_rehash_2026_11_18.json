@@ -1,0 +1,76 @@
+{
+  "schema_version": "aics-nyfed-raw-archive-independent-rehash-v1",
+  "as_of": "2026-11-18",
+  "rehash_method": "independent ZIP inspection and SHA-256 recomputation outside the GitHub Action",
+  "source_provider": "Federal Reserve Bank of New York Markets Data API",
+  "github_workflow_run_id": 44395768038,
+  "github_actions_artifact_id": 14470900410,
+  "artifact_retention_days": 14,
+  "source_archive_zip_sha256": "2c0a8effbb1e0c222bdff4cf9f7141148767d39136b90d874c461cbb42c9e5dd",
+  "source_archive_manifest_sha256": "82e84799b044da9022304ac760c7d345491c21e21b5efe4ddeacdef6d583240b",
+  "source_captured_at_utc": "2026-11-18T20:53:46.011580Z",
+  "archive_files": [
+    {
+      "rate_type": "SOFR",
+      "source_file": "nyfed_sofr_last_999_as_captured.json",
+      "row_count": 999,
+      "raw_sha256": "f68fbc5899b7b786f801ef6087c942add373c5b91a7402e4d8505ef8e39e5c11",
+      "raw_bytes": 237778,
+      "effective_start": "2022-11-15",
+      "effective_end": "2026-11-17",
+      "revision_indicator_blank_rows": 999
+    },
+    {
+      "rate_type": "BGCR",
+      "source_file": "nyfed_bgcr_last_999_as_captured.json",
+      "row_count": 999,
+      "raw_sha256": "0694d542cb56d4b4042fda39c5ee2a209f23e2548c41bc96b04729a95347a9fe",
+      "raw_bytes": 237186,
+      "effective_start": "2022-11-15",
+      "effective_end": "2026-11-17",
+      "revision_indicator_blank_rows": 999
+    },
+    {
+      "rate_type": "TGCR",
+      "source_file": "nyfed_tgcr_last_999_as_captured.json",
+      "row_count": 999,
+      "raw_sha256": "23a0453112610fc405dfb2249fb6fdb97dc06f4c3c72269bc462b9985ed4b260",
+      "raw_bytes": 237179,
+      "effective_start": "2022-11-15",
+      "effective_end": "2026-11-17",
+      "revision_indicator_blank_rows": 999
+    }
+  ],
+  "total_raw_rows": 2997,
+  "reference_date": "2026-11-17",
+  "latest_research_rates_percent": {
+    "SOFR": 3.92,
+    "BGCR": 3.9,
+    "TGCR": 3.9
+  },
+  "latest_research_volumes_usd_billions": {
+    "SOFR": 3173,
+    "BGCR": 1279,
+    "TGCR": 1240
+  },
+  "research_spreads_basis_points": {
+    "SOFR_minus_BGCR": 2,
+    "SOFR_minus_TGCR": 2
+  },
+  "observed_but_not_inferable": [
+    "Blank revisionIndicator rows do not establish the absence of prior revisions.",
+    "Effective dates are not the original daily publication timestamps.",
+    "Latest current-capture retrospective JSON is not an independently archived vintage.",
+    "SOFR, BGCR and TGCR transaction samples overlap; do not sum volumes.",
+    "No contemporaneous ALFRED IORB vintage validated in this receipt.",
+    "Only ~4 years of daily rows available in these last-999 captures; cannot claim a full 2018-to-2026 history."
+  ],
+  "independent_original_byte_rehash_passed": true,
+  "rate_publication_pit_attested": false,
+  "market_stress_score": null,
+  "aics_index": null,
+  "independent_24_month_oos_passed": false,
+  "progress_milestones_promoted": 0,
+  "promotion": "BLOCKED",
+  "planned_next": "Get dated NY Fed release proof and dated ALFRED IORB; design and independently validate an auditable Repo score only after PIT gate."
+}

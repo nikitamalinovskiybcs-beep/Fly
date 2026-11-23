@@ -1,0 +1,112 @@
+name: AICS Insurers original MET and PRU mixed-cutoff credit replay
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_insurers_mixed_credit_originals.py'
+      - 'scripts/aics_pru_level3_original.py'
+      - 'tests/test_aics_insurers_mixed_credit_originals.py'
+      - 'scripts/aics_insurers_met_june_original.py'
+      - 'scripts/aics_insurers_pru_credit_asof.py'
+      - '.github/workflows/aics-insurers-two-original-credit-replay.yml'
+permissions:
+  contents: read
+jobs:
+  insurer-mixed-real-sec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test exact issuer provenance, credit changes and fail-closed embargo
+        run: |
+          python -m py_compile scripts/aics_insurers_mixed_credit_originals.py
+          python -m unittest discover -s tests -p test_aics_insurers_mixed_credit_originals.py -v
+      - name: Capture complete PRU Sep SEC 10-Q available Nov 18
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_insurers_pru_credit_asof \
+            --fetch --as-of 2026-11-19 \
+            --directory aics_data/source_evidence/insurers_pru_credit_original \
+            --out aics_data/source_evidence/insurers_pru_credit_original/research.json
+      - name: Capture complete MET Jun SEC 10-Q available Aug 20 (NOT MET Q3)
+        env:
+          AICS_SEC_USER_AGENT: ${{ secrets.AICS_SEC_USER_AGENT || secrets.EDGAR_IDENTITY || secrets.SEC_USER_AGENT }}
+        run: |
+          python -m scripts.aics_insurers_met_june_original \
+            --as-of 2026-11-19 \
+            --out aics_data/source_evidence/insurers_met_june_original
+      - name: Reconstruct mixed-cutoff observed insurer credit without false cross-ranking
+        run: |
+          python -m scripts.aics_insurers_mixed_credit_originals \
+            --as-of 2026-11-19 \
+            --pru-directory aics_data/source_evidence/insurers_pru_credit_original \
+            --met-directory aics_data/source_evidence/insurers_met_june_original \
+            --out aics_data/source_evidence/insurers_mixed_original_credit_research.json
+      - name: Replay real PRU Level 3 private placements from original SEC 10-Q
+        run: |
+          python -m py_compile scripts/aics_pru_level3_original.py
+          python -m scripts.aics_pru_level3_original \
+            --pru-directory aics_data/source_evidence/insurers_pru_credit_original \
+            --as-of 2026-11-19 \
+            --out aics_data/source_evidence/insurers_pru_credit_original/pru_level3_original_replay.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("aics_data/source_evidence/insurers_pru_credit_original/pru_level3_original_replay.json").read_text())
+          s=x["september_2026"];d=x["december_2025_comparative_in_november_2026_filing"]
+          assert s["private_fixed_maturities_level3"]==12510
+          assert s["public_fixed_maturities_level3"]==1154
+          assert s["afs_fixed_maturities_level3"]+s["trading_fixed_maturities_level3"]==13664
+          assert s["private_share_of_level3_fixed_maturities_pct"]=="91.55"
+          assert d["fixed_maturities_level3_total"]==11282
+          assert x["observed_change_dec_to_sept"]["level3_fixed_maturities_millions"]==2382
+          assert x["observed_change_dec_to_sept"]["level3_fixed_maturities_pct"]=="21.11"
+          assert x["sec_eligible_at"]=="2026-11-18"
+          assert x["met_q3_embargo_until"]=="2026-11-20"
+          assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+          PY
+      - name: Publish observations and explicit incomparability
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          x=json.loads(Path("aics_data/source_evidence/insurers_mixed_original_credit_research.json").read_text())
+          assert x["frozen_information_cutoff"]=="2026-11-19"
+          assert x["pru_q3"]["loan_change_pct"]=="3.54"
+          assert x["pru_q3"]["acl_change_millions"]==-20
+          assert x["pru_q3"]["nonaccrual_subset_change_pct"]=="38.01"
+          assert x["met_q2"]["loan_change_pct"]=="-2.05"
+          assert x["met_q2"]["acl_change_millions"]==165
+          assert x["met_q2"]["acl_six_month_provision_millions"]==316
+          assert x["met_q2"]["acl_six_month_net_chargeoffs_millions"]==151
+          assert not x["simultaneous_september_2026_coverage_for_both_issuers"]
+          assert not x["directly_comparable_portfolio_risk_ratios"]
+          assert x["met_q3"]["sec_available_at"]=="2026-11-20"
+          assert x["met_q3"]["loan_balance_millions"] is None
+          assert not x["historic_release_time_independently_attested"]
+          assert not x["untouched_24_month_oos"]
+          assert x["insurers_node_score"] is None and x["index_aics"] is None
+          assert x["promotion"]=="BLOCKED" and x["synthetic_rows"]==0
+          print("## Insurers real original 10-Q facts at strict Nov 19 SEC cutoff")
+          print("PRU Q3: loans +3.54%, ACL -$20m, nonaccrual-without-ACL subset +38.01% vs Dec 2025 comparative.")
+          print("MET Q2: mortgage loans -2.05%, ACL +$165m; $316m 6m provision less $151m chargeoffs.")
+          print("These have different quarter ends and portfolio scope, not a synchronized comparison.")
+          print("MET Q3 remains embargoed until Nov 20. No historical PIT, NAIC, OOS or AICS.")
+          PY
+      - name: Preserve both full source original SEC filings plus replay for independent SHA rehash
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-insurers-two-original-sec-q2q3-mixed-cutoff-not-pit
+          path: |
+            aics_data/source_evidence/insurers_pru_credit_original/
+            aics_data/source_evidence/insurers_met_june_original/
+            aics_data/source_evidence/insurers_mixed_original_credit_research.json
+          retention-days: 30
+          if-no-files-found: warn

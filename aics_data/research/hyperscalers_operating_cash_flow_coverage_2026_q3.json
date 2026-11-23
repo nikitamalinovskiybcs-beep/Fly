@@ -1,0 +1,93 @@
+{
+  "scope": "Consolidated quarterly operating cash flow less gross cash PP&E outflows; excludes other investing and financing flows.",
+  "unit": "USD million",
+  "quarter_ends": [
+    "2025-09-30",
+    "2026-09-30"
+  ],
+  "available_at": "2026-11-13",
+  "rows": [
+    {
+      "issuer": "Microsoft",
+      "source": "https://www.sec.gov/Archives/edgar/data/789019/000119312526436133/msft-20260930.htm",
+      "available_at": "2026-11-11",
+      "prior": {
+        "operating_cash_flow": 45057,
+        "cash_ppe": 19394,
+        "ocf_less_cash_ppe": 25663,
+        "cash_ppe_pct_of_ocf": 43.04
+      },
+      "current": {
+        "operating_cash_flow": 58000,
+        "cash_ppe": 39367,
+        "ocf_less_cash_ppe": 18633,
+        "cash_ppe_pct_of_ocf": 67.87
+      }
+    },
+    {
+      "issuer": "Amazon",
+      "source": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000040/amzn-20260930.htm",
+      "available_at": "2026-11-13",
+      "prior": {
+        "operating_cash_flow": 35525,
+        "cash_ppe": 35095,
+        "ocf_less_cash_ppe": 430,
+        "cash_ppe_pct_of_ocf": 98.79
+      },
+      "current": {
+        "operating_cash_flow": 42422,
+        "cash_ppe": 77259,
+        "ocf_less_cash_ppe": -34837,
+        "cash_ppe_pct_of_ocf": 182.12
+      }
+    },
+    {
+      "issuer": "Alphabet",
+      "source": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm",
+      "available_at": "2026-11-11",
+      "prior": {
+        "operating_cash_flow": 48414,
+        "cash_ppe": 23953,
+        "ocf_less_cash_ppe": 24461,
+        "cash_ppe_pct_of_ocf": 49.48
+      },
+      "current": {
+        "operating_cash_flow": 42290,
+        "cash_ppe": 51355,
+        "ocf_less_cash_ppe": -9065,
+        "cash_ppe_pct_of_ocf": 121.44
+      }
+    },
+    {
+      "issuer": "Meta",
+      "source": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026066700/meta-09302026xexhibit991.htm",
+      "available_at": "2026-11-04",
+      "prior": {
+        "operating_cash_flow": 29999,
+        "cash_ppe": 18829,
+        "ocf_less_cash_ppe": 11170,
+        "cash_ppe_pct_of_ocf": 62.77
+      },
+      "current": {
+        "operating_cash_flow": 32786,
+        "cash_ppe": 33942,
+        "ocf_less_cash_ppe": -1156,
+        "cash_ppe_pct_of_ocf": 103.53
+      }
+    }
+  ],
+  "totals": {
+    "prior": {
+      "operating_cash_flow": 158995,
+      "cash_ppe": 97271,
+      "ocf_less_cash_ppe": 61724,
+      "cash_ppe_pct_of_ocf": 61.18
+    },
+    "current": {
+      "operating_cash_flow": 175498,
+      "cash_ppe": 201923,
+      "ocf_less_cash_ppe": -26425,
+      "cash_ppe_pct_of_ocf": 115.06
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "verdict": "approve",
+  "summary": "Phoenix proposal improves commercial readiness and production readiness without changing production weights or mutating verdicts.",
+  "top_technical_reasons": [
+    "Explicit human-review and claim-policy fields in commercial readiness",
+    "Preservation of quantitative calculations and verdict logic",
+    "Separation of AI-generated proposals from human approvals"
+  ],
+  "candidate_safety": "High",
+  "next_experiments": [
+    {
+      "hypothesis": "Improved commercial readiness will reduce the number of blocked claims",
+      "change": "Implement the proposed commercial readiness changes",
+      "metric_gate": "Number of blocked claims",
+      "why_it_is_informative": "To evaluate the effectiveness of the proposed changes in reducing blocked claims"
+    },
+    {
+      "hypothesis": "Explicit model limitations and potential bias will improve operator understanding",
+      "change": "Make model limitations and potential bias explicit",
+      "metric_gate": "Operator understanding and feedback",
+      "why_it_is_informative": "To assess the impact of explicit model limitations on operator understanding and decision-making"
+    }
+  ],
+  "data_or_label_risks": "Low",
+  "provider": "groq",
+  "model": "llama-3.3-70b-versatile",
+  "production_weights_changed": false,
+  "verdict_mutated": false
+}

@@ -1,0 +1,52 @@
+{
+  "unit": "USD million",
+  "quarter_end": "2026-06-30",
+  "scope": "Consolidated operating cash flow minus gross cash PP&E outflows. Calendar quarters.",
+  "rows": [
+    {
+      "issuer": "Microsoft",
+      "ocf": 55441,
+      "ppe": 35802,
+      "gap": 19639,
+      "filed_at": "2026-07-29",
+      "available_at": "2026-08-12",
+      "source": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323632/msft-ex99_1.htm",
+      "change_in_gap_to_q3": -1006
+    },
+    {
+      "issuer": "Amazon",
+      "ocf": 45387,
+      "ppe": 54208,
+      "gap": -8821,
+      "filed_at": "2026-07-31",
+      "available_at": "2026-08-14",
+      "source": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000026/amzn-20260630.htm",
+      "change_in_gap_to_q3": -26016
+    },
+    {
+      "issuer": "Alphabet",
+      "ocf": 39069,
+      "ppe": 44924,
+      "gap": -5855,
+      "filed_at": "2026-07-22",
+      "available_at": "2026-08-05",
+      "source": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000066/googexhibit991q22026.htm",
+      "change_in_gap_to_q3": -3210
+    },
+    {
+      "issuer": "Meta",
+      "ocf": 31862,
+      "ppe": 30116,
+      "gap": 1746,
+      "filed_at": "2026-07-29",
+      "available_at": "2026-08-12",
+      "source": "https://www.sec.gov/Archives/edgar/data/1326801/000162828026050596/meta-06302026xexhibit991.htm",
+      "change_in_gap_to_q3": -2902
+    }
+  ],
+  "ocf": 171759,
+  "ppe": 165050,
+  "gap": 6709,
+  "change_in_gap_to_q3": -33134,
+  "available_at": "2026-08-14"
+}

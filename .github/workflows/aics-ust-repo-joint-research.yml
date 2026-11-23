@@ -1,0 +1,63 @@
+name: AICS UST30 Repo 24-month observed joint macro replay
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'devin/1779618014-quant-risk-framework'
+    paths:
+      - 'scripts/aics_joint_ust_repo_observed_research.py'
+      - 'tests/test_aics_joint_ust_repo_observed_research.py'
+      - 'aics_data/research/repo_24_month_observed_research_2026-11-18.json'
+      - 'aics_data/research/ust30_24_month_public_observed_panel_2026-11-18.json'
+      - 'aics_data/research/ust30_yield_change_volatility_2024_2026.json'
+      - '.github/workflows/aics-ust-repo-joint-research.yml'
+permissions:
+  contents: read
+jobs:
+  joint-original-months:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate real data math, month-end chronology and no PIT promotion
+        run: |
+          python -m unittest discover -s tests -p test_aics_joint_ust_repo_observed_research.py -v
+      - name: Generate research-only 24-month matched UST30 and Repo observations
+        run: |
+          python -m scripts.aics_joint_ust_repo_observed_research \
+            --out aics_data/source_evidence/ust_repo_joint_24_month_research.json
+      - name: Require exact descriptive counts and no model or OOS reuse
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          from pathlib import Path
+          import json
+          p=Path("aics_data/source_evidence/ust_repo_joint_24_month_research.json")
+          x=json.loads(p.read_text(encoding="utf-8"))
+          assert x["matched_distinct_month_ends"]==24
+          assert x["missing_joint_months"]==0
+          assert x["invented_or_interpolated_market_rows"]==0
+          assert x["descriptive_counts"]["months_both_dates"]==["2025-12-31","2026-10-31"]
+          assert x["last_month_delta_vs_prior"]["dgs30_minus_sofr_bp_change"]==-33
+          assert x["last_month_delta_vs_prior"]["sofr_minus_iorb_bp_change"]==6
+          assert x["last_month_delta_vs_prior"]["dgs30_20daily_sample_sd_bp_change"]=="0.57"
+          assert x["all_24_months_used_for_descriptive_analysis_not_untouched_oos"]
+          assert not x["independent_historical_pit_attested"]
+          assert not x["causal_stress_inference"]
+          assert x["index_aics"] is None and x["promotion"]=="BLOCKED"
+          print("## UST 30Y / Repo: 24 real, matched month-end observations")
+          print("DGS30-SOFR >100bp 10 months; SOFR-IORB >0bp 5 months; both: Dec 2025, Oct 2026.")
+          print("September to October 2026: DGS30-SOFR -33bp, SOFR-IORB +6bp; they moved opposite ways.")
+          print("This is descriptive, retrospective and NOT independently PIT, untouched OOS, or a model score.")
+          for src, digest in x["source_sha256"].items():
+              print(f"- {src}: original committed source SHA256 {digest}")
+          PY
+      - name: Preserve replayed data, provenance digests, and non-promotional verdict
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-ust30-repo-joint-24-real-months-not-model
+          path: aics_data/source_evidence/ust_repo_joint_24_month_research.json
+          retention-days: 30
+          if-no-files-found: error

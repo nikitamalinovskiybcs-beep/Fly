@@ -1,0 +1,85 @@
+{
+  "scope": "Daily filing index membership for six research inputs; issuer coverage, original publication of each model field and node-level PIT remain separate.",
+  "run_id": 44512308033,
+  "artifact_id": 14522343974,
+  "records": [
+    {
+      "accession": "0001045810-26-000075",
+      "index_url": "https://www.sec.gov/Archives/edgar/daily-index/2026/QTR3/master.20260826.idx",
+      "row": [
+        "1045810",
+        "NVIDIA CORP",
+        "10-Q",
+        "20260826",
+        "edgar/data/1045810/0001045810-26-000075.txt"
+      ],
+      "sha256": "6c02530165e0fc064285c66aad75e4b49b62fb2053a0682a3aea1067b70ff4f8",
+      "available_at": "2026-09-09"
+    },
+    {
+      "accession": "0001193125-26-395475",
+      "index_url": "https://www.sec.gov/Archives/edgar/daily-index/2026/QTR3/master.20260918.idx",
+      "row": [
+        "2110365",
+        "NSCALE Ltd",
+        "S-1",
+        "20260918",
+        "edgar/data/2110365/0001193125-26-395475.txt"
+      ],
+      "sha256": "49de98a1168ce780f3c96290e636ee16d893144ddab7c3c909a39ec71ab5d99c",
+      "available_at": "2026-10-02"
+    },
+    {
+      "accession": "0001104659-26-117978",
+      "index_url": "https://www.sec.gov/Archives/edgar/daily-index/2026/QTR4/master.20261022.idx",
+      "row": [
+        "1513845",
+        "Nebius Group N.V.",
+        "6-K",
+        "20261022",
+        "edgar/data/1513845/0001104659-26-117978.txt"
+      ],
+      "sha256": "d79c522c93a7097f0b01e33ccffa5a80a299cdae91c413b3d368db63bf32c385",
+      "available_at": "2026-11-05"
+    },
+    {
+      "accession": "0001628280-26-067383",
+      "index_url": "https://www.sec.gov/Archives/edgar/daily-index/2026/QTR4/master.20261027.idx",
+      "row": [
+        "1287750",
+        "ARES CAPITAL CORP",
+        "10-Q",
+        "20261027",
+        "edgar/data/1287750/0001628280-26-067383.txt"
+      ],
+      "sha256": "742d06803cd000ff7770433f5c4e25f266b3b63ab13bde2cfdeddc961e1bade2",
+      "available_at": "2026-11-10"
+    },
+    {
+      "accession": "0001193125-26-436133",
+      "index_url": "https://www.sec.gov/Archives/edgar/daily-index/2026/QTR4/master.20261028.idx",
+      "row": [
+        "789019",
+        "MICROSOFT CORP",
+        "10-Q",
+        "20261028",
+        "edgar/data/789019/0001193125-26-436133.txt"
+      ],
+      "sha256": "81d15f01ebe0c6fa7fc43d92fd8123df3b68a1071919977bcafccd2318433177",
+      "available_at": "2026-11-11"
+    },
+    {
+      "accession": "0001101239-26-000180",
+      "index_url": "https://www.sec.gov/Archives/edgar/daily-index/2026/QTR4/master.20261028.idx",
+      "row": [
+        "1101239",
+        "EQUINIX INC",
+        "10-Q",
+        "20261028",
+        "edgar/data/1101239/0001101239-26-000180.txt"
+      ],
+      "sha256": "81d15f01ebe0c6fa7fc43d92fd8123df3b68a1071919977bcafccd2318433177",
+      "available_at": "2026-11-11"
+    }
+  ]
+}

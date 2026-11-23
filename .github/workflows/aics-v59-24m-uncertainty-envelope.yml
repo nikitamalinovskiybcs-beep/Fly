@@ -1,0 +1,86 @@
+name: AICS V59 - 24 month robust incomplete-node AICS bounds
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - devin/1779618014-quant-risk-framework
+    paths:
+      - scripts/aics_v59_24m_uncertainty_envelope.py
+      - tests/test_aics_v59_24m_uncertainty_envelope.py
+      - scripts/aics_score_reproducibility_gate.py
+      - aics_data/research/aics_v18_private_credit_24m_pit_proxy_overlay_2026-11-22.json
+      - .github/workflows/aics-v59-24m-uncertainty-envelope.yml
+
+jobs:
+  research-bounds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout original source research and official scoring formula
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prove sharp extrema, hot multiplier, data coverage, and no false trade regimes
+        run: |
+          python -m compileall -q scripts/aics_v59_24m_uncertainty_envelope.py tests/test_aics_v59_24m_uncertainty_envelope.py
+          python -m unittest discover -s tests -p 'test_aics_v59_24m_uncertainty_envelope.py' -v
+      - name: Calculate 24 months of mathematically sharp incomplete-index intervals
+        run: |
+          python -m scripts.aics_v59_24m_uncertainty_envelope --out aics_data/research/aics_v59_24m_pit_uncertainty_envelope_2026-11-22.json
+      - name: Refuse certification, fabricated history or unsupported cash/equity action
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('aics_data/research/aics_v59_24m_pit_uncertainty_envelope_2026-11-22.json')
+          r=json.loads(p.read_text())
+          assert r['original_24_market_months']==24
+          assert r['months_with_certified_full_11_node_AICS']==0
+          assert r['months_with_unique_robust_trading_regime']==0
+          assert r['months_with_risk_both_below_entry_and_above_exit']==24
+          assert r['adjacent_research_months_with_certain_direction']==0
+          assert r['most_recent_month']=='2026-10'
+          assert r['most_recent_conditional_index_interval']==[322.06,801.07]
+          assert r['most_recent_top_missing_node_to_resolve_for_robust_interval']=='UST 30Y'
+          assert r['historical_11node_AICS'] is None
+          assert r['independently_PIT_certified_11node_history'] is False
+          assert r['no_24month_missing_source_data_fabricated'] is True
+          assert r['production_trades_created'] is False
+          print('Month | Known/11 | Known weight/1050 | Research proxy raw | Sharp conditional low | Sharp conditional upper | Regime')
+          for m in r['monthly_24m_conditional_research_envelopes']:
+              print(m['month'],m['known_node_count'],m['known_weight'],
+                    m['observed_partial_weighted_sum_not_full_index'],
+                    m['conditional_full_index_lower_if_all_missing_scores_ZERO_BOUND_CASE'],
+                    m['conditional_full_index_upper_if_all_missing_scores_100_BOUND_CASE'],
+                    m['entry_450_watch_500_cash_threshold_identification'])
+          print('OCTOBER 2026 missing-node research data priorities:')
+          for item in r['monthly_24m_conditional_research_envelopes'][-1]['missing_node_identification_priorities']:
+              print(item['unobserved_node'],'fixed_weight',item['fixed_weight'],
+                    'guaranteed conditional width reduction',item[
+                        'guaranteed_at_least_interval_width_reduction_if_resolved'])
+          PY
+      - name: Write executive summary
+        run: |
+          python - <<'PY'
+          import json,os
+          r=json.load(open('aics_data/research/aics_v59_24m_pit_uncertainty_envelope_2026-11-22.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              print('## AICS V59 — what the 24-month full index can and cannot mean',file=f)
+              print('**24/24** months have an incomplete original 11-node panel and **0/24** identifiable entry/watch/cash regimes.',file=f)
+              print('Using *only the original V18 real observed research scores*, not fictitious backfill, the **conditional** October 2026 AICS range is **322.06–801.07**.',file=f)
+              print('These are exact monotone mathematical bounds with the original 11 weights and hot multiplier, **NOT** an observed AICS, forecast, probability interval or independent source PIT certification.',file=f)
+              print('**Oct 2026 research priority:** '+str(r['most_recent_top_missing_node_to_resolve_for_robust_interval'])+' (source weight 125), then Repo and AI Equities (100 each).',file=f)
+              print('The overlap of even adjacent monthly index ranges means **0/23** certain directional comparisons. More partial source coverage ≠ proved higher/lower total stress.',file=f)
+              print('Source provider-PIT independently attested 0/11; full AICS NULL; no trading action.',file=f)
+          PY
+      - name: Preserve exact 24-month bounds, original source SHA and sensitivity ranking
+        uses: actions/upload-artifact@v4
+        with:
+          name: aics-v59-24m-exact-bounds-zero-robust-regimes
+          path: aics_data/research/aics_v59_24m_pit_uncertainty_envelope_2026-11-22.json
+          if-no-files-found: error

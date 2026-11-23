@@ -1,0 +1,197 @@
+{
+  "proposal_id": "phoenix-structured-note-dataset-catalog-v1",
+  "status": "research_only",
+  "finding": "Public sources provide term sheets and taxonomy, but no verified free bulk dataset of settled Phoenix outcomes was found.",
+  "sources": [
+    {
+      "name": "SEC EDGAR Rule 424(b)(2) pricing supplements",
+      "classification": "public_free",
+      "url": "https://www.sec.gov/Archives/edgar/data/831001/000095010323007003/dp193522_424b2-us2328543.htm",
+      "use": "Primary source for US note terms and legal risk disclosures.",
+      "fields": [
+        "issuer",
+        "guarantor",
+        "underlier",
+        "pricing_date",
+        "issue_date",
+        "autocall_dates",
+        "coupon_dates",
+        "contingent_coupon",
+        "coupon_barrier",
+        "maturity",
+        "principal_loss_terms",
+        "credit_and_liquidity_disclosures"
+      ],
+      "limitations": [
+        "Document-level extraction is required.",
+        "A prospectus is an offered product, not a realized outcome.",
+        "Coverage and issuer scope must be measured."
+      ],
+      "evidence_class": "term_sheet_evidence"
+    },
+    {
+      "name": "Borsa Italiana listed certificate term sheets",
+      "classification": "public_free",
+      "url": "https://www.borsaitaliana.it/secder-listing/2026-00686-TERMSHEETS_COMMERCIAL_DOCUMENTATION-MjAyNi0wMDY4NlRFUk1TSEVFVFNfQ09NTUVSQ0lBTF9ET0NVTUVOVEFUSU9ObnVsbDE3NzA3MjI5OTg1NDU=.pdf",
+      "use": "European structured-product terms and payoff examples.",
+      "fields": [
+        "isin",
+        "issuer",
+        "dealer",
+        "currency",
+        "underliers",
+        "strike_date",
+        "issue_date",
+        "maturity",
+        "coupon_schedule",
+        "barrier_condition",
+        "autocall_formula",
+        "memory_coupon_terms",
+        "listing"
+      ],
+      "limitations": [
+        "PDF extraction and legal-document versioning are required.",
+        "Term sheet may be incomplete relative to the base prospectus.",
+        "Not a realized performance dataset."
+      ],
+      "evidence_class": "term_sheet_evidence"
+    },
+    {
+      "name": "Morgan Stanley Europe final terms",
+      "classification": "public_free",
+      "url": "https://sp.morganstanley.com/eu/download/finalterms/frip000009s2",
+      "use": "Additional issuer-format examples for Phoenix/autocall final terms.",
+      "fields": [
+        "issuer",
+        "isin",
+        "underliers",
+        "coupon",
+        "barrier",
+        "autocall_schedule",
+        "maturity",
+        "risk_disclosures"
+      ],
+      "limitations": [
+        "Coverage is not yet quantified.",
+        "Must be downloaded and parsed with document hashes."
+      ],
+      "evidence_class": "term_sheet_evidence"
+    },
+    {
+      "name": "EUSIPA Product Map",
+      "classification": "public_free",
+      "url": "https://eusipa.org/governance/",
+      "use": "Product taxonomy and normalized payoff classification.",
+      "fields": [
+        "product_family",
+        "risk_category",
+        "payoff_classification"
+      ],
+      "limitations": [
+        "Taxonomy only; not a row-level instrument or outcome dataset."
+      ],
+      "evidence_class": "taxonomy"
+    },
+    {
+      "name": "SRP Structured Products database",
+      "classification": "commercial",
+      "url": "https://structuredretailproducts.com/product/product-search",
+      "use": "Potential large-scale normalized product reference and API.",
+      "claimed_coverage": "47 million products",
+      "limitations": [
+        "Paid access and licensing must be confirmed.",
+        "Do not assume API access or outcome coverage."
+      ],
+      "evidence_class": "commercial_reference"
+    },
+    {
+      "name": "Exchange Data International / SQX reference data",
+      "classification": "commercial",
+      "url": "https://www.exchange-data.com/product/structured-note-reference-data/",
+      "use": "Potential machine-readable SEC-derived terms and payoff fields.",
+      "claimed_coverage": "60+ fields per note",
+      "limitations": [
+        "Paid access and redistribution rights must be confirmed.",
+        "Reference data is not automatically settled-outcome data."
+      ],
+      "evidence_class": "commercial_reference"
+    },
+    {
+      "name": "VegaInstitute Autocallable Notes Pricing",
+      "classification": "synthetic_research",
+      "url": "https://huggingface.co/datasets/VegaInstitute/autocallable-notes-pricing",
+      "use": "Engine regression tests, surrogate-pricer benchmarks and sensitivity tests.",
+      "fields": [
+        "tenor",
+        "coupon",
+        "coupon_barrier",
+        "autocall_barrier",
+        "memory_flag",
+        "correlation",
+        "volatility_surface",
+        "PV",
+        "PV_std"
+      ],
+      "limitations": [
+        "Fully synthetic Monte Carlo data.",
+        "Not market evidence and cannot close OOS or production gates."
+      ],
+      "evidence_class": "simulation_fixture"
+    },
+    {
+      "name": "Academic structured-product studies",
+      "classification": "academic_reference",
+      "urls": [
+        "https://doi.org/10.3905/joi.2015.24.2.045",
+        "https://doi.org/10.3390/jrfm14070303"
+      ],
+      "use": "Methodology and evidence about large historical structured-product samples.",
+      "claimed_coverage": [
+        "more than 20,000 US products",
+        "884,816 Swiss products"
+      ],
+      "limitations": [
+        "Underlying datasets are not necessarily downloadable.",
+        "Use as methodology/reference until access and licensing are verified."
+      ],
+      "evidence_class": "academic_reference"
+    }
+  ],
+  "recommended_order": [
+    "Extract and hash SEC/Borsa/Morgan Stanley public term sheets.",
+    "Map every extracted product to EUSIPA taxonomy.",
+    "Use synthetic Hugging Face data only for engine tests and sensitivity.",
+    "Request commercial demos/licensing only if free sources cannot provide coverage.",
+    "Join term sheets to authorized market paths and realized outcomes before OOS."
+  ],
+  "minimum_extraction_schema": [
+    "document_url",
+    "document_hash",
+    "source_published_at",
+    "issuer",
+    "guarantor",
+    "dealer",
+    "isin_or_cusip",
+    "currency",
+    "underliers",
+    "strike_date",
+    "issue_date",
+    "maturity_date",
+    "observation_schedule",
+    "coupon_rate",
+    "coupon_barrier",
+    "memory_coupon",
+    "autocall_barrier",
+    "autocall_rule",
+    "ki_barrier",
+    "principal_payoff_formula",
+    "risk_disclosures",
+    "extraction_status",
+    "human_review_status"
+  ],
+  "safety_flags": {
+    "production_weights_changed": false,
+    "verdict_mutated": false,
+    "trades_created": false
+  }
+}

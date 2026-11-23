@@ -1,0 +1,82 @@
+{
+  "schema": "aics-friday-close-research-v1",
+  "session": "2026-11-20",
+  "session_close": "2026-11-20T16:00:00-05:00",
+  "source_snapshot_retrieved": "2026-11-21",
+  "price_provider": "StockAnalysis historical daily OHLC, attributed there to S&P Global Market Intelligence",
+  "price_basis": "USD unadjusted regular-session open and close, not close-to-close return; ORCL NYSE, six others Nasdaq",
+  "observations": [
+    {
+      "symbol": "NVDA",
+      "open": "143.52",
+      "close": "125.53",
+      "source_url": "https://stockanalysis.com/stocks/nvda/history/"
+    },
+    {
+      "symbol": "MSFT",
+      "open": "493.74",
+      "close": "484.52",
+      "source_url": "https://stockanalysis.com/stocks/msft/history/"
+    },
+    {
+      "symbol": "GOOGL",
+      "open": "274.50",
+      "close": "265.29",
+      "source_url": "https://stockanalysis.com/stocks/googl/history/"
+    },
+    {
+      "symbol": "AMZN",
+      "open": "253.48",
+      "close": "246.82",
+      "source_url": "https://stockanalysis.com/stocks/amzn/history/"
+    },
+    {
+      "symbol": "META",
+      "open": "583.91",
+      "close": "560.84",
+      "source_url": "https://stockanalysis.com/stocks/meta/history/"
+    },
+    {
+      "symbol": "MU",
+      "open": "665.46",
+      "close": "594.51",
+      "source_url": "https://stockanalysis.com/stocks/mu/history/"
+    },
+    {
+      "symbol": "ORCL",
+      "open": "108.48",
+      "close": "101.19",
+      "source_url": "https://stockanalysis.com/stocks/orcl/history/"
+    }
+  ],
+  "source_caveats": {
+    "raw_webpage_bytes_archived": false,
+    "primary_exchange_feed_pit_attested": false,
+    "ex_post_price_capture": true,
+    "source_license_for_raw_republication": false,
+    "independent_24_month_oos": false
+  },
+  "rollover": {
+    "frozen_release": "aics_data/progress/research_release_2026-11-19.json",
+    "previous_research_session": "2026-11-19",
+    "non_equity_inputs_from": "2026-11-18",
+    "note": "Ten non-equity research inputs intentionally carried from the dated prior release; NOT independently refreshed to 2026-11-20. No daily macro redefinition, no fabricated new fundamentals."
+  },
+  "expected": {
+    "observed_symbols": 7,
+    "declining_from_open_to_close": 7,
+    "equal_weight_open_to_close_pct": "-5.959674",
+    "ai_equities_score": "100.00",
+    "raw_weighted_sum": "514.6875",
+    "hot_nodes": 5,
+    "multiplier": "1.30",
+    "research_aics": "669.09",
+    "previous_research_aics": "669.09",
+    "change_vs_previous": "0.00"
+  },
+  "certified_aics": null,
+  "model_skill": null,
+  "promotion": "RESEARCH_ONLY_UNCERTIFIED",
+  "trades_created": false,
+  "note": "2026-11-20 full 11-node mechanical rollover is reproducible, but 10 source vintages are older. Not an independently certified all-as-of-close AICS."
+}
